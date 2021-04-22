@@ -1,0 +1,8 @@
+backups/
+tex/paws.pdf
+gui.py
+undaad
+*.agp
+*.ddb
+*.pyc
+naps.sublime-*
