@@ -11,7 +11,10 @@ Requisitos:
 
 Pasos previos:
 
-- Enlazar, renombrar o copiar el fichero de la interfaz deseada (a elegir entre PyGame, y entrada y salida estándar) dejándola el nombre gui.py
+- Enlazar, renombrar o copiar el fichero de la interfaz deseada dejándola con el nombre `gui.py`
+  - Se puede elegir entre las siguientes:
+    - Interfaz gráfica PyGame: `gui_pygame.py`
+    - Interfaz sólo texto, usando la entrada y salida estándar: `gui_stdio.py`
 
 Uso:
 
