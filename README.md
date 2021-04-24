@@ -35,7 +35,7 @@ Requisitos:
 
 Uso:
 
-``ide_pyqt4.py`` [base_de_datos]
+``ide_pyqt4.py [base_de_datos]``
 
 Parámetros:
 
