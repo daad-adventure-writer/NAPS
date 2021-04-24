@@ -32,3 +32,11 @@ Requisitos:
 
 - Python versión 2.X ó 3.X
 - Para el IDE: PyQt versión 4
+
+Uso:
+
+``ide_pyqt4.py`` [base_de_datos]
+
+Parámetros:
+
+- ``base_de_datos`` (opcional) Base de datos de Quill/PAWS/SWAN/DAAD a cargar
