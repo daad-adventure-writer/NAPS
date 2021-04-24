@@ -236,7 +236,7 @@ El parámetro parcial indica si es posible dibujar parte de la imagen"""
            'con topes', tope, 'y cursor en', cursor)
   try:
     grafico = pygame.image.load (ruta_graficos + 'pic' + str (numero).zfill (3) + '.png')
-  except pygame.error as e:
+  except Exception as e:
     if traza:
       prn ('Gráfico', numero, 'inválido o no encontrado en:', ruta_graficos)
       prn (e)
@@ -301,7 +301,7 @@ def hay_grafico (numero):
   """Devuelve si existe el gráfico de número dado"""
   try:
     pygame.image.load (ruta_graficos + 'pic' + str (numero).zfill (3) + '.png')
-  except pygame.error as e:
+  except Exception as e:
     if traza:
       prn ('Gráfico', numero, 'inválido o no encontrado en:', ruta_graficos)
       prn (e)

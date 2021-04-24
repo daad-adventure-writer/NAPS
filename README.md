@@ -7,7 +7,7 @@ Intérprete PAW-like
 Requisitos:
 
 - Python versión 2.X ó 3.X
-- Recomendado para el intérprete: PyGame versión 1.X (necesario para que tenga interfaz gráfica)
+- Recomendado para el intérprete: PyGame versión 1.X ó 2.X (necesario para que tenga interfaz gráfica)
 
 Pasos previos:
 
