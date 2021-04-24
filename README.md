@@ -19,7 +19,7 @@ Uso:
 
 Parámetros:
 
-- ``base_de_datos`` (obligatorio) Base de datos de Quill/PAWS/SWAN/DAAD a ejecutar
+- ``base_de_datos`` (obligatorio) Base de datos de PAWS/SWAN/DAAD a ejecutar
 - ``carpeta_gráficos`` (opcional) Carpeta que contiene las imágenes (con nombre pic###.png)
 - ``--help`` (opcional) Muestra ayuda sobre los parámetros de línea de comandos
 - ``--debug`` (opcional) Ejecutar los condactos paso a paso
@@ -39,4 +39,4 @@ Uso:
 
 Parámetros:
 
-- ``base_de_datos`` (opcional) Base de datos de Quill/PAWS/SWAN/DAAD a cargar
+- ``base_de_datos`` (opcional) Base de datos de PAWS/SWAN/DAAD a cargar
