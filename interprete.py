@@ -373,7 +373,7 @@ def prepara_orden (espaciar = False, psi = False):
 Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
   global frases, orden, orden_psi, traza
   # Borramos las banderas de SL actual
-  for i in (range (33, 37) + range (43, 46)):
+  for i in (tuple (range (33, 37)) + tuple (range (43, 46))):
     banderas[i] = 255
   # Si es orden de PSI o no hay órdenes ya parseadas pendientes de ejecutar
   if psi or not frases:
@@ -494,7 +494,7 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
     # Guardamos las palabras de la frase en las banderas correspondientes
     for flagno, tipo in {33: 'Verbo', 34: 'Nombre1', 35: 'Adjetivo1', 36: 'Adverbio', 43: 'Preposición', 44: 'Nombre2', 45: 'Adjetivo2'}.items():
       banderas[flagno] = frase[tipo] if frase[tipo] else 255
-    if frase['Nombre1'] >= 50:  # Guardamos pronombres, sólo para nombres considerados no propios (código >= 50)
+    if frase['Nombre1'] and frase['Nombre1'] >= 50:  # Guardamos pronombres, sólo para nombres considerados no propios (código >= 50)
       banderas[46] = frase['Nombre1']
       banderas[47] = frase['Adjetivo1'] if frase['Adjetivo1'] else 255
     else:
@@ -817,9 +817,10 @@ Para depuración paso a paso, devuelve el número de pasos a ejecutar, que es: 10,
 
 
 if __name__ == '__main__':
-  reload (sys)  # Necesario para poder ejecutar sys.setdefaultencoding
-  sys.stdout = codecs.getwriter (locale.getpreferredencoding()) (sys.stdout)  # Locale del sistema para la salida estándar
-  sys.setdefaultencoding ('iso-8859-15')  # Nuestras cadenas están en esta codificación, no en ASCII
+  if sys.version_info[0] < 3:
+    reload (sys)  # Necesario para poder ejecutar sys.setdefaultencoding
+    sys.stdout = codecs.getwriter (locale.getpreferredencoding()) (sys.stdout)  # Locale del sistema para la salida estándar
+    sys.setdefaultencoding ('iso-8859-15')  # Nuestras cadenas están en esta codificación, no en ASCII
   random.seed()  # Inicializamos el generador de números aleatorios
 
   argsParser = argparse.ArgumentParser (sys.argv[0], description = 'Intérprete de Quill/PAWS/SWAN/DAAD en Python')

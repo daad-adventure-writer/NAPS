@@ -2,8 +2,8 @@
 
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
-# Función sustituta de print, compatible con Python 2.X y 3.X
-# Copyright (C) 2010 José Manuel Ferrer Ortiz
+# Funciones para compatibilidad con Python 2.X y 3.X
+# Copyright (C) 2010, 2021 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -25,6 +25,7 @@
 # La versión de Python será al menos la 2.0 (es la versión que introdujo la
 # tupla version_info del módulo sys)
 
+import string
 from sys import version_info
 
 
@@ -33,6 +34,7 @@ from sys import version_info
 
 if version_info[0] < 3:
   # La versión de Python es 2.X
+  maketrans = string.maketrans
   if version_info[1] < 6:
     # La versión de Python es menor que la 2.6
     try:
@@ -47,6 +49,8 @@ if version_info[0] < 3:
       pass
 else:
   # La versión de Python es 3.X
+  maketrans = str.maketrans
+  raw_input = input
   try:
     from prn_3 import prn
   except SyntaxError:

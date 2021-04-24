@@ -22,10 +22,10 @@
 # *                                                                           *
 # *****************************************************************************
 
-from prn_func import prn
+from prn_func import *
 
 import math    # Para ceil
-import string  # Para maketrans y algunas constantes
+import string  # Para algunas constantes
 
 import pygame
 
@@ -41,7 +41,7 @@ for i in range (len (izquierda)):
   der.append (chr (i))
 derecha = ''.join (der)
 
-iso8859_15_a_fuente = string.maketrans (izquierda, derecha)
+iso8859_15_a_fuente = maketrans (izquierda, derecha)
 
 # Teclas imprimibles y de edición, con código < 256
 teclas_edicion = string.printable + string.punctuation + 'ñçº¡\b\x1b'
@@ -66,7 +66,7 @@ fuente = pygame.image.load ('fuente.png')  # Fuente tipográfica
 fuente.set_palette (((255, 255, 255), (0, 0, 0)))
 
 guion_bajo = pygame.Surface ((6, 8))  # Carácter de guión bajo con transparencia, para marcar posición de input
-guion_bajo.blit (fuente, (0, 0), ((79 % 63) * 10, (79 / 63) * 10, 6, 8))  # '_' está en la posición 79
+guion_bajo.blit (fuente, (0, 0), ((79 % 63) * 10, (79 // 63) * 10, 6, 8))  # '_' está en la posición 79
 guion_bajo.set_colorkey ((0, 0, 0))  # El color negro será ahora transparente
 
 # Variables que ajusta el intérprete
@@ -248,8 +248,8 @@ El parámetro parcial indica si es posible dibujar parte de la imagen"""
     ancho = tope[0] * 6
     # TODO: se centran los gráficos en la Aventura Original, pero no en El Jabato. Averiguar si es por el valor de alguna bandera
     if centrar_graficos and ancho > grafico.get_width():  # Centramos el gráfico
-      destino      = ((ancho - grafico.get_width()) / 2, 0)
-      topes_gfx[0] = min ((grafico.get_width() + (ancho - grafico.get_width()) / 2) // 8, limite[0])
+      destino      = ((ancho - grafico.get_width()) // 2, 0)
+      topes_gfx[0] = min ((grafico.get_width() + (ancho - grafico.get_width()) // 2) // 8, limite[0])
     else:
       destino = (0, 0)
     ventana.blit (grafico, destino)
@@ -259,7 +259,7 @@ El parámetro parcial indica si es posible dibujar parte de la imagen"""
     alto    = ((tope[1] - cursor[1]) * 8)  # Altura del dibujo
     destino = [(subventana[0] + cursor[0]) * 6, (subventana[1] + cursor[1]) * 8]
     if centrar_graficos and ancho > grafico.get_width():  # Centramos el gráfico
-      destino[0] += (ancho - grafico.get_width()) / 2
+      destino[0] += (ancho - grafico.get_width()) // 2
     # Los gráficos pueden dibujar hasta dos píxeles más allá de la última columna de texto
     if ancho < grafico.get_width() and subventana[0] + tope[0] == 53:
       ancho += max (2, grafico.get_width() - ancho)
@@ -467,18 +467,18 @@ def imprime_banderas (banderas):
     fuente.set_palette (((0, 192, 192), (0, 0, 0)))
     # Imprimimos los índices de cada bandera
     for num in range (256):
-      columna = 320 + ((num / 25) * 42)
+      columna = 320 + ((num // 25) * 42)
       fila    = (num % 25) * 8
       cadena = str (num).zfill (3).translate (iso8859_15_a_fuente)
       for pos in range (3):
         c = ord (cadena[pos])
         ventana.blit (fuente, (columna + (pos * 6), fila),
-                      ((c % 63) * 10, (c / 63) * 10, 6, 8))
+                      ((c % 63) * 10, (c // 63) * 10, 6, 8))
   for num in range (256):
     # Sólo imprimimos cada bandera la primera vez y cuando cambie de color
     if (banderas[num] == banderas_antes[num]) and (num not in banderas_viejas):
       continue
-    columna = 339 + ((num / 25) * 42)
+    columna = 339 + ((num // 25) * 42)
     fila    = (num % 25) * 8
     cadena  = str (banderas[num]).zfill (3).translate (iso8859_15_a_fuente)
     # Seleccionamos el color de impresión
@@ -496,7 +496,7 @@ def imprime_banderas (banderas):
     for pos in range (3):
       c = ord (cadena[pos])
       ventana.blit (fuente, (columna + (pos * 6), fila),
-                    ((c % 63) * 10, (c / 63) * 10, 6, 8))
+                    ((c % 63) * 10, (c // 63) * 10, 6, 8))
   actualizaVentana()
   fuente.set_palette (((255, 255, 255), (0, 0, 0)))
 
@@ -616,7 +616,7 @@ Los caracteres de linea deben estar convertidos a posiciones en la tipografía"""
     # Curioso, aquí fuente tiene dos significados correctos :)
     # (SPOILER: Como sinónimo de origen y como sinónimo de tipografía)
     ventana.blit (fuente, (destinoX + (i * 6), destinoY),
-                  ((c % 63) * 10, (c / 63) * 10, 6, 8))
+                  ((c % 63) * 10, (c // 63) * 10, 6, 8))
   if posInput != None:
     ventana.blit (guion_bajo, (destinoX + (posInput * 6), destinoY), (0, 0, 6, 8))
   if redibujar:

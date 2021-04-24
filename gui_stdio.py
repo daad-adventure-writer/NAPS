@@ -22,7 +22,7 @@
 # *                                                                           *
 # *****************************************************************************
 
-from prn_func import prn
+from prn_func import *
 
 
 traza = False  # Si queremos una traza del funcionamiento del módulo
