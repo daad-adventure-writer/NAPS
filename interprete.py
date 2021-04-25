@@ -4,7 +4,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Intérprete de sistemas PAW-like
-# Copyright (C) 2010, 2018-2020 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2018-2021 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -585,8 +585,8 @@ Devuelve True si ha ejecutado DESC o equivalente. False si se debe reiniciar la 
     cambioFlujo = 0
     if numCondacto == -1 and tabla[0]:  # Toca comprobar la cabecera
       cabecera = tabla[0][numEntrada]
-      if (cabecera[0] not in (255, banderas[33])) or \
-         (cabecera[1] not in (255, banderas[34])):
+      if (NOMBRE_SISTEMA == 'DAAD' or numTabla not in (1, 2)) and \
+          ((cabecera[0] not in (255, banderas[33])) or (cabecera[1] not in (255, banderas[34]))):
          cambioFlujo = 6
       else:
         pila_procs[-1][2] = 0  # Apuntamos al primer condacto
