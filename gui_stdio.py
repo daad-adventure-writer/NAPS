@@ -42,7 +42,8 @@ limite      = (53, 25)  # Ancho y alto máximos absolutos de cada subventana
 num_subvens = 8         # DAAD tiene 8 subventanas
 
 # Variables propias de este módulo de entrada y salida estándar
-nuevaLinea = False
+elegida    = 1      # Subventana elegida (la predeterminada es la 1)
+nuevaLinea = False  # Si el siguiente texto a imprimir debería ir en una nueva línea
 
 
 # Funciones que no hacen nada al usar entrada y salida estándar de puro texto
@@ -69,7 +70,10 @@ def dibuja_grafico (numero, descripcion = False, parcial = False):
 
 def elige_subventana (numero):
   """Selecciona una de las subventanas"""
-  pass
+  global elegida, nuevaLinea
+  if numero != elegida:
+    elegida    = numero
+    nuevaLinea = True
 
 def espera_tecla (tiempo = 0):
   """Espera hasta que se pulse una tecla (modificadores no), o hasta que pase tiempo segundos, si tiempo > 0"""
