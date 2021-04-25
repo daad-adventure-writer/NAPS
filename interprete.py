@@ -886,7 +886,7 @@ if __name__ == '__main__':
       gui.juego_alto = 48  # @
       gui.juego_bajo = 48
   # XXX: apaño para diferenciar la Aventura Original de aventuras posteriores
-  elif msgs_usr[77] == '\x0eAVENTURA ORIGINAL I\x0f' or msgs_usr[0] == '\x0eAVENTURA ORIGINAL II\x0f':
+  elif (len (msgs_usr) > 77 and msgs_usr[77] == '\x0eAVENTURA ORIGINAL I\x0f') or msgs_usr[0] == '\x0eAVENTURA ORIGINAL II\x0f':
     gui.centrar_graficos.append (True)
     gui.juego_alto = 14  # ü
     gui.juego_bajo = 15  # Ü
