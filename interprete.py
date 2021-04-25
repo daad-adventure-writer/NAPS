@@ -636,6 +636,8 @@ Devuelve True si ha ejecutado DESC o equivalente. False si se debe reiniciar la 
       elif cambioFlujo != None:  # Saltar al inicio de una entrada contigua
         numEntrada  += cambioFlujo[0] + 1
         numCondacto  = -2
+    else:
+      entrada = []
     # Pasamos al siguiente condacto
     while True:
       numCondacto += 1
