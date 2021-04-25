@@ -80,9 +80,12 @@ CAB_POS_NOMS_OBJS         = 26  # Posición de los nombres de los objetos
 CAB_POS_ATRIBS_OBJS       = 28  # Posición de los atributos de los objetos
 CAB_LONG_FICH             = 30  # Longitud de la base de datos
 
-alinear        = False  # Si alineamos con relleno (padding) las listas de desplazamientos a posiciones pares
-compatibilidad = True   # Modo de compatibilidad con los intérpretes originales
-despl_ini      = 0      # Desplazamiento inicial para cargar desde memoria
+alinear          = False       # Si alineamos con relleno (padding) las listas de desplazamientos a posiciones pares
+compatibilidad   = True        # Modo de compatibilidad con los intérpretes originales
+conversion       = {}          # Tabla de conversión de caracteres
+despl_ini        = 0           # Desplazamiento inicial para cargar desde memoria
+fin_cadena       = ord ('\n')  # Carácter de fin de cadena
+num_abreviaturas = 128         # Número de abreviaturas cuando se comprime el texto
 
 # Desplazamientos iniciales para cargar desde memoria, de las plataformas en las que éste no es 0
 despl_ini_plat = {
@@ -267,7 +270,7 @@ def carga_abreviaturas ():
   if posicion == 0:  # Sin abreviaturas
     return
   fich_ent.seek (posicion)
-  for i in range (129):
+  for i in range (num_abreviaturas):
     abreviatura = []
     seguir      = True
     while seguir:
@@ -275,7 +278,10 @@ def carga_abreviaturas ():
       if caracter > 127:
         caracter -= 128
         seguir    = False
-      abreviatura.append (chr (caracter))
+      if chr (caracter) in conversion:
+        abreviatura.append (conversion[chr (caracter)])
+      else:
+        abreviatura.append (chr (caracter))
     abreviaturas.append (''.join (abreviatura))
     #prn (i, ' |', abreviaturas[-1], '|', sep = '')
 
@@ -305,24 +311,24 @@ def carga_cadenas (pos_num_cads, pos_lista_pos, cadenas):
   for i in range (num_cads):
     posiciones.append (carga_desplazamiento())
   # Cargamos cada cadena
+  inicioAbrevs = 255 - num_abreviaturas  # Primer código de carácter que es abreviatura
   for posicion in posiciones:
     fich_ent.seek (posicion)
     cadena = []
     while True:
       caracter = carga_int1() ^ 255
-      if caracter == ord ('\n'):  # Fin de esta cadena
+      if caracter == fin_cadena:  # Fin de esta cadena
         break
-      if (caracter >= 127) and abreviaturas:
+      if (caracter >= inicioAbrevs) and abreviaturas:
         try:
-          cadena.append (abreviaturas[caracter - 127])
+          cadena.append (abreviaturas[caracter - inicioAbrevs])
         except:
           prn (caracter)
           raise
-        # Parece que hay 129 abreviaturas (si no son más), en lugar de 128
-        # TODO: comprobar en DAAD primera y última abreviatura, y último
-        # caracter no abreviado permitido
       elif caracter == ord ('\r'):  # Un carácter de nueva línea en la cadena
         cadena.append ('\n')
+      elif chr (caracter) in conversion:
+        cadena.append (conversion[chr (caracter)])
       else:
         cadena.append (chr (caracter))
     cadenas.append (''.join (cadena))
@@ -432,15 +438,12 @@ def carga_vocabulario ():
     if caracter == 0:  # Fin del vocabulario
       return
     caracter ^= 255
-    if (caracter < 16) or (caracter > 31):
-      palabra = [chr (caracter)]
-    else:
-      palabra = [daad_a_chr[caracter - 16]]
+    palabra   = [chr (caracter)]
     for i in range (4):
       caracter = carga_int1() ^ 255
       palabra.append (chr (caracter))
-    # SWAN guarda las palabras de menos de cinco letras con espacios al final
-    # SWAN guarda las palabras en mayúsculas
+    # PAWS guarda las palabras de menos de cinco letras con espacios al final
+    # PAWS guarda las palabras en mayúsculas
     vocabulario.append ((''.join (palabra).rstrip().lower(), carga_int1(), carga_int1()))
 
 # Prepara la configuración sobre la plataforma
