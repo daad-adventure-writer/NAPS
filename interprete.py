@@ -914,12 +914,13 @@ if __name__ == '__main__':
   banderas.extend  ([0,] * NUM_BANDERAS)    # Banderas del sistema
   locs_objs.extend ([0,] * num_objetos[0])  # Localidades de los objetos
   for palabraVoc in vocabulario:
-    tipo = TIPOS_PAL[palabraVoc[2]]
-    if tipo == 'Conjunción':
-      palabra = palabraVoc[0]
-      conjunciones.append (palabra)
-    elif tipo == 'Pronombre':
-      pronombre = palabraVoc[0]
+    if palabraVoc[2] < len (TIPOS_PAL):
+      tipo = TIPOS_PAL[palabraVoc[2]]
+      if tipo == 'Conjunción':
+        palabra = palabraVoc[0]
+        conjunciones.append (palabra)
+      elif tipo == 'Pronombre':
+        pronombre = palabraVoc[0]
 
   if NOMBRE_SISTEMA == 'DAAD' and nueva_version:
     bucle_daad_nuevo()
