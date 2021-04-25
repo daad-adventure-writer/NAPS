@@ -42,7 +42,10 @@ vocabulario    = []   # Vocabulario
 
 # Funciones que importan bases de datos desde ficheros
 funcs_exportar = ()  # Ninguna, de momento
-funcs_importar = (('carga_bd', ('pdb',), 'Bases de datos PAWS'), )
+funcs_importar = (
+  ('carga_bd',     ('pdb',), 'Bases de datos PAWS'),
+  ('carga_bd_sna', ('sna',), 'Imagen de memoria de ZX 48K con PAWS'),
+)
 # Función que crea una nueva base de datos (vacía)
 func_nueva = ''
 
@@ -58,27 +61,6 @@ NUM_BANDERAS     = 256      # Número de banderas del parser
 # Nombres de los tipos de palabra (para el IDE)
 TIPOS_PAL = ('Verbo', 'Adverbio', 'Nombre', 'Adjetivo', 'Preposición', 'Conjunción', 'Pronombre')
 
-
-# Desplazamientos (offsets/posiciones) en la cabecera
-CAB_VERSION               =  0  # Versión del formato de base de datos
-CAB_PLATAFORMA            =  1  # Identificador de plataforma e idioma
-CAB_NUM_OBJS              =  3  # Número de objetos
-CAB_NUM_LOCS              =  4  # Número de localidades
-CAB_NUM_MSGS_USR          =  5  # Número de mensajes de usuario
-CAB_NUM_MSGS_SYS          =  6  # Número de mensajes de sistema
-CAB_NUM_PROCS             =  7  # Número de procesos
-CAB_POS_ABREVS            =  8  # Posición de las abreviaturas
-CAB_POS_LST_POS_PROCS     = 10  # Posición lista de posiciones de procesos
-CAB_POS_LST_POS_OBJS      = 12  # Posición lista de posiciones de objetos
-CAB_POS_LST_POS_LOCS      = 14  # Posición lista de posiciones de localidades
-CAB_POS_LST_POS_MSGS_USR  = 16  # Pos. lista de posiciones de mensajes de usuario
-CAB_POS_LST_POS_MSGS_SYS  = 18  # Pos. lista de posiciones de mensajes de sistema
-CAB_POS_LST_POS_CNXS      = 20  # Posición lista de posiciones de conexiones
-CAB_POS_VOCAB             = 22  # Posición del vocabulario
-CAB_POS_LOCS_OBJS         = 24  # Posición de localidades iniciales de objetos
-CAB_POS_NOMS_OBJS         = 26  # Posición de los nombres de los objetos
-CAB_POS_ATRIBS_OBJS       = 28  # Posición de los atributos de los objetos
-CAB_LONG_FICH             = 30  # Longitud de la base de datos
 
 alinear          = False       # Si alineamos con relleno (padding) las listas de desplazamientos a posiciones pares
 compatibilidad   = True        # Modo de compatibilidad con los intérpretes originales
@@ -217,24 +199,37 @@ condactos = {
 # - Recibe como segundo parámetro la longitud del fichero abierto
 # - Devuelve False si ha ocurrido algún error
 def carga_bd (fichero, longitud):
-  global fich_ent, long_fich_ent  # Fichero de entrada y su longitud
-  fich_ent      = fichero
-  long_fich_ent = longitud
-  try:
-    prepara_plataforma()
-    carga_abreviaturas()
-    carga_cadenas (CAB_NUM_LOCS,     CAB_POS_LST_POS_LOCS,     desc_locs)
-    carga_cadenas (CAB_NUM_OBJS,     CAB_POS_LST_POS_OBJS,     desc_objs)
-    carga_cadenas (CAB_NUM_MSGS_USR, CAB_POS_LST_POS_MSGS_USR, msgs_usr)
-    carga_cadenas (CAB_NUM_MSGS_SYS, CAB_POS_LST_POS_MSGS_SYS, msgs_sys)
-    carga_atributos()
-    carga_conexiones()
-    carga_localidades_objetos()
-    carga_vocabulario()
-    carga_nombres_objetos()
-    carga_tablas_procesos()
-  except:
-    return False
+  preparaPosCabecera('pdb')
+  return cargaBD (fichero, longitud)
+
+# Carga la base de datos entera desde un fichero de imagen de memoria de Spectrum 48K
+# Para compatibilidad con el IDE:
+# - Recibe como primer parámetro un fichero abierto
+# - Recibe como segundo parámetro la longitud del fichero abierto
+# - Devuelve False si ha ocurrido algún error
+def carga_bd_sna (fichero, longitud):
+  if longitud != 49179:
+    return False  # No parece un fichero de imagen de memoria de Spectrum 48K
+  # Detectamos la posición de la cabecera de la base de datos
+  posicion = 0
+  fichero.seek(posicion)
+  encajeSec = []
+  secuencia = (16, None, 17, None, 18, None, 19, None, 20, None, 21)
+  c = fichero.read(1)
+  while c:
+    if secuencia[len(encajeSec)] == None or ord(c) == secuencia[len(encajeSec)]:
+      encajeSec.append(c)
+      if len(encajeSec) == len(secuencia):
+        break
+    elif encajeSec:
+      del encajeSec[:]
+      continue  # Empezamos de nuevo desde este caracter
+    c = fichero.read(1)
+    posicion += 1
+  else:
+    return False  # Cabecera de la base de datos no encontrada
+  preparaPosCabecera('sna48k', posicion)
+  return cargaBD (fichero, longitud)
 
 
 # Funciones de apoyo de bajo nivel
@@ -448,17 +443,87 @@ def carga_vocabulario ():
 
 # Prepara la configuración sobre la plataforma
 def prepara_plataforma ():
-  global carga_int2, despl_ini, guarda_int2, plataforma, version
+  global carga_int2, conversion, despl_ini, fin_cadena, guarda_int2, num_abreviaturas, plataforma, version
   # Cargamos la versión del formato de base de datos y el identificador de plataforma
   fich_ent.seek (CAB_VERSION)
   version = carga_int1()
   # fich_ent.seek (CAB_PLATAFORMA)  # Son consecutivos
   plataforma = carga_int1()
   # Detectamos "endianismo"
-  if plataforma in plats_LE:
+  if plataforma in plats_LE or version == 21:  # Si el byte de versión vale 21, es formato sna
     carga_int2 = carga_int2_le
   else:
     carga_int2 = carga_int2_be
   # Preparamos el desplazamiento inicial para carga desde memoria
-  if plataforma in despl_ini_plat:
+  if plataforma == 0 and version == 21:  # Formato sna de Spectrum 48K
+    conversion       = {'#': 'é', '$': 'í', '%': 'ó', '&': 'ú', '@': 'á', '[': '¡', ']': '¿', '|': 'ñ'}
+    despl_ini        = 16357
+    fin_cadena       = 31
+    num_abreviaturas = 91
+  elif plataforma in despl_ini_plat:
     despl_ini = despl_ini_plat[plataforma]
+
+
+# Funciones auxiliares que sólo se usan en este módulo
+
+# Carga la base de datos entera desde el fichero de entrada
+# Para compatibilidad con el IDE:
+# - Recibe como primer parámetro un fichero abierto
+# - Recibe como segundo parámetro la longitud del fichero abierto
+# - Devuelve False si ha ocurrido algún error
+def cargaBD (fichero, longitud):
+  global fich_ent, long_fich_ent  # Fichero de entrada y su longitud
+  fich_ent      = fichero
+  long_fich_ent = longitud
+  try:
+    prepara_plataforma()
+    carga_abreviaturas()
+    carga_cadenas (CAB_NUM_LOCS,     CAB_POS_LST_POS_LOCS,     desc_locs)
+    carga_cadenas (CAB_NUM_OBJS,     CAB_POS_LST_POS_OBJS,     desc_objs)
+    carga_cadenas (CAB_NUM_MSGS_USR, CAB_POS_LST_POS_MSGS_USR, msgs_usr)
+    carga_cadenas (CAB_NUM_MSGS_SYS, CAB_POS_LST_POS_MSGS_SYS, msgs_sys)
+    carga_atributos()
+    carga_conexiones()
+    carga_localidades_objetos()
+    carga_vocabulario()
+    carga_nombres_objetos()
+    carga_tablas_procesos()
+  except:
+    return False
+
+# Asigna las "constantes" de desplazamientos (offsets/posiciones) en la cabecera
+def preparaPosCabecera (formato, inicio = 0):
+  global CAB_VERSION, CAB_PLATAFORMA, CAB_NUM_OBJS, CAB_NUM_LOCS, CAB_NUM_MSGS_USR, CAB_NUM_MSGS_SYS, CAB_NUM_PROCS, CAB_POS_ABREVS, CAB_POS_LST_POS_PROCS, CAB_POS_LST_POS_OBJS, CAB_POS_LST_POS_LOCS, CAB_POS_LST_POS_MSGS_USR, CAB_POS_LST_POS_MSGS_SYS, CAB_POS_LST_POS_CNXS, CAB_POS_VOCAB, CAB_POS_LOCS_OBJS, CAB_POS_NOMS_OBJS, CAB_POS_ATRIBS_OBJS, CAB_LONG_FICH
+  CAB_VERSION      = inicio + 0  # Versión del formato de base de datos
+  CAB_PLATAFORMA   = inicio + 1  # Identificador de plataforma e idioma
+  CAB_NUM_OBJS     = inicio + 3  # Número de objetos
+  CAB_NUM_LOCS     = inicio + 4  # Número de localidades
+  CAB_NUM_MSGS_USR = inicio + 5  # Número de mensajes de usuario
+  CAB_NUM_MSGS_SYS = inicio + 6  # Número de mensajes de sistema
+  CAB_NUM_PROCS    = inicio + 7  # Número de procesos
+  if formato == 'pdb':
+    CAB_POS_ABREVS           =  8  # Posición de las abreviaturas
+    CAB_POS_LST_POS_PROCS    = 10  # Posición lista de posiciones de procesos
+    CAB_POS_LST_POS_OBJS     = 12  # Posición lista de posiciones de objetos
+    CAB_POS_LST_POS_LOCS     = 14  # Posición lista de posiciones de localidades
+    CAB_POS_LST_POS_MSGS_USR = 16  # Pos. lista de posiciones de mensajes de usuario
+    CAB_POS_LST_POS_MSGS_SYS = 18  # Pos. lista de posiciones de mensajes de sistema
+    CAB_POS_LST_POS_CNXS     = 20  # Posición lista de posiciones de conexiones
+    CAB_POS_VOCAB            = 22  # Posición del vocabulario
+    CAB_POS_LOCS_OBJS        = 24  # Posición de localidades iniciales de objetos
+    CAB_POS_NOMS_OBJS        = 26  # Posición de los nombres de los objetos
+    CAB_POS_ATRIBS_OBJS      = 28  # Posición de los atributos de los objetos
+    CAB_LONG_FICH            = 30  # Longitud de la base de datos
+  elif formato == 'sna48k':
+    CAB_POS_ABREVS           = inicio + 11  # Posición de las abreviaturas
+    CAB_POS_LST_POS_PROCS    = 49140        # Posición lista de posiciones de procesos
+    CAB_POS_LST_POS_OBJS     = 49142        # Posición lista de posiciones de objetos
+    CAB_POS_LST_POS_LOCS     = 49144        # Posición lista de posiciones de localidades
+    CAB_POS_LST_POS_MSGS_USR = 49146        # Pos. lista de posiciones de mensajes de usuario
+    CAB_POS_LST_POS_MSGS_SYS = 49148        # Pos. lista de posiciones de mensajes de sistema
+    CAB_POS_LST_POS_CNXS     = 49150        # Posición lista de posiciones de conexiones
+    CAB_POS_VOCAB            = 49152        # Posición del vocabulario
+    CAB_POS_LOCS_OBJS        = 49154        # Posición de localidades iniciales de objetos
+    CAB_POS_NOMS_OBJS        = 49156        # Posición de los nombres de los objetos
+    CAB_POS_ATRIBS_OBJS      = 49158        # Posición de los atributos de los objetos
+    CAB_LONG_FICH            = 49160        # Posición del siguiente byte tras la base de datos

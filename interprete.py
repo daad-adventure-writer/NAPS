@@ -836,9 +836,10 @@ if __name__ == '__main__':
   args  = argsParser.parse_args()
   traza = args.debug
 
-  if args.bbdd[-4:].lower() == '.pdb':
+  extension = args.bbdd[-4:].lower()
+  if extension in ('.pdb', '.sna'):
     libreria = __import__ ('libreria_paws')
-  elif args.bbdd[-4:].lower() == '.adb':
+  elif extension == '.adb':
     libreria = __import__ ('libreria_swan')
   else:
     libreria = __import__ ('libreria_daad')
@@ -867,7 +868,10 @@ if __name__ == '__main__':
 
   # Cargamos la base de datos
   bbdd = open (args.bbdd, 'rb')
-  libreria.carga_bd (bbdd, os.path.getsize (args.bbdd))
+  if extension == '.sna':
+    libreria.carga_bd_sna (bbdd, os.path.getsize (args.bbdd))
+  else:
+    libreria.carga_bd (bbdd, os.path.getsize (args.bbdd))
   bbdd.close()
 
   if libreria.plataforma == 17:
