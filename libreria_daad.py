@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Librería de DAAD (parte común a editor, compilador e intérprete)
-# Copyright (C) 2010, 2013, 2018-2020 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2013, 2018-2021 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -1171,10 +1171,8 @@ def prepara_plataforma ():
     CAB_LONG_FICH += 2
     condactos.update (condactos_nuevos)
     nueva_version.append (True)
-    # TODO: tener en cuenta los 13 punteros de funciones externas, en versiones posteriores de DAAD
-    CAB_LONG_FICH += 26  # FIXME: apaño para Chichen Itzá
   # Cargamos el identificador de plataforma
-  # fich_ent.seek (CAB_PLATAFORMA)  # Son consecutivos
+  fich_ent.seek (CAB_PLATAFORMA)
   plataforma = carga_int1()
 
   # Preparamos el desplazamiento inicial para carga desde memoria
