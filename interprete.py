@@ -470,7 +470,7 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
   else:  # Había frases pendientes de ejecutar
     frase_guardada.append (True)
   if not frases:  # Sólo se escribió espacio en blanco, conjunciones o ,.;:
-    if not psi and not nueva_version:
+    if not psi and (NOMBRE_SISTEMA != 'DAAD' or not nueva_version):
       gui.imprime_cadena (msgs_sys[6])  # No entendí nada
       gui.borra_orden()
     if psi:
