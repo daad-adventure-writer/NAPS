@@ -703,6 +703,8 @@ def imprime_condacto ():
         if palabra[1:] in id_tipos:
           prn (palabra[0].rstrip().upper(), end = ' ')
           break
+      else:  # Palabra no encontrada, así que imprimimos el número
+        prn (cabecera[0], end = ' ')
     if cabecera[1] == 255:
       prn ('_')
     else:
@@ -710,6 +712,8 @@ def imprime_condacto ():
         if palabra[1:] == (cabecera[1], 2):
           prn (palabra[0].rstrip().upper())
           break
+      else:  # Palabra no encontrada, así que imprimimos el número
+        prn (cabecera[1])
     return
   entrada = tabla[1][num_entrada]
   condacto, parametros = entrada[num_condacto]
