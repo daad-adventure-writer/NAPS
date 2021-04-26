@@ -52,8 +52,9 @@ pronombre    = ''     # Alguna palabra que sea pronombre
 modulos = []     # Módulos de condactos cargados
 traza   = False  # Si queremos una traza de la ejecución
 
-frase_guardada = []  # Tendrá valor verdadero cuando se está ejecutando la segunda frase introducida o posterior
-texto_nuevo    = []  # Tendrá valor verdadero cuando se haya escrito texto nuevo tras el último borrado de pantalla
+frase_guardada = []     # Tendrá valor verdadero cuando se está ejecutando la segunda frase introducida o posterior
+hay_asterisco  = False  # Si está la palabra '*', 1, 255 en el vocabulario, en sistema PAWS no compilado (con editor)
+texto_nuevo    = []     # Tendrá valor verdadero cuando se haya escrito texto nuevo tras el último borrado de pantalla
 
 
 # Funciones auxiliares para los módulos de condactos
@@ -587,8 +588,9 @@ Devuelve True si ha ejecutado DESC o equivalente. False si se debe reiniciar la 
     cambioFlujo = 0
     if numCondacto == -1 and tabla[0]:  # Toca comprobar la cabecera
       cabecera = tabla[0][numEntrada]
-      if (NOMBRE_SISTEMA == 'DAAD' or numTabla not in (1, 2)) and \
-          ((cabecera[0] not in (255, banderas[33])) or (cabecera[1] not in (255, banderas[34]))):
+      if (NOMBRE_SISTEMA == 'DAAD' or numTabla not in (1, 2)) and (
+          (not hay_asterisco and ((cabecera[0] not in (255, banderas[33])) or (cabecera[1] not in (255, banderas[34])))) or
+          (hay_asterisco and ((cabecera[0] not in (1, 255, banderas[33])) or (cabecera[1] not in (1, 255, banderas[34]))))):
          cambioFlujo = 6
       else:
         pila_procs[-1][2] = 0  # Apuntamos al primer condacto
@@ -696,6 +698,8 @@ def imprime_condacto ():
     cabecera = tabla[0][num_entrada]
     if cabecera[0] == 255:
       prn ('_', end = ' ')
+    elif hay_asterisco and cabecera[0] == 1:
+      prn ('*', end = ' ')
     else:
       if cabecera[0] < 20:  # Podría ser un nombre convertible en verbo
         id_tipos = (cabecera[0], 0), (cabecera[0], 2)
@@ -709,6 +713,8 @@ def imprime_condacto ():
         prn (cabecera[0], end = ' ')
     if cabecera[1] == 255:
       prn ('_')
+    elif hay_asterisco and cabecera[0] == 1:
+      prn ('*')
     else:
       for palabra in vocabulario:
         if palabra[1:] == (cabecera[1], 2):
@@ -923,10 +929,11 @@ if __name__ == '__main__':
     if palabraVoc[2] < len (TIPOS_PAL):
       tipo = TIPOS_PAL[palabraVoc[2]]
       if tipo == 'Conjunción':
-        palabra = palabraVoc[0]
-        conjunciones.append (palabra)
+        conjunciones.append (palabraVoc[0])
       elif tipo == 'Pronombre':
         pronombre = palabraVoc[0]
+    elif NOMBRE_SISTEMA == 'PAWS' and palabraVoc[0] == '*' and palabraVoc[1] == 1 and palabraVoc[2] == 255:
+      hay_asterisco = True
 
   if NOMBRE_SISTEMA == 'DAAD' and nueva_version:
     bucle_daad_nuevo()

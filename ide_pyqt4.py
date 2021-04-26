@@ -435,6 +435,8 @@ def cambiaProceso (numero, numEntrada = None):
     verbo = cabeceras[i][0]  # Código del verbo (de esta cabecera)
     if verbo == 255:
       campo_txt.insertPlainText ('  _  ')
+    elif verbo == 1 and (1, 255) in pal_sinonimo:
+      campo_txt.insertPlainText ('  *  ')
     elif (verbo, 0) in pal_sinonimo:  # Hay un verbo con ese código
       campo_txt.insertPlainText (pal_sinonimo[(verbo, 0)].center (5))
     elif verbo < 20 and (verbo, 2) in pal_sinonimo:  # Es un nombre convertible en verbo
@@ -450,6 +452,8 @@ def cambiaProceso (numero, numEntrada = None):
     nombre = cabeceras[i][1]  # Código del nombre (de esta cabecera)
     if nombre == 255:
       campo_txt.insertPlainText ('  _')
+    elif nombre == 1 and (1, 255) in pal_sinonimo:
+      campo_txt.insertPlainText ('  *')
     elif (nombre, 2) in pal_sinonimo:
       campo_txt.insertPlainText (pal_sinonimo[(nombre, 2)].center (5).rstrip())
     else:
