@@ -4,7 +4,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Entorno de desarrollo integrado (IDE), hecho con PyQt4
-# Copyright (C) 2010, 2018-2020 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2018-2021 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -398,7 +398,12 @@ class ModeloVocabulario (QAbstractTableModel):
       if index.column() == 1:
         return mod_actual.vocabulario[index.row()][1]  # Código
       # Si llega aquí, es la tercera columna: el tipo
-      return self.tipos[mod_actual.vocabulario[index.row()][2]]
+      tipo = mod_actual.vocabulario[index.row()][2]
+      if tipo == 255:
+        return 'Reservado'
+      if tipo > len (self.tipos):
+        return 'Desconocido (' + str (tipo) + ')'
+      return self.tipos[tipo]
 
   def flags (self, index):
     return Qt.ItemIsSelectable | Qt.ItemIsEnabled

@@ -437,6 +437,8 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
       for palabra in ordenes[f]:
         for i in rango_vocabulario:
           if vocabulario[i][0] == palabra:  # Hay encaje con esta palabra
+            if vocabulario[i][2] > len (TIPOS_PAL):
+              continue
             codigo = vocabulario[i][1]
             tipo   = TIPOS_PAL[vocabulario[i][2]]
             if tipo in ('Verbo', 'Adverbio', 'Preposición', 'Pronombre'):
