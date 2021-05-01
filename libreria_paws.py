@@ -466,6 +466,7 @@ def prepara_plataforma ():
     fin_cadena       = 31
     nueva_linea      = 7
     num_abreviaturas = 91
+    condactos[81]    = ('MODE', 2, True)
   elif plataforma in despl_ini_plat:
     despl_ini = despl_ini_plat[plataforma]
 

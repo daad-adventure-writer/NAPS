@@ -666,6 +666,11 @@ def a2_COPYOO (objno1, objno2):
   obj_referido (objno2)
   locs_objs[objno2] = locs_objs[objno1]
 
+def a2_MODE (value, option):
+  """Cambia el modo de impresión"""
+  banderas[40] = value
+  # TODO: implementar interpretación del parámetro option
+
 def a2_PUTIN (objno, locno):
   """Si el objeto objno se lleva puesto, imprime MS24. Si el objeto objno está en la localización actual, imprime MS49. Si no está presente, imprime MS28. Si el peso total de los objetos llevados (puestos o no) más el de este objeto superará el máximo permitido, imprime MS43. En caso de una de estas condiciones de fallo, ejecuta NEWTEXT y termina con DONE. En caso contrario (éxito), mueve el objeto al contenedor locno, decrementa la bandera 1, e imprime MS44, la descripción corta del contenedor locno y MS51"""
   obj_referido (objno)
