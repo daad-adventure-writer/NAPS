@@ -307,7 +307,8 @@ def carga_cadenas (pos_num_cads, pos_lista_pos, cadenas):
   for i in range (num_cads):
     posiciones.append (carga_desplazamiento())
   # Cargamos cada cadena
-  inicioAbrevs = 255 - num_abreviaturas  # Primer código de carácter que es abreviatura
+  inicioAbrevs   = 255 - num_abreviaturas  # Primer código de carácter que es abreviatura
+  saltaSiguiente = False                   # Si salta el siguiente carácter, como ocurre tras algunos códigos de control
   for posicion in posiciones:
     fich_ent.seek (posicion)
     cadena = []
@@ -321,6 +322,9 @@ def carga_cadenas (pos_num_cads, pos_lista_pos, cadenas):
         except:
           prn (caracter)
           raise
+      elif saltaSiguiente or (version == 21 and caracter in (range (16, 21))):  # Códigos de control
+        cadena.append (chr (caracter))
+        saltaSiguiente = not saltaSiguiente
       elif caracter == nueva_linea:
         cadena.append ('\n')
       elif chr (caracter) in conversion:
