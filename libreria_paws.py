@@ -53,11 +53,11 @@ func_nueva = ''
 # Constantes que se exportan (fuera del paquete)
 
 EXT_SAVEGAME     = 'pgp'   # Extensión para las partidas guardadas
-INDIRECCION      = False    # El parser no soporta indirección (para el IDE)
-LONGITUD_PAL     = 5        # Longitud máxima para las palabras de vocabulario
-NOMBRE_SISTEMA   = 'PAWS'   # Nombre de este sistema
-NUM_ATRIBUTOS    = [8]      # Número de atributos de objeto
-NUM_BANDERAS     = 256      # Número de banderas del parser
+INDIRECCION      = False   # El parser no soporta indirección (para el IDE)
+LONGITUD_PAL     = 5       # Longitud máxima para las palabras de vocabulario
+NOMBRE_SISTEMA   = 'PAWS'  # Nombre de este sistema
+NUM_ATRIBUTOS    = [8]     # Número de atributos de objeto
+NUM_BANDERAS     = 256     # Número de banderas del parser
 # Nombres de los tipos de palabra (para el IDE)
 TIPOS_PAL = ('Verbo', 'Adverbio', 'Nombre', 'Adjetivo', 'Preposición', 'Conjunción', 'Pronombre')
 
@@ -457,7 +457,7 @@ def prepara_plataforma ():
     carga_int2 = carga_int2_be
   # Preparamos el desplazamiento inicial para carga desde memoria
   if plataforma == 0 and version == 21:  # Formato sna de Spectrum 48K
-    conversion       = {'#': 'é', '$': 'í', '%': 'ó', '&': 'ú', '@': 'á', '[': '¡', ']': '¿', '|': 'ñ'}
+    conversion       = {'#': 'é', '$': 'í', '%': 'ó', '&': 'ú', '@': 'á', '[': '¡', ']': '¿', '^': '»', '`': '«', '|': 'ñ'}
     despl_ini        = 16357
     fin_cadena       = 31
     nueva_linea      = 7
