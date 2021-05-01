@@ -236,6 +236,7 @@ def bucle_paws ():
         return
       elif proceso_ok:  # Ha terminado con DONE u OK
         estado = 2
+      # TPDP: ¡parece que en Jabato sí lo hace! Al menos tras un DOALL sin objetos que encajen, y tras un NOTDONE
       elif NOMBRE_SISTEMA == 'PAWS':  # DAAD no busca automáticamente en la tabla de conexiones, para eso la aventura debe usar MOVE 38 y demás
         estado = 4
       else:
@@ -250,10 +251,8 @@ def bucle_paws ():
     elif estado == 5:  # Nada encajó, o se terminó con NOTDONE
       if not proceso_acc and banderas[33] >= 14:  # TODO: revisar esta lógica
         gui.imprime_cadena (msgs_sys[8])  # No puedes hacer eso
-        gui.imprime_cadena ('\n')
       elif NOMBRE_SISTEMA == 'PAWS':  # DAAD no imprime este mensaje por sí mismo
         gui.imprime_cadena (msgs_sys[7])  # No puedes ir por ahí
-        gui.imprime_cadena ('\n')
       estado = 2
 
 def inicializa ():
@@ -566,7 +565,7 @@ None: pasa al siguiente condacto"""
     if valor == True:  # Se cumple
       return None
     return valor  # Permite que condactos se comporten como acción y condición, como QUIT de PAWS
-  if codigo == 103:  # NOTDONE
+  if codigo == 103 or (codigo == 85 and valor == 4):  # NOTDONE, o DOALL que termina con NOTDONE
     proceso_acc = False
   elif codigo not in (75, 108, 116):  # PROCESS, REDO, SKIP
     proceso_acc = True

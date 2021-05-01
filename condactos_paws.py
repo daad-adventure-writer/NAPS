@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Condactos PAWS estándar
-# Copyright (C) 2010, 2018-2020 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2018-2021 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -427,11 +427,11 @@ def a1_DOALL (locno):
       banderas[34] = nombre
       banderas[35] = adjetivo
       banderas[50] = objno  # Guardará el objeto actual del bucle DOALL
-      return  # Prosigue la ejecuión con estos valores para la SL
+      return  # Prosigue la ejecución con estos valores para la SL
   else:  # No hay más objetos que encajen, fin del bucle DOALL
-    if not siguiente:  # Ningún encaje desde el inicio
-      imprime_cadena (msgs_sys[8])  # No puedes
     del doall_activo[:]
+    if not siguiente:  # Ningún encaje desde el inicio
+      return busca_condacto ('a0_NOTDONE') ()
     return busca_condacto ('a0_DONE') ()
 
 def a1_DROP (objno):
