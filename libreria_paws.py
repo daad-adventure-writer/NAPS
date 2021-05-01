@@ -67,6 +67,7 @@ compatibilidad   = True        # Modo de compatibilidad con los intérpretes orig
 conversion       = {}          # Tabla de conversión de caracteres
 despl_ini        = 0           # Desplazamiento inicial para cargar desde memoria
 fin_cadena       = ord ('\n')  # Carácter de fin de cadena
+nueva_linea      = ord ('\r')  # Carácter de nueva línea
 num_abreviaturas = 128         # Número de abreviaturas cuando se comprime el texto
 
 # Desplazamientos iniciales para cargar desde memoria, de las plataformas en las que éste no es 0
@@ -320,7 +321,7 @@ def carga_cadenas (pos_num_cads, pos_lista_pos, cadenas):
         except:
           prn (caracter)
           raise
-      elif caracter == ord ('\r'):  # Un carácter de nueva línea en la cadena
+      elif caracter == nueva_linea:
         cadena.append ('\n')
       elif chr (caracter) in conversion:
         cadena.append (conversion[chr (caracter)])
@@ -443,7 +444,7 @@ def carga_vocabulario ():
 
 # Prepara la configuración sobre la plataforma
 def prepara_plataforma ():
-  global carga_int2, conversion, despl_ini, fin_cadena, guarda_int2, num_abreviaturas, plataforma, version
+  global carga_int2, conversion, despl_ini, fin_cadena, guarda_int2, nueva_linea, num_abreviaturas, plataforma, version
   # Cargamos la versión del formato de base de datos y el identificador de plataforma
   fich_ent.seek (CAB_VERSION)
   version = carga_int1()
@@ -459,6 +460,7 @@ def prepara_plataforma ():
     conversion       = {'#': 'é', '$': 'í', '%': 'ó', '&': 'ú', '@': 'á', '[': '¡', ']': '¿', '|': 'ñ'}
     despl_ini        = 16357
     fin_cadena       = 31
+    nueva_linea      = 7
     num_abreviaturas = 91
   elif plataforma in despl_ini_plat:
     despl_ini = despl_ini_plat[plataforma]
