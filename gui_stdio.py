@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Interfaz gráfica de usuario (GUI) con entrada y salida estándar para el intérprete PAW-like
-# Copyright (C) 2010, 2018-2020 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2018-2021 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -31,11 +31,14 @@ from prn_func import *
 traza = False  # Si queremos una traza del funcionamiento del módulo
 
 # Variables que ajusta el intérprete
-centrar_graficos = []     # Si se deben centrar los gráficos al dibujarlos
-historial        = []     # Historial de órdenes del jugador
-juego_alto       = None   # Carácter que si se encuentra en una cadena, pasará al juego de caracteres alto
-juego_bajo       = None   # Carácter que si se encuentra en una cadena, pasará al juego de caracteres bajo
-todo_mayusculas  = False  # Si la entrada del jugador será incondicionalmente en mayúsculas
+cambia_brillo    = None      # Carácter que si se encuentra en una cadena, daría o quitaría brillo al color de tinta de la letra
+cambia_tinta     = None      # Carácter que si se encuentra en una cadena, cambiaría el color de tinta de la letra
+centrar_graficos = []        # Si se deben centrar los gráficos al dibujarlos
+historial        = []        # Historial de órdenes del jugador
+juego_alto       = None      # Carácter que si se encuentra en una cadena, pasaría al juego de caracteres alto
+juego_bajo       = None      # Carácter que si se encuentra en una cadena, pasaría al juego de caracteres bajo
+paleta           = ([], [])  # Paleta de colores sin y con brillo, para los cambios con cambia_*
+todo_mayusculas  = False     # Si la entrada del jugador será incondicionalmente en mayúsculas
 ruta_graficos    = ''
 
 limite      = (53, 25)  # Ancho y alto máximos absolutos de cada subventana
@@ -96,13 +99,16 @@ def redimensiona_ventana (evento = None):
 
 def abre_ventana (traza, modoPantalla, bbdd):
   """Abre la ventana gráfica de la aplicación"""
-  global juego_alto, juego_bajo
+  global cambia_brillo, cambia_tinta, juego_alto, juego_bajo
   if juego_alto == 48:  # La @ de SWAN
     juego_alto = '@'
     juego_bajo = '@'
   elif juego_alto == 14:  # La ü de las primeras versiones de DAAD
     juego_alto = '\x0e'
     juego_bajo = '\x0f'
+  if cambia_brillo:
+    cambia_brillo = chr (cambia_brillo)
+    cambia_tinta  = chr (cambia_tinta)
 
 def borra_pantalla (desdeCursor = False, noRedibujar = False):
   """Limpia la subventana de dibujo"""
@@ -129,9 +135,7 @@ def imprime_cadena (cadena, scroll = True, redibujar = True):
   global nuevaLinea
   if nuevaLinea:
     prn()
-  if juego_alto:
-    cadena = cadena.replace (juego_alto, '').replace (juego_bajo, '')
-  prn (cadena, end = '')
+  prn (limpiaCadena (cadena), end = '')
   nuevaLinea = False
 
 def lee_cadena (prompt, inicio, timeout, espaciar = False):
@@ -154,3 +158,20 @@ def marcaNuevaLinea ():
 def mueve_cursor (columna, fila = None):
   """Cambia de posición el cursor de la subventana elegida"""
   marcaNuevaLinea()
+
+
+# Funciones auxiliares que sólo se usan en este módulo
+
+def limpiaCadena (cadena):
+  if not cambia_brillo and not cambia_tinta and not juego_alto and not juego_bajo:
+    return cadena
+  limpia = ''
+  c = 0
+  while c < len (cadena):
+    if cadena[c] in (cambia_brillo, cambia_tinta, juego_alto, juego_bajo):
+      if cadena[c] in (cambia_brillo, cambia_tinta):
+        c += 1  # Descartamos también el siguiente byte, que indica el color o si se activa o no
+    else:
+      limpia += cadena[c]
+    c += 1
+  return limpia

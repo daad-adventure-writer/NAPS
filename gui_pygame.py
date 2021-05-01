@@ -70,12 +70,14 @@ guion_bajo.blit (fuente, (0, 0), ((79 % 63) * 10, (79 // 63) * 10, 6, 8))  # '_'
 guion_bajo.set_colorkey ((0, 0, 0))  # El color negro será ahora transparente
 
 # Variables que ajusta el intérprete
-centrar_graficos = []     # Si se deben centrar los gráficos al dibujarlos
-juego_alto       = None   # Carácter que si se encuentra en una cadena, pasará al juego de caracteres alto
-juego_bajo       = None   # Carácter que si se encuentra en una cadena, pasará al juego de caracteres bajo
-todo_mayusculas  = False  # Si la entrada del jugador será incondicionalmente en mayúsculas
+cambia_brillo    = None      # Carácter que si se encuentra en una cadena, daría o quitaría brillo al color de tinta de la letra
+cambia_tinta     = None      # Carácter que si se encuentra en una cadena, cambiaría el color de tinta de la letra
+centrar_graficos = []        # Si se deben centrar los gráficos al dibujarlos
+juego_alto       = None      # Carácter que si se encuentra en una cadena, pasará al juego de caracteres alto
+juego_bajo       = None      # Carácter que si se encuentra en una cadena, pasará al juego de caracteres bajo
+paleta           = ([], [])  # Paleta de colores sin y con brillo, para los cambios con cambia_*
+todo_mayusculas  = False     # Si la entrada del jugador será incondicionalmente en mayúsculas
 ruta_graficos    = ''
-
 
 banderas_antes  = None  # Valor anterior de las banderas
 banderas_viejas = None  # Banderas que antes cambiaron de valor
@@ -546,17 +548,21 @@ Si scroll es True, se desplazará el texto del buffer hacia arriba (scrolling) cu
           cambiada += izquierda[juego_alto]
       cambiada += c
     cadena = cambiada
+  elif cambia_brillo:
+    cadena, colores = parseaColores (cadena)
   convertida = cadena.translate (iso8859_15_a_fuente)
   # Dividimos la cadena en líneas
-  juego    = 0  # 128 si está en el juego alto, 0 si no
-  lineas   = []
-  linea    = []
-  restante = tope[0] - cursor[0]  # Columnas restantes que quedan en la línea
+  juego     = 0    # 128 si está en el juego alto, 0 si no
+  iniLineas = [0]  # Posición de inicio de cada línea, para colorear
+  lineas    = []
+  linea     = []
+  restante  = tope[0] - cursor[0]  # Columnas restantes que quedan en la línea
   for c in convertida:
     ordinal = ord (c)
     if ((ordinal == len (izquierda) - 1) or  # Carácter nueva línea (el último)
         ((restante == 0) and (ordinal == 16))):  # Termina la línea con espacio
       lineas.append (''.join (linea))
+      iniLineas.append (iniLineas[-1] + len (linea))
       linea    = []
       restante = tope[0]
     elif ordinal == juego_alto and juego == 0:
@@ -571,14 +577,17 @@ Si scroll es True, se desplazará el texto del buffer hacia arriba (scrolling) cu
         if ord (linea[i]) == 16:  # Este carácter es un espacio
           lineas.append (''.join (linea[:i]))
           linea = linea[i + 1:]
+          iniLineas.append (iniLineas[-1] + i)
           break
       else:  # Ningún carácter de espacio en la línea
         if len (linea) == tope[0]:  # La línea nunca se podrá partir limpiamente
           # La partimos suciamente (en mitad de palabra)
-          lineas.append (''.join (linea))
+          lineas.append   (''.join (linea))
+          iniLineas.append (iniLineas[-1] + len (linea))
           linea = []
         else:  # Lo que ya teníamos será para una nueva línea
           lineas.append (' '.translate (iso8859_15_a_fuente) * len (linea))  # TODO: revisar qué es esto y si es correcto
+          iniLineas.append (iniLineas[-1] + len (linea))
       linea.append (chr (ordinal + juego))
       restante = tope[0] - len (linea)
   if linea:  # Queda algo en la última línea
@@ -595,7 +604,10 @@ Si scroll es True, se desplazará el texto del buffer hacia arriba (scrolling) cu
     if i > 0:  # Nueva línea antes de cada una, salvo la primera
       cursor = [0, cursor[1] + 1]
       cursores[elegida] = cursor  # Actualizamos el cursor de la subventana
-    imprime_linea (lineas[i], redibujar = redibujar)
+    if cambia_brillo:
+      imprime_linea (lineas[i], redibujar = redibujar, colores = colores, inicioLinea = iniLineas[i])
+    else:
+      imprime_linea (lineas[i], redibujar = redibujar)
   if lineas:  # Había alguna línea
     if cadena[-1] == '\n':  # La cadena terminaba en nueva línea
       cursor = [0, cursor[1] + 1]
@@ -605,7 +617,7 @@ Si scroll es True, se desplazará el texto del buffer hacia arriba (scrolling) cu
   if traza:
     prn ('Fin de impresión, cursor en', cursor)
 
-def imprime_linea (linea, posInput = None, redibujar = True):
+def imprime_linea (linea, posInput = None, redibujar = True, colores = {}, inicioLinea = 0):
   """Imprime una línea de texto en la posición del cursor, sin cambiar el cursor
 
 Los caracteres de linea deben estar convertidos a posiciones en la tipografía"""
@@ -614,6 +626,8 @@ Los caracteres de linea deben estar convertidos a posiciones en la tipografía"""
   destinoY = (subventanas[elegida][1] + cursores[elegida][1]) * 8
   for i in range (len (linea)):
     c = ord (linea[i])
+    if i + inicioLinea in colores:
+      fuente.set_palette (colores[i + inicioLinea])
     # Curioso, aquí fuente tiene dos significados correctos :)
     # (SPOILER: Como sinónimo de origen y como sinónimo de tipografía)
     ventana.blit (fuente, (destinoX + (i * 6), destinoY),
@@ -693,6 +707,38 @@ def pos_subventana (columna, fila):
   if traza:
     prn ('Subventana', elegida, 'puesta en', subventanas[elegida], 'con topes',
          topes[elegida], 'y cursor en', cursores[elegida])
+
+
+# Funciones auxiliares que sólo se usan en este módulo
+
+def parseaColores (cadena):
+  """Procesa los códigos de control de colores, devolviendo la cadena sin ellos, y un diccionario posición: colores a aplicar"""
+  if not cambia_brillo:
+    return cadena, {}
+  brillo     = 0      # Sin brillo por defecto
+  tinta      = 7      # Color de tinta por defecto (blanco)
+  sigBrillo  = False  # Si el siguiente carácter indica si se pone o quita brillo al color de tinta
+  sigTinta   = False  # Si el siguiente carácter indica el color de tinta
+  sinColores = ''     # Cadena sin los códigos de control de colores
+  colores    = {0: (paleta[brillo][tinta], (0, 0, 0))}
+  for i in range (len (cadena)):
+    c = ord (cadena[i])
+    if sigBrillo or sigTinta:
+      if sigBrillo:
+        brillo    = 1 if c else 0
+        sigBrillo = False
+      else:
+        sigTinta = False
+        tinta    = c % len (paleta[brillo])
+      colores[len (sinColores)] = (paleta[brillo][tinta], (0, 0, 0))  # Color de tinta y papel a aplicar
+    elif c in (cambia_brillo, cambia_tinta):
+      if c == cambia_brillo:
+        sigBrillo = True
+      else:
+        sigTinta = True
+    else:
+      sinColores += cadena[i]
+  return sinColores, colores
 
 def scrollLineas (lineasAsubir, subventana, tope, redibujar = True):
   """Hace scroll gráfico del número dado de líneas, en la subventana dada, con topes dados"""

@@ -896,6 +896,14 @@ if __name__ == '__main__':
     if NOMBRE_SISTEMA == 'SWAN':
       gui.juego_alto = 48  # @
       gui.juego_bajo = 48
+    elif NOMBRE_SISTEMA == 'PAWS' and libreria.num_abreviaturas < 128:  # PAWS de Spectrum
+      gui.cambia_brillo = 19
+      gui.cambia_tinta  = 16
+      # Colores en este orden: negro, azul, rojo, magenta, verde, cyan, amarillo, blanco
+      gui.paleta[0].extend (((0, 0, 0), (0, 0, 215), (215, 0, 0), (215, 0, 215),  # Sin brillo
+                             (0, 215, 0), (0, 215, 215), (215, 215, 0), (215, 215, 215)))
+      gui.paleta[1].extend (((0, 0, 0), (0, 0, 255), (255, 0, 0), (255, 0, 255),  # Con brillo
+                             (0, 255, 0), (0, 255, 255), (255, 255, 0), (255, 255, 255)))
   # XXX: apaño para diferenciar la Aventura Original de aventuras posteriores
   elif (len (msgs_usr) > 77 and msgs_usr[77] == '\x0eAVENTURA ORIGINAL I\x0f') or msgs_usr[0] == '\x0eAVENTURA ORIGINAL II\x0f':
     gui.centrar_graficos.append (True)
