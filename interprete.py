@@ -881,7 +881,7 @@ if __name__ == '__main__':
     libreria.carga_bd (bbdd, os.path.getsize (args.bbdd))
   bbdd.close()
 
-  if libreria.plataforma == 17:
+  if extension == '.sna' or libreria.plataforma == 17:
     gui.prepara_topes (42, 24)
   else:
     gui.prepara_topes (53, 25)
