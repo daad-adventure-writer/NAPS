@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Interfaz gráfica de usuario (GUI) con PyGame para el intérprete PAW-like
-# Copyright (C) 2010, 2018-2020 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2018-2021 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -553,17 +553,18 @@ Si scroll es True, se desplazará el texto del buffer hacia arriba (scrolling) cu
   linea    = []
   restante = tope[0] - cursor[0]  # Columnas restantes que quedan en la línea
   for c in convertida:
-    if ((ord (c) == len (izquierda) - 1) or  # Carácter nueva línea (el último)
-        ((restante == 0) and (ord (c) == 16))):  # Termina la línea con espacio
+    ordinal = ord (c)
+    if ((ordinal == len (izquierda) - 1) or  # Carácter nueva línea (el último)
+        ((restante == 0) and (ordinal == 16))):  # Termina la línea con espacio
       lineas.append (''.join (linea))
       linea    = []
       restante = tope[0]
-    elif ord (c) == juego_alto and juego == 0:
+    elif ordinal == juego_alto and juego == 0:
       juego = 128
-    elif ord (c) == juego_bajo:
+    elif ordinal == juego_bajo:
       juego = 0
     elif restante > 0:
-      linea.append (chr (ord (c) + juego))
+      linea.append (chr (ordinal + juego))
       restante -= 1
     else:  # Hay que partir la línea, desde el último carácter de espacio
       for i in range (len (linea) - 1, -1, -1):  # Desde el final al inicio
@@ -577,8 +578,8 @@ Si scroll es True, se desplazará el texto del buffer hacia arriba (scrolling) cu
           lineas.append (''.join (linea))
           linea = []
         else:  # Lo que ya teníamos será para una nueva línea
-          lineas.append (' '.translate (iso8859_15_a_fuente) * len (linea))
-      linea.append (chr (ord (c) + juego))
+          lineas.append (' '.translate (iso8859_15_a_fuente) * len (linea))  # TODO: revisar qué es esto y si es correcto
+      linea.append (chr (ordinal + juego))
       restante = tope[0] - len (linea)
   if linea:  # Queda algo en la última línea
     lineas.append (''.join (linea))
