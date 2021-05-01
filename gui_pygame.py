@@ -562,7 +562,7 @@ Si scroll es True, se desplazará el texto del buffer hacia arriba (scrolling) cu
     if ((ordinal == len (izquierda) - 1) or  # Carácter nueva línea (el último)
         ((restante == 0) and (ordinal == 16))):  # Termina la línea con espacio
       lineas.append (''.join (linea))
-      iniLineas.append (iniLineas[-1] + len (linea))
+      iniLineas.append (iniLineas[-1] + len (linea) + (1 if (ordinal == len (izquierda) - 1) else 0))
       linea    = []
       restante = tope[0]
     elif ordinal == juego_alto and juego == 0:
