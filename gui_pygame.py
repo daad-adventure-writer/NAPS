@@ -709,11 +709,3 @@ def scrollLineas (lineasAsubir, subventana, tope, redibujar = True):
   ventana.fill ((0, 0, 0), (origenX, origenY, anchura, altura))
   if redibujar:
     actualizaVentana()
-
-#def quita_subventana ():
-  #"""Quita la subventana de impresión"""
-  #subventanas[elegida] = [0, 0]
-  #topes[elegida]       = list (limite)
-  #if traza:
-    #prn ('Subventana reiniciada a', subventana, 'con topes', topes,
-         #'y cursor en', cursor)
