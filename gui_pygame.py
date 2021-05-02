@@ -67,9 +67,9 @@ ventana  = None
 fuente = pygame.image.load ('fuente.png')  # Fuente tipográfica
 fuente.set_palette (((255, 255, 255), (0, 0, 0)))
 
-guion_bajo = pygame.Surface ((6, 8))  # Carácter de guión bajo con transparencia, para marcar posición de input
-guion_bajo.blit (fuente, (0, 0), ((79 % 63) * 10, (79 // 63) * 10, 6, 8))  # '_' está en la posición 79
-guion_bajo.set_colorkey ((0, 0, 0))  # El color negro será ahora transparente
+chr_cursor = pygame.Surface ((6, 8))  # Carácter de guión bajo con transparencia, para marcar posición de input
+chr_cursor.blit (fuente, (0, 0), ((79 % 63) * 10, (79 // 63) * 10, 6, 8))  # '_' está en la posición 79
+chr_cursor.set_colorkey ((0, 0, 0))  # El color negro será ahora transparente
 
 # Variables que ajusta el intérprete
 cambia_brillo    = None      # Carácter que si se encuentra en una cadena, dará o quitará brillo al color de tinta de la letra
@@ -199,6 +199,17 @@ def borra_pantalla (desdeCursor = False, noRedibujar = False):
     actualizaVentana()
   if traza:
     prn ('Subventana', elegida, 'en', subventana, 'con topes', tope, 'limpiada y cursor en', cursores[elegida])
+
+def cambia_cursor (cadenaCursor):
+  """Cambia el carácter que marca la posición del cursor en la entrada del jugador"""
+  global chr_cursor
+  cadenaCursor, colores = parseaColores (cadenaCursor)
+  if len (cadenaCursor) >= 1 and cadenaCursor[0] in izquierda:
+    posEnFuente = izquierda.index (cadenaCursor[0])
+    chr_cursor = pygame.Surface ((6, 8), depth = 8)
+    fuente.set_palette (colores[0])
+    chr_cursor.blit (fuente, (0, 0), ((posEnFuente % 63) * 10, (posEnFuente // 63) * 10, 6, 8))
+    chr_cursor.set_colorkey (colores[0][1])  # El color de papel/fondo será ahora transparente
 
 def borra_todo ():
   """Limpia la pantalla completa"""
@@ -637,7 +648,7 @@ Los caracteres de linea deben estar convertidos a posiciones en la tipografía"""
     ventana.blit (fuente, (destinoX + (i * 6), destinoY),
                   ((c % 63) * 10, (c // 63) * 10, 6, 8))
   if posInput != None:
-    ventana.blit (guion_bajo, (destinoX + (posInput * 6), destinoY), (0, 0, 6, 8))
+    ventana.blit (chr_cursor, (destinoX + (posInput * 6), destinoY), (0, 0, 6, 8))
   if redibujar:
     actualizaVentana()
 

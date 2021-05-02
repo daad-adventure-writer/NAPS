@@ -903,6 +903,7 @@ if __name__ == '__main__':
                              (0, 215, 0), (0, 215, 215), (215, 215, 0), (215, 215, 215)))
       gui.paleta[1].extend (((0, 0, 0), (0, 0, 255), (255, 0, 0), (255, 0, 255),  # Con brillo
                              (0, 255, 0), (0, 255, 255), (255, 255, 0), (255, 255, 255)))
+      gui.cambia_cursor (msgs_sys[34])
   # XXX: apaño para diferenciar la Aventura Original de aventuras posteriores
   elif (len (msgs_usr) > 77 and msgs_usr[77] == '\x0eAVENTURA ORIGINAL I\x0f') or msgs_usr[0] == '\x0eAVENTURA ORIGINAL II\x0f':
     gui.centrar_graficos.append (True)
