@@ -71,6 +71,7 @@ guion_bajo.set_colorkey ((0, 0, 0))  # El color negro será ahora transparente
 
 # Variables que ajusta el intérprete
 cambia_brillo    = None      # Carácter que si se encuentra en una cadena, dará o quitará brillo al color de tinta de la letra
+cambia_flash     = None      # Carácter que si se encuentra en una cadena, pondría o quitaría efecto flash a la letra
 cambia_papel     = None      # Carácter que si se encuentra en una cadena, cambiará el color de papel/fondo de la letra
 cambia_tinta     = None      # Carácter que si se encuentra en una cadena, cambiará el color de tinta de la letra
 centrar_graficos = []        # Si se deben centrar los gráficos al dibujarlos
@@ -732,16 +733,19 @@ def parseaColores (cadena):
   papel      = 0      # Color de papel/fondo por defecto (negro)
   tinta      = 7      # Color de tinta por defecto (blanco)
   sigBrillo  = False  # Si el siguiente carácter indica si se pone o quita brillo al color de tinta
+  sigFlash   = False  # Si el siguiente carácter indica si se pone o quita efecto flash
   sigPapel   = False  # Si el siguiente carácter indica el color de papel/fondo
   sigTinta   = False  # Si el siguiente carácter indica el color de tinta
   sinColores = ''     # Cadena sin los códigos de control de colores
   colores    = {0: (paleta[brillo][tinta], (0, 0, 0))}
   for i in range (len (cadena)):
     c = ord (cadena[i])
-    if sigBrillo or sigPapel or sigTinta:
+    if sigBrillo or sigFlash or sigPapel or sigTinta:
       if sigBrillo:
         brillo    = 1 if c else 0
         sigBrillo = False
+      elif sigFlash:
+        sigFlash = False
       elif sigPapel:
         papel    = c % len (paleta[brillo])
         sigPapel = False
@@ -749,9 +753,11 @@ def parseaColores (cadena):
         sigTinta = False
         tinta    = c % len (paleta[brillo])
       colores[len (sinColores)] = (paleta[brillo][tinta], paleta[brillo][papel])  # Color de tinta y papel a aplicar
-    elif c in (cambia_brillo, cambia_papel, cambia_tinta):
+    elif c in (cambia_brillo, cambia_flash, cambia_papel, cambia_tinta):
       if c == cambia_brillo:
         sigBrillo = True
+      elif c == cambia_flash:
+        sigFlash = True
       elif c == cambia_papel:
         sigPapel = True
       else:

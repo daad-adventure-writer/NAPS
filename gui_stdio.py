@@ -32,6 +32,7 @@ traza = False  # Si queremos una traza del funcionamiento del módulo
 
 # Variables que ajusta el intérprete
 cambia_brillo    = None      # Carácter que si se encuentra en una cadena, daría o quitaría brillo al color de tinta de la letra
+cambia_flash     = None      # Carácter que si se encuentra en una cadena, pondría o quitaría efecto flash a la letra
 cambia_papel     = None      # Carácter que si se encuentra en una cadena, cambiaría el color de papel/fondo de la letra
 cambia_tinta     = None      # Carácter que si se encuentra en una cadena, cambiaría el color de tinta de la letra
 centrar_graficos = []        # Si se deben centrar los gráficos al dibujarlos
@@ -103,7 +104,7 @@ def reinicia_subventanas ():
 
 def abre_ventana (traza, modoPantalla, bbdd):
   """Abre la ventana gráfica de la aplicación"""
-  global cambia_brillo, cambia_papel, cambia_tinta, juego_alto, juego_bajo
+  global cambia_brillo, cambia_flash, cambia_papel, cambia_tinta, juego_alto, juego_bajo
   if juego_alto == 48:  # La @ de SWAN
     juego_alto = '@'
     juego_bajo = '@'
@@ -112,6 +113,7 @@ def abre_ventana (traza, modoPantalla, bbdd):
     juego_bajo = '\x0f'
   if cambia_brillo:
     cambia_brillo = chr (cambia_brillo)
+    cambia_flash  = chr (cambia_flash)
     cambia_papel  = chr (cambia_papel)
     cambia_tinta  = chr (cambia_tinta)
 
@@ -168,12 +170,12 @@ def mueve_cursor (columna, fila = None):
 # Funciones auxiliares que sólo se usan en este módulo
 
 def limpiaCadena (cadena):
-  if not cambia_brillo and not cambia_papel and not cambia_tinta and not juego_alto and not juego_bajo:
+  if not cambia_brillo and not cambia_flash and not cambia_papel and not cambia_tinta and not juego_alto and not juego_bajo:
     return cadena
   limpia = ''
   c = 0
   while c < len (cadena):
-    if cadena[c] in (cambia_brillo, cambia_papel, cambia_tinta, juego_alto, juego_bajo):
+    if cadena[c] in (cambia_brillo, cambia_flash, cambia_papel, cambia_tinta, juego_alto, juego_bajo):
       if cadena[c] not in (juego_alto, juego_bajo):
         c += 1  # Descartamos también el siguiente byte, que indica el color o si se activa o no
     else:

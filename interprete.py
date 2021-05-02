@@ -895,6 +895,7 @@ if __name__ == '__main__':
       gui.juego_bajo = 48
     elif NOMBRE_SISTEMA == 'PAWS' and libreria.num_abreviaturas < 128:  # PAWS de Spectrum
       gui.cambia_brillo = 19
+      gui.cambia_flash  = 18
       gui.cambia_papel  = 17
       gui.cambia_tinta  = 16
       # Colores en este orden: negro, azul, rojo, magenta, verde, cyan, amarillo, blanco
