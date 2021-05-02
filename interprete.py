@@ -248,11 +248,12 @@ def bucle_paws ():
           gui.imprime_banderas (banderas)
       else:
         estado = 5
-    elif estado == 5:  # Nada encajó, o se terminó con NOTDONE
-      if not proceso_acc and banderas[33] >= 14:  # TODO: revisar esta lógica
-        gui.imprime_cadena (msgs_sys[8])  # No puedes hacer eso
-      elif NOMBRE_SISTEMA == 'PAWS':  # DAAD no imprime este mensaje por sí mismo
-        gui.imprime_cadena (msgs_sys[7])  # No puedes ir por ahí
+    elif estado == 5:  # Tablas de respuestas y de conexiones exhaustas, o se terminó con NOTDONE
+      if not proceso_acc:  # No se ha ejecutado ninguna "acción"
+        if banderas[33] >= 14:  # No es verbo de dirección
+          gui.imprime_cadena (msgs_sys[8])  # No puedes hacer eso
+        elif NOMBRE_SISTEMA == 'PAWS':  # DAAD no imprime este mensaje por sí mismo
+          gui.imprime_cadena (msgs_sys[7])  # No puedes ir por ahí
       estado = 2
 
 def inicializa ():
