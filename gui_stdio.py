@@ -60,7 +60,7 @@ def cambia_subv_input (stream, opciones):
   pass
 
 def cambia_topes (columna, fila):
-  """Cambia los topes de la subventana de dibujo elegida"""
+  """Cambia los topes de la subventana de impresión elegida"""
   pass
 
 def guarda_cursor ():
@@ -83,7 +83,7 @@ def espera_tecla (tiempo = 0):
   pass
 
 def pos_subventana (columna, fila):
-  """Cambia la posición de origen de la subventana de dibujo elegida"""
+  """Cambia la posición de origen de la subventana de impresión elegida"""
   pass
 
 def prepara_topes (columnas, filas):
@@ -94,6 +94,9 @@ def redimensiona_ventana (evento = None):
   """Maneja eventos en relación a la ventana, como si se ha redimensionado o se le ha dado al aspa de cerrar"""
   pass
 
+def reinicia_subventanas ():
+  """Ajusta todas las subventanas de impresión a sus valores por defecto"""
+  pass
 
 # Funciones que implementan la entrada y salida por entrada y salida estándar de puro texto
 
@@ -111,7 +114,7 @@ def abre_ventana (traza, modoPantalla, bbdd):
     cambia_tinta  = chr (cambia_tinta)
 
 def borra_pantalla (desdeCursor = False, noRedibujar = False):
-  """Limpia la subventana de dibujo"""
+  """Limpia la subventana de impresión"""
   marcaNuevaLinea()
 
 def borra_todo ():

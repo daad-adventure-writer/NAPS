@@ -282,12 +282,7 @@ def inicializa ():
   del gui.historial[:]
 
   if NOMBRE_SISTEMA == 'DAAD':
-    # Inicializamos las subventanas de impresión
-    for subventana in range (gui.num_subvens):
-      gui.cambia_topes (*gui.limite)
-      gui.elige_subventana (subventana)
-      gui.mueve_cursor (0, 0)
-      gui.pos_subventana (0, 0)
+    gui.reinicia_subventanas()  # Inicializamos las subventanas de impresión
     # La subventana predeterminada es la 1
     gui.elige_subventana (1)
     banderas[63] = 1

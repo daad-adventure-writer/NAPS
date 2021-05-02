@@ -172,7 +172,7 @@ def borra_orden ():
   elegida = subvAntes  # Recuperamos la subventana elegida
 
 def borra_pantalla (desdeCursor = False, noRedibujar = False):
-  """Limpia la subventana de dibujo"""
+  """Limpia la subventana de impresión"""
   if frase_guardada and texto_nuevo:
     espera_tecla()  # Esperamos pulsación de tecla si se habían entrado varias frases y se había mostrado texto nuevo
     del texto_nuevo[:]
@@ -208,7 +208,7 @@ def cambia_subv_input (stream, opciones):
   opcs_input = opciones
 
 def cambia_topes (columna, fila):
-  """Cambia los topes de la subventana de dibujo elegida"""
+  """Cambia los topes de la subventana de impresión elegida"""
   if not columna:
     columna = limite[0]
   if not fila:
@@ -695,7 +695,7 @@ def prepara_topes (columnas, filas):
   topes_gfx = [columnas,  filas]        # Ancho y alto del último gráfico dibujado en la subventana 0
 
 def pos_subventana (columna, fila):
-  """Cambia la posición de origen de la subventana de dibujo elegida"""
+  """Cambia la posición de origen de la subventana de impresión elegida"""
   subventanas[elegida] = [columna, fila]
   # Ajustamos los topes para que no revasen el máximo permitido
   # No sé si DAAD hace esto, en caso de no usar el condacto WINSIZE
@@ -708,6 +708,17 @@ def pos_subventana (columna, fila):
   if traza:
     prn ('Subventana', elegida, 'puesta en', subventanas[elegida], 'con topes',
          topes[elegida], 'y cursor en', cursores[elegida])
+
+def reinicia_subventanas ():
+  """Ajusta todas las subventanas de impresión a sus valores por defecto"""
+  for i in range (num_subvens):
+    cursores[i]    = [0, 0]
+    subventanas[i] = [0, 0]
+    topes[i]       = list (limite)
+    topes_gfx[i]   = list (limite)
+  if traza:
+    prn ('Subventanas reiniciadas a [0, 0] con topes', limite,
+         'y cursor en [0, 0]')
 
 
 # Funciones auxiliares que sólo se usan en este módulo
