@@ -281,11 +281,12 @@ def inicializa ():
 
   del gui.historial[:]
 
-  if NOMBRE_SISTEMA == 'DAAD':
+  if NOMBRE_SISTEMA == 'DAAD' or (NOMBRE_SISTEMA == 'PAWS' and extension == '.sna'):
     gui.reinicia_subventanas()  # Inicializamos las subventanas de impresión
-    # La subventana predeterminada es la 1
-    gui.elige_subventana (1)
-    banderas[63] = 1
+    if NOMBRE_SISTEMA == 'DAAD':
+      # La subventana predeterminada es la 1
+      gui.elige_subventana (1)
+      banderas[63] = 1
 
   # Permitimos que la librería inicialice banderas de modo distinto a la inicialización PAWS estándar
   if 'inicializa_banderas' in libreria.__dict__:
