@@ -23,6 +23,7 @@
 # *****************************************************************************
 
 from prn_func import *
+from sys      import version_info
 
 import math    # Para ceil
 import string  # Para algunas constantes
@@ -34,7 +35,8 @@ traza = False  # Si queremos una traza del funcionamiento del módulo
 if traza:
   from prn_func import prn
 
-izquierda = 'ª¡¿«»áéíóúñÑçÇüÜ !"º$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]¯_`abcdefghijklmnopqrstuvwxyz{|}~\n'
+izquierda  = 'ª¡¿«»áéíóúñÑçÇüÜ !"º$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]¯_`abcdefghijklmnopqrstuvwxyz{|}~\n'
+noEnFuente = {'©': 'c', u'\u2192': '>', u'\u2190': '<'}  # Tabla de conversión de caracteres que no están en la fuente
 
 der = []
 for i in range (len (izquierda)):
@@ -762,8 +764,12 @@ def parseaColores (cadena):
         sigPapel = True
       else:
         sigTinta = True
+    elif cadena[i] in noEnFuente:
+      sinColores += noEnFuente[cadena[i]]
     else:
       sinColores += cadena[i]
+  if version_info[0] < 3:  # La versión de Python es 2.X
+    sinColores = sinColores.encode ('iso-8859-15')
   return sinColores, colores
 
 def scrollLineas (lineasAsubir, subventana, tope, redibujar = True):
