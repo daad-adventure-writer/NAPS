@@ -70,8 +70,9 @@ guion_bajo.blit (fuente, (0, 0), ((79 % 63) * 10, (79 // 63) * 10, 6, 8))  # '_'
 guion_bajo.set_colorkey ((0, 0, 0))  # El color negro será ahora transparente
 
 # Variables que ajusta el intérprete
-cambia_brillo    = None      # Carácter que si se encuentra en una cadena, daría o quitaría brillo al color de tinta de la letra
-cambia_tinta     = None      # Carácter que si se encuentra en una cadena, cambiaría el color de tinta de la letra
+cambia_brillo    = None      # Carácter que si se encuentra en una cadena, dará o quitará brillo al color de tinta de la letra
+cambia_papel     = None      # Carácter que si se encuentra en una cadena, cambiará el color de papel/fondo de la letra
+cambia_tinta     = None      # Carácter que si se encuentra en una cadena, cambiará el color de tinta de la letra
 centrar_graficos = []        # Si se deben centrar los gráficos al dibujarlos
 juego_alto       = None      # Carácter que si se encuentra en una cadena, pasará al juego de caracteres alto
 juego_bajo       = None      # Carácter que si se encuentra en una cadena, pasará al juego de caracteres bajo
@@ -728,24 +729,31 @@ def parseaColores (cadena):
   if not cambia_brillo:
     return cadena, {}
   brillo     = 0      # Sin brillo por defecto
+  papel      = 0      # Color de papel/fondo por defecto (negro)
   tinta      = 7      # Color de tinta por defecto (blanco)
   sigBrillo  = False  # Si el siguiente carácter indica si se pone o quita brillo al color de tinta
+  sigPapel   = False  # Si el siguiente carácter indica el color de papel/fondo
   sigTinta   = False  # Si el siguiente carácter indica el color de tinta
   sinColores = ''     # Cadena sin los códigos de control de colores
   colores    = {0: (paleta[brillo][tinta], (0, 0, 0))}
   for i in range (len (cadena)):
     c = ord (cadena[i])
-    if sigBrillo or sigTinta:
+    if sigBrillo or sigPapel or sigTinta:
       if sigBrillo:
         brillo    = 1 if c else 0
         sigBrillo = False
+      elif sigPapel:
+        papel    = c % len (paleta[brillo])
+        sigPapel = False
       else:
         sigTinta = False
         tinta    = c % len (paleta[brillo])
-      colores[len (sinColores)] = (paleta[brillo][tinta], (0, 0, 0))  # Color de tinta y papel a aplicar
-    elif c in (cambia_brillo, cambia_tinta):
+      colores[len (sinColores)] = (paleta[brillo][tinta], paleta[brillo][papel])  # Color de tinta y papel a aplicar
+    elif c in (cambia_brillo, cambia_papel, cambia_tinta):
       if c == cambia_brillo:
         sigBrillo = True
+      elif c == cambia_papel:
+        sigPapel = True
       else:
         sigTinta = True
     else:
