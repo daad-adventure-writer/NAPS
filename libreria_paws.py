@@ -163,7 +163,7 @@ condactos = {
    79 : ('NOTEQ',   2, False),
    80 : ('NOTSAME', 2, False),
    81 : ('MODE',    1, True),
-   82 : ('LINE',    0, True),
+   82 : ('LINE',    1, True),
    83 : ('TIME',    2, True),
    84 : ('PICTURE', 1, True),
    85 : ('DOALL',   1, True),
