@@ -715,7 +715,7 @@ def reinicia_subventanas ():
     cursores[i]    = [0, 0]
     subventanas[i] = [0, 0]
     topes[i]       = list (limite)
-    topes_gfx[i]   = list (limite)
+  topes_gfx = list (limite)
   if traza:
     prn ('Subventanas reiniciadas a [0, 0] con topes', limite,
          'y cursor en [0, 0]')
