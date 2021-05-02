@@ -168,7 +168,7 @@ condactos = {
    84 : ('PICTURE', 1, True),
    85 : ('DOALL',   1, True),
    86 : ('PROMPT',  1, True),
-   87 : ('GRAPHIC', 0, True),
+   87 : ('GRAPHIC', 1, True),
    88 : ('ISNOTAT', 2, False),
    89 : ('WEIGH',   2, True),
    90 : ('PUTIN',   2, True),

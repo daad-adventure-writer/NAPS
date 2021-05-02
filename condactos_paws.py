@@ -454,6 +454,9 @@ def a1_DROP (objno):
   a0_NEWTEXT()
   return busca_condacto ('a0_DONE') ()
 
+def a1_EXTERN (value):
+  prn ('a1_EXTERN no implementado', file = sys.stderr)
+
 def a1_GET (objno):
   """Si el objeto se lleva (puesto o no), imprime MS25. Si el objeto no está presente, imprime MS26. Si el peso total de los objetos llevados (puestos o no) más el de este objeto superará el máximo permitido, imprime MS43. Si se superaría el máximo de objetos llevables, imprime MS27. En caso de una de estas condiciones de fallo, ejecuta NEWTEXT y termina con DONE. En caso contrario (éxito), mueve el objeto al inventario (254), incrementa la bandera 1, e imprime MS36"""
   obj_referido (objno)  # TODO: comprobar si PAWS también lo hace
@@ -472,6 +475,9 @@ def a1_GET (objno):
   imprime_cadena ('\n')
   a0_NEWTEXT()
   return busca_condacto ('a0_DONE') ()
+
+def a1_GRAPHIC (option):
+  prn ('TODO: a1_GRAPHIC no implementado', file = sys.stderr)  # TODO
 
 def a1_INK (colour):
   """Cambia el color de la letra"""
