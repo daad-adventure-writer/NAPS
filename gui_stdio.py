@@ -41,7 +41,7 @@ paleta           = ([], [])  # Paleta de colores sin y con brillo, para los camb
 todo_mayusculas  = False     # Si la entrada del jugador será incondicionalmente en mayúsculas
 ruta_graficos    = ''
 
-limite      = (53, 25)  # Ancho y alto máximos absolutos de cada subventana
+limite      = [53, 25]  # Ancho y alto máximos absolutos de cada subventana
 num_subvens = 8         # DAAD tiene 8 subventanas
 
 # Variables propias de este módulo de entrada y salida estándar

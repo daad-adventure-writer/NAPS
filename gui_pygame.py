@@ -89,7 +89,7 @@ num_subvens = 8                # DAAD tiene 8 subventanas
 elegida     = 1                # Subventana elegida (la predeterminada es la 1)
 opcs_input  = 2                # Opciones para la entrada del usuario (TODO: revisar valor por defecto)
 subv_input  = 0                # Subventana para entrada del usuario (0 indica la actual)
-limite      = (53, 25)         # Ancho y alto máximos absolutos de cada subventana
+limite      = [53, 25]         # Ancho y alto máximos absolutos de cada subventana
 cursores    = [[0, 0],] * 8    # Posición relativa del cursor de cada subventana
 cursores_at = [(0, 0),] * 8    # Posición relativa del cursor guardado mediante SAVEAT de cada subventana
 subventanas = [[0, 0],] * 8    # Posición absoluta de cada subventana (de su esquina superior izquierda)
@@ -688,10 +688,11 @@ def mueve_cursor (columna, fila = cursores[elegida][1]):
 
 def prepara_topes (columnas, filas):
   """Inicializa los topes al número de columnas y filas dado"""
-  global limite, topes, topes_gfx
-  limite      = (columnas,  filas)        # Ancho y alto máximos absolutos de cada subventana
-  topes       = [[columnas, filas],] * 8  # Topes relativos de cada subventana de impresión
-  topes_gfx   = [columnas,  filas]        # Ancho y alto del último gráfico dibujado en la subventana 0
+  global topes, topes_gfx
+  limite[0] = columnas                  # Ancho máximo absoluto de cada subventana
+  limite[1] = filas                     # Alto máximo absoluto de cada subventana
+  topes     = [[columnas, filas],] * 8  # Topes relativos de cada subventana de impresión
+  topes_gfx = [columnas,  filas]        # Ancho y alto del último gráfico dibujado en la subventana 0
 
 def pos_subventana (columna, fila):
   """Cambia la posición de origen de la subventana de dibujo elegida"""
