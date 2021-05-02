@@ -152,9 +152,11 @@ El parámetro prompt, es el mensaje de prompt
 El parámetro inicio es la entrada a medias anterior
 El parámetro timeout es una lista con el tiempo muerto, en segundos
 El parámetro espaciar permite elegir si se debe dejar una línea en blanco tras el último texto"""
-  if prompt:
-    imprime_cadena (prompt)
-  entrada = raw_input()
+  entrada = None
+  while not entrada:
+    if prompt:
+      imprime_cadena (prompt)
+    entrada = raw_input()
   return entrada
 
 def marcaNuevaLinea ():
