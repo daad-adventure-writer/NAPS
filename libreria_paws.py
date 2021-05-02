@@ -180,7 +180,7 @@ condactos = {
    96 : ('INPUT',   1, True),
    97 : ('SAVEAT',  0, True),
    98 : ('BACKAT',  0, True),
-   99 : ('PRINTAT', 0, True),
+   99 : ('PRINTAT', 2, True),
   100 : ('WHATO',   0, True),
   101 : ('RESET',   1, True),
   102 : ('PUTO',    1, True),
