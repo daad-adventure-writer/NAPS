@@ -228,6 +228,10 @@ def a0_AUTOW ():
   """Busca un objeto con el primer nombre/adjetivo de la SL actual, en este orden de prioridad: en la lista de objetos llevados, en la de objetos puestos, y en la localidad actual. Si se encuentra, ejecuta WEAR sobre ese objeto. Si no se encuentra ahí, imprime MS28 si el nombre de la SL no está en el vocabulario o existe un objeto con ese nombre en el juego (FIXME: ¿creado?), o MS8 si no hay ningún objeto con ese nombre. Al final, hace NEWTEXT en caso de error, y luego DONE incondicionalmente"""
   return busca_condacto ('accionAUTO') (a1_WEAR, (254, 253, banderas[38]), 28)
 
+def a0_BACKAT ():
+  """Cambia la posición del cursor de la subventana elegida, a la guardada mediante SAVEAT"""
+  carga_cursor()
+
 def a0_DROPALL ():
   """Mueve todos los objetos llevados y puestos a la localidad actual, y deja la cuenta de objetos llevados (bandera 1) a 0"""
   for objno in range (len (locs_objs)):
@@ -351,6 +355,10 @@ def a0_SAVE ():
       imprime_mensaje (msgs_sys[56])  # Error I/O
   busca_condacto ('a0_ANYKEY')()
   return 1  # Lo mismo que DESC
+
+def a0_SAVEAT ():
+  """Memoriza la posición del cursor actual en la subventana elegida, para poderla recuperar luego con BACKAT"""
+  guarda_cursor()
 
 def a0_WHATO ():
   # XXX: comportamiento no documentado: guarda el objeto esté donde esté, creado o no. TODO: ver si sólo DAAD lo hace así

@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Condactos específicos de DAAD
-# Copyright (C) 2010, 2019-2020 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2019-2021 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -216,10 +216,6 @@ def c2_SMALLER (flagno1, flagno2):
 
 # ACCIONES
 
-def a0_BACKAT ():
-  """Cambia la posición del cursor de la subventana elegida, a la guardada mediante SAVEAT"""
-  carga_cursor()
-
 def a0_CENTRE ():
   prn ('TODO: a0_CENTRE no implementado', file = sys.stderr)  # TODO
 
@@ -307,10 +303,6 @@ def a0_SAVE ():
       imprime_mensaje (msgs_sys[57])  # Error I/O
       busca_condacto ('a0_ANYKEY')()
   return 1  # Lo mismo que DESC
-
-def a0_SAVEAT ():
-  """Memoriza la posición del cursor actual en la subventana elegida, para poderla recuperar luego con BACKAT"""
-  guarda_cursor()
 
 def a0_SPACE ():
   """Imprime un espacio en blanco"""
