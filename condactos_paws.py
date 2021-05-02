@@ -483,6 +483,9 @@ def a1_INK (colour):
   """Cambia el color de la letra"""
   prn ('TODO: a1_INK no implementado', file = sys.stderr)  # TODO
 
+def a1_INPUT (option):
+  prn ('TODO: a1_INPUT no implementado', file = sys.stderr)  # TODO
+
 def a1_LINE (lineno):
   """Cambia el número de línea donde inicia el texto, para dejar la parte de arriba reservada para gráficos"""
   pos_subventana (0, lineno)

@@ -177,7 +177,7 @@ condactos = {
    93 : ('ABILITY', 2, True),
    94 : ('WEIGHT',  1, True),
    95 : ('RANDOM',  1, True),
-   96 : ('INPUT',   0, True),
+   96 : ('INPUT',   1, True),
    97 : ('SAVEAT',  0, True),
    98 : ('BACKAT',  0, True),
    99 : ('PRINTAT', 0, True),
