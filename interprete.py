@@ -709,7 +709,7 @@ def imprime_condacto ():
         prn (cabecera[0], end = ' ')
     if cabecera[1] == 255:
       prn ('_')
-    elif hay_asterisco and cabecera[0] == 1:
+    elif hay_asterisco and cabecera[1] == 1:
       prn ('*')
     else:
       for palabra in vocabulario:
