@@ -346,11 +346,10 @@ def obtener_orden ():
   """Hace lo que dice la guía técnica de PAWS, páginas 8 y 9: 5.- COGER LA FRASE
 
 Devuelve True si la frase no es válida o ha ocurrido tiempo muerto (para que vuelva a buscar en la tabla de proceso 2)"""
-  # Si las banderas 7 a la 8 no están a cero, son decrementadas
-  if banderas[7] > 0:
-    banderas[7] -= 1
-  if banderas[8] > 0:
-    banderas[8] -= 1
+  # Si las banderas 5 a la 8 no están a cero, son decrementadas (la versión en español de la guía técnica dice de la 7 a la 8, pero es una errata)
+  for i in range (5, 9):
+    if banderas[i] > 0:
+      banderas[i] -= 1
 
   # Si está oscuro (la bandera 0 no está a cero) y la bandera cero no está a 9,
   # entonces se decrementa
