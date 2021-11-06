@@ -81,7 +81,8 @@ class CampoTexto (QTextEdit):
   """Campo de texto para las tablas de proceso"""
   def _daColsValidas (self, textoLinea):
     """Devuelve las posiciones válidas para el cursor en la línea de tabla de proceso con texto dado"""
-    colsValidas = []
+    colsValidas  = []
+    espacioAntes = False
     for c in range (len (textoLinea)):
       if textoLinea[c] == ' ':
         espacioAntes = True
@@ -91,7 +92,7 @@ class CampoTexto (QTextEdit):
           colsValidas.append (c + 1)
           break  # Dejamos de buscar nada más tras encontrar comillas
         colsValidas.append (c)
-      espacioAntes = False
+        espacioAntes = False
     colsValidas.append (len (textoLinea))
     return colsValidas
 
