@@ -24,7 +24,6 @@
 # *****************************************************************************
 
 from prn_func import prn
-import gui
 
 import argparse  # Para procesar argumentos de línea de comandos
 import codecs    # Para codificar bien la salida estándar
@@ -834,10 +833,22 @@ if __name__ == '__main__':
 
   argsParser = argparse.ArgumentParser (sys.argv[0], description = 'Intérprete de Quill/PAWS/SWAN/DAAD en Python')
   argsParser.add_argument ('-D', '--debug', action = 'store_true', help = 'ejecutar los condactos paso a paso')
+  argsParser.add_argument ('-g', '--gui', choices = ('pygame', 'stdio'), help = 'interfaz gráfica a utilizar')
   argsParser.add_argument ('bbdd', metavar = 'base_de_datos', help = 'base de datos de Quill/PAWS/SWAN/DAAD a ejecutar')
   argsParser.add_argument ('ruta_graficos', metavar = 'carpeta_gráficos', nargs = '?', help = 'carpeta que contiene las imágenes (con nombre pic###.png)')
   args  = argsParser.parse_args()
   traza = args.debug
+
+  if not args.gui:
+    if args.ruta_graficos:
+      args.gui = 'pygame'
+    else:
+      try:
+        import pygame
+        args.gui = 'pygame'
+      except:
+        args.gui = 'stdio'
+  gui = __import__ ('gui_' + args.gui)
 
   extension = args.bbdd[-4:].lower()
   if extension in ('.pdb', '.sna'):
@@ -860,6 +871,7 @@ if __name__ == '__main__':
   for modulo in libreria.mods_condactos:
     modulo = __import__ (modulo)
     # Propagamos las constantes y estructuras básicas del intérprete y la librería entre los módulos de condactos
+    modulo.gui = gui
     for lista in (constantes, variables):
       for variable in lista:
         if variable in globals():

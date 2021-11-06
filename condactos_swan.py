@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Condactos específicos de SWAN
-# Copyright (C) 2020 José Manuel Ferrer Ortiz
+# Copyright (C) 2020-2021 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -22,7 +22,6 @@
 # *                                                                           *
 # *****************************************************************************
 
-from gui      import *
 from prn_func import prn
 
 import sys
@@ -52,7 +51,7 @@ def c2_OAT (objno, flagno):
 
 def a0_DESC ():
   """Termina todo lo que estuviese en ejecución (tablas, bucles DOALL, etc.) y salta a describir la localidad actual"""
-  imprime_cadena ('\n')
+  gui.imprime_cadena ('\n')
   return 1
 
 def a0_OOPSAVE ():

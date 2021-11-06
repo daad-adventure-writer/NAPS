@@ -9,16 +9,9 @@ Requisitos:
 - Python versión 2.X ó 3.X
 - Recomendado para el intérprete: PyGame versión 1.X ó 2.X (necesario para que tenga interfaz gráfica)
 
-Pasos previos:
-
-- Enlazar, renombrar o copiar el fichero de la interfaz deseada dejándola con el nombre `gui.py`
-  - Se puede elegir entre las siguientes:
-    - Interfaz gráfica PyGame: `gui_pygame.py`
-    - Interfaz sólo texto, usando la entrada y salida estándar: `gui_stdio.py`
-
 Uso:
 
-``interprete.py [-h|--help] [-D|--debug] base_de_datos [carpeta_gráficos]``
+``interprete.py [-h|--help] [-D|--debug] [-g|--gui pygame|stdio] base_de_datos [carpeta_gráficos]``
 
 Parámetros:
 
@@ -26,6 +19,7 @@ Parámetros:
 - ``carpeta_gráficos`` (opcional) Carpeta que contiene las imágenes (con nombre pic###.png)
 - ``--help`` (opcional) Muestra ayuda sobre los parámetros de línea de comandos
 - ``--debug`` (opcional) Ejecutar los condactos paso a paso
+- ``--gui`` (opcional) Elige la interfaz gráfica a utilizar. Opciones posibles: pygame (interfaz gráfica con PyGame) y stdio (interfaz sólo texto, usando la entrada y salida estándar)
 
 
 Entorno de desarrollo integrado (IDE)

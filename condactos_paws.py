@@ -27,7 +27,6 @@ import random  # Para randint
 import struct
 import sys
 
-from gui      import *
 from prn_func import prn
 
 
@@ -36,7 +35,7 @@ from prn_func import prn
 def accionAUTO (accion, localidades, sysno):
   """Busca un objeto con el primer nombre/adjetivo de la SL actual, en el orden de prioridad de la lista localidades dada. Si se encuentra, ejecuta accion sobre ese objeto. Si no se encuentra ahí, imprime sysno si el nombre de la SL no está en el vocabulario o existe un objeto con ese nombre en el juego (FIXME: ¿creado?), o MS8 si no hay ningún objeto con ese nombre. Al final, hace NEWTEXT en caso de error, y luego DONE incondicionalmente"""
   if banderas[34] == 255 and banderas[35] == 255:
-    imprime_cadena (msgs_sys[sysno])
+    gui.imprime_cadena (msgs_sys[sysno])
     a0_NEWTEXT()
     return busca_condacto ('a0_DONE')()
   # Obtenemos los objetos que están en las localidades dadas, y en otros sitios
@@ -56,7 +55,7 @@ def accionAUTO (accion, localidades, sysno):
       (nombre, adjetivo) = nombres_objs[objeto]
       if banderas[34] == nombre and banderas[35] in (adjetivo, 255):  # TODO: encajes parciales
         if localidad == -1:
-          imprime_cadena (msgs_sys[sysno])
+          gui.imprime_cadena (msgs_sys[sysno])
           a0_NEWTEXT()
         else:
           accion (objeto)
@@ -65,21 +64,21 @@ def accionAUTO (accion, localidades, sysno):
     if encontrado:
       break
   else:
-    imprime_cadena (msgs_sys[8])  # 'No puedes hacer eso'
+    gui.imprime_cadena (msgs_sys[8])  # 'No puedes hacer eso'
     a0_NEWTEXT()
   return busca_condacto ('a0_DONE')()
 
 def accionAUTO2 (accion, localidades, sysno, locno, sysno2 = None):
   """Busca un objeto con el primer nombre/adjetivo de la SL actual, en el orden de prioridad de la lista localidades dada. Si se encuentra, ejecuta accion sobre ese objeto y el objeto contenedor dado en locno. Si no se encuentra, imprime sysno si el nombre de la SL no está en el vocabulario o existe un objeto con ese nombre en el juego (FIXME: ¿creado?), o MS8 si no hay ningún objeto con ese nombre. Al final, hace NEWTEXT en caso de error, y luego DONE incondicionalmente"""
   if banderas[34] == 255 and banderas[35] == 255:
-    imprime_cadena (msgs_sys[sysno])
+    gui.imprime_cadena (msgs_sys[sysno])
     if sysno2:
       if locno < num_objetos:
         desc_obj = desc_objs[locno]
         if '.' in desc_obj:
           desc_obj = desc_obj[:desc_obj.index ('.')]
-        imprime_cadena (cambia_articulo (desc_obj))
-      imprime_cadena (msgs_sys[sysno2])
+        gui.imprime_cadena (cambia_articulo (desc_obj))
+      gui.imprime_cadena (msgs_sys[sysno2])
     a0_NEWTEXT()
     return busca_condacto ('a0_DONE')()
   # Obtenemos los objetos que están en las localidades dadas, y en otros sitios
@@ -99,14 +98,14 @@ def accionAUTO2 (accion, localidades, sysno, locno, sysno2 = None):
       (nombre, adjetivo) = nombres_objs[objeto]
       if banderas[34] == nombre and banderas[35] in (adjetivo, 255):  # TODO: encajes parciales
         if localidad == -1:
-          imprime_cadena (msgs_sys[sysno])
+          gui.imprime_cadena (msgs_sys[sysno])
           if sysno2:
             if locno < num_objetos:
               desc_obj = desc_objs[locno]
               if '.' in desc_obj:
                 desc_obj = desc_obj[:desc_obj.index ('.')]
-              imprime_cadena (cambia_articulo (desc_obj))
-            imprime_cadena (msgs_sys[sysno2])
+              gui.imprime_cadena (cambia_articulo (desc_obj))
+            gui.imprime_cadena (msgs_sys[sysno2])
           a0_NEWTEXT()
         else:
           accion (objeto, locno)
@@ -115,7 +114,7 @@ def accionAUTO2 (accion, localidades, sysno, locno, sysno2 = None):
     if encontrado:
       break
   else:
-    imprime_cadena (msgs_sys[8])  # 'No puedes hacer eso'
+    gui.imprime_cadena (msgs_sys[8])  # 'No puedes hacer eso'
     a0_NEWTEXT()
   return busca_condacto ('a0_DONE')()
 
@@ -133,7 +132,7 @@ def c0_PARSE ():
 
 def c0_QUIT ():
   """Pide confirmación (MS12), y si la respuesta empieza por la primera letra del MS30, devuelve condición satisfecha. Si no, hace NEWTEXT y DONE"""
-  respuesta = lee_cadena (msgs_sys[12] + msgs_sys[33], '', [0], False)
+  respuesta = gui.lee_cadena (msgs_sys[12] + msgs_sys[33], '', [0], False)
   if respuesta[0].lower() == msgs_sys[30][0].lower():
     return True
   a0_NEWTEXT()
@@ -230,7 +229,7 @@ def a0_AUTOW ():
 
 def a0_BACKAT ():
   """Cambia la posición del cursor de la subventana elegida, a la guardada mediante SAVEAT"""
-  carga_cursor()
+  gui.carga_cursor()
 
 def a0_DROPALL ():
   """Mueve todos los objetos llevados y puestos a la localidad actual, y deja la cuenta de objetos llevados (bandera 1) a 0"""
@@ -240,7 +239,7 @@ def a0_DROPALL ():
 
 def a0_END ():
   """Pregunta si se desea volver a empezar (MS13), y si la respuesta empieza por la primera letra del MS31, termina completamente la ejecución de la aventura. Si no, reinicia la aventura"""
-  respuesta = lee_cadena (msgs_sys[13] + msgs_sys[33], '', [0], False)
+  respuesta = gui.lee_cadena (msgs_sys[13] + msgs_sys[33], '', [0], False)
   if respuesta[0].lower() == msgs_sys[31][0].lower():
     return 7
   return 0
@@ -252,31 +251,31 @@ def a0_LISTOBJ ():
     if locs_objs[objno] == banderas[38]:
       presentes.append (objno)
   if presentes:
-    imprime_cadena (msgs_sys[1])  # 'Puedes ver '
+    gui.imprime_cadena (msgs_sys[1])  # 'Puedes ver '
     if not banderas[53] & 64:  # Listar uno por línea
-      imprime_cadena ('\n')
+      gui.imprime_cadena ('\n')
     for i in range (len (presentes)):
       descripcion = desc_objs[presentes[i]]
       if banderas[53] & 64:  # Listar como una frase
         if '.' in descripcion:
           descripcion = descripcion[:descripcion.index ('.')]
-        imprime_cadena (descripcion[0].lower() + descripcion[1:])
+        gui.imprime_cadena (descripcion[0].lower() + descripcion[1:])
         if i == len (presentes) - 1:  # Último objeto presente
-          imprime_cadena (msgs_sys[48])  # '.'
+          gui.imprime_cadena (msgs_sys[48])  # '.'
         elif i == len (presentes) - 2:
-          imprime_cadena (msgs_sys[47])  # ' y '
+          gui.imprime_cadena (msgs_sys[47])  # ' y '
         else:
-          imprime_cadena (msgs_sys[46])  # ', '
+          gui.imprime_cadena (msgs_sys[46])  # ', '
       else:  # Listar uno por línea
-        imprime_cadena (descripcion)
-        imprime_cadena ('\n')
+        gui.imprime_cadena (descripcion)
+        gui.imprime_cadena ('\n')
     banderas[53] |= 128  # Marca que se han listado objetos
   elif banderas[53] & 128:
     banderas[53] ^= 128  # Marca que no se han listado objetos
 
 def a0_LOAD ():
   """Carga el contenido de las banderas y de las localidades de los objetos desde un fichero"""
-  nombreFich = lee_cadena (msgs_sys[60] + msgs_sys[33], '', [0])
+  nombreFich = gui.lee_cadena (msgs_sys[60] + msgs_sys[33], '', [0])
   bien = True
   try:
     fichero = open (nombreFich + '.' + EXT_SAVEGAME, 'rb')
@@ -303,7 +302,7 @@ def a0_LOAD ():
 
 def a0_NEWLINE ():
   """Imprime un caracter de nueva línea"""
-  imprime_cadena ('\n')
+  gui.imprime_cadena ('\n')
 
 def a0_NEWTEXT ():
   """Vacía el resto de la orden"""
@@ -315,7 +314,7 @@ def a0_NOTDONE ():
 
 def a0_QUIT ():
   """Pide confirmación (MS12), y si la respuesta empieza por la primera letra del MS30, termina completamente la ejecución de la aventura. Si no, ejecuta NEWTEXT y DONE"""
-  respuesta = lee_cadena (msgs_sys[12], '', [0])
+  respuesta = gui.lee_cadena (msgs_sys[12], '', [0])
   if respuesta[0].lower() == msgs_sys[30].lower():
     return 7
   a0_NEWTEXT()
@@ -331,7 +330,7 @@ def a0_RAMSAVE ():
 
 def a0_SAVE ():
   """Guarda el contenido de las banderas y de las localidades de los objetos a un fichero"""
-  nombreFich = lee_cadena (msgs_sys[60] + msgs_sys[33], '', [0])
+  nombreFich = gui.lee_cadena (msgs_sys[60] + msgs_sys[33], '', [0])
   invalido   = False
   if compatibilidad and len (nombreFich) > 8:
     invalido = True
@@ -358,7 +357,7 @@ def a0_SAVE ():
 
 def a0_SAVEAT ():
   """Memoriza la posición del cursor actual en la subventana elegida, para poderla recuperar luego con BACKAT"""
-  guarda_cursor()
+  gui.guarda_cursor()
 
 def a0_WHATO ():
   # XXX: comportamiento no documentado: guarda el objeto esté donde esté, creado o no. TODO: ver si sólo DAAD lo hace así
@@ -458,7 +457,7 @@ def a1_DROP (objno):
     locs_objs[objno] = banderas[38]
     imprime_mensaje (msgs_sys[39])  # Dejo _
     return
-  imprime_cadena ('\n')
+  gui.imprime_cadena ('\n')
   a0_NEWTEXT()
   return busca_condacto ('a0_DONE') ()
 
@@ -480,7 +479,7 @@ def a1_GET (objno):
     locs_objs[objno] = 254
     imprime_mensaje (msgs_sys[36])  # Cojo _
     return
-  imprime_cadena ('\n')
+  gui.imprime_cadena ('\n')
   a0_NEWTEXT()
   return busca_condacto ('a0_DONE') ()
 
@@ -496,7 +495,7 @@ def a1_INPUT (option):
 
 def a1_LINE (lineno):
   """Cambia el número de línea donde inicia el texto, para dejar la parte de arriba reservada para gráficos"""
-  pos_subventana (0, lineno)
+  gui.pos_subventana (0, lineno)
 
 def a1_LISTAT (locno):
   """Lista los objetos presentes en la localidad locno, o el mensaje de sistema 53 si no hay ninguno"""
@@ -511,20 +510,20 @@ def a1_LISTAT (locno):
       if banderas[53] & 64:  # Listar como una frase
         if '.' in descripcion:
           descripcion = descripcion[:descripcion.index ('.')]
-        imprime_cadena (descripcion)
+        gui.imprime_cadena (descripcion)
         if i == len (presentes) - 1:  # Último objeto presente
-          imprime_cadena (msgs_sys[48])  # '.'
-          imprime_cadena ('\n')
+          gui.imprime_cadena (msgs_sys[48])  # '.'
+          gui.imprime_cadena ('\n')
         elif i == len (presentes) - 2:
-          imprime_cadena (msgs_sys[47])  # ' y '
+          gui.imprime_cadena (msgs_sys[47])  # ' y '
         else:
-          imprime_cadena (msgs_sys[46])  # ', '
+          gui.imprime_cadena (msgs_sys[46])  # ', '
       else:  # Listar uno por línea
-        imprime_cadena ('\n')
-        imprime_cadena (descripcion)
+        gui.imprime_cadena ('\n')
+        gui.imprime_cadena (descripcion)
     banderas[53] |= 128  # Marca que se han listado objetos
   else:
-    imprime_cadena (msgs_sys[53])  # 'nada.'
+    gui.imprime_cadena (msgs_sys[53])  # 'nada.'
     if banderas[53] & 128:
       banderas[53] ^= 128  # Marca que no se han listado objetos
 
@@ -546,11 +545,11 @@ def a1_PICTURE (locno):
 Nota: no se hace un clear de la pantalla ni de los colores (como sí ocurre cuando se describe una localidad)
 
 Será dibujado a partir del último punto usado por el gráfico que se pintó con anterioridad"""
-  dibuja_grafico (locno)
+  gui.dibuja_grafico (locno)
 
 def a1_PRINT (flagno):
   """Imprime el número contenido en la bandera flagno"""
-  imprime_cadena (str (banderas[flagno]))
+  gui.imprime_cadena (str (banderas[flagno]))
 
 def a1_PROCESS (procno):
   """Transfiere el flujo de ejecución del intérprete a la tabla de proceso de número procno"""
@@ -578,7 +577,7 @@ def a1_PUTO (locno):
 def a1_RAMLOAD (flagno):
   """Carga el contenido de las banderas hasta flagno y de las localidades de los objetos desde memoria"""
   if not partida:  # No hay partida guardada en memoria
-    imprime_cadena (msgs_sys[8])  # No puedes
+    gui.imprime_cadena (msgs_sys[8])  # No puedes
     return
   for b in range (flagno + 1):
     banderas[b] = partida[b]
@@ -606,7 +605,7 @@ def a1_REMOVE (objno):
     locs_objs[objno] = 254
     imprime_mensaje (msgs_sys[38])  # Me quito _
     return
-  imprime_cadena ('\n')
+  gui.imprime_cadena ('\n')
   a0_NEWTEXT()
   return busca_condacto ('a0_DONE') ()
 
@@ -626,14 +625,14 @@ def a1_WEAR (objno):
     locs_objs[objno] = 253
     imprime_mensaje (msgs_sys[37])  # Me pongo _
     return
-  imprime_cadena ('\n')
+  gui.imprime_cadena ('\n')
   a0_NEWTEXT()
   return busca_condacto ('a0_DONE') ()
 
 def a1_SET (flagno):
   """Pone el valor de la bandera flagno a 255"""
   if flagno == 38:
-    imprime_cadena ('Error en tiempo de ejecución 1. Se intentó hacer SET 38')
+    gui.imprime_cadena ('Error en tiempo de ejecución 1. Se intentó hacer SET 38')
     busca_condacto ('a0_ANYKEY')()
     return 7
   banderas[flagno] = 255
@@ -709,10 +708,10 @@ def a2_PUTIN (objno, locno):
       desc_obj = desc_objs[locno]
       if '.' in desc_obj:
         desc_obj = desc_obj[:desc_obj.index ('.')]
-      imprime_cadena (cambia_articulo (desc_obj))
-    imprime_cadena (msgs_sys[51])
+      gui.imprime_cadena (cambia_articulo (desc_obj))
+    gui.imprime_cadena (msgs_sys[51])
     return
-  imprime_cadena ('\n')
+  gui.imprime_cadena ('\n')
   a0_NEWTEXT()
   return busca_condacto ('a0_DONE') ()
 
@@ -720,7 +719,7 @@ def a2_PRINTAT (rowno, colno):
   """La posición de impresión actual se cambia al valor específico dado por rowno y colno
 
 Esto también vaciará el buffer actual y restaurará los colores temporales a los colores de fondo"""
-  mueve_cursor (colno, rowno)
+  gui.mueve_cursor (colno, rowno)
   # FIXME: ¿Vaciar? ¿Colores?
 
 def a2_SUB (flagno1, flagno2):
@@ -752,8 +751,8 @@ def a2_TAKEOUT (objno, locno):
       desc_obj = desc_objs[locno]
       if '.' in desc_obj:
         desc_obj = desc_obj[:desc_obj.index ('.')]
-      imprime_cadena (cambia_articulo (desc_obj))
-    imprime_cadena (msgs_sys[51])
+      gui.imprime_cadena (cambia_articulo (desc_obj))
+    gui.imprime_cadena (msgs_sys[51])
   # TODO: cálculo del peso total
   elif banderas[1] >= banderas[37]:
     imprime_mensaje (msgs_sys[27])
@@ -762,7 +761,7 @@ def a2_TAKEOUT (objno, locno):
     locs_objs[objno] = 254
     imprime_mensaje (msgs_sys[36])  # Coges _
     return
-  imprime_cadena ('\n')
+  gui.imprime_cadena ('\n')
   a0_NEWTEXT()
   return busca_condacto ('a0_DONE') ()
 

@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Condactos de The Quill
-# Copyright (C) 2010, 2019-2020 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2019-2021 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -26,7 +26,6 @@ import random  # Para randint
 import sys
 import time    # Para sleep
 
-from gui      import *
 from prn_func import prn
 
 
@@ -114,8 +113,8 @@ def c2_LT (flagno, value):
 def a0_ANYKEY ():
   """Imprime el mensaje del sistema 16 al final de la pantalla, y se espera hasta que se pulse una tecla, o hasta que haya pasado el tiempo muerto, si se ha usado tiempo muerto"""
   # TODO: Al final de la pantalla
-  imprime_cadena (msgs_sys[16])
-  espera_tecla()
+  gui.imprime_cadena (msgs_sys[16])
+  gui.espera_tecla()
   # TODO: Tiempo muerto
 
 def a0_AUTOG ():
@@ -124,7 +123,7 @@ def a0_AUTOG ():
 
 def a0_CLS ():
   """Limpia la pantalla a los colores de fondo definidos actualmente, y deja la posición actual de PRINT y de SAVEAT a 0, 0"""
-  borra_pantalla()
+  gui.borra_pantalla()
 
 def a0_DESC ():
   """Termina todo lo que estuviese en ejecución (tablas, bucles DOALL, etc.) y salta a describir la localidad actual"""
@@ -136,55 +135,55 @@ def a0_DONE ():
 
 def a0_END ():
   """Pregunta si se desea volver a empezar (MS13), y si la respuesta empieza por la primera letra del MS31, termina completamente la ejecución de la aventura. Si no, reinicia la aventura"""
-  respuesta = lee_cadena (msgs_sys[13], '', [0], False)
+  respuesta = gui.lee_cadena (msgs_sys[13], '', [0], False)
   if respuesta[0].lower() == msgs_sys[31].lower():
     return 7
   return 0
 
 def a0_INVEN ():
   """Primero muestra el MS9. Luego, si no hay objetos llevados ni puestos, muestra el MS11. Si los hay, los lista con su texto completo, cada uno en una línea, y añadiendo el MS10 al final para los objetos puestos. Después ejecuta DONE"""
-  imprime_cadena (msgs_sys[9])
-  imprime_cadena ('\n')
+  gui.imprime_cadena (msgs_sys[9])
+  gui.imprime_cadena ('\n')
   alguno = False
   for objno in range (num_objetos[0]):
     if locs_objs[objno] in (253, 254):
       alguno = True
-      imprime_cadena (desc_objs[objno])
+      gui.imprime_cadena (desc_objs[objno])
       if locs_objs[objno] == 253:  # Puesto
-        imprime_cadena (msgs_sys[10])
-      imprime_cadena ('\n')
+        gui.imprime_cadena (msgs_sys[10])
+      gui.imprime_cadena ('\n')
   if not alguno:
-    imprime_cadena (msgs_sys[11])
+    gui.imprime_cadena (msgs_sys[11])
   return 3  # Lo mismo que hace DONE
 
 def a0_OK ():
   """Imprime el mensaje de sistema 15 y luego ejecuta DONE"""
-  imprime_cadena (msgs_sys[15])
-  imprime_cadena ('\n')
+  gui.imprime_cadena (msgs_sys[15])
+  gui.imprime_cadena ('\n')
   return 3  # Lo mismo que hace DONE
 
 def a0_QUIT ():
   """Pide confirmación (MS12), y si la respuesta empieza por la primera letra del MS30, termina completamente la ejecución de la aventura. Si no, ejecuta DONE"""
-  respuesta = lee_cadena (msgs_sys[12], '', [0], False)
+  respuesta = gui.lee_cadena (msgs_sys[12], '', [0], False)
   if respuesta[0].lower() == msgs_sys[30][0].lower():
     return 7
   return 3  # Lo mismo que hace DONE
 
 def a0_SCORE ():
   """Imprime la puntuación, con los mensajes de sistema 21 y 22, y el valor de la bandera 30"""
-  imprime_cadena (msgs_sys[21])  # 'Has logrado '
-  imprime_cadena (str (banderas[30]))
-  imprime_cadena (msgs_sys[22])  # ' puntos.'
+  gui.imprime_cadena (msgs_sys[21])  # 'Has logrado '
+  gui.imprime_cadena (str (banderas[30]))
+  gui.imprime_cadena (msgs_sys[22])  # ' puntos.'
 
 def a0_TURNS ():
   """Imprime el número de turnos, con los mensajes de sistema 17 a 20, y el valor de las banderas 31 y 32"""
-  imprime_cadena (msgs_sys[17])  # 'Has jugado '
+  gui.imprime_cadena (msgs_sys[17])  # 'Has jugado '
   turnos = banderas[31] + banderas[32] * 256
-  imprime_cadena (str (turnos))
-  imprime_cadena (msgs_sys[18])  # ' turno'
+  gui.imprime_cadena (str (turnos))
+  gui.imprime_cadena (msgs_sys[18])  # ' turno'
   if turnos != 1:
-    imprime_cadena (msgs_sys[19])  # 's'
-  imprime_cadena (msgs_sys[20])  # '.'
+    gui.imprime_cadena (msgs_sys[19])  # 's'
+  gui.imprime_cadena (msgs_sys[20])  # '.'
 
 
 def a1_BORDER (colour):
@@ -209,11 +208,11 @@ def a1_DESTROY (objno):
 def a1_GET (objno):
   """Si el objeto se lleva (inventario o puesto), imprime MS25. Si el objeto no está presente, imprime MS26. Si se superaría el máximo de objetos llevables, imprime MS27. En caso de una de estas condiciones de fallo, termina con DONE. En caso contrario (éxito), mueve el objeto al inventario (254) e incrementa la bandera 1"""
   if locs_objs[objno] in (253, 254):
-    imprime_cadena (msgs_sys[25])
+    gui.imprime_cadena (msgs_sys[25])
   elif locs_objs[objno] != banderas[38]:
-    imprime_cadena (msgs_sys[26])
+    gui.imprime_cadena (msgs_sys[26])
   elif banderas[1] >= banderas[37]:
-    imprime_cadena (msgs_sys[27])
+    gui.imprime_cadena (msgs_sys[27])
   else:
     banderas[1] += 1
     locs_objs[objno] = 254
@@ -227,7 +226,7 @@ def a1_GOTO (locno):
 def a1_MESSAGE (mesno):
   """Imprime el mensaje de usuario dado por mesno, en los colores actuales, y luego ejecuta una acción NEWLINE"""
   imprime_mensaje (msgs_usr[mesno])
-  imprime_cadena  ('\n')
+  gui.imprime_cadena  ('\n')
 
 def a1_PAUSE (value):
   """Pausa por un tiempo de value/50 segundos
@@ -237,7 +236,7 @@ El teclado se desconecta durante la duración de una pausa"""
   if value == 0:
     value = 256
   time.sleep (value / 50.)
-  redimensiona_ventana()  # Da la oportunidad de manejar eventos de redimensión de ventana
+  gui.redimensiona_ventana()  # Da la oportunidad de manejar eventos de redimensión de ventana
 
 def a1_SET (flagno):
   """Pone el valor de la bandera flagno a 255"""
