@@ -97,10 +97,11 @@ elegida     = 1                # Subventana elegida (la predeterminada es la 1)
 opcs_input  = 2                # Opciones para la entrada del usuario (TODO: revisar valor por defecto)
 subv_input  = 0                # Subventana para entrada del usuario (0 indica la actual)
 limite      = [53, 25]         # Ancho y alto máximos absolutos de cada subventana
-cursores    = [[0, 0],] * 8    # Posición relativa del cursor de cada subventana
-cursores_at = [(0, 0),] * 8    # Posición relativa del cursor guardado mediante SAVEAT de cada subventana
-subventanas = [[0, 0],] * 8    # Posición absoluta de cada subventana (de su esquina superior izquierda)
-topes       = [[53, 25],] * 8  # Topes relativos de cada subventana de impresión
+color_subv  = [[7, 0, 0]] * 8  # Color de tinta, papel y borde de cada subventana
+cursores    = [[0, 0]] * 8     # Posición relativa del cursor de cada subventana
+cursores_at = [(0, 0)] * 8     # Posición relativa del cursor guardado mediante SAVEAT de cada subventana
+subventanas = [[0, 0]] * 8     # Posición absoluta de cada subventana (de su esquina superior izquierda)
+topes       = [[53, 25]] * 8   # Topes relativos de cada subventana de impresión
 topes_gfx   = [53, 25]         # Ancho y alto del último gráfico dibujado en la subventana 0
 resolucion  = (320, 200)       # Resolución gráfica de salida, sin escalar
 
@@ -185,6 +186,7 @@ def borra_pantalla (desdeCursor = False, noRedibujar = False):
     del texto_nuevo[:]
   if not desdeCursor:
     cursores[elegida] = [0, 0]
+  colorBorde = paleta[0][color_subv[elegida][2]]
   cursor     = cursores[elegida]
   subventana = subventanas[elegida]
   tope       = topes[elegida]
@@ -197,11 +199,29 @@ def borra_pantalla (desdeCursor = False, noRedibujar = False):
   # Los gráficos pueden dibujar hasta dos píxeles más allá de la última columna de texto
   if subventana[0] + tope[0] == 53:
     ancho += 2
-  ventana.fill ((0, 0, 0), (inicioX, inicioY, ancho, alto))
+  ventana.fill (colorBorde, (inicioX, inicioY, ancho, alto))
   if not desdeCursor and not noRedibujar:
     actualizaVentana()
   if traza:
     prn ('Subventana', elegida, 'en', subventana, 'con topes', tope, 'limpiada y cursor en', cursores[elegida])
+
+def borra_todo ():
+  """Limpia la pantalla completa"""
+  colorBorde = paleta[0][color_subv[elegida][2]]
+  ventana.fill (colorBorde, (0, 0) + resolucion)
+  actualizaVentana()
+
+def cambia_color_borde (color):
+  """Cambia el color de fondo al borrar de la subventana actual por el de código dado"""
+  color_subv[elegida][2] = color % len (paleta[0])
+
+def cambia_color_papel (color):
+  """Cambia el color de papel/fondo al escribir la subventana actual por el dado"""
+  color_subv[elegida][1] = color % len (paleta[0])
+
+def cambia_color_tinta (color):
+  """Cambia el color de tinta al escribir la subventana actual por el dado"""
+  color_subv[elegida][0] = color % len (paleta[0])
 
 def cambia_cursor (cadenaCursor):
   """Cambia el carácter que marca la posición del cursor en la entrada del jugador"""
@@ -213,11 +233,6 @@ def cambia_cursor (cadenaCursor):
     fuente.set_palette (colores[0])
     chr_cursor.blit (fuente, (0, 0), ((posEnFuente % 63) * 10, (posEnFuente // 63) * 10, 6, 8))
     chr_cursor.set_colorkey (colores[0][1])  # El color de papel/fondo será ahora transparente
-
-def borra_todo ():
-  """Limpia la pantalla completa"""
-  ventana.fill ((0, 0, 0), (0, 0) + resolucion)
-  actualizaVentana()
 
 def cambia_subv_input (stream, opciones):
   """Cambia la subventana de entrada por el stream dado, con las opciones dadas, según el condacto INPUT"""
@@ -588,7 +603,7 @@ Si scroll es True, se desplazará el texto del buffer hacia arriba (scrolling) cu
           cambiada += izquierda[juego_alto]
       cambiada += c
     cadena = cambiada
-  elif cambia_brillo:
+  else:  # No es SWAN
     cadena, colores = parseaColores (cadena)
   convertida = cadena.translate (iso8859_15_a_fuente)
   # Dividimos la cadena en líneas
@@ -647,7 +662,7 @@ Si scroll es True, se desplazará el texto del buffer hacia arriba (scrolling) cu
     if cambia_brillo:
       imprime_linea (lineas[i], redibujar = redibujar, colores = colores, inicioLinea = iniLineas[i])
     else:
-      imprime_linea (lineas[i], redibujar = redibujar)
+      imprime_linea (lineas[i], redibujar = redibujar, colores = colores)
   if lineas:  # Había alguna línea
     if cadena[-1] == '\n':  # La cadena terminaba en nueva línea
       cursor = [0, cursor[1] + 1]
@@ -765,17 +780,17 @@ def reinicia_subventanas ():
 
 def parseaColores (cadena):
   """Procesa los códigos de control de colores, devolviendo la cadena sin ellos, y un diccionario posición: colores a aplicar"""
+  brillo  = 0                       # Sin brillo por defecto
+  papel   = color_subv[elegida][1]  # Color de papel/fondo
+  tinta   = color_subv[elegida][0]  # Color de tinta
+  colores = {0: (paleta[brillo][tinta], paleta[brillo][papel])}
   if not cambia_brillo:
-    return cadena, {}
-  brillo     = 0      # Sin brillo por defecto
-  papel      = 0      # Color de papel/fondo por defecto (negro)
-  tinta      = 7      # Color de tinta por defecto (blanco)
+    return cadena, colores
   sigBrillo  = False  # Si el siguiente carácter indica si se pone o quita brillo al color de tinta
   sigFlash   = False  # Si el siguiente carácter indica si se pone o quita efecto flash
   sigPapel   = False  # Si el siguiente carácter indica el color de papel/fondo
   sigTinta   = False  # Si el siguiente carácter indica el color de tinta
   sinColores = ''     # Cadena sin los códigos de control de colores
-  colores    = {0: (paleta[brillo][tinta], (0, 0, 0))}
   for i in range (len (cadena)):
     c = ord (cadena[i])
     if sigBrillo or sigFlash or sigPapel or sigTinta:

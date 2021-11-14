@@ -915,11 +915,15 @@ if __name__ == '__main__':
       gui.paleta[1].extend (((0, 0, 0), (0, 0, 255), (255, 0, 0), (255, 0, 255),  # Con brillo
                              (0, 255, 0), (0, 255, 255), (255, 255, 0), (255, 255, 255)))
       gui.cambia_cursor (msgs_sys[34])
-  # XXX: apaño para diferenciar la Aventura Original de aventuras posteriores
-  elif (len (msgs_usr) > 77 and msgs_usr[77] == '\x0eAVENTURA ORIGINAL I\x0f') or msgs_usr[0] == '\x0eAVENTURA ORIGINAL II\x0f':
-    gui.centrar_graficos.append (True)
-    gui.juego_alto = 14  # ü
-    gui.juego_bajo = 15  # Ü
+  else:  # Es DAAD
+    # Colores con brillo en este orden: negro, azul, rojo, magenta, verde, cyan, amarillo, blanco
+    gui.paleta[0].extend (((0, 0, 0), (0, 0, 255), (255, 0, 0), (255, 0, 255),
+                           (0, 255, 0), (0, 255, 255), (255, 255, 0), (255, 255, 255)))
+    # XXX: apaño para diferenciar la Aventura Original de aventuras posteriores
+    if (len (msgs_usr) > 77 and msgs_usr[77] == '\x0eAVENTURA ORIGINAL I\x0f') or msgs_usr[0] == '\x0eAVENTURA ORIGINAL II\x0f':
+      gui.centrar_graficos.append (True)
+      gui.juego_alto = 14  # ü
+      gui.juego_bajo = 15  # Ü
 
   # Fallamos ahora si falta algún condacto
   if False:

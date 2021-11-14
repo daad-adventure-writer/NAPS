@@ -485,10 +485,6 @@ def a1_GET (objno):
 def a1_GRAPHIC (option):
   prn ('TODO: a1_GRAPHIC no implementado', file = sys.stderr)  # TODO
 
-def a1_INK (colour):
-  """Cambia el color de la letra"""
-  prn ('TODO: a1_INK no implementado', file = sys.stderr)  # TODO
-
 def a1_INPUT (option):
   prn ('TODO: a1_INPUT no implementado', file = sys.stderr)  # TODO
 
@@ -533,10 +529,6 @@ def a1_MES (mesno):
 def a1_MODE (value):
   """Cambia el modo de impresión"""
   banderas[40] = value
-
-def a1_PAPER (colour):
-  """Cambia el color de fondo"""
-  prn ('TODO: a1_PAPER no implementado', file = sys.stderr)  # TODO
 
 def a1_PICTURE (locno):
   """Dibuja el gráfico definido por locno, sin importar que sea una subrutina o un gráfico principal

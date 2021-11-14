@@ -187,7 +187,8 @@ def a0_TURNS ():
 
 
 def a1_BORDER (colour):
-  prn ('TODO: condacto a1_BORDER no implementado', file = sys.stderr)  # TODO
+  """Cambia el color de fondo al borrar la pantalla"""
+  gui.cambia_color_borde (colour)
 
 def a1_CLEAR (flagno):
   """Pone el valor de la bandera flagno a 0"""
@@ -223,10 +224,18 @@ def a1_GOTO (locno):
   """Cambia la localidad actual al número dado por locno"""
   banderas[38] = locno
 
+def a1_INK (colour):
+  """Cambia el color de la letra al imprimir texto"""
+  gui.cambia_color_tinta (colour)
+
 def a1_MESSAGE (mesno):
   """Imprime el mensaje de usuario dado por mesno, en los colores actuales, y luego ejecuta una acción NEWLINE"""
   imprime_mensaje (msgs_usr[mesno])
   gui.imprime_cadena  ('\n')
+
+def a1_PAPER (colour):
+  """Cambia el color de fondo/papel al imprimir texto"""
+  gui.cambia_color_papel (colour)
 
 def a1_PAUSE (value):
   """Pausa por un tiempo de value/50 segundos

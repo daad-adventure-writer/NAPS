@@ -57,6 +57,18 @@ def borra_orden ():
   """Borra la entrada realimentada en pantalla en la subventana de entrada si es subventana propia, y recupera la subventana anterior"""
   pass
 
+def cambia_color_borde (color):
+  """Cambia el color de fondo al borrar de la subventana actual por el de código dado"""
+  pass
+
+def cambia_color_papel (color):
+  """Cambia el color de papel/fondo al escribir la subventana actual por el dado"""
+  pass
+
+def cambia_color_tinta (color):
+  """Cambia el color de tinta al escribir la subventana actual por el dado"""
+  pass
+
 def cambia_subv_input (stream, opciones):
   """Cambia la subventana de entrada por el stream dado, con las opciones dadas, según el condacto INPUT"""
   pass
