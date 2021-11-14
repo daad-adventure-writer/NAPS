@@ -65,23 +65,16 @@ def cambia_topes (columna, fila):
   """Cambia los topes de la subventana de impresión elegida"""
   pass
 
-def guarda_cursor ():
-  """Guarda la posición del cursor de la subventana elegida """
-  pass
-
 def dibuja_grafico (numero, descripcion = False, parcial = False):
   """Dibuja un gráfico en la posición del cursor"""
   pass
 
-def elige_subventana (numero):
-  """Selecciona una de las subventanas"""
-  global elegida, nuevaLinea
-  if numero != elegida:
-    elegida    = numero
-    nuevaLinea = True
-
 def espera_tecla (tiempo = 0):
   """Espera hasta que se pulse una tecla (modificadores no), o hasta que pase tiempo segundos, si tiempo > 0"""
+  pass
+
+def guarda_cursor ():
+  """Guarda la posición del cursor de la subventana elegida """
   pass
 
 def pos_subventana (columna, fila):
@@ -99,6 +92,7 @@ def redimensiona_ventana (evento = None):
 def reinicia_subventanas ():
   """Ajusta todas las subventanas de impresión a sus valores por defecto"""
   pass
+
 
 # Funciones que implementan la entrada y salida por entrada y salida estándar de puro texto
 
@@ -128,6 +122,13 @@ def borra_todo ():
 def carga_cursor ():
   """Carga la posición del cursor guardada de la subventana elegida """
   marcaNuevaLinea()
+
+def elige_subventana (numero):
+  """Selecciona una de las subventanas"""
+  global elegida, nuevaLinea
+  if numero != elegida:
+    elegida    = numero
+    nuevaLinea = True
 
 def hay_grafico (numero):
   """Devuelve si existe el gráfico de número dado"""

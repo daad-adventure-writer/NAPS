@@ -392,7 +392,6 @@ def a0_WHATO ():
     if len (parcial) == 1:
       obj_referido (parcial[0])
       return
-
   obj_referido (255)  # Ningún objeto encajaba, o había ambigüedad
 
 

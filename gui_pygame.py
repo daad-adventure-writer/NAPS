@@ -187,14 +187,14 @@ def borra_pantalla (desdeCursor = False, noRedibujar = False):
   tope       = topes[elegida]
   if elegida == 0:
     tope = topes_gfx
-  inicio_x = (subventana[0] + cursor[0]) * 6  # Esquina superior izquierda X
-  inicio_y = (subventana[1] + cursor[1]) * 8  # Esquina superior izquierda Y
-  ancho    = math.ceil (((tope[0] - cursor[0]) * 6) / 8.) * 8  # Anchura del rectángulo a borrar
-  alto     = (tope[1] - cursor[1]) * 8  # Altura del rectángulo a borrar
+  inicioX = (subventana[0] + cursor[0]) * 6  # Esquina superior izquierda X
+  inicioY = (subventana[1] + cursor[1]) * 8  # Esquina superior izquierda Y
+  ancho   = math.ceil (((tope[0] - cursor[0]) * 6) / 8.) * 8  # Anchura del rectángulo a borrar
+  alto    = (tope[1] - cursor[1]) * 8  # Altura del rectángulo a borrar
   # Los gráficos pueden dibujar hasta dos píxeles más allá de la última columna de texto
   if subventana[0] + tope[0] == 53:
     ancho += 2
-  ventana.fill ((0, 0, 0), (inicio_x, inicio_y, ancho, alto))
+  ventana.fill ((0, 0, 0), (inicioX, inicioY, ancho, alto))
   if not desdeCursor and not noRedibujar:
     actualizaVentana()
   if traza:
