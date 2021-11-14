@@ -309,8 +309,8 @@ def a0_SPACE ():
 
 
 def a1_CALL (address):
-  if traza:
-    prn ('XXX: a1_CALL no implementado', file = sys.stderr)  # Es como un EXTERN
+  """Es como un EXTERN"""
+  prn ('XXX: a1_CALL no implementado', file = sys.stderr)
 
 def a1_DESC (locno):
   """Imprime la descripción de la localidad dada"""
@@ -407,8 +407,8 @@ def a2_COPYBF (flagno1, flagno2):
   banderas[flagno1] = banderas[flagno2]
 
 def a2_GFX (value1, value2):
-  if traza:
-    prn ('XXX: a2_GFX no implementado', file = sys.stderr)  # Es como un EXTERN
+  """Es como un EXTERN"""
+  prn ('XXX: a2_GFX no implementado', file = sys.stderr)
 
 def a2_INPUT (stream, options):
   """Cambia el "stream" (subventana de impresión) del que leer órdenes del jugador, y las opciones de entrada. Un valor 0 para stream hace que la entrada se obtenga de la subventana actual"""
