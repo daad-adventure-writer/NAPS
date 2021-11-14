@@ -312,6 +312,15 @@ def a0_NOTDONE ():
   """Concluye la ejecución de la tabla actual, terminando como no satisfactorio"""
   return 4
 
+def a0_PROTECT ():
+  """Ejecutado desde el proceso 1, protege las líneas anteriores a la del cursor, para que sólo se haga scroll desde la del cursor en adelante"""
+  if pila_procs[-1][0] == 1:
+    gui.elige_subventana (2)
+    gui.pos_subventana (0, gui.cursores[1][1])
+    gui.cambia_topes (0, 0)  # Topes al máximo tamaño posible
+    gui.mueve_cursor (gui.cursores[1][0])  # Deja el cursor en la misma columna que estaba
+    banderas[41] = gui.cursores[1][1]
+
 def a0_QUIT ():
   """Pide confirmación (MS12), y si la respuesta empieza por la primera letra del MS30, termina completamente la ejecución de la aventura. Si no, ejecuta NEWTEXT y DONE"""
   respuesta = gui.lee_cadena (msgs_sys[12], '', [0])

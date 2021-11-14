@@ -313,6 +313,8 @@ def describe_localidad ():
   # Según http://graemeyeandle.atwebpages.com/advent/pawtech.html debe ser así,
   # en lugar de si no está a 1, como decía la guía técnica en papel
   if NOMBRE_SISTEMA == 'PAWS' and not banderas[40] & 1:
+    if gui.elegida == 2:  # Se había usado PROTECT
+      gui.elige_subventana (1)
     gui.borra_pantalla()
 
   # Si está oscuro y el objeto 0 está ausente, entonces el Mensaje del Sistema 0
