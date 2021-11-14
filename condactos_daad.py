@@ -117,6 +117,16 @@ def accionAUTO2 (accion, localidades, sysno, locno, sysno2 = None):
 
 # CONDICIONES
 
+
+def c0_INKEY ():
+  """Guarda en las banderas 60 y 61 el par de códigos ASCII de la tecla pulsada (si hay alguna pulsada), y devuelve si hay alguna tecla pulsada o no"""
+  tecla = gui.da_tecla_pulsada()
+  if tecla == None:
+    return False
+  banderas[60] = tecla[0]
+  banderas[61] = tecla[1]
+  return True
+
 def c0_ISDONE ():
   """Satisfactorio si la última tabla que terminó, lo hizo habiendo ejecutado alguna acción, o terminando con DONE, pero no con NOTDONE"""
   return tabla_hizo_algo()
@@ -225,10 +235,6 @@ def a0_END ():
     gui.imprime_cadena (msgs_sys[14])
     return 7
   return 0
-
-def c0_INKEY ():
-  prn ('TODO: c0_INKEY no implementado', file = sys.stderr)  # TODO
-  return False
 
 def a0_LISTOBJ ():
   """Lista los objetos presentes, si los hay, anteponiendo el mensaje de sistema 1"""

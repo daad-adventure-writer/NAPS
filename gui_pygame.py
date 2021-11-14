@@ -45,6 +45,8 @@ derecha = ''.join (der)
 
 iso8859_15_a_fuente = maketrans (izquierda, derecha)
 
+# Pares de códigos ASCII para teclas pulsadas
+teclas_ascii = {pygame.K_DOWN: (0, 80), pygame.K_LEFT: (0, 75), pygame.K_RIGHT: (0, 77), pygame.K_UP: (0, 72)}
 # Teclas imprimibles y de edición, con código < 256
 teclas_edicion = string.printable + string.punctuation + 'ñçº¡\b\x1b'
 # Teclas de edición con código >= 256
@@ -87,6 +89,7 @@ banderas_antes  = None  # Valor anterior de las banderas
 banderas_viejas = None  # Banderas que antes cambiaron de valor
 historial       = []    # Historial de órdenes del jugador
 historial_temp  = []    # Orden a medias, guardada al acceder al historial
+teclas_pulsadas = []    # Lista de teclas actualmente pulsadas
 
 # Todas las coordenadas son columna, fila
 num_subvens = 8                # DAAD tiene 8 subventanas
@@ -235,6 +238,23 @@ def cambia_topes (columna, fila):
          'con topes puestos a', topes[elegida], 'y cursor en',
          cursores[elegida])
 
+def da_tecla_pulsada ():
+  """Devuelve el par de códigos ASCII de la tecla más recientemente pulsada si hay alguna tecla pulsada, o None si no hay ninguna pulsada"""
+  if pygame.event.peek ((pygame.KEYDOWN, pygame.KEYUP)):
+    for evento in pygame.event.get ((pygame.KEYDOWN, pygame.KEYUP)):
+      if evento.type == pygame.KEYDOWN:
+        if evento.key not in teclas_pulsadas:
+          teclas_pulsadas.append (evento.key)
+      else:  # evento.type == pygame.KEYUP
+        if evento.key in teclas_pulsadas:
+          teclas_pulsadas.remove (evento.key)
+  redimensiona_ventana()
+  if not teclas_pulsadas:
+    return None
+  if teclas_pulsadas[-1] in teclas_ascii:
+    return teclas_ascii[teclas_pulsadas[-1]]
+  return (teclas_pulsadas[-1], 0)
+
 # FIXME: Hay que dibujar sólo la región que no sale de los topes
 def dibuja_grafico (numero, descripcion = False, parcial = False):
   """Dibuja un gráfico en la posición del cursor
@@ -298,9 +318,14 @@ def espera_tecla (tiempo = 0):
   while True:
     evento = pygame.event.wait()
     if evento.type == pygame.KEYDOWN:
+      if evento.key not in teclas_pulsadas:
+        teclas_pulsadas.append (evento.key)
       if ((evento.key < 256) and (chr (evento.key) in teclas_edicion)) or evento.key in teclas_kp or evento.key in teclas_mas_256:
           pygame.time.set_timer (pygame.USEREVENT, 0)  # Paramos el timer
           return evento.key
+    elif evento.type == pygame.KEYUP:
+      if evento.key in teclas_pulsadas:
+        teclas_pulsadas.remove (evento.key)
     elif evento.type == pygame.USEREVENT:  # Tiempo de espera superado
       pygame.time.set_timer (pygame.USEREVENT, 0)  # Paramos el timer
       return None

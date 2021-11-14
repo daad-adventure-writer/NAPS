@@ -123,6 +123,10 @@ def carga_cursor ():
   """Carga la posición del cursor guardada de la subventana elegida """
   marcaNuevaLinea()
 
+def da_tecla_pulsada ():
+  """Devuelve el par de códigos ASCII de la tecla más recientemente pulsada si hay alguna tecla pulsada, o None si no hay ninguna pulsada"""
+  return None
+
 def elige_subventana (numero):
   """Selecciona una de las subventanas"""
   global elegida, nuevaLinea
