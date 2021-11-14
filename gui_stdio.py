@@ -70,6 +70,10 @@ def cambia_color_tinta (color):
   """Cambia el color de tinta al escribir la subventana actual por el dado"""
   pass
 
+def cambia_cursor (cadenaCursor):
+  """Cambia el carácter que marca la posición del cursor en la entrada del jugador"""
+  pass
+
 def cambia_subv_input (stream, opciones):
   """Cambia la subventana de entrada por el stream dado, con las opciones dadas, según el condacto INPUT"""
   pass
