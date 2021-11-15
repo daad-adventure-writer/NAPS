@@ -186,7 +186,7 @@ def borra_pantalla (desdeCursor = False, noRedibujar = False):
     del texto_nuevo[:]
   if not desdeCursor:
     cursores[elegida] = [0, 0]
-  colorBorde = paleta[0][color_subv[elegida][2]]
+  colorBorde = paleta[0][color_subv[elegida][2]] if paleta[0] else (0, 0, 0)
   cursor     = cursores[elegida]
   subventana = subventanas[elegida]
   tope       = topes[elegida]
@@ -207,7 +207,7 @@ def borra_pantalla (desdeCursor = False, noRedibujar = False):
 
 def borra_todo ():
   """Limpia la pantalla completa"""
-  colorBorde = paleta[0][color_subv[elegida][2]]
+  colorBorde = paleta[0][color_subv[elegida][2]] if paleta[0] else (0, 0, 0)
   ventana.fill (colorBorde, (0, 0) + resolucion)
   actualizaVentana()
 
