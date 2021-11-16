@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Librería de SWAN (parte común a editor, compilador e intérprete)
-# Copyright (C) 2020 José Manuel Ferrer Ortiz
+# Copyright (C) 2020-2021 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -21,6 +21,8 @@
 # *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA  *
 # *                                                                           *
 # *****************************************************************************
+
+from bajo_nivel import *
 
 
 # Variables que se exportan (fuera del paquete)
@@ -235,6 +237,7 @@ def carga_bd (fichero, longitud):
   global fich_ent, long_fich_ent  # Fichero de entrada y su longitud
   fich_ent      = fichero
   long_fich_ent = longitud
+  bajo_nivel_cambia_ent (fichero)
   try:
     prepara_plataforma()
     carga_abreviaturas()
@@ -250,28 +253,6 @@ def carga_bd (fichero, longitud):
     carga_tablas_procesos()
   except:
     return False
-
-
-# Funciones de apoyo de bajo nivel
-
-# Carga un desplazamiento (2 bytes) en relación con el fichero
-# desplazamiento (opcional) es la posición en el fichero de donde leerá el desplazamiento
-def carga_desplazamiento (desplazamiento = None):
-  if desplazamiento:
-    fich_ent.seek (desplazamiento)
-  return carga_int2() - despl_ini
-
-# Carga un entero de tamaño 1 byte
-def carga_int1 ():
-  return ord (fich_ent.read (1))
-
-# Carga un entero de tamaño 2 bytes, en formato Big Endian
-def carga_int2_be ():
-  return (ord (fich_ent.read (1)) << 8) + ord (fich_ent.read (1))
-
-# Carga un entero de tamaño 2 bytes, en formato Little Endian
-def carga_int2_le ():
-  return ord (fich_ent.read (1)) + (ord (fich_ent.read (1)) << 8)
 
 
 # Funciones de apoyo de alto nivel
@@ -468,10 +449,12 @@ def prepara_plataforma ():
   fich_ent.seek (CAB_PLATAFORMA)
   plataforma = carga_int2_be()
   # Detectamos "endianismo"
-  if plataforma / 256 > plataforma & 255:  # Es little-endian
+  if plataforma / 256 > plataforma & 255:  # Es Little Endian
     carga_int2 = carga_int2_le
+    bajo_nivel_cambia_endian (le = True)
   else:
     carga_int2 = carga_int2_be
+    bajo_nivel_cambia_endian (le = False)
   # Detectamos si habrá paddings para mantener los desplazamientos en posiciones pares
   if plataforma in plats_word:
     alinear = True
@@ -496,3 +479,4 @@ def prepara_plataforma ():
           continue
         break  # Ya encontrada
       despl_ini = difPosible
+    bajo_nivel_cambia_despl (despl_ini)

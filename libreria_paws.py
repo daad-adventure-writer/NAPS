@@ -22,6 +22,8 @@
 # *                                                                           *
 # *****************************************************************************
 
+from bajo_nivel import *
+
 
 # Variables que se exportan (fuera del paquete)
 
@@ -233,28 +235,6 @@ def carga_bd_sna (fichero, longitud):
   return cargaBD (fichero, longitud)
 
 
-# Funciones de apoyo de bajo nivel
-
-# Carga un desplazamiento (2 bytes) en relación con el fichero
-# desplazamiento (opcional) es la posición en el fichero de donde leerá el desplazamiento
-def carga_desplazamiento (desplazamiento = None):
-  if desplazamiento:
-    fich_ent.seek (desplazamiento)
-  return carga_int2() - despl_ini
-
-# Carga un entero de tamaño 1 byte
-def carga_int1 ():
-  return ord (fich_ent.read (1))
-
-# Carga un entero de tamaño 2 bytes, en formato Big Endian
-def carga_int2_be ():
-  return (ord (fich_ent.read (1)) << 8) + ord (fich_ent.read (1))
-
-# Carga un entero de tamaño 2 bytes, en formato Little Endian
-def carga_int2_le ():
-  return ord (fich_ent.read (1)) + (ord (fich_ent.read (1)) << 8)
-
-
 # Funciones de apoyo de alto nivel
 
 # Carga las abreviaturas
@@ -457,8 +437,10 @@ def prepara_plataforma ():
   # Detectamos "endianismo"
   if plataforma in plats_LE or version == 21:  # Si el byte de versión vale 21, es formato sna
     carga_int2 = carga_int2_le
+    bajo_nivel_cambia_endian (le = True)
   else:
     carga_int2 = carga_int2_be
+    bajo_nivel_cambia_endian (le = False)
   # Preparamos el desplazamiento inicial para carga desde memoria
   if plataforma == 0 and version == 21:  # Formato sna de Spectrum 48K
     conversion       = {'#': 'é', '$': 'í', '%': 'ó', '&': 'ú', '@': 'á', '[': '¡', ']': '¿', '^': '»', '`': '«', '|': 'ñ', '\x7f': '©', '\x80': ' ', '\x92': u'\u2192', '\x93': u'\u2190', '\x97': '%'}
@@ -469,6 +451,7 @@ def prepara_plataforma ():
     condactos[81]    = ('MODE', 2, True)
   elif plataforma in despl_ini_plat:
     despl_ini = despl_ini_plat[plataforma]
+  bajo_nivel_cambia_despl (despl_ini)
 
 
 # Funciones auxiliares que sólo se usan en este módulo
@@ -482,6 +465,7 @@ def cargaBD (fichero, longitud):
   global fich_ent, long_fich_ent  # Fichero de entrada y su longitud
   fich_ent      = fichero
   long_fich_ent = longitud
+  bajo_nivel_cambia_ent (fichero)
   try:
     prepara_plataforma()
     carga_abreviaturas()

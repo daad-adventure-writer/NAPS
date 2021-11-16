@@ -22,7 +22,8 @@
 # *                                                                           *
 # *****************************************************************************
 
-from prn_func import prn
+from bajo_nivel import *
+from prn_func   import prn
 
 import os
 
@@ -262,25 +263,6 @@ condactos_nuevos = {
 
 # Funciones de apoyo de bajo nivel
 
-# Carga un desplazamiento (2 bytes) en relación con el fichero
-# desplazamiento (opcional) es la posición en el fichero de donde leerá el desplazamiento
-def carga_desplazamiento (desplazamiento = None):
-  if desplazamiento:
-    fich_ent.seek (desplazamiento)
-  return carga_int2() - despl_ini
-
-# Carga un entero de tamaño 1 byte
-def carga_int1 ():
-  return ord (fich_ent.read (1))
-
-# Carga un entero de tamaño 2 bytes, en formato Big Endian
-def carga_int2_be ():
-  return (ord (fich_ent.read (1)) << 8) + ord (fich_ent.read (1))
-
-# Carga un entero de tamaño 2 bytes, en formato Little Endian
-def carga_int2_le ():
-  return ord (fich_ent.read (1)) + (ord (fich_ent.read (1)) << 8)
-
 # Guarda una cadena sin abreviar, en el formato de DAAD
 def guarda_cadena (cadena):
   cuenta = 0
@@ -308,24 +290,6 @@ def guarda_cadena_abreviada (cadena):
     guarda_int1 (caracter ^ 255)
   guarda_int1 (ord ('\n') ^ 255)  # Fin de cadena
 
-# Guarda un desplazamiento (2 bytes) en relación con la memoria
-def guarda_desplazamiento (entero):
-  guarda_int2 (entero + despl_ini)
-
-# Guarda un entero en un byte
-def guarda_int1 (entero):
-  fich_sal.write (chr (entero))
-
-# Guarda un entero en dos bytes, en formato Big Endian
-def guarda_int2_be (entero):
-  fich_sal.write (chr (entero >> 8))
-  fich_sal.write (chr (entero & 255))
-
-# Guarda un entero en dos bytes, en formato Little Endian
-def guarda_int2_le (entero):
-  fich_sal.write (chr (entero & 255))
-  fich_sal.write (chr (entero >> 8))
-
 
 # Funciones que utiliza el IDE directamente
 
@@ -338,6 +302,7 @@ def carga_bd (fichero, longitud):
   global fich_ent, long_fich_ent  # Fichero de entrada y su longitud
   fich_ent      = fichero
   long_fich_ent = longitud
+  bajo_nivel_cambia_ent (fichero)
   try:
     prepara_plataforma()
     carga_abreviaturas()
@@ -760,6 +725,7 @@ def guarda_bd_ (bbdd):
   num_msgs_usr = len (msgs_usr)        # Número de mensajes de usuario
   num_msgs_sys = len (msgs_sys)        # Número de mensajes de sistema
   num_procs    = len (tablas_proceso)  # Número de tablas de proceso
+  bajo_nivel_cambia_sal (bbdd)
   guarda_int1 (1)             # Versión del formato
   guarda_int1 (plataforma)    # Identificador de plataforma
   guarda_int1 (95)            # No sé qué es, pero vale esto en las BBDD DAAD
@@ -946,6 +912,7 @@ def guarda_bd (bbdd):
   num_msgs_usr = len (msgs_usr)        # Número de mensajes de usuario
   num_msgs_sys = len (msgs_sys)        # Número de mensajes de sistema
   num_procs    = len (tablas_proceso)  # Número de tablas de proceso
+  bajo_nivel_cambia_sal (bbdd)
   guarda_int1 (version)       # Versión del formato
   guarda_int1 (plataforma)    # Identificador de plataforma
   guarda_int1 (95)            # No sé qué es, pero vale esto en las BBDD DAAD
@@ -1227,6 +1194,9 @@ def prepara_plataforma ():
     # TODO: tener en cuenta los 13 punteros de funciones externas, en versiones posteriores de DAAD
     despl_ini = minimo - (CAB_LONG_FICH + 2)
     # despl_ini -= 50  # FIXME: apaño para Chichén Itzá de Spectrum
+
+  bajo_nivel_cambia_despl  (despl_ini)
+  bajo_nivel_cambia_endian (le)
 
 
 def inicializa_banderas (banderas):
