@@ -26,6 +26,7 @@ from bajo_nivel import *
 from prn_func   import prn
 
 import os
+import sys  # Para stderr
 
 
 # Variables que se exportan (fuera del paquete)
@@ -1183,21 +1184,78 @@ def prepara_plataforma ():
     alinear = True
 
   if detectar_despl:
+    tamCabecera = CAB_LONG_FICH + 2  # Longitud de la cabecera
+    # Detectamos si hay 13 punteros de funciones externas, como ocurre en todas las aventuras de DAAD versión 2 menos las primeras
+    fich_ent.seek (tamCabecera)
+    ceros = 0
+    for i in range (13):
+      if carga_int2() == 0:
+        ceros += 1
+    if ceros > 6:
+      tamCabecera += 26
     minimo = 999999
     fich_ent.seek (CAB_POS_ABREVS)
-    for posCabecera in range (CAB_POS_ABREVS, CAB_LONG_FICH + 2, 2):
+    for posCabecera in range (CAB_POS_ABREVS, tamCabecera, 2):
       desplazamiento = carga_int2()
-      if not desplazamiento:  # Podría tener 0 para las abreviaturas
+      if not desplazamiento:  # Puede tener 0 en abreviaturas y funciones externas
         continue
       if desplazamiento < minimo:
         minimo = desplazamiento
-    # TODO: tener en cuenta los 13 punteros de funciones externas, en versiones posteriores de DAAD
-    despl_ini = minimo - (CAB_LONG_FICH + 2)
-    # despl_ini -= 50  # FIXME: apaño para Chichén Itzá de Spectrum
+    despl_ini = minimo - tamCabecera
+    if tamCabecera > 34 and ceros < 13:
+      # Puede haber código ensamblador entre la cabecera y donde apunta el primer puntero
+      lista = []
+      for reintentos in range (60):
+        if validaPunteros (tamCabecera):
+          break  # Todo ha cargado bien
+        despl_ini -= 1
+      else:
+        prn ('Error: no se ha podido detectar el desplazamiento inicial de la base de datos', file = sys.stderr)
+        sys.exit()
+      if reintentos:
+        prn ('Detectados', reintentos, 'bytes entre la cabecera y donde apunta su primer puntero', file = sys.stderr)
 
   bajo_nivel_cambia_despl  (despl_ini)
   bajo_nivel_cambia_endian (le)
 
+def validaPunteros (tamCabecera):
+  """Comprueba que los punteros en la base de datos apunten dentro de la misma"""
+  # Comprobamos punteros en la cabecera
+  fich_ent.seek (CAB_LONG_FICH)
+  longitudBD = carga_int2() - despl_ini
+  fich_ent.seek (CAB_POS_ABREVS)
+  for posCabecera in range (CAB_POS_ABREVS, CAB_LONG_FICH, 2):
+    desplazamiento = carga_int2() - despl_ini
+    if desplazamiento >= longitudBD or desplazamiento < tamCabecera:
+      return False
+
+  # Comprobamos punteros de cabeceras de los procesos
+  fich_ent.seek (CAB_NUM_PROCS)
+  numProcs = carga_int1()
+  # Vamos a la posición de la lista de posiciones de los procesos
+  fich_ent.seek (CAB_POS_LST_POS_PROCS)
+  fich_ent.seek (carga_int2() - despl_ini)
+  posProcesos = []  # Posiciones de las cabeceras de los procesos
+  for posTabla in range (numProcs):
+    desplazamiento = carga_int2() - despl_ini
+    if desplazamiento >= longitudBD or desplazamiento < tamCabecera:
+      return False
+    posProcesos.append (desplazamiento)
+
+  # Comprobamos punteros de entradas de los procesos
+  for posProceso in posProcesos:
+    fich_ent.seek (posProceso)
+    while True:
+      verbo = carga_int1()
+      if verbo == 0:  # Fin de este proceso
+        break
+      carga_int1()  # Nombre
+      desplazamiento = carga_int2() - despl_ini
+      if desplazamiento >= longitudBD or desplazamiento < tamCabecera:
+        return False
+
+  # XXX: continuar la implementación si fuera necesario, revisando más punteros
+  return True
 
 def inicializa_banderas (banderas):
   """Inicializa banderas con valores propios de DAAD"""
