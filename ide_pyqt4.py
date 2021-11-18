@@ -671,7 +671,7 @@ def importaBD (nombreFichero):
   # Solicitamos la importación
   if mod_actual.__dict__[funcion] (fichero, os.path.getsize (nombreFichero)) == False:
     muestraFallo ('No se puede importar una base datos de:\n' +
-                  nombreFichero, 'Causa:\nFormato de fichero incompatible')
+                  nombreFichero, 'Causa:\nFormato de fichero incompatible o base de datos corrupta')
     mod_actual = None
     return
   fichero.close()

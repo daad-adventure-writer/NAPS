@@ -886,9 +886,12 @@ if __name__ == '__main__':
   # Cargamos la base de datos
   bbdd = open (args.bbdd, 'rb')
   if extension == '.sna':
-    libreria.carga_bd_sna (bbdd, os.path.getsize (args.bbdd))
+    correcto = libreria.carga_bd_sna (bbdd, os.path.getsize (args.bbdd))
   else:
-    libreria.carga_bd (bbdd, os.path.getsize (args.bbdd))
+    correcto = libreria.carga_bd (bbdd, os.path.getsize (args.bbdd))
+  if correcto == False:
+    prn ('Error al tratar de cargar la base de datos', file = sys.stderr)
+    sys.exit()
   bbdd.close()
 
   if extension == '.sna' or libreria.plataforma == 17:
