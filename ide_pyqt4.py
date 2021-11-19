@@ -692,10 +692,24 @@ def exportaBD ():
     dlg_guardar.setLabelText (QFileDialog.FileType, 'Filtro:')
     dlg_guardar.setLabelText (QFileDialog.Accept,   '&Guardar')
     dlg_guardar.setLabelText (QFileDialog.Reject,   '&Cancelar')
+    dlg_guardar.setOption (QFileDialog.DontConfirmOverwrite)
   if dlg_guardar.exec_():  # No se ha cancelado
-    selector.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
     indiceFiltro  = dlg_guardar.filters().indexOf (dlg_guardar.selectedFilter())
     nombreFichero = str (dlg_guardar.selectedFiles()[0])
+    extension     = '.' + info_exportar[indiceFiltro][1][0]
+    if extension not in nombreFichero:
+      nombreFichero += extension
+    if os.path.isfile (nombreFichero):
+      dlgSiNo = QMessageBox (selector)
+      dlgSiNo.addButton ('&Sí', QMessageBox.YesRole)
+      dlgSiNo.addButton ('&No', QMessageBox.NoRole)
+      dlgSiNo.setIcon (QMessageBox.Warning)
+      dlgSiNo.setWindowTitle ('Sobreescritura')
+      dlgSiNo.setText ('Ya existe un fichero con ruta y nombre:\n\n' + nombreFichero)
+      dlgSiNo.setInformativeText ('\n¿Quieres sobreescribirlo?')
+      if dlgSiNo.exec_() != 0:  # No se ha pulsado el botón Sí
+        return
+    selector.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
     try:
       fichero = open (nombreFichero, 'w')
     except IOError as excepcion:
