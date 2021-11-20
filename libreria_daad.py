@@ -1097,21 +1097,25 @@ def guarda_bd (bbdd):
   fich_sal.seek (CAB_LONG_FICH)
   guarda_desplazamiento (ocupado)
 
-def guardaMsgsSys (posInicial = 0):
-  """Guarda la sección de mensajes de sistema sobre el fichero de salida, y devuelve cuántos bytes ocupa la sección, y las posiciones de cada mensaje incluyendo posInicial"""
+def guardaMsgs (msgs, msgsAbrev, posInicial = 0):
+  """Guarda una sección de mensajes sobre el fichero de salida, y devuelve cuántos bytes ocupa la sección, y las posiciones de cada mensaje incluyendo posInicial"""
   ocupado    = 0
   posiciones = []
-  if abreviaturas and msgs_sys_abrev:
-    for mensaje in msgs_sys_abrev:
+  if abreviaturas and msgsAbrev:
+    for mensaje in msgsAbrev:
       posiciones.append (posInicial + ocupado)
       guarda_cadena_abreviada (mensaje)
       ocupado += len (mensaje) + 1
   else:
-    for mensaje in msgs_sys:
+    for mensaje in msgs:
       posiciones.append (posInicial + ocupado)
       guarda_cadena (mensaje)
       ocupado += len (mensaje) + 1
   return ocupado, posiciones
+
+def guardaMsgsSys (posInicial = 0):
+  """Guarda la sección de mensajes de sistema sobre el fichero de salida, y devuelve cuántos bytes ocupa la sección, y las posiciones de cada mensaje incluyendo posInicial"""
+  return guardaMsgs (msgs_sys, msgs_sys_abrev, posInicial)
 
 def guardaPosMsgsSys (pos):
   """Guarda la sección de posiciones de los mensajes de sistema sobre el fichero de salida, y según el tipo del parámetro, devuelve cuántos bytes ocupa la sección o cuántos ocupan los mensajes
