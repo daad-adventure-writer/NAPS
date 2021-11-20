@@ -14,7 +14,7 @@ Los métodos para ser usados solamente en su módulo tendrán su nombre con Came
 Nombre de variables
 -------------------
 
-Se usará CamelCase iniciando en minúscula para variables locales. Las variables globales o de módulo tendrán su nombre todo en minúsculas separando con guión bajo sus palabras.
+Se usará CamelCase iniciando en minúscula para variables locales incluyendo parámetros. Las variables globales o de módulo tendrán su nombre todo en minúsculas separando con guión bajo sus palabras.
 
 Llamadas a métodos
 ------------------
