@@ -780,17 +780,7 @@ def guarda_bd_ (bbdd):
   # Fin de la cabecera
 
   # Guardamos el vocabulario
-  for palabra in vocabulario:
-    cadena = palabra[0].ljust (5)  # Texto de la palabra, rellenada con espacios al final
-    for caracter in cadena:
-      if ord (caracter) > 127:  # Conversión necesaria
-        caracter = daad_a_chr.index (caracter) + 16
-      else:
-        caracter = ord (caracter.upper())
-      guarda_int1 (caracter ^ 255)
-    guarda_int1 (palabra[1])  # Código de la palabra
-    guarda_int1 (palabra[2])  # Tipo de la palabra
-  guarda_int1 (0)  # Fin del vocabulario
+  guardaVocabulario()
   # Guardamos las abreviaturas (si las hay)
   if abreviaturas:  # Si hay abreviaturas...
     for indice_abrev in range (129):  # ... habrá 129
@@ -1022,17 +1012,7 @@ def guarda_bd (bbdd):
     guarda_desplazamiento (ocupado)
     ocupado += (2 * len (conexiones[i])) + 1
   # Guardamos el vocabulario
-  for palabra in vocabulario:
-    cadena = palabra[0].ljust (5)  # Texto de la palabra
-    for caracter in cadena:
-      if ord (caracter) > 127:  # Conversión necesaria
-        caracter = daad_a_chr.index (caracter) + 16
-      else:
-        caracter = ord (caracter.upper())
-      guarda_int1 (caracter ^ 255)
-    guarda_int1 (palabra[1])  # Código de la palabra
-    guarda_int1 (palabra[2])  # Tipo de la palabra
-  guarda_int1 (0)  # Fin del vocabulario
+  guardaVocabulario()
   # Guardamos las localidades iniciales de los objetos
   for localidad in locs_iniciales:
     guarda_int1 (localidad)
@@ -1128,6 +1108,22 @@ def guarda_bd (bbdd):
   # Guardamos la longitud final del fichero
   fich_sal.seek (CAB_LONG_FICH)
   guarda_desplazamiento (ocupado)
+
+def guardaVocabulario ():
+  """Guarda la sección de vocabulario sobre el fichero de salida, y devuelve cuántos bytes ocupa la sección"""
+  for palabra in vocabulario:
+    # Rellenamos el texto de la palabra con espacios al final
+    cadena = palabra[0].ljust (LONGITUD_PAL)
+    for caracter in cadena:
+      if ord (caracter) > 127:  # Conversión necesaria
+        caracter = daad_a_chr.index (caracter) + 16
+      else:
+        caracter = ord (caracter.upper())
+      guarda_int1 (caracter ^ 255)
+    guarda_int1 (palabra[1])  # Código de la palabra
+    guarda_int1 (palabra[2])  # Tipo de la palabra
+  guarda_int1 (0)  # Fin del vocabulario
+  return (len (vocabulario) * (LONGITUD_PAL + 2)) + 1
 
 # Prepara la configuración sobre la plataforma
 def prepara_plataforma ():
