@@ -819,9 +819,7 @@ def guarda_bd_ (bbdd):
     guarda_desplazamiento (ocupado)
     ocupado += len (desc_locs_abrev[i]) + 1
   # Guardamos las posiciones de los mensajes de usuario
-  for i in range (num_msgs_usr):
-    guarda_desplazamiento (ocupado)
-    ocupado += len (msgs_usr[i]) + 1
+  ocupado += guardaPosMsgsUsr (ocupado)
   # Guardamos las posiciones de los mensajes de sistema
   ocupado += guardaPosMsgsSys (ocupado)
   # Guardamos las posiciones de las listas de conexiones de cada localidad
@@ -994,9 +992,7 @@ def guarda_bd (bbdd):
     guarda_desplazamiento (ocupado)
     ocupado += len (desc_locs_abrev[i]) + 1
   # Guardamos las posiciones de los mensajes de usuario
-  for i in range (num_msgs_usr):
-    guarda_desplazamiento (ocupado)
-    ocupado += len (msgs_usr_abrev[i]) + 1
+  ocupado += guardaPosMsgsUsr (ocupado)
   # Guardamos las posiciones de los mensajes de sistema
   ocupado += guardaPosMsgsSys (ocupado)
   # Guardamos las posiciones de las listas de conexiones de cada localidad
@@ -1137,6 +1133,12 @@ def guardaPosMsgsSys (pos):
 
   El parámetro pos es la posición donde se guardará el primer mensaje, o bien una lista con la posición de cada mensaje. Si es el primer caso, la función devuelve cuánto ocupan los mensajes, y en el segundo caso, devuelve cuánto ocupa la sección"""
   return guardaPosMsgs (msgs_sys, msgs_sys_abrev, pos)
+
+def guardaPosMsgsUsr (pos):
+  """Guarda la sección de posiciones de los mensajes de sistema sobre el fichero de salida, y según el tipo del parámetro, devuelve cuántos bytes ocupa la sección o cuántos ocupan los mensajes
+
+  El parámetro pos es la posición donde se guardará el primer mensaje, o bien una lista con la posición de cada mensaje. Si es el primer caso, la función devuelve cuánto ocupan los mensajes, y en el segundo caso, devuelve cuánto ocupa la sección"""
+  return guardaPosMsgs (msgs_usr, msgs_usr_abrev, pos)
 
 def guardaVocabulario ():
   """Guarda la sección de vocabulario sobre el fichero de salida, y devuelve cuántos bytes ocupa la sección"""
