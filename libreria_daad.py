@@ -864,8 +864,7 @@ def guarda_bd_ (bbdd):
     for descripcion in desc_locs:
       guarda_cadena (descripcion)
   # Guardamos los mensajes de usuario
-  for mensaje in msgs_usr:
-    guarda_cadena (mensaje)
+  guardaMsgsUsr()
   # Guardamos los mensajes de sistema
   guardaMsgsSys()
   # Guardamos las listas de conexiones de cada localidad
@@ -1067,12 +1066,7 @@ def guarda_bd (bbdd):
     for descripcion in desc_locs:
       guarda_cadena (descripcion)
   # Guardamos los mensajes de usuario
-  if abreviaturas:
-    for mensaje in msgs_usr_abrev:
-      guarda_cadena_abreviada (mensaje)
-  else:
-    for mensaje in msgs_usr:
-      guarda_cadena (mensaje)
+  guardaMsgsUsr()
   # Guardamos los mensajes de sistema
   guardaMsgsSys()
   # Guardamos las listas de conexiones de cada localidad
@@ -1116,6 +1110,10 @@ def guardaMsgs (msgs, msgsAbrev, posInicial = 0):
 def guardaMsgsSys (posInicial = 0):
   """Guarda la sección de mensajes de sistema sobre el fichero de salida, y devuelve cuántos bytes ocupa la sección, y las posiciones de cada mensaje incluyendo posInicial"""
   return guardaMsgs (msgs_sys, msgs_sys_abrev, posInicial)
+
+def guardaMsgsUsr (posInicial = 0):
+  """Guarda la sección de mensajes de usuario sobre el fichero de salida, y devuelve cuántos bytes ocupa la sección, y las posiciones de cada mensaje incluyendo posInicial"""
+  return guardaMsgs (msgs_usr, msgs_usr_abrev, posInicial)
 
 def guardaPosMsgsSys (pos):
   """Guarda la sección de posiciones de los mensajes de sistema sobre el fichero de salida, y según el tipo del parámetro, devuelve cuántos bytes ocupa la sección o cuántos ocupan los mensajes
