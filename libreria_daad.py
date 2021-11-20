@@ -869,8 +869,7 @@ def guarda_bd_ (bbdd):
   for mensaje in msgs_usr:
     guarda_cadena (mensaje)
   # Guardamos los mensajes de sistema
-  for mensaje in msgs_sys:
-    guarda_cadena (mensaje)
+  guardaMsgsSys()
   # Guardamos las listas de conexiones de cada localidad
   for lista in conexiones:
     for conexion in lista:
@@ -1079,12 +1078,7 @@ def guarda_bd (bbdd):
     for mensaje in msgs_usr:
       guarda_cadena (mensaje)
   # Guardamos los mensajes de sistema
-  if abreviaturas:
-    for mensaje in msgs_sys_abrev:
-      guarda_cadena_abreviada (mensaje)
-  else:
-    for mensaje in msgs_sys:
-      guarda_cadena (mensaje)
+  guardaMsgsSys()
   # Guardamos las listas de conexiones de cada localidad
   for lista in conexiones:
     for conexion in lista:
@@ -1106,6 +1100,22 @@ def guarda_bd (bbdd):
   # Guardamos la longitud final del fichero
   fich_sal.seek (CAB_LONG_FICH)
   guarda_desplazamiento (ocupado)
+
+def guardaMsgsSys (posInicial = 0):
+  """Guarda la sección de mensajes de sistema sobre el fichero de salida, y devuelve cuántos bytes ocupa la sección, y las posiciones de cada mensaje incluyendo posInicial"""
+  ocupado    = 0
+  posiciones = []
+  if abreviaturas and msgs_sys_abrev:
+    for mensaje in msgs_sys_abrev:
+      posiciones.append (posInicial + ocupado)
+      guarda_cadena_abreviada (mensaje)
+      ocupado += len (mensaje) + 1
+  else:
+    for mensaje in msgs_sys:
+      posiciones.append (posInicial + ocupado)
+      guarda_cadena (mensaje)
+      ocupado += len (mensaje) + 1
+  return ocupado, posiciones
 
 def guardaVocabulario ():
   """Guarda la sección de vocabulario sobre el fichero de salida, y devuelve cuántos bytes ocupa la sección"""
