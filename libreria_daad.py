@@ -707,6 +707,29 @@ def da_cadena_abreviada (cadena):
         (cadena, cuenta))
   return abreviada
 
+def guardaAbreviaturas ():
+  """Guarda la sección de abreviaturas sobre el fichero de salida, en caso de tenerlas, y devuelve cuántos bytes ocupa la sección"""
+  if abreviaturas:  # Si hay abreviaturas...
+    ocupado = 0
+    for indice_abrev in range (129):  # ... habrá 129
+      if indice_abrev >= len (abreviaturas):
+        # TODO: sin modo compatibilidad no servirá esta
+        abreviatura = chr (127)  # Abreviatura de relleno (una ya existente, de un byte)
+      else:
+        abreviatura = abreviaturas[indice_abrev]
+      for pos in range (len (abreviatura)):
+        caracter = abreviatura[pos]
+        if ord (caracter) > 127:  # Conversión necesaria
+          caracter = daad_a_chr.index (caracter) + 16
+        else:
+          caracter = ord (caracter)
+        if pos == (len (abreviatura) - 1):
+          caracter += 128
+        guarda_int1 (caracter)
+      ocupado += len (abreviatura)
+    return ocupado
+  return 0
+
 # Almacena la base de datos entera en el fichero de salida, por orden de conveniencia, pero con vocabulario primero
 # TODO: poner paddings
 def guarda_bd_ (bbdd):
@@ -782,18 +805,7 @@ def guarda_bd_ (bbdd):
   # Guardamos el vocabulario
   guardaVocabulario()
   # Guardamos las abreviaturas (si las hay)
-  if abreviaturas:  # Si hay abreviaturas...
-    for indice_abrev in range (129):  # ... habrá 129
-      abreviatura = abreviaturas[indice_abrev]
-      for pos in range (len (abreviatura)):
-        caracter = abreviatura[pos]
-        if ord (caracter) > 127:  # Conversión necesaria
-          caracter = daad_a_chr.index (caracter) + 16
-        else:
-          caracter = ord (caracter)
-        if pos == (len (abreviatura) - 1):
-          caracter += 128
-        guarda_int1 (caracter)
+  guardaAbreviaturas()
   # Guardamos las posiciones de las cabeceras de las tablas de proceso
   for tabla in tablas_proceso:
     guarda_desplazamiento (ocupado)
@@ -969,21 +981,7 @@ def guarda_bd (bbdd):
   # Fin de la cabecera
 
   # Guardamos las abreviaturas (si las hay)
-  if abreviaturas:  # Si hay abreviaturas...
-    for indice_abrev in range (129):  # ... habrá 129
-      if indice_abrev >= len (abreviaturas):
-        abreviatura = chr (127)  # Abreviatura de relleno, TODO: debe ser una que ya esté, de un byte
-      else:
-        abreviatura = abreviaturas[indice_abrev]
-      for pos in range (len (abreviatura)):
-        caracter = abreviatura[pos]
-        if ord (caracter) > 127:  # Conversión necesaria
-          caracter = daad_a_chr.index (caracter) + 16
-        else:
-          caracter = ord (caracter)
-        if pos == (len (abreviatura) - 1):
-          caracter += 128
-        guarda_int1 (caracter)
+  guardaAbreviaturas()
   # Añadimos padding condicional para las plataformas que lo requieran
   if paddingTrasAbrev:
     guarda_int1 (0)  # Relleno (padding)
