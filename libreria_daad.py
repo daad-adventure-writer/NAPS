@@ -1115,22 +1115,28 @@ def guardaMsgsUsr (posInicial = 0):
   """Guarda la sección de mensajes de usuario sobre el fichero de salida, y devuelve cuántos bytes ocupa la sección, y las posiciones de cada mensaje incluyendo posInicial"""
   return guardaMsgs (msgs_usr, msgs_usr_abrev, posInicial)
 
-def guardaPosMsgsSys (pos):
-  """Guarda la sección de posiciones de los mensajes de sistema sobre el fichero de salida, y según el tipo del parámetro, devuelve cuántos bytes ocupa la sección o cuántos ocupan los mensajes
+def guardaPosMsgs (msgs, msgsAbrev, pos):
+  """Guarda una sección de posiciones de mensajes sobre el fichero de salida, y según el tipo del parámetro, devuelve cuántos bytes ocupa la sección o cuántos ocupan los mensajes
 
   El parámetro pos es la posición donde se guardará el primer mensaje, o bien una lista con la posición de cada mensaje. Si es el primer caso, la función devuelve cuánto ocupan los mensajes, y en el segundo caso, devuelve cuánto ocupa la sección"""
   if type (pos) == int:
     ocupado = 0
-    if abreviaturas and msgs_sys_abrev:
-      msgs = msgs_sys_abrev
-    for i in range (len (msgs_sys)):
+    if abreviaturas and msgsAbrev:
+      msgs = msgsAbrev
+    for i in range (len (msgs)):
       guarda_desplazamiento (pos + ocupado)
       ocupado += len (msgs[i]) + 1
     return ocupado
   # Es lista de posiciones de los mensajes
-  for i in range (len (msgs_sys)):
+  for i in range (len (msgs)):
     guarda_desplazamiento (pos[i])
-  return len (msgs_sys) * 2
+  return len (msgs) * 2
+
+def guardaPosMsgsSys (pos):
+  """Guarda la sección de posiciones de los mensajes de sistema sobre el fichero de salida, y según el tipo del parámetro, devuelve cuántos bytes ocupa la sección o cuántos ocupan los mensajes
+
+  El parámetro pos es la posición donde se guardará el primer mensaje, o bien una lista con la posición de cada mensaje. Si es el primer caso, la función devuelve cuánto ocupan los mensajes, y en el segundo caso, devuelve cuánto ocupa la sección"""
+  return guardaPosMsgs (msgs_sys, msgs_sys_abrev, pos)
 
 def guardaVocabulario ():
   """Guarda la sección de vocabulario sobre el fichero de salida, y devuelve cuántos bytes ocupa la sección"""
