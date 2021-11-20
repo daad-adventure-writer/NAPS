@@ -823,9 +823,7 @@ def guarda_bd_ (bbdd):
     guarda_desplazamiento (ocupado)
     ocupado += len (msgs_usr[i]) + 1
   # Guardamos las posiciones de los mensajes de sistema
-  for i in range (num_msgs_sys):
-    guarda_desplazamiento (ocupado)
-    ocupado += len (msgs_sys[i]) + 1
+  ocupado += guardaPosMsgsSys (ocupado)
   # Guardamos las posiciones de las listas de conexiones de cada localidad
   for i in range (num_locs):
     guarda_desplazamiento (ocupado)
@@ -1001,9 +999,7 @@ def guarda_bd (bbdd):
     guarda_desplazamiento (ocupado)
     ocupado += len (msgs_usr_abrev[i]) + 1
   # Guardamos las posiciones de los mensajes de sistema
-  for i in range (num_msgs_sys):
-    guarda_desplazamiento (ocupado)
-    ocupado += len (msgs_sys_abrev[i]) + 1
+  ocupado += guardaPosMsgsSys (ocupado)
   # Guardamos las posiciones de las listas de conexiones de cada localidad
   for i in range (num_locs):
     guarda_desplazamiento (ocupado)
@@ -1116,6 +1112,23 @@ def guardaMsgsSys (posInicial = 0):
       guarda_cadena (mensaje)
       ocupado += len (mensaje) + 1
   return ocupado, posiciones
+
+def guardaPosMsgsSys (pos):
+  """Guarda la sección de posiciones de los mensajes de sistema sobre el fichero de salida, y según el tipo del parámetro, devuelve cuántos bytes ocupa la sección o cuántos ocupan los mensajes
+
+  El parámetro pos es la posición donde se guardará el primer mensaje, o bien una lista con la posición de cada mensaje. Si es el primer caso, la función devuelve cuánto ocupan los mensajes, y en el segundo caso, devuelve cuánto ocupa la sección"""
+  if type (pos) == int:
+    ocupado = 0
+    if abreviaturas and msgs_sys_abrev:
+      msgs = msgs_sys_abrev
+    for i in range (len (msgs_sys)):
+      guarda_desplazamiento (pos + ocupado)
+      ocupado += len (msgs[i]) + 1
+    return ocupado
+  # Es lista de posiciones de los mensajes
+  for i in range (len (msgs_sys)):
+    guarda_desplazamiento (pos[i])
+  return len (msgs_sys) * 2
 
 def guardaVocabulario ():
   """Guarda la sección de vocabulario sobre el fichero de salida, y devuelve cuántos bytes ocupa la sección"""
