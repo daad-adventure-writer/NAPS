@@ -813,9 +813,7 @@ def guarda_bd_ (bbdd):
   # Guardamos las posiciones de las descripciones de los objetos
   ocupado += guardaPosDescObjs (ocupado)
   # Guardamos las posiciones de las descripciones de las localidades
-  for i in range (num_locs):
-    guarda_desplazamiento (ocupado)
-    ocupado += len (desc_locs_abrev[i]) + 1
+  ocupado += guardaPosDescLocs (ocupado)
   # Guardamos las posiciones de los mensajes de usuario
   ocupado += guardaPosMsgsUsr (ocupado)
   # Guardamos las posiciones de los mensajes de sistema
@@ -978,9 +976,7 @@ def guarda_bd (bbdd):
   # Guardamos las posiciones de las descripciones de los objetos
   ocupado += guardaPosDescObjs (ocupado)
   # Guardamos las posiciones de las descripciones de las localidades
-  for i in range (num_locs):
-    guarda_desplazamiento (ocupado)
-    ocupado += len (desc_locs_abrev[i]) + 1
+  ocupado += guardaPosDescLocs (ocupado)
   # Guardamos las posiciones de los mensajes de usuario
   ocupado += guardaPosMsgsUsr (ocupado)
   # Guardamos las posiciones de los mensajes de sistema
@@ -1098,6 +1094,12 @@ def guardaMsgsSys (posInicial = 0):
 def guardaMsgsUsr (posInicial = 0):
   """Guarda la sección de mensajes de usuario sobre el fichero de salida, y devuelve cuántos bytes ocupa la sección, y las posiciones de cada mensaje incluyendo posInicial"""
   return guardaMsgs (msgs_usr, msgs_usr_abrev, posInicial)
+
+def guardaPosDescLocs (pos):
+  """Guarda la sección de posiciones de las descripciones de localidades sobre el fichero de salida, y según el tipo del parámetro, devuelve cuántos bytes ocupa la sección o cuántos ocupan las descripciones
+
+  El parámetro pos es la posición donde se guardará la primera descripción, o bien una lista con la posición de cada descripción. Si es el primer caso, la función devuelve cuánto ocupan las descripciones, y en el segundo caso, devuelve cuánto ocupa la sección"""
+  return guardaPosMsgs (desc_locs, desc_locs_abrev, pos)
 
 def guardaPosDescObjs (pos):
   """Guarda la sección de posiciones de las descripciones de objetos sobre el fichero de salida, y según el tipo del parámetro, devuelve cuántos bytes ocupa la sección o cuántos ocupan las descripciones
