@@ -852,8 +852,7 @@ def guarda_bd_ (bbdd):
       ocupado += 1  # Por el fin de la entrada
     guarda_int2 (0)  # Fin del proceso (no tiene más entradas)
   # Guardamos las descripciones de los objetos
-  for descripcion in desc_objs:
-    guarda_cadena (descripcion)
+  guardaDescObjs()
   # Guardamos las descripciones de las localidades
   if abreviaturas:
     for descripcion in desc_locs_abrev:
@@ -1048,12 +1047,7 @@ def guarda_bd (bbdd):
     guarda_int2 (0)  # Fin del proceso (no tiene más entradas)
   prn (ahorroProcesos, 'bytes ahorrados por deduplicar bloques de proceso')
   # Guardamos las descripciones de los objetos
-  if abreviaturas and not compatibilidad:
-    for descripcion in desc_objs_abrev:
-      guarda_cadena_abreviada (descripcion)
-  else:
-    for descripcion in desc_objs:
-      guarda_cadena (descripcion)
+  guardaDescObjs()
   # Guardamos las descripciones de las localidades
   if abreviaturas:
     for descripcion in desc_locs_abrev:
@@ -1086,6 +1080,10 @@ def guarda_bd (bbdd):
   # Guardamos la longitud final del fichero
   fich_sal.seek (CAB_LONG_FICH)
   guarda_desplazamiento (ocupado)
+
+def guardaDescObjs (posInicial = 0):
+  """Guarda la sección de descripciones de los objetos sobre el fichero de salida, y devuelve cuántos bytes ocupa la sección, y las posiciones de cada descripción incluyendo posInicial"""
+  return guardaMsgs (desc_objs, desc_objs_abrev, posInicial)
 
 def guardaMsgs (msgs, msgsAbrev, posInicial = 0):
   """Guarda una sección de mensajes sobre el fichero de salida, y devuelve cuántos bytes ocupa la sección, y las posiciones de cada mensaje incluyendo posInicial"""
