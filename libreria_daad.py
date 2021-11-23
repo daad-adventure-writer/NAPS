@@ -811,9 +811,7 @@ def guarda_bd_ (bbdd):
     guarda_desplazamiento (ocupado)
     ocupado += (4 * len (tabla[0])) + 2
   # Guardamos las posiciones de las descripciones de los objetos
-  for i in range (num_objetos[0]):
-    guarda_desplazamiento (ocupado)
-    ocupado += len (desc_objs[i]) + 1
+  ocupado += guardaPosDescObjs (ocupado)
   # Guardamos las posiciones de las descripciones de las localidades
   for i in range (num_locs):
     guarda_desplazamiento (ocupado)
@@ -983,9 +981,7 @@ def guarda_bd (bbdd):
     guarda_desplazamiento (ocupado)
     ocupado += (4 * len (tabla[0])) + 2
   # Guardamos las posiciones de las descripciones de los objetos
-  for i in range (num_objetos[0]):
-    guarda_desplazamiento (ocupado)
-    ocupado += len (desc_objs_abrev[i]) + 1
+  ocupado += guardaPosDescObjs (ocupado)
   # Guardamos las posiciones de las descripciones de las localidades
   for i in range (num_locs):
     guarda_desplazamiento (ocupado)
@@ -1108,6 +1104,12 @@ def guardaMsgsSys (posInicial = 0):
 def guardaMsgsUsr (posInicial = 0):
   """Guarda la sección de mensajes de usuario sobre el fichero de salida, y devuelve cuántos bytes ocupa la sección, y las posiciones de cada mensaje incluyendo posInicial"""
   return guardaMsgs (msgs_usr, msgs_usr_abrev, posInicial)
+
+def guardaPosDescObjs (pos):
+  """Guarda la sección de posiciones de las descripciones de objetos sobre el fichero de salida, y según el tipo del parámetro, devuelve cuántos bytes ocupa la sección o cuántos ocupan las descripciones
+
+  El parámetro pos es la posición donde se guardará la primera descripción, o bien una lista con la posición de cada descripción. Si es el primer caso, la función devuelve cuánto ocupan las descripciones, y en el segundo caso, devuelve cuánto ocupa la sección"""
+  return guardaPosMsgs (desc_objs, desc_objs_abrev, pos)
 
 def guardaPosMsgs (msgs, msgsAbrev, pos):
   """Guarda una sección de posiciones de mensajes sobre el fichero de salida, y según el tipo del parámetro, devuelve cuántos bytes ocupa la sección o cuántos ocupan los mensajes
