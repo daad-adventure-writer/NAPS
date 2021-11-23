@@ -852,12 +852,7 @@ def guarda_bd_ (bbdd):
   # Guardamos las descripciones de los objetos
   guardaDescObjs()
   # Guardamos las descripciones de las localidades
-  if abreviaturas:
-    for descripcion in desc_locs_abrev:
-      guarda_cadena_abreviada (descripcion)
-  else:
-    for descripcion in desc_locs:
-      guarda_cadena (descripcion)
+  guardaDescLocs()
   # Guardamos los mensajes de usuario
   guardaMsgsUsr()
   # Guardamos los mensajes de sistema
@@ -1045,12 +1040,7 @@ def guarda_bd (bbdd):
   # Guardamos las descripciones de los objetos
   guardaDescObjs()
   # Guardamos las descripciones de las localidades
-  if abreviaturas:
-    for descripcion in desc_locs_abrev:
-      guarda_cadena_abreviada (descripcion)
-  else:
-    for descripcion in desc_locs:
-      guarda_cadena (descripcion)
+  guardaDescLocs()
   # Guardamos los mensajes de usuario
   guardaMsgsUsr()
   # Guardamos los mensajes de sistema
@@ -1076,6 +1066,10 @@ def guarda_bd (bbdd):
   # Guardamos la longitud final del fichero
   fich_sal.seek (CAB_LONG_FICH)
   guarda_desplazamiento (ocupado)
+
+def guardaDescLocs (posInicial = 0):
+  """Guarda la sección de descripciones de las localidades sobre el fichero de salida, y devuelve cuántos bytes ocupa la sección, y las posiciones de cada descripción incluyendo posInicial"""
+  return guardaMsgs (desc_locs, desc_locs_abrev, posInicial)
 
 def guardaDescObjs (posInicial = 0):
   """Guarda la sección de descripciones de los objetos sobre el fichero de salida, y devuelve cuántos bytes ocupa la sección, y las posiciones de cada descripción incluyendo posInicial"""
