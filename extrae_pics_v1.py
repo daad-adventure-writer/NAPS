@@ -4,7 +4,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Extrae gráficos de bases de datos gráficas de DAAD, en el formato de las primeras versiones de DAAD
-# Copyright (C) 2008, 2018-2021 José Manuel Ferrer Ortiz
+# Copyright (C) 2008, 2018-2022 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -71,12 +71,16 @@ paletaPCW = ((0, 0, 0), (0, 255, 0))
 if 'pygame' in sys.modules:
   pygame.display.init()  # Necesario para poner la paleta de la imagen
 
-fichero = open (bbddimg, 'rb')  # Fichero de base de datos DAAD de imágenes CGA/EGA
+fichero   = open (bbddimg, 'rb')  # Fichero de base de datos DAAD de imágenes CGA/EGA
+extension = bbddimg[-4:].lower()
+
+le              = True  # Si es Little Endian
+longCabeceraImg = 10    # Longitud de la cabecera de imagen
 
 fichero.seek (2)
 modo = ord (fichero.read (1))
 if modo == 4:
-  if bbddimg[-4:].lower() in ('.dat', '.pcw'):  # TODO: detectar las de ST, y también extraerlas
+  if extension in ('.dat', '.pcw'):
     bpp  = 1
     modo = 'PCW'
   else:
@@ -85,6 +89,11 @@ if modo == 4:
 elif modo == 13:
   bpp  = 4
   modo = 'EGA'
+elif modo == 0 and extension == '.dat':
+  bpp  = 4
+  le   = False
+  modo = 'ST'
+  longCabeceraImg = 44
 else:
   prn ('El fichero de entrada no es una base de datos de imágenes de DAAD de formato conocido')
   sys.exit()
@@ -100,20 +109,38 @@ if hayProgreso:
   progreso = progressbar.ProgressBar()
   rango    = progreso (range (256))
 for numImg in rango:
-  fichero.seek ((10 * numImg) + 6)  # Parte de cabecera de la imagen
-  posicion = ord (fichero.read (1)) + (ord (fichero.read (1)) << 8) + \
-             (ord (fichero.read (1)) << 16)
+  fichero.seek (6 + (longCabeceraImg * numImg))  # Parte de cabecera de la imagen
+  if le:
+    posicion = ord (fichero.read (1)) + (ord (fichero.read (1)) << 8) + \
+               (ord (fichero.read (1)) << 16)
+    # La posición toma 4 bytes, pero basta con 3
+    fichero.seek (1, 1)  # El segundo parámetro indica posición relativa
+  else:
+    fichero.read (1)  # Omitimos el MSB
+    posicion = (ord (fichero.read (1)) << 16) + (ord (fichero.read (1)) << 8) + \
+               ord (fichero.read (1))
 
   if not posicion:
     continue  # Ninguna imagen con ese número
 
   # Obtenemos la paleta de la imagen
   if modo == 'CGA':
-    fichero.seek (1, 1)  # El segundo parámetro indica posición relativa
     if ord (fichero.read (1)) & 128:
       paleta = paleta1b
     else:
       paleta = paleta2b
+  elif modo == 'ST':
+    fichero.seek (8, 1)
+    paleta = []
+    for color in range (16):
+      # TODO: calcular valores correctos
+      rojo  = ord (fichero.read (1))
+      rojo  = (rojo & 7) << 5
+      # rojo  = rojo & 4 + ((rojo & 3) << 4)
+      veaz  = ord (fichero.read (1))
+      azul  = ((veaz >> 4) & 7) << 5
+      verde = (veaz & 7) << 5
+      paleta.append ((rojo, verde, azul))
   elif modo == 'PCW':
     paleta = paletaPCW
   else:
@@ -121,15 +148,24 @@ for numImg in rango:
 
   fichero.seek (posicion)  # Saltamos a donde está la imagen
 
-  ancho = ord (fichero.read (1))  # LSB de la anchura de la imagen
-  valor = ord (fichero.read (1))
+  if le:
+    ancho = ord (fichero.read (1))  # LSB de la anchura de la imagen
+    valor = ord (fichero.read (1))
+  else:
+    valor = ord (fichero.read (1))
+    ancho = ord (fichero.read (1))  # LSB de la anchura de la imagen
   ancho += (valor & 127) * 256
   if ancho == 0 or ancho % 4:
     prn ('El ancho de la imagen', numImg, 'no es mayor que 0 y múltiplo de 4, vale', ancho)
   ancho /= 4  # Anchura de la imagen (en bloques de 4 píxeles)
   rle = valor & 128
 
-  alto = ord (fichero.read (1))  # Altura de la imagen (en número de filas)
+  if le:
+    alto = ord (fichero.read (1))  # Altura de la imagen (en número de filas)
+    fichero.read (1)
+  else:
+    fichero.read (1)
+    alto = ord (fichero.read (1))  # Altura de la imagen (en número de filas)
   if alto == 0 or alto % 8:
     prn ('El alto de la imagen', numImg, 'no es mayor que 0 y múltiplo de 8, vale', alto)
 
@@ -137,16 +173,22 @@ for numImg in rango:
     continue
 
   repetir = []
-  fichero.seek (3, 1)
+  fichero.seek (2, 1)  # Saltamos valor de longitud de la imagen
   if rle:
-    b = ord (fichero.read (1))  # Número de secuencias que se repetirán
-    if b > 4:
-      prn ('Valor inesperado para el número de secuencias que se repetirán:', b, 'para la imagen:', numImg)
-    for i in range (4):
-      if i < b:
-        repetir.append (ord (fichero.read (1)))
-      else:
-        fichero.seek (1, 1)
+    if modo == 'ST':
+      bits = (ord (fichero.read (1)) * 256) + ord (fichero.read (1))  # Ḿáscara de colores que se repetirán
+      for indiceBit in range (16):
+        if bits & (2 ** indiceBit):
+          repetir.append (indiceBit)
+    else:
+      b = ord (fichero.read (1))  # Número de secuencias que se repetirán
+      if b > 4:
+        prn ('Valor inesperado para el número de secuencias que se repetirán:', b, 'para la imagen:', numImg)
+      for i in range (4):
+        if i < b:
+          repetir.append (ord (fichero.read (1)))
+        else:
+          fichero.seek (1, 1)
 
   strImg  = ''    # Cadena que representa toda la imagen
   fila    = ''    # Cadena que representa la fila actual
@@ -175,7 +217,8 @@ for numImg in rango:
           fila    = fila[:-tamFila]
         if rle:
           izqAder = not izqAder
-  else:  # Modos PCW monocromo y EGA en orden planar con cuatro planos de bit de color enteros consecutivos
+  elif modo != 'ST':
+    # Modos PCW monocromo y EGA en orden planar con cuatro planos de bit de color enteros consecutivos
     resolucion   = ancho * 4 * alto
     colores      = ([0] * resolucion)
     numPlanos    = 1 if modo == 'PCW' else 4
@@ -234,6 +277,19 @@ for numImg in rango:
           numFila += 1
     for pixel in range (resolucion):  # Cada píxel en la imagen
       strImg += chr (colores[pixel])
+  else:  # Modo de Amiga/Atari ST
+    if rle:
+      continue
+    numPlanos = 4
+    while len (strImg) < tamImg:  # Mientras quede imagen por procesar
+      colores = ([0] * 8)
+      for plano in range (numPlanos):
+        b = ord (fichero.read (1))  # Byte actual
+        for indiceBit in range (8):
+          bit = b & (2 ** indiceBit)
+          colores[7 - indiceBit] += (2 ** plano) if bit else 0
+      for pixel in range (8):  # Cada píxel en el grupo
+        strImg += chr (colores[pixel])
 
   if 'png' in sys.modules:
     listaImg = []
