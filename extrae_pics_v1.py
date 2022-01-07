@@ -138,8 +138,8 @@ for numImg in rango:
       rojo  = (rojo & 7) << 5
       # rojo  = rojo & 4 + ((rojo & 3) << 4)
       veaz  = ord (fichero.read (1))
-      azul  = ((veaz >> 4) & 7) << 5
-      verde = (veaz & 7) << 5
+      verde = ((veaz >> 4) & 7) << 5
+      azul  = (veaz & 7) << 5
       paleta.append ((rojo, verde, azul))
   elif modo == 'PCW':
     paleta = paletaPCW
