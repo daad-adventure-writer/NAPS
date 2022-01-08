@@ -278,8 +278,7 @@ for numImg in rango:
     for pixel in range (resolucion):  # Cada píxel en la imagen
       strImg += chr (colores[pixel])
   else:  # Modo de Amiga/Atari ST
-    if rle:
-      continue
+    color     = None  # Índice de color del píxel actual
     numPlanos = 4
     while len (strImg) < tamImg:  # Mientras quede imagen por procesar
       colores = ([0] * 8)
@@ -289,7 +288,16 @@ for numImg in rango:
           bit = b & (2 ** indiceBit)
           colores[7 - indiceBit] += (2 ** plano) if bit else 0
       for pixel in range (8):  # Cada píxel en el grupo
-        strImg += chr (colores[pixel])
+        if color == None:
+          color = colores[pixel]
+          if rle and color in repetir:
+            continue  # El número de repiticiones vendrá en el valor del siguiente píxel
+        if rle and color in repetir:
+          repeticiones = colores[pixel] + 1
+        else:
+          repeticiones = 1
+        strImg += chr (color) * repeticiones
+        color   = None
 
   if 'png' in sys.modules:
     listaImg = []
