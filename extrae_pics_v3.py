@@ -159,7 +159,7 @@ for numImg in rango:
   tamFila = ancho   * 4     # Tamaño en píxeles (y bytes) que tendrá cada fila
   tamImg  = tamFila * alto  # Tamaño en píxeles (y bytes) que tendrá la imagen
 
-  if le or rle:
+  if le or rle:  # Formato de DOS o comprimido
     cargar  = 1 if le else 4  # Cuántos bytes de valores cargar cada vez, tomando primero el último cargado
     color   = None  # Índice de color del píxel actual
     valores = []    # Valores (índices de color y contador de repeticiones) pendientes de procesar, en orden
@@ -181,7 +181,7 @@ for numImg in rango:
         repeticiones = 1
       strImg += chr (color) * repeticiones
       color   = None
-  else:
+  else:  # Formato de Amiga/Atari ST sin comprimir
     numPlanos = 4
     while len (strImg) < tamImg:  # Mientras quede imagen por procesar
       colores = ([0] * 8)
