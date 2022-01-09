@@ -110,10 +110,10 @@ if hayProgreso:
   rango    = progreso (range (256))
 for numImg in rango:
   fichero.seek (6 + (longCabeceraImg * numImg))  # Parte de cabecera de la imagen
+  # La posición toma 4 bytes, pero basta con 3
   if le:
     posicion = ord (fichero.read (1)) + (ord (fichero.read (1)) << 8) + \
                (ord (fichero.read (1)) << 16)
-    # La posición toma 4 bytes, pero basta con 3
     fichero.seek (1, 1)  # El segundo parámetro indica posición relativa
   else:
     fichero.read (1)  # Omitimos el MSB

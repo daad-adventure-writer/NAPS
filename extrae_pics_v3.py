@@ -71,9 +71,14 @@ fichero = open (bbddimg, 'rb')  # Fichero de base de datos DAAD de imágenes
 
 longCabeceraImg = 48  # Longitud de la cabecera de imagen
 
-if fichero.read (4) != '\xff\xff\x00\x00':
+modo = fichero.read (4)
+if modo not in ('\x03\x00\x00\x00', '\xff\xff\x00\x00'):
   prn ('El fichero de entrada no es una base de datos de imágenes de DAAD de formato conocido')
   sys.exit()
+if modo == '\x03\x00\x00\x00':  # Amiga/Atari ST
+  le = False
+else:
+  le = True
 
 try:
   os.mkdir (destino)
@@ -87,14 +92,21 @@ if hayProgreso:
   rango    = progreso (range (256))
 for numImg in rango:
   fichero.seek (10 + (longCabeceraImg * numImg))  # Parte de cabecera de la imagen
-  posicion = ord (fichero.read (1)) + (ord (fichero.read (1)) << 8) + \
-             (ord (fichero.read (1)) << 16)  # La posición toma 4 bytes, pero basta con 3
+  # La posición toma 4 bytes, pero basta con 3
+  if le:
+    posicion = ord (fichero.read (1)) + (ord (fichero.read (1)) << 8) + \
+               (ord (fichero.read (1)) << 16)
+    fichero.seek (1, 1)  # El segundo parámetro indica posición relativa
+  else:
+    fichero.read (1)  # Omitimos el MSB
+    posicion = (ord (fichero.read (1)) << 16) + (ord (fichero.read (1)) << 8) + \
+               ord (fichero.read (1))
 
   if not posicion:
     continue  # Ninguna imagen con ese número
 
   # Obtenemos la paleta de la imagen
-  fichero.seek (9, 1)  # El segundo parámetro indica posición relativa
+  fichero.seek (8, 1)
   paleta = []
   for color in range (16):
     # TODO: calcular valores exactos
@@ -108,16 +120,24 @@ for numImg in rango:
 
   fichero.seek (posicion)  # Saltamos a donde está la imagen
 
-  ancho = ord (fichero.read (1))  # LSB de la anchura de la imagen
-  valor = ord (fichero.read (1))
+  if le:
+    ancho = ord (fichero.read (1))  # LSB de la anchura de la imagen
+    valor = ord (fichero.read (1))
+  else:
+    valor = ord (fichero.read (1))
+    ancho = ord (fichero.read (1))  # LSB de la anchura de la imagen
   ancho += (valor & 127) * 256
   if ancho == 0 or ancho % 4:
     prn ('El ancho de la imagen', numImg, 'no es mayor que 0 y múltiplo de 4, vale', ancho)
   ancho /= 4  # Anchura de la imagen (en bloques de 4 píxeles)
   rle = valor & 128
 
-  alto = ord (fichero.read (1))  # Altura de la imagen (en número de filas)
-  fichero.read (1)
+  if le:
+    alto = ord (fichero.read (1))  # Altura de la imagen (en número de filas)
+    fichero.read (1)
+  else:
+    fichero.read (1)
+    alto = ord (fichero.read (1))  # Altura de la imagen (en número de filas)
   if alto == 0 or alto % 8:
     prn ('El alto de la imagen', numImg, 'no es mayor que 0 y múltiplo de 8, vale', alto)
 
@@ -127,7 +147,10 @@ for numImg in rango:
   repetir = []
   fichero.seek (2, 1)  # Saltamos valor de longitud de la imagen
   if rle:
-    bits = ord (fichero.read (1)) + (ord (fichero.read (1)) * 256)  # Máscara de colores que se repetirán
+    if le:
+      bits = ord (fichero.read (1)) + (ord (fichero.read (1)) * 256)  # Máscara de colores que se repetirán
+    else:
+      bits = (ord (fichero.read (1)) * 256) + ord (fichero.read (1))  # Máscara de colores que se repetirán
     for indiceBit in range (16):
       if bits & (2 ** indiceBit):
         repetir.append (indiceBit)
@@ -136,25 +159,39 @@ for numImg in rango:
   tamFila = ancho   * 4     # Tamaño en píxeles (y bytes) que tendrá cada fila
   tamImg  = tamFila * alto  # Tamaño en píxeles (y bytes) que tendrá la imagen
 
-  color   = None  # Índice de color del píxel actual
-  valores = []    # Valores (índices de color y contador de repeticiones) pendientes de procesar, en orden
-  while len (strImg) < tamImg:  # Mientras quede imagen por procesar
-    if not valores:
-      try:
+  if le or rle:
+    cargar  = 1 if le else 4  # Cuántos bytes de valores cargar cada vez, tomando primero el último cargado
+    color   = None  # Índice de color del píxel actual
+    valores = []    # Valores (índices de color y contador de repeticiones) pendientes de procesar, en orden
+    while len (strImg) < tamImg:  # Mientras quede imagen por procesar
+      if not valores:
+        try:
+          for i in range (cargar):
+            b = ord (fichero.read (1))  # Byte actual
+            valores = [b & 15, b >> 4] + valores  # Los 4 bits más bajos primero, y luego los 4 más altos
+        except:
+          prn ('Imagen', numImg, 'incompleta. ¿Formato incorrecto?')
+          break
+      if color == None:
+        color = valores.pop (0)
+        continue  # Por si hay que cargar un nuevo byte
+      if rle and color in repetir:
+        repeticiones = valores.pop (0) + 1
+      else:
+        repeticiones = 1
+      strImg += chr (color) * repeticiones
+      color   = None
+  else:
+    numPlanos = 4
+    while len (strImg) < tamImg:  # Mientras quede imagen por procesar
+      colores = ([0] * 8)
+      for plano in range (numPlanos):
         b = ord (fichero.read (1))  # Byte actual
-      except:
-        prn ('Imagen', numImg, 'incompleta. ¿Formato incorrecto?')
-        break
-      valores.extend ((b & 15, b >> 4))  # Los 4 bits más bajos primero, y luego los 4 más altos
-    if color == None:
-      color = valores.pop (0)
-      continue  # Por si hay que cargar un nuevo byte
-    if rle and color in repetir:
-      repeticiones = valores.pop (0) + 1
-    else:
-      repeticiones = 1
-    strImg += chr (color) * repeticiones
-    color   = None
+        for indiceBit in range (8):
+          bit = b & (2 ** indiceBit)
+          colores[7 - indiceBit] += (2 ** plano) if bit else 0
+      for pixel in range (8):  # Cada píxel en el grupo
+        strImg += chr (colores[pixel])
 
   bpp = 4
 
