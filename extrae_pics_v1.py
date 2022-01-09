@@ -133,7 +133,7 @@ for numImg in rango:
     fichero.seek (8, 1)
     paleta = []
     for color in range (16):
-      # TODO: calcular valores correctos
+      # TODO: calcular valores exactos
       rojo  = ord (fichero.read (1))
       rojo  = (rojo & 7) << 5
       # rojo  = rojo & 4 + ((rojo & 3) << 4)
@@ -176,7 +176,7 @@ for numImg in rango:
   fichero.seek (2, 1)  # Saltamos valor de longitud de la imagen
   if rle:
     if modo == 'ST':
-      bits = (ord (fichero.read (1)) * 256) + ord (fichero.read (1))  # Ḿáscara de colores que se repetirán
+      bits = (ord (fichero.read (1)) * 256) + ord (fichero.read (1))  # Máscara de colores que se repetirán
       for indiceBit in range (16):
         if bits & (2 ** indiceBit):
           repetir.append (indiceBit)
@@ -291,7 +291,7 @@ for numImg in rango:
         if color == None:
           color = colores[pixel]
           if rle and color in repetir:
-            continue  # El número de repiticiones vendrá en el valor del siguiente píxel
+            continue  # El número de repeticiones vendrá en el valor del siguiente píxel
         if rle and color in repetir:
           repeticiones = colores[pixel] + 1
         else:
