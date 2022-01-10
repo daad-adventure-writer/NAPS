@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Funciones de apoyo de bajo nivel
-# Copyright (C) 2010, 2013, 2018-2021 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2013, 2018-2022 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -68,6 +68,14 @@ def carga_int2_be ():
 def carga_int2_le ():
   """Carga un entero de tamaño 2 bytes, en formato Little Endian"""
   return ord (fich_ent.read (1)) + (ord (fich_ent.read (1)) << 8)
+
+def carga_int4_be ():
+  """Carga un entero de tamaño 4 bytes, en formato Big Endian"""
+  return (ord (fich_ent.read (1)) << 24) + (ord (fich_ent.read (1)) << 16) + (ord (fich_ent.read (1)) << 8) + ord (fich_ent.read (1))
+
+def carga_int4_le ():
+  """Carga un entero de tamaño 4 bytes, en formato Little Endian"""
+  return ord (fich_ent.read (1)) + (ord (fich_ent.read (1)) << 8) + (ord (fich_ent.read (1)) << 16) + (ord (fich_ent.read (1)) << 24)
 
 def guarda_desplazamiento (entero):
   """Guarda un desplazamiento (2 bytes) en relación con la memoria"""
