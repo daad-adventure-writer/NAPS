@@ -26,7 +26,8 @@
 import os
 import sys
 
-from prn_func import prn
+from bajo_nivel import *
+from prn_func   import prn
 
 try:
   import png
@@ -53,7 +54,6 @@ except:
 
 bbddimg = sys.argv[1]  # Ruta a base de datos DAAD de imágenes CGA/EGA/PCW
 destino = sys.argv[2]  # Ruta de destino de las imágenes extraídas
-# ancho   = 64           # Anchura de la imagen (en bloques de 4 píxeles)
 
 # Paletas CGA (1 y 2 con brillo) en el orden necesario
 paleta1b = ((0, 0, 0), (84, 254, 254), (254, 84, 254), (254, 254, 254))
@@ -73,12 +73,13 @@ if 'pygame' in sys.modules:
 
 fichero   = open (bbddimg, 'rb')  # Fichero de base de datos DAAD de imágenes CGA/EGA
 extension = bbddimg[-4:].lower()
+bajo_nivel_cambia_ent (fichero)
 
 le              = True  # Si es Little Endian
 longCabeceraImg = 10    # Longitud de la cabecera de imagen
 
 fichero.seek (2)
-modo = ord (fichero.read (1))
+modo = carga_int1()
 if modo == 4:
   if extension in ('.dat', '.pcw'):
     bpp  = 1
@@ -98,6 +99,13 @@ else:
   prn ('El fichero de entrada no es una base de datos de imágenes de DAAD de formato conocido')
   sys.exit()
 
+if le:
+  carga_int2 = carga_int2_le
+  carga_int4 = carga_int4_le
+else:
+  carga_int2 = carga_int2_be
+  carga_int4 = carga_int4_be
+
 try:
   os.mkdir (destino)
 except:
@@ -110,34 +118,25 @@ if hayProgreso:
   rango    = progreso (range (256))
 for numImg in rango:
   fichero.seek (6 + (longCabeceraImg * numImg))  # Parte de cabecera de la imagen
-  # La posición toma 4 bytes, pero basta con 3
-  if le:
-    posicion = ord (fichero.read (1)) + (ord (fichero.read (1)) << 8) + \
-               (ord (fichero.read (1)) << 16)
-    fichero.seek (1, 1)  # El segundo parámetro indica posición relativa
-  else:
-    fichero.read (1)  # Omitimos el MSB
-    posicion = (ord (fichero.read (1)) << 16) + (ord (fichero.read (1)) << 8) + \
-               ord (fichero.read (1))
-
+  posicion = carga_int4()
   if not posicion:
     continue  # Ninguna imagen con ese número
 
   # Obtenemos la paleta de la imagen
   if modo == 'CGA':
-    if ord (fichero.read (1)) & 128:
+    if carga_int1() & 128:
       paleta = paleta1b
     else:
       paleta = paleta2b
   elif modo == 'ST':
-    fichero.seek (8, 1)
+    fichero.seek (8, 1)  # El segundo parámetro indica posición relativa
     paleta = []
     for color in range (16):
       # TODO: calcular valores exactos
-      rojo  = ord (fichero.read (1))
+      rojo  = carga_int1()
       rojo  = (rojo & 7) << 5
       # rojo  = rojo & 4 + ((rojo & 3) << 4)
-      veaz  = ord (fichero.read (1))
+      veaz  = carga_int1()
       verde = ((veaz >> 4) & 7) << 5
       azul  = (veaz & 7) << 5
       paleta.append ((rojo, verde, azul))
@@ -149,23 +148,18 @@ for numImg in rango:
   fichero.seek (posicion)  # Saltamos a donde está la imagen
 
   if le:
-    ancho = ord (fichero.read (1))  # LSB de la anchura de la imagen
-    valor = ord (fichero.read (1))
+    ancho = carga_int1()  # LSB de la anchura de la imagen
+    valor = carga_int1()
   else:
-    valor = ord (fichero.read (1))
-    ancho = ord (fichero.read (1))  # LSB de la anchura de la imagen
+    valor = carga_int1()
+    ancho = carga_int1()  # LSB de la anchura de la imagen
   ancho += (valor & 127) * 256
   if ancho == 0 or ancho % 4:
     prn ('El ancho de la imagen', numImg, 'no es mayor que 0 y múltiplo de 4, vale', ancho)
   ancho /= 4  # Anchura de la imagen (en bloques de 4 píxeles)
   rle = valor & 128
 
-  if le:
-    alto = ord (fichero.read (1))  # Altura de la imagen (en número de filas)
-    fichero.read (1)
-  else:
-    fichero.read (1)
-    alto = ord (fichero.read (1))  # Altura de la imagen (en número de filas)
+  alto = carga_int2()  # Altura de la imagen (en número de filas)
   if alto == 0 or alto % 8:
     prn ('El alto de la imagen', numImg, 'no es mayor que 0 y múltiplo de 8, vale', alto)
 
@@ -176,17 +170,17 @@ for numImg in rango:
   fichero.seek (2, 1)  # Saltamos valor de longitud de la imagen
   if rle:
     if modo == 'ST':
-      bits = (ord (fichero.read (1)) * 256) + ord (fichero.read (1))  # Máscara de colores que se repetirán
+      bits = carga_int2()  # Máscara de colores que se repetirán
       for indiceBit in range (16):
         if bits & (2 ** indiceBit):
           repetir.append (indiceBit)
     else:
-      b = ord (fichero.read (1))  # Número de secuencias que se repetirán
+      b = carga_int1()  # Número de secuencias que se repetirán
       if b > 4:
         prn ('Valor inesperado para el número de secuencias que se repetirán:', b, 'para la imagen:', numImg)
       for i in range (4):
         if i < b:
-          repetir.append (ord (fichero.read (1)))
+          repetir.append (carga_int1())
         else:
           fichero.seek (1, 1)
 
@@ -198,9 +192,9 @@ for numImg in rango:
 
   if modo == 'CGA':
     while len (strImg) < tamImg:  # Mientras quede imagen por procesar
-      b = ord (fichero.read (1))  # Byte actual
+      b = carga_int1()  # Byte actual
       if b in repetir:
-        repeticiones = ord (fichero.read (1))
+        repeticiones = carga_int1()
       else:
         repeticiones = 1
       pixels = chr (b >> 6) + chr ((b >> 4) & 3) + chr ((b >> 2) & 3) + chr (b & 3)  # Número de color de los cuatro píxeles
@@ -229,9 +223,9 @@ for numImg in rango:
       while numFila < alto:
         if not repeticiones:
           try:
-            b = ord (fichero.read (1))  # Byte actual
+            b = carga_int1()  # Byte actual
             if b in repetir:
-              repeticiones = ord (fichero.read (1))
+              repeticiones = carga_int1()
               if repeticiones < 1:
                 prn ('Valor inesperado (' + str (repeticiones) + ') para el número de repeticiones de LRE, en la imagen', numImg)
             else:
@@ -283,7 +277,7 @@ for numImg in rango:
     while len (strImg) < tamImg:  # Mientras quede imagen por procesar
       colores = ([0] * 8)
       for plano in range (numPlanos):
-        b = ord (fichero.read (1))  # Byte actual
+        b = carga_int1()  # Byte actual
         for indiceBit in range (8):
           bit = b & (2 ** indiceBit)
           colores[7 - indiceBit] += (2 ** plano) if bit else 0

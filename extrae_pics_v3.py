@@ -26,7 +26,8 @@
 import os
 import sys
 
-from prn_func import prn
+from bajo_nivel import *
+from prn_func   import prn
 
 try:
   import png
@@ -68,6 +69,7 @@ if 'pygame' in sys.modules:
   pygame.display.init()  # Necesario para poner la paleta de la imagen
 
 fichero = open (bbddimg, 'rb')  # Fichero de base de datos DAAD de imágenes
+bajo_nivel_cambia_ent (fichero)
 
 longCabeceraImg = 48  # Longitud de la cabecera de imagen
 
@@ -76,8 +78,12 @@ if modo not in ('\x03\x00\x00\x00', '\xff\xff\x00\x00'):
   prn ('El fichero de entrada no es una base de datos de imágenes de DAAD de formato conocido')
   sys.exit()
 if modo == '\x03\x00\x00\x00':  # Amiga/Atari ST
+  carga_int2 = carga_int2_be
+  carga_int4 = carga_int4_be
   le = False
 else:
+  carga_int2 = carga_int2_le
+  carga_int4 = carga_int4_le
   le = True
 
 try:
@@ -92,28 +98,19 @@ if hayProgreso:
   rango    = progreso (range (256))
 for numImg in rango:
   fichero.seek (10 + (longCabeceraImg * numImg))  # Parte de cabecera de la imagen
-  # La posición toma 4 bytes, pero basta con 3
-  if le:
-    posicion = ord (fichero.read (1)) + (ord (fichero.read (1)) << 8) + \
-               (ord (fichero.read (1)) << 16)
-    fichero.seek (1, 1)  # El segundo parámetro indica posición relativa
-  else:
-    fichero.read (1)  # Omitimos el MSB
-    posicion = (ord (fichero.read (1)) << 16) + (ord (fichero.read (1)) << 8) + \
-               ord (fichero.read (1))
-
+  posicion = carga_int4()
   if not posicion:
     continue  # Ninguna imagen con ese número
 
   # Obtenemos la paleta de la imagen
-  fichero.seek (8, 1)
+  fichero.seek (8, 1)  # El segundo parámetro indica posición relativa
   paleta = []
   for color in range (16):
     # TODO: calcular valores exactos
-    rojo  = ord (fichero.read (1))
+    rojo  = carga_int1()
     rojo  = (rojo & 7) << 5
     # rojo  = rojo & 4 + ((rojo & 3) << 4)
-    veaz  = ord (fichero.read (1))
+    veaz  = carga_int1()
     verde = ((veaz >> 4) & 7) << 5
     azul  = (veaz & 7) << 5
     paleta.append ((rojo, verde, azul))
@@ -121,23 +118,18 @@ for numImg in rango:
   fichero.seek (posicion)  # Saltamos a donde está la imagen
 
   if le:
-    ancho = ord (fichero.read (1))  # LSB de la anchura de la imagen
-    valor = ord (fichero.read (1))
+    ancho = carga_int1()  # LSB de la anchura de la imagen
+    valor = carga_int1()
   else:
-    valor = ord (fichero.read (1))
-    ancho = ord (fichero.read (1))  # LSB de la anchura de la imagen
+    valor = carga_int1()
+    ancho = carga_int1()  # LSB de la anchura de la imagen
   ancho += (valor & 127) * 256
   if ancho == 0 or ancho % 4:
     prn ('El ancho de la imagen', numImg, 'no es mayor que 0 y múltiplo de 4, vale', ancho)
   ancho /= 4  # Anchura de la imagen (en bloques de 4 píxeles)
   rle = valor & 128
 
-  if le:
-    alto = ord (fichero.read (1))  # Altura de la imagen (en número de filas)
-    fichero.read (1)
-  else:
-    fichero.read (1)
-    alto = ord (fichero.read (1))  # Altura de la imagen (en número de filas)
+  alto = carga_int2()  # Altura de la imagen (en número de filas)
   if alto == 0 or alto % 8:
     prn ('El alto de la imagen', numImg, 'no es mayor que 0 y múltiplo de 8, vale', alto)
 
@@ -147,10 +139,7 @@ for numImg in rango:
   repetir = []
   fichero.seek (2, 1)  # Saltamos valor de longitud de la imagen
   if rle:
-    if le:
-      bits = ord (fichero.read (1)) + (ord (fichero.read (1)) * 256)  # Máscara de colores que se repetirán
-    else:
-      bits = (ord (fichero.read (1)) * 256) + ord (fichero.read (1))  # Máscara de colores que se repetirán
+    bits = carga_int2()  # Máscara de colores que se repetirán
     for indiceBit in range (16):
       if bits & (2 ** indiceBit):
         repetir.append (indiceBit)
@@ -167,7 +156,7 @@ for numImg in rango:
       if not valores:
         try:
           for i in range (cargar):
-            b = ord (fichero.read (1))  # Byte actual
+            b = carga_int1()  # Byte actual
             valores = [b & 15, b >> 4] + valores  # Los 4 bits más bajos primero, y luego los 4 más altos
         except:
           prn ('Imagen', numImg, 'incompleta. ¿Formato incorrecto?')
@@ -186,7 +175,7 @@ for numImg in rango:
     while len (strImg) < tamImg:  # Mientras quede imagen por procesar
       colores = ([0] * 8)
       for plano in range (numPlanos):
-        b = ord (fichero.read (1))  # Byte actual
+        b = carga_int1()  # Byte actual
         for indiceBit in range (8):
           bit = b & (2 ** indiceBit)
           colores[7 - indiceBit] += (2 ** plano) if bit else 0
