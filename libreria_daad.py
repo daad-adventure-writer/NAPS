@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Librería de DAAD (parte común a editor, compilador e intérprete)
-# Copyright (C) 2010, 2013, 2018-2021 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2013, 2018-2022 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -94,16 +94,15 @@ despl_ini      = 0      # Desplazamiento inicial para cargar desde memoria
 nueva_version  = []     # Si la base de datos es de las últimas versiones de DAAD, vacío = no
 plataforma     = None   # Número de plataforma en la base de datos
 
-# TODO: usar identificadores de plataforma independientes del idioma (0: PC, 1: Spectrum, etc.)
 # Desplazamientos iniciales para cargar desde memoria, de las plataformas en las que éste no es 0
 # Si el valor está en una lista, será una cota inferior, y se auto-detectará este desplazamiento
 despl_ini_plat = {
-  17:  [33600],  # Spectrum 48K
-  113: 256,      # Amstrad PCW
+  1: [33600],  # Spectrum 48K
+  7: 256,      # Amstrad PCW
 }
-plats_detectarLE = (1,)       # Plataformas que podrían ser tanto BE como LE, en formato 2 (PC)
-plats_LE         = (17, 113)  # Plataformas que son Little Endian (Spectrum 48K y Amdstrad PCW)
-plats_word       = (1,)       # Plataformas que no pueden leer words en desplazamientos impares (PC)
+plats_detectarLE = (0,)    # Plataformas que podrían ser tanto BE como LE, en formato 2 (PC)
+plats_LE         = (1, 7)  # Plataformas que son Little Endian (Spectrum 48K y Amdstrad PCW)
+plats_word       = (0,)    # Plataformas que no pueden leer words en desplazamientos impares (PC)
 
 # Tabla de conversión de caracteres, posiciones 16-31 (inclusive)
 daad_a_chr = ('ª', '¡', '¿', '«', '»', 'á', 'é', 'í', 'ó', 'ú', 'ñ', 'Ñ', 'ç', 'Ç', 'ü', 'Ü')
@@ -1164,7 +1163,7 @@ def prepara_plataforma ():
     nueva_version.append (True)
   # Cargamos el identificador de plataforma
   fich_ent.seek (CAB_PLATAFORMA)
-  plataforma = carga_int1()
+  plataforma = carga_int1() >> 4
 
   # Preparamos el desplazamiento inicial para carga desde memoria
   detectar_despl = False
