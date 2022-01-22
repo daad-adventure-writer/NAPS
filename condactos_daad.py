@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Condactos específicos de DAAD
-# Copyright (C) 2010, 2019-2021 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2019-2022 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -251,7 +251,7 @@ def a0_LISTOBJ ():
       if banderas[53] & 64:  # Listar como una frase
         if '.' in descripcion:
           descripcion = descripcion[:descripcion.index ('.')]
-        if centrar_graficos and compatibilidad:  # En la Aventura Original sí cambia el artículo por uno definido
+        if gui.centrar_graficos and compatibilidad:  # En la Aventura Original sí cambia el artículo por uno definido
           gui.imprime_cadena (cambia_articulo (descripcion))
         else:
           gui.imprime_cadena (descripcion[0].lower() + descripcion[1:])
@@ -358,7 +358,7 @@ def a1_LISTAT (locno):
         if '.' in descripcion:
           descripcion = descripcion[:descripcion.index ('.')]
         # Las primeras versiones de DAAD parecen cambiar en este modo de listar, los artículos indefinidos por definidos
-        if nueva_version or not centrar_graficos:
+        if nueva_version or not gui.centrar_graficos:
           gui.imprime_cadena (descripcion[0].lower() + descripcion[1:])
         else:
           gui.imprime_cadena (cambia_articulo (descripcion))
