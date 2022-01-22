@@ -291,7 +291,7 @@ def guarda_cadena_abreviada (cadena):
   guarda_int1 (ord ('\n') ^ 255)  # Fin de cadena
 
 
-# Funciones que utiliza el IDE directamente
+# Funciones que utiliza el IDE o el intérprete directamente
 
 # Carga la base de datos entera desde el fichero de entrada
 # Para compatibilidad con el IDE:
@@ -373,7 +373,7 @@ def calcula_abreviaturas (maxAbrev):
       for cadena in listaCadenas:
         longCadena  = len (cadena) + 1
         longAntes  += longCadena
-        cadenas.append(cadena)
+        cadenas.append (cadena)
     if compatibilidad:
       prn ('Longitud de cadenas sin abreviar (excluyendo objetos):', longAntes)
     else:
@@ -381,7 +381,7 @@ def calcula_abreviaturas (maxAbrev):
   else:
     for listaCadenas in listasCadenas:
       for cadena in listaCadenas:
-        cadenas.append(cadena)
+        cadenas.append (cadena)
   # Tomamos las mejores abreviaturas
   num_abreviaturas = 128 if compatibilidad else 129
   optimas = []  # Abreviaturas óptimas calculadas
@@ -405,7 +405,7 @@ def calcula_abreviaturas (maxAbrev):
             ocurrencias[ocurrencia] = 1
     if not ahorros:  # Ya no hay más cadenas de longitud mínima
       break
-    ordenAhorro = sorted(ahorros, key = ahorros.get, reverse = True)
+    ordenAhorro = sorted (ahorros, key = ahorros.get, reverse = True)
     abreviatura = ordenAhorro[0]
     ahorro      = ahorros[abreviatura]
     # prn ((abreviatura, ahorro, ocurrencias[abreviatura]))
@@ -433,13 +433,13 @@ def calcula_abreviaturas (maxAbrev):
     if ahorro < 0:  # Ahorra más con 0 que con 1, seguramente por los superconjuntos
       break  # Ya no se ahorra nada más
     # prn ((abreviatura, ahorro, ocurrencias[abreviatura]))
-    optimas.append((abreviatura, ahorro, ocurrencias[abreviatura]))
+    optimas.append ((abreviatura, ahorro, ocurrencias[abreviatura]))
     longDespues += len (abreviatura)
     # Quitamos las ocurrencias de esta abreviatura en las cadenas
     c = 0
     nuevasCadenas = []
     while c < len (cadenas):
-      partes = cadenas[c].split(abreviatura)
+      partes = cadenas[c].split (abreviatura)
       if len (partes) > 1:
         cadenas[c] = partes[0]
         for p in range (1, len (partes)):
@@ -675,12 +675,12 @@ def da_cadena_abreviada (cadena):
       if type (parteCadena) != str:
         i += 1
         continue
-      partes = parteCadena.split(abreviatura)
+      partes = parteCadena.split (abreviatura)
       if len (partes) > 1:
         partesCadena[i] = partes[0]
         for p in range (1, len (partes)):
-          partesCadena.insert(i + ((p - 1) * 2) + 1, (a, ))  # Guardamos el código de abreviatura en una tupla
-          partesCadena.insert(i + ((p - 1) * 2) + 2, partes[p])
+          partesCadena.insert (i + ((p - 1) * 2) + 1, (a, ))  # Guardamos el código de abreviatura en una tupla
+          partesCadena.insert (i + ((p - 1) * 2) + 2, partes[p])
         i += p * 2
       i += 1
   # Juntamos todas las partes en una sola cadena abreviada
@@ -1052,7 +1052,7 @@ def guarda_bd (bbdd):
     for entrada in entradas:
       if entrada in entradasProceso:
         continue  # Omitimos bloques duplicados
-      entradasProceso.append(entrada)
+      entradasProceso.append (entrada)
       for condacto, parametros in entrada:
         guarda_int1 (condacto)
         for parametro in parametros:
@@ -1169,7 +1169,7 @@ def prepara_plataforma ():
   detectar_despl = False
   if plataforma in despl_ini_plat:
     despl_ini = despl_ini_plat[plataforma]
-    if type(despl_ini) == list:
+    if type (despl_ini) == list:
       detectar_despl = True
       despl_ini      = despl_ini[0]
 
