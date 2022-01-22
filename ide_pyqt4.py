@@ -4,7 +4,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Entorno de desarrollo integrado (IDE), hecho con PyQt4
-# Copyright (C) 2010, 2018-2021 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2018-2022 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -45,7 +45,7 @@ dlg_contadores  = None  # Diálogo de contadores
 dlg_guardar     = None  # Diálogo de guardar fichero
 dlg_fallo       = None  # Diálogo para mostrar fallos leves
 dlg_msg_sys     = None  # Diálogo para consultar los mensajes de sistema
-dlg_msg_sys     = None  # Diálogo para consultar los mensajes de usuario
+dlg_msg_usr     = None  # Diálogo para consultar los mensajes de usuario
 dlg_procesos    = None  # Diálogo para consultar y modificar las tablas de proceso
 dlg_vista_vocab = None  # Diálogo para consultar el vocabulario
 
@@ -813,6 +813,7 @@ def muestraFallo (mensaje, detalle):
 
 def muestraMensajes (dialogo, listaMensajes, tipoMensajes):
   """Muestra uno de los diálogos para consultar los mensajes"""
+  global dlg_msg_sys, dlg_msg_usr
   if dialogo:  # Diálogo ya creado
     try:
       dialogo.showMaximized()
@@ -828,16 +829,18 @@ def muestraMensajes (dialogo, listaMensajes, tipoMensajes):
   selector.centralWidget().addSubWindow (dialogo)
   dialogo.showMaximized()
   selector.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
+  if tipoMensajes == 'sistema':
+    dlg_msg_sys = dialogo
+  else:
+    dlg_msg_usr = dialogo
 
 def muestraMsgSys ():
   """Muestra el diálogo para consultar los mensajes de sistema"""
-  global dlg_msg_sys
   muestraMensajes (dlg_msg_sys, mod_actual.msgs_sys, 'sistema')
 
 def muestraMsgUsr ():
   """Muestra el diálogo para consultar los mensajes de usuario"""
-  global dlg_msg_sys
-  muestraMensajes (dlg_msg_sys, mod_actual.msgs_usr, 'usuario')
+  muestraMensajes (dlg_msg_usr, mod_actual.msgs_usr, 'usuario')
 
 def muestraProcesos ():
   """Muestra el diálogo para las tablas de proceso"""
