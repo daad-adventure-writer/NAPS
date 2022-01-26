@@ -899,9 +899,9 @@ def guarda_bd (bbdd):
   num_msgs_sys = len (msgs_sys)        # Número de mensajes de sistema
   num_procs    = len (tablas_proceso)  # Número de tablas de proceso
   bajo_nivel_cambia_sal (bbdd)
-  guarda_int1 (version)       # Versión del formato
-  guarda_int1 (plataforma)    # Identificador de plataforma
-  guarda_int1 (95)            # No sé qué es, pero vale esto en las BBDD DAAD
+  guarda_int1 (version)         # Versión del formato
+  guarda_int1 (plataforma + 1)  # Identificador de plataforma e idioma
+  guarda_int1 (ord ('_'))       # Carácter para representar cualquier palabra, vale esto en las BBDD DAAD de AD
   guarda_int1 (num_objetos[0])
   guarda_int1 (num_locs)
   guarda_int1 (num_msgs_usr)
