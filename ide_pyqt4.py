@@ -648,7 +648,7 @@ def importaBD (nombreFichero):
   """Importa una base de datos desde el fichero de nombre dado"""
   global mod_actual
   try:
-    fichero = open (nombreFichero, 'r')
+    fichero = open (nombreFichero, 'rb')
   except IOError as excepcion:
     muestraFallo ('No se puede abrir el fichero:\n' + nombreFichero,
                   'Causa:\n' + excepcion.args[1])
@@ -779,7 +779,7 @@ def muestraAcercaDe ():
     dlg_acerca_de.setIconPixmap (icono_ide.pixmap (96))
     dlg_acerca_de.setText ('NAPS: The New Age PAW-like System\n' +
         'Entorno de desarrollo integrado (IDE)\n' +
-        'Copyright © 2010, 2018-2020 José Manuel Ferrer Ortiz')
+        'Copyright © 2010, 2018-2022 José Manuel Ferrer Ortiz')
     dlg_acerca_de.setInformativeText ('Versión de PyQt4: ' +
         PYQT_VERSION_STR + '\nVersión de Qt: ' + QT_VERSION_STR +
         '\nVersión de Python: ' + sys.version[:fin])
