@@ -56,8 +56,8 @@ bbddimg = sys.argv[1]  # Ruta a base de datos DAAD de imágenes
 destino = sys.argv[2]  # Ruta de destino de las imágenes extraídas
 
 # Paletas CGA (1 y 2 con brillo) en el orden necesario
-paleta1b = ((0, 0, 0), (84, 254, 254), (254, 84, 254), (254, 254, 254))
-paleta2b = ((0, 0, 0), (84, 254, 84),  (254, 84, 84),  (254, 254, 84))
+paleta1b = ((0, 0, 0), (85, 255, 255), (255, 85, 255), (254, 255, 255))
+paleta2b = ((0, 0, 0), (85, 255,  85), (255, 85,  85), (255, 255,  85))
 
 # Paleta EGA en el orden necesario
 paletaEGA = ((  0,  0,  0), (  0,  0, 170), (  0, 170,  0), (  0, 170, 170),
@@ -190,7 +190,7 @@ for numImg in rango:
       listaImg.append (strImg[numFila * ancho * 4 : (numFila + 1) * ancho * 4])
     escritor = png.Writer (ancho * 4, alto, palette = paleta, bitdepth = bpp)
     salida   = open ('%s/pic%03d.png' % (destino, numImg), 'wb')
-    escritor.write(salida, listaImg)
+    escritor.write (salida, listaImg)
   else:
     # OJO: pygame no guarda las imágenes como paleta indexada
     imagen = pygame.image.fromstring (strImg, (ancho * 4, alto), 'P')
