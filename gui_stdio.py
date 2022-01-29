@@ -2,8 +2,8 @@
 
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
-# Interfaz gr√°fica de usuario (GUI) con entrada y salida est√°ndar para el int√©rprete PAW-like
-# Copyright (C) 2010, 2018-2021 Jos√© Manuel Ferrer Ortiz
+# Interfaz gr·fica de usuario (GUI) con entrada y salida est·ndar para el intÈrprete PAW-like
+# Copyright (C) 2010, 2018-2021 JosÈ Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -28,38 +28,38 @@ import sys
 from prn_func import *
 
 
-traza = False  # Si queremos una traza del funcionamiento del m√≥dulo
+traza = False  # Si queremos una traza del funcionamiento del mÛdulo
 
-# Variables que ajusta el int√©rprete
-cambia_brillo    = None      # Car√°cter que si se encuentra en una cadena, dar√≠a o quitar√≠a brillo al color de tinta de la letra
-cambia_flash     = None      # Car√°cter que si se encuentra en una cadena, pondr√≠a o quitar√≠a efecto flash a la letra
-cambia_papel     = None      # Car√°cter que si se encuentra en una cadena, cambiar√≠a el color de papel/fondo de la letra
-cambia_tinta     = None      # Car√°cter que si se encuentra en una cadena, cambiar√≠a el color de tinta de la letra
-centrar_graficos = []        # Si se deben centrar los gr√°ficos al dibujarlos
-historial        = []        # Historial de √≥rdenes del jugador
-juego_alto       = None      # Car√°cter que si se encuentra en una cadena, pasar√≠a al juego de caracteres alto
-juego_bajo       = None      # Car√°cter que si se encuentra en una cadena, pasar√≠a al juego de caracteres bajo
+# Variables que ajusta el intÈrprete
+cambia_brillo    = None      # Car·cter que si se encuentra en una cadena, darÌa o quitarÌa brillo al color de tinta de la letra
+cambia_flash     = None      # Car·cter que si se encuentra en una cadena, pondrÌa o quitarÌa efecto flash a la letra
+cambia_papel     = None      # Car·cter que si se encuentra en una cadena, cambiarÌa el color de papel/fondo de la letra
+cambia_tinta     = None      # Car·cter que si se encuentra en una cadena, cambiarÌa el color de tinta de la letra
+centrar_graficos = []        # Si se deben centrar los gr·ficos al dibujarlos
+historial        = []        # Historial de Ûrdenes del jugador
+juego_alto       = None      # Car·cter que si se encuentra en una cadena, pasarÌa al juego de caracteres alto
+juego_bajo       = None      # Car·cter que si se encuentra en una cadena, pasarÌa al juego de caracteres bajo
 paleta           = ([], [])  # Paleta de colores sin y con brillo, para los cambios con cambia_*
-todo_mayusculas  = False     # Si la entrada del jugador ser√° incondicionalmente en may√∫sculas
+todo_mayusculas  = False     # Si la entrada del jugador ser· incondicionalmente en may˙sculas
 ruta_graficos    = ''
 
-cursores    = [[0, 0]] * 2  # Posici√≥n relativa del cursor de cada subventana
-limite      = [53, 25]      # Ancho y alto m√°ximos absolutos de cada subventana
+cursores    = [[0, 0]] * 2  # PosiciÛn relativa del cursor de cada subventana
+limite      = [53, 25]      # Ancho y alto m·ximos absolutos de cada subventana
 num_subvens = 8             # DAAD tiene 8 subventanas
 
-# Variables propias de este m√≥dulo de entrada y salida est√°ndar
+# Variables propias de este mÛdulo de entrada y salida est·ndar
 elegida    = 1      # Subventana elegida (la predeterminada es la 1)
-nuevaLinea = False  # Si el siguiente texto a imprimir deber√≠a ir en una nueva l√≠nea
+nuevaLinea = False  # Si el siguiente texto a imprimir deberÌa ir en una nueva lÌnea
 
 
-# Funciones que no hacen nada al usar entrada y salida est√°ndar de puro texto
+# Funciones que no hacen nada al usar entrada y salida est·ndar de puro texto
 
 def borra_orden ():
   """Borra la entrada realimentada en pantalla en la subventana de entrada si es subventana propia, y recupera la subventana anterior"""
   pass
 
 def cambia_color_borde (color):
-  """Cambia el color de fondo al borrar de la subventana actual por el de c√≥digo dado"""
+  """Cambia el color de fondo al borrar de la subventana actual por el de cÛdigo dado"""
   pass
 
 def cambia_color_papel (color):
@@ -71,19 +71,19 @@ def cambia_color_tinta (color):
   pass
 
 def cambia_cursor (cadenaCursor):
-  """Cambia el car√°cter que marca la posici√≥n del cursor en la entrada del jugador"""
+  """Cambia el car·cter que marca la posiciÛn del cursor en la entrada del jugador"""
   pass
 
 def cambia_subv_input (stream, opciones):
-  """Cambia la subventana de entrada por el stream dado, con las opciones dadas, seg√∫n el condacto INPUT"""
+  """Cambia la subventana de entrada por el stream dado, con las opciones dadas, seg˙n el condacto INPUT"""
   pass
 
 def cambia_topes (columna, fila):
-  """Cambia los topes de la subventana de impresi√≥n elegida"""
+  """Cambia los topes de la subventana de impresiÛn elegida"""
   pass
 
 def dibuja_grafico (numero, descripcion = False, parcial = False):
-  """Dibuja un gr√°fico en la posici√≥n del cursor"""
+  """Dibuja un gr·fico en la posiciÛn del cursor"""
   pass
 
 def espera_tecla (tiempo = 0):
@@ -91,35 +91,35 @@ def espera_tecla (tiempo = 0):
   pass
 
 def guarda_cursor ():
-  """Guarda la posici√≥n del cursor de la subventana elegida """
+  """Guarda la posiciÛn del cursor de la subventana elegida """
   pass
 
 def pos_subventana (columna, fila):
-  """Cambia la posici√≥n de origen de la subventana de impresi√≥n elegida"""
+  """Cambia la posiciÛn de origen de la subventana de impresiÛn elegida"""
   pass
 
 def prepara_topes (columnas, filas):
-  """Inicializa los topes al n√∫mero de columnas y filas dado"""
+  """Inicializa los topes al n˙mero de columnas y filas dado"""
   pass
 
 def redimensiona_ventana (evento = None):
-  """Maneja eventos en relaci√≥n a la ventana, como si se ha redimensionado o se le ha dado al aspa de cerrar"""
+  """Maneja eventos en relaciÛn a la ventana, como si se ha redimensionado o se le ha dado al aspa de cerrar"""
   pass
 
 def reinicia_subventanas ():
-  """Ajusta todas las subventanas de impresi√≥n a sus valores por defecto"""
+  """Ajusta todas las subventanas de impresiÛn a sus valores por defecto"""
   pass
 
 
-# Funciones que implementan la entrada y salida por entrada y salida est√°ndar de puro texto
+# Funciones que implementan la entrada y salida por entrada y salida est·ndar de puro texto
 
 def abre_ventana (traza, modoPantalla, bbdd):
-  """Abre la ventana gr√°fica de la aplicaci√≥n"""
+  """Abre la ventana gr·fica de la aplicaciÛn"""
   global cambia_brillo, cambia_flash, cambia_papel, cambia_tinta, juego_alto, juego_bajo
   if juego_alto == 48:  # La @ de SWAN
     juego_alto = '@'
     juego_bajo = '@'
-  elif juego_alto == 14:  # La √º de las primeras versiones de DAAD
+  elif juego_alto == 14:  # La ¸ de las primeras versiones de DAAD
     juego_alto = '\x0e'
     juego_bajo = '\x0f'
   if cambia_brillo:
@@ -129,7 +129,7 @@ def abre_ventana (traza, modoPantalla, bbdd):
     cambia_tinta  = chr (cambia_tinta)
 
 def borra_pantalla (desdeCursor = False, noRedibujar = False):
-  """Limpia la subventana de impresi√≥n"""
+  """Limpia la subventana de impresiÛn"""
   marcaNuevaLinea()
 
 def borra_todo ():
@@ -137,11 +137,11 @@ def borra_todo ():
   marcaNuevaLinea()
 
 def carga_cursor ():
-  """Carga la posici√≥n del cursor guardada de la subventana elegida """
+  """Carga la posiciÛn del cursor guardada de la subventana elegida """
   marcaNuevaLinea()
 
 def da_tecla_pulsada ():
-  """Devuelve el par de c√≥digos ASCII de la tecla m√°s recientemente pulsada si hay alguna tecla pulsada, o None si no hay ninguna pulsada"""
+  """Devuelve el par de cÛdigos ASCII de la tecla m·s recientemente pulsada si hay alguna tecla pulsada, o None si no hay ninguna pulsada"""
   return None
 
 def elige_subventana (numero):
@@ -152,15 +152,15 @@ def elige_subventana (numero):
     nuevaLinea = True
 
 def hay_grafico (numero):
-  """Devuelve si existe el gr√°fico de n√∫mero dado"""
+  """Devuelve si existe el gr·fico de n˙mero dado"""
   return False
 
 def imprime_banderas (banderas):
-  """Imprime el contenido de las banderas (en la salida de error est√°ndar)"""
-  prn ('Impresi√≥n de banderas como texto (en stderr) no implementada', file = sys.stderr)
+  """Imprime el contenido de las banderas (en la salida de error est·ndar)"""
+  prn ('ImpresiÛn de banderas como texto (en stderr) no implementada', file = sys.stderr)
 
 def imprime_cadena (cadena, scroll = True, redibujar = True):
-  """Imprime una cadena en la posici√≥n del cursor (dentro de la subventana)"""
+  """Imprime una cadena en la posiciÛn del cursor (dentro de la subventana)"""
   global nuevaLinea
   if nuevaLinea:
     prn()
@@ -168,12 +168,12 @@ def imprime_cadena (cadena, scroll = True, redibujar = True):
   nuevaLinea = False
 
 def lee_cadena (prompt, inicio, timeout, espaciar = False):
-  """Lee una cadena (terminada con Enter) desde el teclado, dando realimentaci√≥n al jugador
+  """Lee una cadena (terminada con Enter) desde el teclado, dando realimentaciÛn al jugador
 
-El par√°metro prompt, es el mensaje de prompt
-El par√°metro inicio es la entrada a medias anterior
-El par√°metro timeout es una lista con el tiempo muerto, en segundos
-El par√°metro espaciar permite elegir si se debe dejar una l√≠nea en blanco tras el √∫ltimo texto"""
+El par·metro prompt, es el mensaje de prompt
+El par·metro inicio es la entrada a medias anterior
+El par·metro timeout es una lista con el tiempo muerto, en segundos
+El par·metro espaciar permite elegir si se debe dejar una lÌnea en blanco tras el ˙ltimo texto"""
   entrada = None
   while not entrada:
     if prompt:
@@ -182,16 +182,16 @@ El par√°metro espaciar permite elegir si se debe dejar una l√≠nea en blanco tras
   return entrada
 
 def marcaNuevaLinea ():
-  """La pr√≥xima vez que se escriba algo, hacerlo en l√≠nea nueva"""
+  """La prÛxima vez que se escriba algo, hacerlo en lÌnea nueva"""
   global nuevaLinea
   nuevaLinea = True
 
 def mueve_cursor (columna, fila = None):
-  """Cambia de posici√≥n el cursor de la subventana elegida"""
+  """Cambia de posiciÛn el cursor de la subventana elegida"""
   marcaNuevaLinea()
 
 
-# Funciones auxiliares que s√≥lo se usan en este m√≥dulo
+# Funciones auxiliares que sÛlo se usan en este mÛdulo
 
 def limpiaCadena (cadena):
   if not cambia_brillo and not cambia_flash and not cambia_papel and not cambia_tinta and not juego_alto and not juego_bajo:
@@ -201,7 +201,7 @@ def limpiaCadena (cadena):
   while c < len (cadena):
     if cadena[c] in (cambia_brillo, cambia_flash, cambia_papel, cambia_tinta, juego_alto, juego_bajo):
       if cadena[c] not in (juego_alto, juego_bajo):
-        c += 1  # Descartamos tambi√©n el siguiente byte, que indica el color o si se activa o no
+        c += 1  # Descartamos tambiÈn el siguiente byte, que indica el color o si se activa o no
     else:
       limpia += cadena[c]
     c += 1
