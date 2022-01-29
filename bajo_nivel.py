@@ -1,4 +1,4 @@
-# -*- coding: iso-8859-15 -*-
+# -*- coding: utf-8 -*-
 
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
