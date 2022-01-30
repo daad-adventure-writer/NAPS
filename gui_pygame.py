@@ -185,7 +185,7 @@ def borra_pantalla (desdeCursor = False, noRedibujar = False):
     del texto_nuevo[:]
   if not desdeCursor:
     cursores[elegida] = [0, 0]
-  colorBorde = paleta[0][color_subv[elegida][2]] if paleta[0] else (0, 0, 0)
+  colorBorde = daColorBorde()
   cursor     = cursores[elegida]
   subventana = subventanas[elegida]
   tope       = topes[elegida]
@@ -206,7 +206,7 @@ def borra_pantalla (desdeCursor = False, noRedibujar = False):
 
 def borra_todo ():
   """Limpia la pantalla completa"""
-  colorBorde = paleta[0][color_subv[elegida][2]] if paleta[0] else (0, 0, 0)
+  colorBorde = daColorBorde()
   ventana.fill (colorBorde, (0, 0) + resolucion)
   actualizaVentana()
 
@@ -778,6 +778,12 @@ def reinicia_subventanas ():
 
 # Funciones auxiliares que sólo se usan en este módulo
 
+def daColorBorde ():
+  """Devuelve el color de borde o de fondo de la subventana elegida, según corresponda a la plataforma"""
+  if paleta[1]:  # Si hay dos paletas, debe ser Spectrum
+    return paleta[0][color_subv[elegida][2]] if paleta[0] else (0, 0, 0)  # Color del borde
+  return paleta[0][color_subv[elegida][1]] if paleta[0] else (0, 0, 0)  # Color del papel
+
 def parseaColores (cadena):
   """Procesa los códigos de control de colores, devolviendo la cadena sin ellos, y un diccionario posición: colores a aplicar"""
   brillo  = 0                       # Sin brillo por defecto
@@ -842,8 +848,9 @@ def scrollLineas (lineasAsubir, subventana, tope, redibujar = True):
   # Copiamos las líneas a subir
   ventana.blit (ventana, destino, (origenX, origenY, anchura, altura))
   # Borramos el hueco
-  origenY = (subventana[1] + tope[1] - lineasAsubir) * 8
-  altura  = lineasAsubir * 8
-  ventana.fill ((0, 0, 0), (origenX, origenY, anchura, altura))
+  colorBorde = daColorBorde()
+  origenY    = (subventana[1] + tope[1] - lineasAsubir) * 8
+  altura     = lineasAsubir * 8
+  ventana.fill (colorBorde, (origenX, origenY, anchura, altura))
   if redibujar:
     actualizaVentana()
