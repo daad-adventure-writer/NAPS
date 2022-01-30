@@ -269,6 +269,13 @@ def dibuja_grafico (numero, descripcion = False, parcial = False):
 
 El parámetro descripcion indica si se llama al describir la localidad
 El parámetro parcial indica si es posible dibujar parte de la imagen"""
+  try:
+    grafico = pygame.image.load (ruta_graficos + 'pic' + str (numero).zfill (3) + '.png')
+  except Exception as e:
+    if traza:
+      prn ('Gráfico', numero, 'inválido o no encontrado en:', ruta_graficos)
+      prn (e)
+    return  # No dibujamos nada
   tope = topes[elegida]
   if descripcion:
     if traza:
@@ -279,13 +286,6 @@ El parámetro parcial indica si es posible dibujar parte de la imagen"""
     if traza:
       prn ('Dibujo', numero, 'sobre subventana', elegida, 'en', subventana,
            'con topes', tope, 'y cursor en', cursor)
-  try:
-    grafico = pygame.image.load (ruta_graficos + 'pic' + str (numero).zfill (3) + '.png')
-  except Exception as e:
-    if traza:
-      prn ('Gráfico', numero, 'inválido o no encontrado en:', ruta_graficos)
-      prn (e)
-    return  # No dibujamos nada
   if elegida == 0:
     topes_gfx[0] = min (grafico.get_width()  // 8, limite[0])
     topes_gfx[1] = min (grafico.get_height() // 8, limite[1])
