@@ -304,6 +304,7 @@ def a0_SAVE ():
         fichero.write (struct.pack ('B', loc_obj))
       for i in range (len (locs_objs), 256):  # El resto de bytes los ocupamos con 0
         fichero.write (struct.pack ('B', 0))
+      gui.borra_orden()
     except:
       imprime_mensaje (msgs_sys[57])  # Error I/O
       busca_condacto ('a0_ANYKEY')()
