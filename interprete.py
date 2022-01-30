@@ -4,7 +4,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Intérprete de sistemas PAW-like
-# Copyright (C) 2010, 2018-2021 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2018-2022 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -924,6 +924,8 @@ if __name__ == '__main__':
     # Colores con brillo en este orden: negro, azul, rojo, magenta, verde, cyan, amarillo, blanco
     gui.paleta[0].extend (((0, 0, 0), (0, 0, 255), (255, 0, 0), (255, 0, 255),
                            (0, 255, 0), (0, 255, 255), (255, 255, 0), (255, 255, 255)))
+    gui.txt_mas = msgs_sys[32]
+    gui.txt_mas = msgs_sys[32]  # (más)
     # XXX: apaño para diferenciar la Aventura Original de aventuras posteriores
     if (len (msgs_usr) > 77 and msgs_usr[77] == '\x0eAVENTURA ORIGINAL I\x0f') or msgs_usr[0] == '\x0eAVENTURA ORIGINAL II\x0f':
       gui.centrar_graficos.append (True)

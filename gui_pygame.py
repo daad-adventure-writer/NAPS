@@ -81,8 +81,9 @@ centrar_graficos = []        # Si se deben centrar los gráficos al dibujarlos
 juego_alto       = None      # Carácter que si se encuentra en una cadena, pasará al juego de caracteres alto
 juego_bajo       = None      # Carácter que si se encuentra en una cadena, pasará al juego de caracteres bajo
 paleta           = ([], [])  # Paleta de colores sin y con brillo, para los cambios con cambia_*
+ruta_graficos    = ''        # Carpeta de donde cargar los gráficos a dibujar
 todo_mayusculas  = False     # Si la entrada del jugador será incondicionalmente en mayúsculas
-ruta_graficos    = ''
+txt_mas          = '(más)'   # Cadena a mostrar cuando no cabe más texto y se espera a que el jugador pulse una tecla
 
 banderas_antes  = None  # Valor anterior de las banderas
 banderas_viejas = None  # Banderas que antes cambiaron de valor
@@ -647,17 +648,22 @@ Si scroll es True, se desplazará el texto del buffer hacia arriba (scrolling) cu
   if linea:  # Queda algo en la última línea
     lineas.append (''.join (linea))
   # Hacemos scrolling antes de nada, en caso de que vaya a ser necesario
-  # TODO: Esperar si se escriben más líneas que las que caben en la subventana
-  #       i.e. paginar con pausa
   lineasAsubir = cursor[1] + len (lineas) - tope[1]
   if lineasAsubir > 0:  # Hay que desplazar el texto ese número de líneas
     scrollLineas (lineasAsubir, subventana, tope)
-    cursor[1] -= lineasAsubir  # Actualizamos el cursor antes de imprimir
+    cursor[1] -= min (cursor[1], lineasAsubir)  # Actualizamos el cursor antes de imprimir
   # Imprimimos la cadena línea por línea
   for i in range (len (lineas)):
     if i > 0:  # Nueva línea antes de cada una, salvo la primera
-      cursor = [0, cursor[1] + 1]
+      cursor = [0, min (cursor[1] + 1, tope[1] - 1)]
       cursores[elegida] = cursor  # Actualizamos el cursor de la subventana
+      if i % (tope[1] - 1) == 0:
+        imprime_linea (txt_mas.translate (iso8859_15_a_fuente))
+        espera_tecla()
+        imprime_linea (' '.translate (iso8859_15_a_fuente) * tope[0])
+        # TODO: Hacer scroll de golpe, del número de líneas necesario
+      elif i >= tope[1]:  # Tras sobrepasar el tope de líneas, hay que hacer scroll con cada una
+        scrollLineas (1, subventana, tope)
     if cambia_brillo:
       imprime_linea (lineas[i], redibujar = redibujar, colores = colores, inicioLinea = iniLineas[i])
     else:
