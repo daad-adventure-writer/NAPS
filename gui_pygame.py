@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Interfaz gráfica de usuario (GUI) con PyGame para el intérprete PAW-like
-# Copyright (C) 2010, 2018-2021 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2018-2022 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -69,9 +69,8 @@ ventana  = None
 fuente = pygame.image.load ('fuente.png')  # Fuente tipográfica
 fuente.set_palette (((255, 255, 255), (0, 0, 0)))
 
-chr_cursor = pygame.Surface ((6, 8))  # Carácter de guión bajo con transparencia, para marcar posición de input
-chr_cursor.blit (fuente, (0, 0), ((79 % 63) * 10, (79 // 63) * 10, 6, 8))  # '_' está en la posición 79
-chr_cursor.set_colorkey ((0, 0, 0))  # El color negro será ahora transparente
+cad_cursor = '_'
+chr_cursor = pygame.Surface ((6, 8))  # Carácter con transparencia, para marcar posición de input
 
 # Variables que ajusta el intérprete
 cambia_brillo    = None      # Carácter que si se encuentra en una cadena, dará o quitará brillo al color de tinta de la letra
@@ -225,14 +224,8 @@ def cambia_color_tinta (color):
 
 def cambia_cursor (cadenaCursor):
   """Cambia el carácter que marca la posición del cursor en la entrada del jugador"""
-  global chr_cursor
-  cadenaCursor, colores = parseaColores (cadenaCursor)
-  if len (cadenaCursor) >= 1 and cadenaCursor[0] in izquierda:
-    posEnFuente = izquierda.index (cadenaCursor[0])
-    chr_cursor = pygame.Surface ((6, 8), depth = 8)
-    fuente.set_palette (colores[0])
-    chr_cursor.blit (fuente, (0, 0), ((posEnFuente % 63) * 10, (posEnFuente // 63) * 10, 6, 8))
-    chr_cursor.set_colorkey (colores[0][1])  # El color de papel/fondo será ahora transparente
+  global cad_cursor
+  cad_cursor = cadenaCursor
 
 def cambia_subv_input (stream, opciones):
   """Cambia la subventana de entrada por el stream dado, con las opciones dadas, según el condacto INPUT"""
@@ -688,6 +681,7 @@ Los caracteres de linea deben estar convertidos a posiciones en la tipografía"""
     ventana.blit (fuente, (destinoX + (i * 6), destinoY),
                   ((c % 63) * 10, (c // 63) * 10, 6, 8))
   if posInput != None:
+    preparaCursor()
     ventana.blit (chr_cursor, (destinoX + (posInput * 6), destinoY), (0, 0, 6, 8))
   if redibujar:
     actualizaVentana()
@@ -822,6 +816,15 @@ def parseaColores (cadena):
   if version_info[0] < 3:  # La versión de Python es 2.X
     sinColores = sinColores.encode ('iso-8859-15')
   return sinColores, colores
+
+def preparaCursor ():
+  """Prepara el cursor con el carácter y color adecuado"""
+  cadenaCursor, colores = parseaColores (cad_cursor)
+  if len (cadenaCursor) >= 1 and cadenaCursor[0] in izquierda:
+    posEnFuente = izquierda.index (cadenaCursor[0])
+    fuente.set_palette (colores[0])
+    chr_cursor.blit (fuente, (0, 0), ((posEnFuente % 63) * 10, (posEnFuente // 63) * 10, 6, 8))
+    chr_cursor.set_colorkey (colores[0][1])  # El color de papel/fondo será ahora transparente
 
 def scrollLineas (lineasAsubir, subventana, tope, redibujar = True):
   """Hace scroll gráfico del número dado de líneas, en la subventana dada, con topes dados"""
