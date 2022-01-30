@@ -154,7 +154,7 @@ def c0_LOAD ():
         del locs_objs[:]
         locs_objs.extend (leido[NUM_BANDERAS:NUM_BANDERAS + num_objetos[0]])
         gui.borra_todo()
-        del historial[:]
+        del gui.historial[:]
       else:
         bien = False
     except:
@@ -210,7 +210,7 @@ def c1_RAMLOAD (flagno):
   for o in range (num_objetos[0]):
     locs_objs[o] = partida[o + NUM_BANDERAS]
   gui.borra_todo()
-  del historial[:]
+  del gui.historial[:]
   return True
 
 

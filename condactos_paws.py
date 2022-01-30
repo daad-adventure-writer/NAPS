@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Condactos PAWS estándar
-# Copyright (C) 2010, 2018-2021 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2018-2022 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -292,7 +292,7 @@ def a0_LOAD ():
         banderas.extend (leido[:NUM_BANDERAS])
         del locs_objs[:]
         locs_objs.extend (leido[NUM_BANDERAS:NUM_BANDERAS + num_objetos[0]])
-        del historial[:]
+        del gui.historial[:]
       else:
         jkhsdjkfh  # Para que falle
     except:
@@ -583,7 +583,7 @@ def a1_RAMLOAD (flagno):
     banderas[b] = partida[b]
   for o in range (num_objetos[0]):
     locs_objs[o] = partida[o + NUM_BANDERAS]
-  del historial[:]
+  del gui.historial[:]
 
 def a1_RANDOM (flagno):
   """Pone en la bandera flagno un número al azar entre 1 y 100"""
