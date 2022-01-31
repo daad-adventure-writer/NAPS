@@ -112,18 +112,17 @@ def abre_ventana (traza, modoPantalla, bbdd):
   pygame.display.set_caption ('NAPS - ' + bbdd)
   modo = 'normal'
   if traza:
-    ventana = pygame.display.set_mode ((780, 200))  # Ventana juego + banderas
-  # Ventana juego sólo
-  else:
+    resolucion = (780, 200)  # Ventana juego + banderas
+  else:  # Ventana juego sólo
     if limite[0] == 42:
       resolucion = (256, 192)
-    if modoPantalla[:5] == 'scale' and modoPantalla[5].isdigit() and modoPantalla[-1] == 'x':
-      factorEscala = int (modoPantalla[5])
-      modo         = 'scale' + modoPantalla[5] + 'x'
-      escalada     = pygame.display.set_mode ((resolucion[0] * factorEscala, resolucion[1] * factorEscala), pygame.RESIZABLE)
-      ventana      = pygame.Surface (resolucion)
-    else:
-      ventana = pygame.display.set_mode (resolucion, pygame.RESIZABLE)
+  if modoPantalla[:5] == 'scale' and modoPantalla[5].isdigit() and modoPantalla[-1] == 'x':
+    factorEscala = int (modoPantalla[5])
+    modo         = 'scale' + modoPantalla[5] + 'x'
+    escalada     = pygame.display.set_mode ((resolucion[0] * factorEscala, resolucion[1] * factorEscala), pygame.RESIZABLE)
+    ventana      = pygame.Surface (resolucion)
+  else:
+    ventana = pygame.display.set_mode (resolucion, pygame.RESIZABLE)
   return
   # FIXME: si no funciona el modo gráfico, deja X Window mal permanentemente, aún al cerrarse el intérprete
   if modoPantalla == 'fullscreen':
