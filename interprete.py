@@ -836,6 +836,7 @@ if __name__ == '__main__':
   argsParser = argparse.ArgumentParser (sys.argv[0], description = 'Intérprete de Quill/PAWS/SWAN/DAAD en Python')
   argsParser.add_argument ('-D', '--debug', action = 'store_true', help = 'ejecutar los condactos paso a paso')
   argsParser.add_argument ('-g', '--gui', choices = ('pygame', 'stdio'), help = 'interfaz gráfica a utilizar')
+  argsParser.add_argument ('-s', '--scale', type = int, choices = (1, 2, 3), help = 'factor de escalado para la ventana')
   argsParser.add_argument ('bbdd', metavar = 'base_de_datos', help = 'base de datos de Quill/PAWS/SWAN/DAAD a ejecutar')
   argsParser.add_argument ('ruta_graficos', metavar = 'carpeta_gráficos', nargs = '?', help = 'carpeta que contiene las imágenes (con nombre pic###.png)')
   args  = argsParser.parse_args()
@@ -851,6 +852,12 @@ if __name__ == '__main__':
       except:
         args.gui = 'stdio'
   gui = __import__ ('gui_' + args.gui)
+
+  if not args.scale:
+    if traza:
+      args.scale = 1
+    else:
+      args.scale = 2
 
   extension = args.bbdd[-4:].lower()
   if extension in ('.pdb', '.sna'):
@@ -949,7 +956,7 @@ if __name__ == '__main__':
 
   gui.frase_guardada = frase_guardada
   gui.texto_nuevo    = texto_nuevo
-  gui.abre_ventana (traza, 'scale2x', args.bbdd)
+  gui.abre_ventana (traza, args.scale, args.bbdd)
 
   # Preparamos las listas banderas, locs_objs y conjunciones
   banderas.extend  ([0,] * NUM_BANDERAS)    # Banderas del sistema

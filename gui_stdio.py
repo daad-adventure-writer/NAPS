@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Interfaz gráfica de usuario (GUI) con entrada y salida estándar para el intérprete PAW-like
-# Copyright (C) 2010, 2018-2021 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2018-2022 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -113,7 +113,7 @@ def reinicia_subventanas ():
 
 # Funciones que implementan la entrada y salida por entrada y salida estándar de puro texto
 
-def abre_ventana (traza, modoPantalla, bbdd):
+def abre_ventana (traza, factorEscala, bbdd):
   """Abre la ventana gráfica de la aplicación"""
   global cambia_brillo, cambia_flash, cambia_papel, cambia_tinta, juego_alto, juego_bajo
   if juego_alto == 48:  # La @ de SWAN
