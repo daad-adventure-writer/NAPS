@@ -652,7 +652,9 @@ Si scroll es True, se desplazará el texto del buffer hacia arriba (scrolling) cu
     if i > 0:  # Nueva línea antes de cada una, salvo la primera
       cursor = [0, min (cursor[1] + 1, tope[1] - 1)]
       cursores[elegida] = cursor  # Actualizamos el cursor de la subventana
-      if i % (tope[1] - 1) == 0:
+      # Paginación
+      # FIXME: reimplementar para textos acumulados desde la última orden
+      if i % (tope[1] - 1) == 0 and (not subv_input or elegida != subv_input):
         imprime_linea (txt_mas.translate (iso8859_15_a_fuente))
         espera_tecla()
         imprime_linea (' '.translate (iso8859_15_a_fuente) * tope[0])
