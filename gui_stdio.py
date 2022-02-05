@@ -175,7 +175,12 @@ def hay_grafico (numero):
 
 def imprime_banderas (banderas):
   """Imprime el contenido de las banderas (en la salida de error estándar)"""
-  prn ('Impresión de banderas como texto (en stderr) no implementada', file = sys.stderr)
+  global advertencia_banderas
+  try:
+    advertencia_banderas
+  except:
+    advertencia_banderas = True
+    prn ('Impresión de banderas como texto (en stderr) no implementada', file = sys.stderr)
 
 def imprime_cadena (cadena, scroll = True, redibujar = True):
   """Imprime una cadena en la posición del cursor (dentro de la subventana)"""
