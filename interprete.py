@@ -432,6 +432,9 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
     for f in range (len (ordenes)):
       frase = {'Verbo': None, 'Nombre1': None, 'Nombre2': None, 'Adjetivo1': None, 'Adjetivo2': None, 'Adverbio': None, 'Preposición': None, 'Pronombre': None}
       for palabra in ordenes[f]:
+        if palabra == 'Pronombre':
+          frase['Pronombre'] = palabra
+          continue
         for i in rango_vocabulario:
           if vocabulario[i][0] == palabra:  # Hay encaje con esta palabra
             if vocabulario[i][2] > len (TIPOS_PAL):
@@ -973,6 +976,7 @@ if __name__ == '__main__':
   # Preparamos las listas banderas, locs_objs y conjunciones
   banderas.extend  ([0,] * NUM_BANDERAS)    # Banderas del sistema
   locs_objs.extend ([0,] * num_objetos[0])  # Localidades de los objetos
+  pronombre = 'Pronombre'
   for palabraVoc in vocabulario:
     if palabraVoc[2] < len (TIPOS_PAL):
       tipo = TIPOS_PAL[palabraVoc[2]]
