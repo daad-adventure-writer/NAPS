@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Librería de PAWS (parte común a editor, compilador e intérprete)
-# Copyright (C) 2020-2021 José Manuel Ferrer Ortiz
+# Copyright (C) 2020-2022 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -129,7 +129,7 @@ condactos = {
    43 : ('DESTROY', 1, True),
    44 : ('CREATE',  1, True),
    45 : ('SWAP',    2, True),
-   46 : ('PLACE',   2, False),  # Se comporta como condición: cuando se intenta poner un objeto en 255, termina como condición no cumplida
+   46 : ('PLACE',   2, False),  # Se comporta como condición, no satisfecha al intentar poner un objeto en 255
    47 : ('SET',     1, True),
    48 : ('CLEAR',   1, True),
    49 : ('PLUS',    2, True),
@@ -147,7 +147,7 @@ condactos = {
    61 : ('EXTERN',  1, True),
    62 : ('RAMSAVE', 0, True),
    63 : ('RAMLOAD', 1, True),
-   64 : ('BELL',    0, True),   # O BEEP, tal vez según la plataforma que sea
+   64 : ('BELL',    0, True),   # O BEEP, según la plataforma que sea
    65 : ('PAPER',   0, True),
    66 : ('INK',     0, True),
    67 : ('BORDER',  0, True),
@@ -156,7 +156,7 @@ condactos = {
    70 : ('ADJECT2', 1, False),
    71 : ('ADD',     2, True),
    72 : ('SUB',     2, True),
-   73 : ('PARSE',   0, True),
+   73 : ('PARSE',   0, False),  # Se comporta como condición, satisfecha con frase inválida
    74 : ('LISTAT',  1, True),
    75 : ('PROCESS', 1, True),
    76 : ('SAME',    2, False),

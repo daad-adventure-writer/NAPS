@@ -128,6 +128,7 @@ def accionAUTO2 (accion, localidades, sysno, locno, sysno2 = None):
 # CONDICIONES
 
 def c0_PARSE ():
+  """Interpreta una orden de conversación con PSI (entrecomillada). Satisfactorio en caso de orden inválida"""
   return parsea_orden (True)
 
 def c0_QUIT ():

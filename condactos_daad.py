@@ -190,7 +190,7 @@ def c1_LOAD (opt):
   return c0_LOAD()  # TODO: ¿para qué sirve opt?
 
 def c1_PARSE (mode):
-  """Con mode 0, obtiene e interpreta la orden del jugador para rellenar la sentencia lógica actual. Con mode 1, interpreta la parte entrecomillada de la orden del jugador, para conversación con PSI, como hace a0_PARSE de PAWS. Devuelve satisfactorio en caso de fallo"""
+  """Con mode 0, obtiene e interpreta la orden del jugador para rellenar la sentencia lógica actual. Con mode 1, interpreta la parte entrecomillada de la orden del jugador, para conversación con PSI, como hace c0_PARSE de PAWS. Devuelve satisfactorio en caso de fallo"""
   return parsea_orden (mode)
   
 def c1_PICTURE (picno):
