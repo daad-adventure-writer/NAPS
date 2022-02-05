@@ -100,9 +100,9 @@ despl_ini_plat = {
   1: [33600],  # Spectrum 48K
   7: 256,      # Amstrad PCW
 }
-plats_detectarLE = (0,)    # Plataformas que podrían ser tanto BE como LE, en formato 2 (PC)
-plats_LE         = (1, 7)  # Plataformas que son Little Endian (Spectrum 48K y Amdstrad PCW)
-plats_word       = (0,)    # Plataformas que no pueden leer words en desplazamientos impares (PC)
+plats_detectarLE = (0,)        # Plataformas que podrían ser tanto BE como LE, en formato 2 (PC)
+plats_LE         = (1, 7, 15)  # Plataformas que son Little Endian (Spectrum 48K, Amstrad PCW y MSX2)
+plats_word       = (0,)        # Plataformas que no pueden leer words en desplazamientos impares (PC)
 
 # Tabla de conversión de caracteres, posiciones 16-31 (inclusive)
 daad_a_chr = ('ª', '¡', '¿', '«', '»', 'á', 'é', 'í', 'ó', 'ú', 'ñ', 'Ñ', 'ç', 'Ç', 'ü', 'Ü')
@@ -665,6 +665,8 @@ def carga_tablas_procesos ():
             prn ('FIXME: Número de condacto', num_condacto, 'desconocido, en entrada', num_entrada, 'del proceso', num_proceso)
           return
         for i in range (condactos[num_condacto][1]):
+          parametros.append (carga_int1())
+        if plataforma == 15 and num_condacto == 61 and parametros[1] == 3:  # XMESS de Maluva en MSX2
           parametros.append (carga_int1())
         entrada.append ((condacto, parametros))
       entradas.append (entrada)
