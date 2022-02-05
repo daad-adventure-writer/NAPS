@@ -829,6 +829,7 @@ Para depuración paso a paso, devuelve el número de pasos a ejecutar, que es: 10,
 if __name__ == '__main__':
   if sys.version_info[0] < 3:
     reload (sys)  # Necesario para poder ejecutar sys.setdefaultencoding
+    sys.stderr = codecs.getwriter (locale.getpreferredencoding()) (sys.stderr)  # Locale del sistema para la salida de error
     sys.stdout = codecs.getwriter (locale.getpreferredencoding()) (sys.stdout)  # Locale del sistema para la salida estándar
     sys.setdefaultencoding ('iso-8859-15')  # Nuestras cadenas están en esta codificación, no en ASCII
   random.seed()  # Inicializamos el generador de números aleatorios
