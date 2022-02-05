@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Condactos de The Quill
-# Copyright (C) 2010, 2019-2021 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2019-2022 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -38,6 +38,8 @@ from prn_func import prn
 
 def c1_ABSENT (objno):
   """Si el objeto objno no está llevado, ni puesto, ni en la localidad actual"""
+  if objno == 255:  # TODO: comprobar si funciona así también en otros sistemas que DAAD
+    return True
   aqui = (254, 253, banderas[38])  # Llevado, puesto y localidad actual, respec.
   return locs_objs[objno] not in aqui
 
@@ -55,6 +57,8 @@ def c1_ATLT (locno):
 
 def c1_CARRIED (objno):
   """Si el objeto objno está llevado"""
+  if objno == 255:  # TODO: comprobar si funciona así también en otros sistemas que DAAD
+    return False
   return locs_objs[objno] == 254
 
 def c1_CHANCE (percent):
@@ -69,10 +73,14 @@ def c1_NOTAT (locno):
 
 def c1_NOTCARR (objno):
   """Si el objeto objno no está llevado"""
+  if objno == 255:  # TODO: comprobar si funciona así también en otros sistemas que DAAD
+    return True
   return locs_objs[objno] != 254
 
 def c1_NOTWORN (objno):
   """Si el objeto objno no está puesto"""
+  if objno == 255:  # TODO: comprobar si funciona así también en otros sistemas que DAAD
+    return True
   return locs_objs[objno] != 253
 
 def c1_NOTZERO (flagno):
@@ -81,13 +89,15 @@ def c1_NOTZERO (flagno):
 
 def c1_PRESENT (objno):
   """Si el objeto objno está llevado, o puesto, o en la localidad actual"""
-  if objno == 255:  # TODO: comprobar si en otros sistemas que DAAD funciona así también
+  if objno == 255:  # TODO: comprobar si funciona así también en otros sistemas que DAAD
     return False
   aqui = (254, 253, banderas[38])  # Llevado, puesto y localidad actual, respec.
   return locs_objs[objno] in aqui
 
 def c1_WORN (objno):
   """Si el objeto objno está puesto"""
+  if objno == 255:  # TODO: comprobar si funciona así también en otros sistemas que DAAD
+    return False
   return locs_objs[objno] == 253
 
 def c1_ZERO (flagno):
