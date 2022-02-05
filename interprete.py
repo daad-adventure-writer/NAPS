@@ -599,7 +599,7 @@ Devuelve True si ha ejecutado DESC o equivalente. False si se debe reiniciar la 
       entrada = tabla[1][numEntrada]
       if cambioFlujo == 0:  # La cabecera encajó (ahora o en su momento)
         cambioFlujo = ejecuta_condacto (entrada[numCondacto][0], entrada[numCondacto][1])
-      if traza and (entrada[numCondacto][0] == 24 or (entrada[numCondacto][0] == 73) and nueva_version):
+      if traza and NOMBRE_SISTEMA == 'DAAD' and nueva_version and entrada[numCondacto][0] in (24, 73):
         paso = numPasos  # Dejaremos de ejecutar pasos tras ANYKEY, y tras PARSE en nueva_version
       if type (cambioFlujo) == int:
         if cambioFlujo < 0:  # Ejecutar subproceso
@@ -663,7 +663,7 @@ Devuelve True si ha ejecutado DESC o equivalente. False si se debe reiniciar la 
     else:
       return
     if paso == numPasos:
-      return  # Dejamos de ejecutar el resto de pesos
+      return  # Dejamos de ejecutar el resto de pasos
 
 def ejecuta_proceso (num_proceso):
   """Ejecuta una tabla de proceso hasta que esta termine
