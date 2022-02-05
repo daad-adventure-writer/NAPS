@@ -31,12 +31,14 @@ def bajo_nivel_cambia_despl (desplazamiento):
 
 def bajo_nivel_cambia_endian (le):
   """Prepara el "endianismo" del módulo"""
-  global carga_int2, guarda_int2
+  global carga_int2, carga_int4, guarda_int2
   if le:
     carga_int2  = carga_int2_le
+    carga_int4  = carga_int4_le
     guarda_int2 = guarda_int2_le
   else:
     carga_int2  = carga_int2_be
+    carga_int4  = carga_int4_be
     guarda_int2 = guarda_int2_be
 
 def bajo_nivel_cambia_ent (fichero):
@@ -50,12 +52,20 @@ def bajo_nivel_cambia_sal (fichero):
   fich_sal = fichero
 
 def carga_desplazamiento (desplazamiento = None):
-  """Carga un desplazamiento (2 bytes) en relación con el fichero
+  """Carga un desplazamiento de 2 bytes en relación con el fichero
 
   desplazamiento (opcional) es la posición en el fichero de donde leerá el desplazamiento"""
   if desplazamiento:
     fich_ent.seek (desplazamiento)
   return carga_int2() - despl_ini
+
+def carga_desplazamiento4 (desplazamiento = None):
+  """Carga un desplazamiento de 4 bytes en relación con el fichero
+
+  desplazamiento (opcional) es la posición en el fichero de donde leerá el desplazamiento"""
+  if desplazamiento:
+    fich_ent.seek (desplazamiento)
+  return carga_int4() - despl_ini
 
 def carga_int1 ():
   """Carga un entero de tamaño 1 byte"""
