@@ -11,7 +11,7 @@ Requisitos:
 
 Uso:
 
-``interprete.py [-h|--help] [-D|--debug] [-g|--gui pygame|stdio] bd_o_carpeta [carpeta_gráficos]``
+``interprete.py [-h|--help] [-D|--debug] [-g|--gui pygame|stdio] [-s|--scale 1|2|3] bd_o_carpeta [carpeta_gráficos]``
 
 Parámetros:
 
@@ -20,6 +20,7 @@ Parámetros:
 - ``--help`` (opcional) Muestra ayuda sobre los parámetros de línea de comandos
 - ``--debug`` (opcional) Ejecutar los condactos paso a paso
 - ``--gui`` (opcional) Elige la interfaz gráfica a utilizar. Opciones posibles: pygame (interfaz gráfica con PyGame) y stdio (interfaz sólo texto, usando la entrada y salida estándar)
+- ``--scale`` (opcional) Elige el factor de escalado de la ventana, de 1 (valor por defecto) a 3, con lo que ampliará todo ese número de veces
 
 
 Entorno de desarrollo integrado (IDE)
