@@ -144,6 +144,24 @@ def da_tecla_pulsada ():
   """Devuelve el par de códigos ASCII de la tecla más recientemente pulsada si hay alguna tecla pulsada, o None si no hay ninguna pulsada"""
   return None
 
+def elige_parte (partes, graficos):
+  """Obtiene del jugador el modo gráfico a usar y a qué parte jugar, y devuelve el nombre de la base de datos elegida"""
+  if len (partes) == 1:
+    return partes.popitem()[1]
+  numerosPartes = tuple (partes.keys())
+  numParteMenor = min (numerosPartes)
+  numParteMayor = max (numerosPartes)
+  entrada = None
+  while entrada not in numerosPartes:
+    imprime_cadena ('¿Qué parte quieres cargar? (%d%s%d) ' % (numParteMenor, '/' if (numParteMayor - numParteMenor == 1) else '-', numParteMayor))
+    try:
+      entrada = int (raw_input())
+    except (KeyboardInterrupt, ValueError) as e:
+      if type (e).__name__ != 'ValueError':
+        raise
+      entrada = None
+  return partes[entrada]
+
 def elige_subventana (numero):
   """Selecciona una de las subventanas"""
   global elegida, nuevaLinea

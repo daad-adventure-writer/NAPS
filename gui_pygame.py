@@ -28,6 +28,7 @@ from sys      import version_info
 import math    # Para ceil
 import string  # Para algunas constantes
 
+import graficos_daad
 import pygame
 
 
@@ -85,11 +86,13 @@ ruta_graficos    = ''        # Carpeta de donde cargar los gráficos a dibujar
 todo_mayusculas  = False     # Si la entrada del jugador será incondicionalmente en mayúsculas
 txt_mas          = '(más)'   # Cadena a mostrar cuando no cabe más texto y se espera a que el jugador pulse una tecla
 
-banderas_antes  = None  # Valor anterior de las banderas
-banderas_viejas = None  # Banderas que antes cambiaron de valor
-historial       = []    # Historial de órdenes del jugador
-historial_temp  = []    # Orden a medias, guardada al acceder al historial
-teclas_pulsadas = []    # Lista de teclas actualmente pulsadas
+banderas_antes  = None   # Valor anterior de las banderas
+banderas_viejas = None   # Banderas que antes cambiaron de valor
+graficos        = {}     # Gráficos ya cargados
+historial       = []     # Historial de órdenes del jugador
+historial_temp  = []     # Orden a medias, guardada al acceder al historial
+teclas_pulsadas = []     # Lista de teclas actualmente pulsadas
+tras_portada    = False  # Esperar pulsación de tecla antes de borrar la portada
 
 # Todas las coordenadas son columna, fila
 num_subvens = 8                # DAAD tiene 8 subventanas
@@ -100,6 +103,7 @@ limite      = [53, 25]         # Ancho y alto máximos absolutos de cada subventa
 color_subv  = [[7, 0, 0]] * 8  # Color de tinta, papel y borde de cada subventana
 cursores    = [[0, 0]] * 8     # Posición relativa del cursor de cada subventana
 cursores_at = [(0, 0)] * 8     # Posición relativa del cursor guardado mediante SAVEAT de cada subventana
+pos_gfx_sub = [[0, 0]] * 8     # Posición guardada de dibujo de gráficos flotantes en cada subventana
 subventanas = [[0, 0]] * 8     # Posición absoluta de cada subventana (de su esquina superior izquierda)
 topes       = [[53, 25]] * 8   # Topes relativos de cada subventana de impresión
 topes_gfx   = [53, 25]         # Ancho y alto del último gráfico dibujado en la subventana 0
@@ -176,8 +180,10 @@ def borra_orden ():
 
 def borra_pantalla (desdeCursor = False, noRedibujar = False):
   """Limpia la subventana de impresión"""
-  if frase_guardada and texto_nuevo:
+  global tras_portada
+  if tras_portada or (frase_guardada and texto_nuevo):
     espera_tecla()  # Esperamos pulsación de tecla si se habían entrado varias frases y se había mostrado texto nuevo
+    tras_portada = False
     del texto_nuevo[:]
   if not desdeCursor:
     cursores[elegida] = [0, 0]
@@ -271,12 +277,31 @@ def dibuja_grafico (numero, descripcion = False, parcial = False):
 
 El parámetro descripcion indica si se llama al describir la localidad
 El parámetro parcial indica si es posible dibujar parte de la imagen"""
-  try:
-    grafico = pygame.image.load (ruta_graficos + 'pic' + str (numero).zfill (3) + '.png')
-  except Exception as e:
-    if traza:
-      prn ('Gráfico', numero, 'inválido o no encontrado en:', ruta_graficos)
-      prn (e)
+  if ruta_graficos:
+    try:
+      grafico = pygame.image.load (ruta_graficos + 'pic' + str (numero).zfill (3) + '.png')
+    except Exception as e:
+      if traza:
+        prn ('Gráfico', numero, 'inválido o no encontrado en:', ruta_graficos)
+        prn (e)
+      return  # No dibujamos nada
+  elif graficos_daad.recursos:
+    if numero not in graficos:
+      if not graficos_daad.recursos[numero] or 'imagen' not in graficos_daad.recursos[numero]:
+        if traza:
+          if not graficos_daad.recursos[numero]:
+            razon = 'no está en la base de datos gráfica'
+          else:
+            razon = 'ese recurso de la base de datos gráfica no es una imagen, o está corrupta'
+          prn ('Gráfico', numero, 'inválido,', razon)
+        return  # No dibujamos nada
+      cargaGrafico (numero)
+    recurso = graficos[numero]
+    grafico = recurso['grafico']
+    if 'flotante' not in recurso['banderas']:
+      cambiaPaleta (recurso['paleta'])
+    grafico.set_palette (paleta[0])
+  else:
     return  # No dibujamos nada
   tope = topes[elegida]
   if descripcion:
@@ -293,26 +318,101 @@ El parámetro parcial indica si es posible dibujar parte de la imagen"""
     topes_gfx[1] = min (grafico.get_height() // 8, limite[1])
   if (descripcion or elegida == 0) and not parcial:
     ancho = tope[0] * 6
-    # TODO: se centran los gráficos en la Aventura Original, pero no en El Jabato. Averiguar si es por el valor de alguna bandera
-    if centrar_graficos and ancho > grafico.get_width():  # Centramos el gráfico
+    if numero in graficos and 'flotante' not in graficos[numero]['banderas']:
+      destino = graficos[numero]['posicion']
+    elif centrar_graficos and ancho > grafico.get_width():  # Centramos el gráfico
+      # Se centran los gráficos en la Aventura Original, pero no en El Jabato, así está en la base de datos gráfica
       destino      = ((ancho - grafico.get_width()) // 2, 0)
       topes_gfx[0] = min ((grafico.get_width() + (ancho - grafico.get_width()) // 2) // 8, limite[0])
     else:
       destino = (0, 0)
     ventana.blit (grafico, destino)
   else:
-    # TODO: Asegurarse de si hay que tener en cuenta la posición del cursor
-    ancho   = ((tope[0] - cursor[0]) * 6)  # Anchura del dibujo
-    alto    = ((tope[1] - cursor[1]) * 8)  # Altura del dibujo
-    destino = [(subventana[0] + cursor[0]) * 6, (subventana[1] + cursor[1]) * 8]
-    if centrar_graficos and ancho > grafico.get_width():  # Centramos el gráfico
-      destino[0] += (ancho - grafico.get_width()) // 2
+    ancho = ((tope[0] - cursor[0]) * 6)  # Anchura del dibujo
+    alto  = ((tope[1] - cursor[1]) * 8)  # Altura del dibujo
+    if numero in graficos:
+      if nueva_version and elegida > 0:
+        if 'flotante' not in graficos[numero]['banderas']:
+          pos_gfx_sub[elegida] = graficos[numero]['posicion']  # Otros graficos flotantes en esta subventana se dibujarán aquí
+        destino = pos_gfx_sub[elegida]
+      elif 'flotante' in graficos[numero]['banderas']:
+        # TODO: Asegurarse de si hay que tener en cuenta la posición del cursor
+        destino = [(subventana[0] + cursor[0]) * 6, (subventana[1] + cursor[1]) * 8]
+      else:
+        destino = graficos[numero]['posicion']
+    else:
+      # TODO: Asegurarse de si hay que tener en cuenta la posición del cursor
+      destino = [(subventana[0] + cursor[0]) * 6, (subventana[1] + cursor[1]) * 8]
+      if centrar_graficos and ancho > grafico.get_width():  # Centramos el gráfico
+        destino[0] += (ancho - grafico.get_width()) // 2
     # Los gráficos pueden dibujar hasta dos píxeles más allá de la última columna de texto
     if ancho < grafico.get_width() and subventana[0] + tope[0] == 53:
       ancho += max (2, grafico.get_width() - ancho)
     ventana.blit (grafico, destino, (0, 0, ancho, alto))
   actualizaVentana()
   # TODO: Ver si hay que actualizar la posición del cursor (puede que no)
+
+def elige_parte (partes, graficos):
+  """Obtiene del jugador el modo gráfico a usar y a qué parte jugar, y devuelve el nombre de la base de datos elegida"""
+  global tras_portada
+  if len (partes) == 1:
+    return partes.popitem()[1]
+  portada = None
+  for modoPortada, tinta in (('dat', 15), ('ega', 15), ('cga', 3)):
+    if modoPortada in graficos and 0 in graficos[modoPortada]:
+      try:
+        fichero = open (graficos[modoPortada][0], 'rb')
+        imagen, palImg = graficos_daad.cargaPortada (fichero)
+        strImg = ''
+        for fila in imagen if modoPortada == 'cga' else [imagen]:
+          for pixel in fila:
+            strImg += chr (pixel)
+        portada = pygame.image.frombuffer (strImg, (320, 200), 'P')
+        portada.set_palette (palImg)
+        paleta[0].extend (palImg)
+        break
+      except Exception:
+        portada = None  # No dibujaremos nada
+      if 'fichero' in locals():
+        fichero.close()
+  if not paleta[0]:
+    paleta[0].extend (graficos_daad.paletaEGA)
+    tinta = 15
+  for subventana in range (num_subvens):
+    color_subv[subventana][0] = tinta  # Color de tinta
+  numerosPartes = tuple (partes.keys())
+  numParteMenor = min (numerosPartes)
+  numParteMayor = max (numerosPartes)
+  entrada = None
+  while entrada not in numerosPartes:
+    borra_pantalla()
+    if portada:
+      ventana.blit (portada, (0, 0))
+      ventana.fill (palImg[0], (11 * 8, 10 * 8, 19 * 8, 5 * 8))
+    mueve_cursor (18, 11)
+    imprime_cadena ('¿Qué parte quieres')
+    mueve_cursor (21, 13)
+    imprime_cadena ('cargar? (%d%s%d)' % (numParteMenor, '/' if (numParteMayor - numParteMenor == 1) else '-', numParteMayor))
+    entrada = espera_tecla() - ord ('0')
+  pygame.display.set_caption ('NAPS - ' + partes[entrada])
+  if portada:
+    ventana.blit (portada, (0, 0))
+    actualizaVentana()
+    tras_portada = True
+    if entrada in graficos[modoPortada]:
+      graficos_daad.carga_bd_pics (graficos[modoPortada][entrada])
+      if modoPortada == 'cga':
+        cambiaPaleta (graficos_daad.paleta1b)  # Dejamos cargada la paleta CGA 1 con brillo
+    elif 'dat' in graficos and entrada in graficos['dat']:
+      graficos_daad.carga_bd_pics (graficos['dat'][entrada])
+      cambiaPaleta (graficos_daad.paletaEGA, False)  # Dejamos cargada la paleta EGA
+    else:
+      cambiaPaleta (graficos_daad.paleta1b, False)  # Dejamos cargada la paleta CGA 1 con brillo
+  elif 'dat' in graficos and entrada in graficos['dat']:
+    graficos_daad.carga_bd_pics (graficos['dat'][entrada])
+  if graficos_daad.recursos:
+    precargaGraficos()
+  return partes[entrada]
 
 def elige_subventana (numero):
   """Selecciona una de las subventanas"""
@@ -324,6 +424,8 @@ def elige_subventana (numero):
 
 def espera_tecla (tiempo = 0):
   """Espera hasta que se pulse una tecla (modificadores no), o hasta que pase tiempo segundos, si tiempo > 0"""
+  global tras_portada
+  tras_portada = False
   pygame.time.set_timer (pygame.USEREVENT, tiempo * 1000)  # Ponemos el timer
   while True:
     evento = pygame.event.wait()
@@ -351,12 +453,24 @@ def guarda_cursor ():
 
 def hay_grafico (numero):
   """Devuelve si existe el gráfico de número dado"""
-  try:
-    pygame.image.load (ruta_graficos + 'pic' + str (numero).zfill (3) + '.png')
-  except Exception as e:
-    if traza:
-      prn ('Gráfico', numero, 'inválido o no encontrado en:', ruta_graficos)
-      prn (e)
+  if ruta_graficos:
+    try:
+      pygame.image.load (ruta_graficos + 'pic' + str (numero).zfill (3) + '.png')
+    except Exception as e:
+      if traza:
+        prn ('Gráfico', numero, 'inválido o no encontrado en:', ruta_graficos)
+        prn (e)
+      return False
+  elif graficos_daad.recursos:
+    if not graficos_daad.recursos[numero] or 'imagen' not in graficos_daad.recursos[numero]:
+      if traza:
+        if not graficos_daad.recursos[numero]:
+          razon = 'no está en la base de datos gráfica'
+        else:
+          razon = 'ese recurso de la base de datos gráfica no es una imagen, o está corrupta'
+        prn ('Gráfico', numero, 'inválido,', razon)
+      return False
+  else:
     return False
   return True
 
@@ -781,6 +895,27 @@ def reinicia_subventanas ():
 
 # Funciones auxiliares que sólo se usan en este módulo
 
+def cambiaPaleta (nuevaPaleta, convertir = True):
+  """Cambia la paleta de la ventana de juego por la dada, opcionalmente convirtiendo los colores dibujados por los nuevos"""
+  if paleta[0]:
+    if convertir and nuevaPaleta != paleta[0]:
+      for x in range (320):
+        for y in range (200):
+          indicePaleta = paleta[0].index (ventana.get_at ((x, y))[:3])
+          ventana.set_at ((x, y), nuevaPaleta[indicePaleta])
+    del paleta[0][:]
+  paleta[0].extend (nuevaPaleta)
+
+def cargaGrafico (numero):
+  """Carga un gráfico del recurso de base de datos gráfica de número dado, dejando su información y la imagen PyGame preparada en graficos"""
+  recurso = graficos_daad.recursos[numero]
+  strImg  = ''
+  for pixel in recurso['imagen']:
+    strImg += chr (pixel)
+  graficos[numero] = {'grafico': pygame.image.frombuffer (strImg, recurso['dimensiones'], 'P')}
+  for propiedad in ('banderas', 'paleta', 'posicion'):
+    graficos[numero][propiedad] = recurso[propiedad]
+
 def daColorBorde ():
   """Devuelve el color de borde o de fondo de la subventana elegida, según corresponda a la plataforma"""
   if paleta[1]:  # Si hay dos paletas, debe ser Spectrum
@@ -831,6 +966,14 @@ def parseaColores (cadena):
   if version_info[0] < 3:  # La versión de Python es 2.X
     sinColores = sinColores.encode ('iso-8859-15')
   return sinColores, colores
+
+def precargaGraficos ():
+  """Deja preparados los gráficos residentes en la base de datos gráfica cargada"""
+  for numero in range (len (graficos_daad.recursos)):
+    recurso = graficos_daad.recursos[numero]
+    if not recurso or 'imagen' not in recurso or 'residente' not in recurso['banderas']:
+      continue
+    cargaGrafico (numero)
 
 def preparaCursor ():
   """Prepara el cursor con el carácter y color adecuado"""

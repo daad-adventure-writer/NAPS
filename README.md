@@ -11,12 +11,12 @@ Requisitos:
 
 Uso:
 
-``interprete.py [-h|--help] [-D|--debug] [-g|--gui pygame|stdio] base_de_datos [carpeta_gráficos]``
+``interprete.py [-h|--help] [-D|--debug] [-g|--gui pygame|stdio] bd_o_carpeta [carpeta_gráficos]``
 
 Parámetros:
 
-- ``base_de_datos`` (obligatorio) Base de datos de PAWS/SWAN/DAAD a ejecutar
-- ``carpeta_gráficos`` (opcional) Carpeta que contiene las imágenes (con nombre pic###.png)
+- ``bd_o_carpeta`` (obligatorio) Base de datos o carpeta de PAWS/SWAN/DAAD a ejecutar
+- ``carpeta_gráficos`` (opcional) Carpeta de la que tomar las imágenes (con nombre pic###.png)
 - ``--help`` (opcional) Muestra ayuda sobre los parámetros de línea de comandos
 - ``--debug`` (opcional) Ejecutar los condactos paso a paso
 - ``--gui`` (opcional) Elige la interfaz gráfica a utilizar. Opciones posibles: pygame (interfaz gráfica con PyGame) y stdio (interfaz sólo texto, usando la entrada y salida estándar)

@@ -837,8 +837,8 @@ if __name__ == '__main__':
   argsParser.add_argument ('-D', '--debug', action = 'store_true', help = 'ejecutar los condactos paso a paso')
   argsParser.add_argument ('-g', '--gui', choices = ('pygame', 'stdio'), help = 'interfaz gráfica a utilizar')
   argsParser.add_argument ('-s', '--scale', type = int, choices = (1, 2, 3), help = 'factor de escalado para la ventana')
-  argsParser.add_argument ('bbdd', metavar = 'base_de_datos', help = 'base de datos de Quill/PAWS/SWAN/DAAD a ejecutar')
-  argsParser.add_argument ('ruta_graficos', metavar = 'carpeta_gráficos', nargs = '?', help = 'carpeta que contiene las imágenes (con nombre pic###.png)')
+  argsParser.add_argument ('bbdd', metavar = 'bd_o_carpeta', help = 'base de datos o carpeta de Quill/PAWS/SWAN/DAAD a ejecutar')
+  argsParser.add_argument ('ruta_graficos', metavar = 'carpeta_gráficos', nargs = '?', help = 'carpeta de la que tomar las imágenes (con nombre pic###.png)')
   args  = argsParser.parse_args()
   traza = args.debug
 
@@ -852,12 +852,23 @@ if __name__ == '__main__':
       except:
         args.gui = 'stdio'
   gui = __import__ ('gui_' + args.gui)
+  gui.frase_guardada = frase_guardada
+  gui.texto_nuevo    = texto_nuevo
 
   if not args.scale:
     if traza:
       args.scale = 1
     else:
       args.scale = 2
+
+  if os.path.isdir (args.bbdd):
+    libreria    = __import__ ('libreria_daad')
+    partes, gfx = libreria.busca_partes (args.bbdd)
+    if not partes:
+      prn ('Ninguna base de datos con nombre válido detectada en esa carpeta', file = sys.stderr)
+      sys.exit()
+    gui.abre_ventana (traza, args.scale, args.bbdd)
+    args.bbdd = gui.elige_parte (partes, gfx)
 
   extension = args.bbdd[-4:].lower()
   if extension in ('.pdb', '.sna'):
@@ -928,11 +939,12 @@ if __name__ == '__main__':
                              (0, 255, 0), (0, 255, 255), (255, 255, 0), (255, 255, 255)))
       gui.cambia_cursor (msgs_sys[34])
   else:  # Es DAAD
-    # Colores con brillo en este orden: negro, azul, rojo, magenta, verde, cyan, amarillo, blanco
-    gui.paleta[0].extend (((0, 0, 0), (0, 0, 255), (255, 0, 0), (255, 0, 255),
-                           (0, 255, 0), (0, 255, 255), (255, 255, 0), (255, 255, 255)))
-    gui.txt_mas = msgs_sys[32]
-    gui.txt_mas = msgs_sys[32]  # (más)
+    gui.nueva_version = nueva_version
+    gui.txt_mas       = msgs_sys[32]  # (más)
+    if not gui.paleta[0]:
+      # Colores con brillo en este orden: negro, azul, rojo, magenta, verde, cyan, amarillo, blanco
+      gui.paleta[0].extend (((0, 0, 0), (0, 0, 255), (255, 0, 0), (255, 0, 255),
+                             (0, 255, 0), (0, 255, 255), (255, 255, 0), (255, 255, 255)))
     # XXX: apaño para diferenciar la Aventura Original de aventuras posteriores
     if (len (msgs_usr) > 77 and msgs_usr[77] == '\x0eAVENTURA ORIGINAL I\x0f') or msgs_usr[0] == '\x0eAVENTURA ORIGINAL II\x0f':
       gui.centrar_graficos.append (True)
@@ -954,9 +966,8 @@ if __name__ == '__main__':
           funcion  = busca_condacto (firma)
           comprobados.add (codigo)
 
-  gui.frase_guardada = frase_guardada
-  gui.texto_nuevo    = texto_nuevo
-  gui.abre_ventana (traza, args.scale, args.bbdd)
+  if 'partes' not in globals():  # Si no estaba abierta ya
+    gui.abre_ventana (traza, args.scale, args.bbdd)
 
   # Preparamos las listas banderas, locs_objs y conjunciones
   banderas.extend  ([0,] * NUM_BANDERAS)    # Banderas del sistema

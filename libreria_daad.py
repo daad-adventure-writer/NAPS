@@ -293,6 +293,44 @@ def guarda_cadena_abreviada (cadena):
 
 # Funciones que utiliza el IDE o el intérprete directamente
 
+def busca_partes (rutaCarpeta):
+  """Analiza los ficheros en la carpeta dada, identificando por extensión y devuelviendo una lista con las bases de datos de las diferentes partes, y las bases de datos de gráficos correspondientes, para los diferentes modos gráficos encontrados"""
+  # FIXME: en PCW es parte???.*
+  rutaCarpeta += '' if (rutaCarpeta[-1] == os.sep) else os.sep  # Asegura que termine con separador de directorio
+  bd_gfx = {'cga': {}, 'ega': {}, 'dat': {}}
+  partes = {}
+  for nombreFichero in os.listdir (rutaCarpeta):
+    nombreFicheroMin = nombreFichero.lower()
+    if len (nombreFichero) != 9 or nombreFicheroMin[:4] != 'part' or nombreFichero[5] != '.':
+      continue
+    try:
+      numParte = int (nombreFichero[4])
+    except:
+      continue
+    extension = nombreFicheroMin[6:]
+    modo      = None  # Modo gráfico
+    if extension == 'ddb':
+      partes[numParte] = rutaCarpeta + nombreFichero
+    elif extension in ('cgs', 'egs', 'scr'):  # Imágenes de portada
+      if numParte != 1:
+        continue
+      if extension == 'scr':
+        if os.path.getsize (rutaCarpeta + nombreFichero) == 16384:
+          bd_gfx['cga'][0] = rutaCarpeta + nombreFichero
+        else:
+          bd_gfx['dat'][0] = rutaCarpeta + nombreFichero
+      elif extension == 'cgs':
+        bd_gfx['cga'][0] = rutaCarpeta + nombreFichero
+      else:  # extension == 'egs'
+        bd_gfx['ega'][0] = rutaCarpeta + nombreFichero
+    elif extension in ('cga', 'dat', 'ega'):
+      bd_gfx[extension][numParte] = rutaCarpeta + nombreFichero
+  # Quitamos modos gráficos sin bases de datos gráficas para ellos
+  for modo in tuple (bd_gfx.keys()):
+    if not bd_gfx[modo]:
+      del bd_gfx[modo]
+  return partes, bd_gfx
+
 # Carga la base de datos entera desde el fichero de entrada
 # Para compatibilidad con el IDE:
 # - Recibe como primer parámetro un fichero abierto
