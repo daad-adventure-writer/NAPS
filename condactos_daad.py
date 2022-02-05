@@ -413,14 +413,21 @@ def a2_COPYBF (flagno1, flagno2):
   """El contenido de la bandera flagno2 se copia en la bandera flagno1"""
   banderas[flagno1] = banderas[flagno2]
 
+def a2_EXTERN (*args):
+  """Llamada a función externa. Toma número de parámetros ilimitado para futuro soporte de Maluva"""
+  prn ('a2_EXTERN no implementado', file = sys.stderr)
+
 def a2_GFX (value1, value2):
   """Es como un EXTERN"""
-  prn ('XXX: a2_GFX no implementado', file = sys.stderr)
+  prn ('a2_GFX no implementado', file = sys.stderr)
 
 def a2_INPUT (stream, options):
   """Cambia el "stream" (subventana de impresión) del que leer órdenes del jugador, y las opciones de entrada. Un valor 0 para stream hace que la entrada se obtenga de la subventana actual"""
   banderas[41] = stream % 8
   gui.cambia_subv_input (banderas[41], options)
+
+def a2_SFX (value1, value2):
+  prn ('TODO: a2_SFX no implementado', file = sys.stderr)  # TODO
 
 def a2_SYNONYM (verb, noun):
   """Cambia el verbo y/o el nombre de la SL actual por los dados. Si alguno es 255, ese no lo cambiará"""
