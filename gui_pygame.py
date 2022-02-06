@@ -392,7 +392,7 @@ def elige_parte (partes, graficos):
   numParteMayor = max (numerosPartes)
   entrada = None
   while entrada not in numerosPartes:
-    borra_pantalla()
+    borra_todo()
     if portada:
       ventana.blit (portada, (0, 0))
       ventana.fill (palImg[0], (11 * 8, 10 * 8, 19 * 8, 5 * 8))
