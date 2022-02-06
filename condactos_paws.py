@@ -200,9 +200,11 @@ def c2_PLACE (objno, locno):
     return True
   locs_objs[objno] = locno
   if locActual == 254:  # Estaba siendo llevado
-    banderas[1] = max (0, banderas[1] - 1)
+    banderas[1]      = max (0, banderas[1] - 1)
+    peso_llevado[0] -= min (peso_llevado[0], banderas[55])
   elif locno == 254:  # Pasa a ser llevado
-    banderas[1] = min (banderas[1] + 1, 255)
+    banderas[1]      = min (banderas[1] + 1, 255)
+    peso_llevado[0] += banderas[55]
   return True
 
 def c2_SAME (flagno1, flagno2):
@@ -416,15 +418,19 @@ def a1_AUTOT (objno):
 def a1_CREATE (objno):
   """Cambia la localidad del objeto objno a la localidad actual, y decrementa el número de objetos llevados si objno se estaba llevando"""
   obj_referido (objno)
-  if locs_objs[objno] == 254:  # Llevado
-    banderas[1] = max (0, banderas[1] - 1)
+  if locs_objs[objno] in (253, 254):  # Llevado o puesto
+    peso_llevado[0] -= min (peso_llevado[0], banderas[55])
+    if locs_objs[objno] == 254:  # Llevado
+      banderas[1] = max (0, banderas[1] - 1)
   locs_objs[objno] = banderas[38]
 
 def a1_DESTROY (objno):
   """Cambia la localidad del objeto objno a 252 (no creado), y decrementa el número de objetos llevados si objno se estaba llevando"""
   obj_referido (objno)  # TODO: comprobar si PAWS también lo hace
-  if locs_objs[objno] == 254:  # Llevado
-    banderas[1] = max (0, banderas[1] - 1)
+  if locs_objs[objno] in (253, 254):  # Llevado o puesto
+    peso_llevado[0] -= min (peso_llevado[0], banderas[55])
+    if locs_objs[objno] == 254:  # Llevado
+      banderas[1] = max (0, banderas[1] - 1)
   locs_objs[objno] = 252
 
 def a1_DOALL (locno):
@@ -462,8 +468,9 @@ def a1_DROP (objno):
   elif locs_objs[objno] != 254:
     imprime_mensaje (msgs_sys[28])
   else:
-    banderas[1] -= 1
+    banderas[1]      = max (0, banderas[1] - 1)
     locs_objs[objno] = banderas[38]
+    peso_llevado[0] -= min (peso_llevado[0], banderas[55])
     imprime_mensaje (msgs_sys[39])  # Dejo _
     return
   gui.imprime_cadena ('\n')
@@ -480,12 +487,14 @@ def a1_GET (objno):
     imprime_mensaje (msgs_sys[25])
   elif locs_objs[objno] != banderas[38]:
     imprime_mensaje (msgs_sys[26])
-  # TODO: cálculo del peso total
+  elif peso_llevado[0] + banderas[55] > banderas[52]:
+    imprime_mensaje (msgs_sys[43])
   elif banderas[1] >= banderas[37]:
     imprime_mensaje (msgs_sys[27])
   else:
-    banderas[1] += 1
-    locs_objs[objno] = 254
+    banderas[1]       = min (banderas[1] + 1, 255)
+    locs_objs[objno]  = 254
+    peso_llevado[0]  += banderas[55]
     imprime_mensaje (msgs_sys[36])  # Cojo _
     return
   gui.imprime_cadena ('\n')
@@ -573,7 +582,7 @@ def a1_PUTO (locno):
   if locActual == 254:  # Estaba siendo llevado
     banderas[1] = max (0, banderas[1] - 1)
   elif locno == 254:  # Pasa a ser llevado
-    banderas[1] += min (banderas[1] + 1, 255)
+    banderas[1] = min (banderas[1] + 1, 255)
 
 def a1_RAMLOAD (flagno):
   """Carga el contenido de las banderas hasta flagno y de las localidades de los objetos desde memoria"""
@@ -599,10 +608,10 @@ def a1_REMOVE (objno):
     imprime_mensaje (msgs_sys[23])
   elif not banderas[57]:  # El objeto no es prenda
     imprime_mensaje (msgs_sys[41])
-  elif banderas[1] + 1 >= banderas[37]:
+  elif banderas[1] >= banderas[37]:
     imprime_mensaje (msgs_sys[42])
   else:
-    banderas[1] += 1
+    banderas[1]      = min (banderas[1] + 1, 255)
     locs_objs[objno] = 254
     imprime_mensaje (msgs_sys[38])  # Me quito _
     return
@@ -622,7 +631,7 @@ def a1_WEAR (objno):
   elif not banderas[57]:  # El objeto no es prenda
     imprime_mensaje (msgs_sys[40])
   else:
-    banderas[1] -= 1
+    banderas[1]      = max (0, banderas[1] - 1)
     locs_objs[objno] = 253
     imprime_mensaje (msgs_sys[37])  # Me pongo _
     return
@@ -643,16 +652,10 @@ def a1_SYSMESS (mesno):
   imprime_mensaje (msgs_sys[mesno])
 
 def a1_WEIGHT (flagno):
-  """Calcula el peso máximo de los objetos llevados por el jugador, y lo guarda en la bandera flagno
+  """Calcula el peso total de los objetos llevados por el jugador, y lo guarda en la bandera flagno
 
 Si el resultado excede 255, la bandera flagno se pone a 255"""
-  total = 0
-  for objno in range (num_objetos):
-    if locs_objs[objno] in (253, 254):
-      total += da_peso (objno)
-      if total >= 255:
-        break
-  banderas[flagno] = min (total, 255)
+  banderas[flagno] = min (peso_llevado[0], 255)
 
 
 def a2_ABILITY (value1, value2):
@@ -693,7 +696,7 @@ def a2_MODE (value, option):
   # TODO: implementar interpretación del parámetro option
 
 def a2_PUTIN (objno, locno):
-  """Si el objeto objno se lleva puesto, imprime MS24. Si el objeto objno está en la localización actual, imprime MS49. Si no está presente, imprime MS28. Si el peso total de los objetos llevados (puestos o no) más el de este objeto superará el máximo permitido, imprime MS43. En caso de una de estas condiciones de fallo, ejecuta NEWTEXT y termina con DONE. En caso contrario (éxito), mueve el objeto al contenedor locno, decrementa la bandera 1, e imprime MS44, la descripción corta del contenedor locno y MS51"""
+  """Si el objeto objno se lleva puesto, imprime MS24. Si el objeto objno está en la localización actual, imprime MS49. Si no está presente, imprime MS28. En caso de una de estas condiciones de fallo, ejecuta NEWTEXT y termina con DONE. En caso contrario (éxito), mueve el objeto al contenedor locno, decrementa la bandera 1, e imprime MS44, la descripción corta del contenedor locno y MS51"""
   obj_referido (objno)
   if locs_objs[objno] == 253:
     imprime_mensaje (msgs_sys[24])
@@ -702,7 +705,9 @@ def a2_PUTIN (objno, locno):
   elif locs_objs[objno] != 254:
     imprime_mensaje (msgs_sys[28])
   else:
-    banderas[1] -= 1
+    if locs_objs[locno] not in (253, 254):
+      peso_llevado[0] -= min (peso_llevado[0], banderas[55])
+    banderas[1]      = max (0, banderas[1] - 1)
     locs_objs[objno] = locno
     imprime_mensaje (msgs_sys[44])  # El _ está en
     if locno < num_objetos:
@@ -739,7 +744,8 @@ def a2_SWAP (objno1, objno2):
   locs_objs[objno2] = locno
 
 def a2_TAKEOUT (objno, locno):
-  """Si el objeto objno se lleva encima o puesto, imprime MS25. Si el objeto objno está en la localización actual, imprime MS45, la descripción corta del contenedor locno y MS51. Si no está en locno, imprime MS52, la descripción corta del contenedor locno y MS51. Si el peso total de los objetos llevados (puestos o no) más el de este objeto superará el máximo permitido, imprime MS43. Si se superaría el máximo de objetos llevables, imprime MS27. En caso de una de estas condiciones de fallo, ejecuta NEWTEXT y termina con DONE. En caso contrario (éxito), mueve el objeto al contenedor locno, decrementa la bandera 1, e imprime MS36"""
+  """Si el objeto objno se lleva encima o puesto, imprime MS25. Si el objeto objno está en la localización actual, imprime MS45, la descripción corta del contenedor locno y MS51. Si no está en locno, imprime MS52, la descripción corta del contenedor locno y MS51. Si el peso total de los objetos llevados (puestos o no) más el de este objeto superará el máximo permitido, imprime MS43. Si se superaría el máximo de objetos llevables, imprime MS27. En caso de una de estas condiciones de fallo, ejecuta NEWTEXT y termina con DONE. En caso contrario (éxito), mueve el objeto al contenedor locno, incrementa la bandera 1, e imprime MS36"""
+  # XXX: ¿no debería comprobar también que el contenedor locno esté presente?
   obj_referido (objno)
   if locs_objs[objno] in (253, 254):
     imprime_mensaje (msgs_sys[25])
@@ -754,11 +760,14 @@ def a2_TAKEOUT (objno, locno):
         desc_obj = desc_obj[:desc_obj.index ('.')]
       gui.imprime_cadena (cambia_articulo (desc_obj))
     gui.imprime_cadena (msgs_sys[51])
-  # TODO: cálculo del peso total
+  elif locs_objs[locno] == banderas[38] and peso_llevado[0] + banderas[55] > banderas[52]:
+    imprime_mensaje (msgs_sys[43])
   elif banderas[1] >= banderas[37]:
     imprime_mensaje (msgs_sys[27])
   else:
-    banderas[1] += 1
+    if locs_objs[locno] == banderas[38]:
+      peso_llevado[0] += banderas[55]
+    banderas[1]      = min (banderas[1] + 1, 255)
     locs_objs[objno] = 254
     imprime_mensaje (msgs_sys[36])  # Coges _
     return

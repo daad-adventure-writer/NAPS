@@ -43,6 +43,7 @@ locs_objs    = []     # Localidades de los objetos
 orden        = ''     # Orden a medio obtener (para tiempo muerto)
 orden_psi    = ''     # Parte de la orden entrecomillada
 partida      = []     # Partida guardada mediante RAMSAVE
+peso_llevado = [0]    # Peso total de objetos llevados y puestos
 pila_procs   = []     # Pila con estado de los procesos en ejecución
 proceso_acc  = False  # Guarda si el proceso ejecutó alguna acción adecuada
 proceso_ok   = None   # Guarda si el proceso ha terminado con DONE u OK (True), NOTDONE (False) o ninguno de estos (None)
@@ -157,13 +158,16 @@ def parsea_orden (psi):
   return prepara_orden (True, psi) == True
 
 def restaura_objetos ():
-  """Restaura las localidades iniciales de los objetos, y ajusta el número de objetos llevados (bandera 1)"""
-  banderas[1] = 0
+  """Restaura las localidades iniciales de los objetos, ajusta el número de objetos llevados (bandera 1) y calcula el peso total (llevado + puesto)"""
+  global peso_llevado
+  peso_llevado[0] = 0
+  banderas[1]     = 0
   for i in range (num_objetos[0]):
     locs_objs[i] = locs_iniciales[i]
-    # La bandera 1, que lleva el número de objetos llevados, pero no puestos
-    if locs_objs[i] == 254:  # De paso, contamos los objetos llevados
-      banderas[1] += 1
+    if locs_objs[i] in (253, 254):  # De paso, contamos los objetos llevados, y calculamos el peso total
+      if locs_objs[i] == 254:
+        banderas[1] += 1  # Número de objetos llevados, pero no puestos
+      peso_llevado[0] += da_peso (i)
 
 # FIXME: cambiar el intérprete para registrar si se registró alguna acción o no
 def tabla_hizo_algo ():
@@ -270,11 +274,11 @@ def inicializa ():
   if NOMBRE_SISTEMA != 'DAAD' or not nueva_version:  # Pero en nuevas versiones de DAAD, sólo RESET lo hace
     restaura_objetos()
 
-  # La bandera 37, contiene el número de objetos llevados, que se pondrá en 4
+  # La bandera 37, contiene el número máximo de objetos llevados, que se pondrá a 4
   banderas[37] = 4
   # La bandera 52, lleva el máximo peso permitido, que se pone a 10
   banderas[52] = 10
-  # Las banderas 46 y 47, que llevan el pronombre actual, que se pondrán en 255
+  # Las banderas 46 y 47, que llevan el pronombre actual, que se pondrán a 255
   # (no hay pronombre)
   banderas[46] = 255
   banderas[47] = 255
@@ -884,7 +888,7 @@ if __name__ == '__main__':
 
   constantes = ('EXT_SAVEGAME', 'LONGITUD_PAL', 'NOMBRE_SISTEMA', 'NUM_BANDERAS', 'TIPOS_PAL')
   funciones  = ('busca_condacto', 'cambia_articulo', 'da_peso', 'imprime_mensaje', 'obj_referido', 'parsea_orden', 'restaura_objetos', 'tabla_hizo_algo')
-  variables  = ('atributos', 'atributos_extra', 'banderas', 'compatibilidad', 'conexiones', 'desc_locs', 'desc_objs', 'doall_activo', 'frases', 'locs_iniciales', 'locs_objs', 'msgs_usr', 'msgs_sys', 'nombres_objs', 'nueva_version', 'num_objetos', 'partida', 'pila_procs', 'tablas_proceso', 'vocabulario')
+  variables  = ('atributos', 'atributos_extra', 'banderas', 'compatibilidad', 'conexiones', 'desc_locs', 'desc_objs', 'doall_activo', 'frases', 'locs_iniciales', 'locs_objs', 'msgs_usr', 'msgs_sys', 'nombres_objs', 'nueva_version', 'num_objetos', 'partida', 'peso_llevado', 'pila_procs', 'tablas_proceso', 'vocabulario')
 
   # Hacemos lo equivalente a: from libreria import *, cargando sólo lo exportable
   for lista in (constantes, variables):
