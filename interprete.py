@@ -948,6 +948,7 @@ if __name__ == '__main__':
       gui.cambia_cursor (msgs_sys[34])
   else:  # Es DAAD
     gui.nueva_version = nueva_version
+    gui.tam_cabecera  = libreria.tam_cabecera
     gui.txt_mas       = msgs_sys[32]  # (más)
     if not gui.paleta[0]:
       # Colores con brillo en este orden: negro, azul, rojo, magenta, verde, cyan, amarillo, blanco
