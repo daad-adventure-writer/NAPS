@@ -1193,7 +1193,7 @@ def guardaVocabulario ():
 
 # Prepara la configuración sobre la plataforma
 def prepara_plataforma ():
-  global alinear, carga_int2, despl_ini, guarda_int2, plataforma, version, CAB_LONG_FICH
+  global alinear, carga_int2, despl_ini, guarda_int2, plataforma, tam_cabecera, version, CAB_LONG_FICH
   # Cargamos la versión del formato de base de datos
   fich_ent.seek (CAB_VERSION)
   version = carga_int1()
@@ -1201,6 +1201,7 @@ def prepara_plataforma ():
     CAB_LONG_FICH += 2
     condactos.update (condactos_nuevos)
     nueva_version.append (True)
+  tam_cabecera = CAB_LONG_FICH + 2  # Longitud de la cabecera
   # Cargamos el identificador de plataforma
   fich_ent.seek (CAB_PLATAFORMA)
   plataforma = carga_int1() >> 4
@@ -1245,30 +1246,30 @@ def prepara_plataforma ():
   if plataforma in plats_word:
     alinear = True
 
+  # Detectamos si hay 13 punteros de funciones externas, como ocurre en todas las aventuras de DAAD versión 2 menos las primeras
+  fich_ent.seek (tam_cabecera)
+  ceros = 0
+  for i in range (13):
+    if carga_int2() == 0:
+      ceros += 1
+  if ceros > 6:
+    tam_cabecera += 26
+
   if detectar_despl:
-    tamCabecera = CAB_LONG_FICH + 2  # Longitud de la cabecera
-    # Detectamos si hay 13 punteros de funciones externas, como ocurre en todas las aventuras de DAAD versión 2 menos las primeras
-    fich_ent.seek (tamCabecera)
-    ceros = 0
-    for i in range (13):
-      if carga_int2() == 0:
-        ceros += 1
-    if ceros > 6:
-      tamCabecera += 26
     minimo = 999999
     fich_ent.seek (CAB_POS_ABREVS)
-    for posCabecera in range (CAB_POS_ABREVS, tamCabecera, 2):
+    for posCabecera in range (CAB_POS_ABREVS, tam_cabecera, 2):
       desplazamiento = carga_int2()
       if not desplazamiento:  # Puede tener 0 en abreviaturas y funciones externas
         continue
       if desplazamiento < minimo:
         minimo = desplazamiento
-    despl_ini = minimo - tamCabecera
-    if tamCabecera > 34 and ceros < 13:
+    despl_ini = minimo - tam_cabecera
+    if tam_cabecera > 34 and ceros < 13:
       # Puede haber código ensamblador entre la cabecera y donde apunta el primer puntero
       lista = []
       for reintentos in range (60):
-        if validaPunteros (tamCabecera):
+        if validaPunteros (tam_cabecera):
           break  # Todo ha cargado bien
         despl_ini -= 1
       else:
