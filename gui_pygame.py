@@ -74,6 +74,7 @@ cad_cursor = '_'
 chr_cursor = pygame.Surface ((6, 8))  # Carácter con transparencia, para marcar posición de input
 
 # Variables que ajusta el intérprete
+brillo           = 0         # Sin brillo por defecto
 cambia_brillo    = None      # Carácter que si se encuentra en una cadena, dará o quitará brillo al color de tinta de la letra
 cambia_flash     = None      # Carácter que si se encuentra en una cadena, pondría o quitaría efecto flash a la letra
 cambia_papel     = None      # Carácter que si se encuentra en una cadena, cambiará el color de papel/fondo de la letra
@@ -722,8 +723,9 @@ Si scroll es True, se desplazará el texto del buffer hacia arriba (scrolling) cu
           bajado    = True
           cambiada += izquierda[juego_alto]
       cambiada += c
-    cadena = cambiada
-  else:  # No es SWAN
+    cadena  = cambiada
+    colores = {}
+  else:  # No es SWAN o no se cambia entre juego alto y bajo
     cadena, colores = parseaColores (cadena)
   convertida = cadena.translate (iso8859_15_a_fuente)
   # Dividimos la cadena en líneas
@@ -935,7 +937,7 @@ def daColorBorde ():
 
 def parseaColores (cadena):
   """Procesa los códigos de control de colores, devolviendo la cadena sin ellos, y un diccionario posición: colores a aplicar"""
-  brillo  = 0                       # Sin brillo por defecto
+  global brillo
   papel   = color_subv[elegida][1]  # Color de papel/fondo
   tinta   = color_subv[elegida][0]  # Color de tinta
   colores = {0: (paleta[brillo][tinta], paleta[brillo][papel])}

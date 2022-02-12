@@ -932,7 +932,13 @@ if __name__ == '__main__':
 
   if NOMBRE_SISTEMA != 'DAAD':
     gui.todo_mayusculas = True
+    # Colores en este orden: negro, azul, rojo, magenta, verde, cyan, amarillo, blanco
+    gui.paleta[0].extend (((0, 0, 0), (0, 0, 215), (215, 0, 0), (215, 0, 215),  # Sin brillo
+                           (0, 215, 0), (0, 215, 215), (215, 215, 0), (215, 215, 215)))
+    gui.paleta[1].extend (((0, 0, 0), (0, 0, 255), (255, 0, 0), (255, 0, 255),  # Con brillo
+                           (0, 255, 0), (0, 255, 255), (255, 255, 0), (255, 255, 255)))
     if NOMBRE_SISTEMA == 'SWAN':
+      gui.brillo     = 1   # Con brillo por defecto
       gui.juego_alto = 48  # @
       gui.juego_bajo = 48
     elif NOMBRE_SISTEMA == 'PAWS' and libreria.num_abreviaturas < 128:  # PAWS de Spectrum
@@ -940,11 +946,6 @@ if __name__ == '__main__':
       gui.cambia_flash  = 18
       gui.cambia_papel  = 17
       gui.cambia_tinta  = 16
-      # Colores en este orden: negro, azul, rojo, magenta, verde, cyan, amarillo, blanco
-      gui.paleta[0].extend (((0, 0, 0), (0, 0, 215), (215, 0, 0), (215, 0, 215),  # Sin brillo
-                             (0, 215, 0), (0, 215, 215), (215, 215, 0), (215, 215, 215)))
-      gui.paleta[1].extend (((0, 0, 0), (0, 0, 255), (255, 0, 0), (255, 0, 255),  # Con brillo
-                             (0, 255, 0), (0, 255, 255), (255, 255, 0), (255, 255, 255)))
       gui.cambia_cursor (msgs_sys[34])
   else:  # Es DAAD
     gui.nueva_version = nueva_version
