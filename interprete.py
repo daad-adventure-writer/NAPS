@@ -376,8 +376,8 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
   # Borramos las banderas de SL actual
   for i in (tuple (range (33, 37)) + tuple (range (43, 46))):
     banderas[i] = 255
-  # Si es orden de PSI o no hay órdenes ya parseadas pendientes de ejecutar
-  if psi or not frases:
+  # Si no hay órdenes ya parseadas pendientes de ejecutar
+  if not frases:
     if not psi:
       if frase_guardada:
         del frase_guardada[:]  # Fin de ejecución de frases pendientes de ejecutar
@@ -427,11 +427,11 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
     # vocabulario, a su número de palabra y poniéndola luego en la bandera
     # requerida
     if psi:
-      ordenes = separa_orden (orden_psi)[:1]  # Toma sólo la primera
+      ordenes = separa_orden (orden_psi)
     else:
       ordenes = separa_orden (orden)
-      if traza:
-        prn ('Orden partida en estas frases:', ordenes)
+    if traza:
+      prn ('Orden' + (' de PSI ' if psi else ' ') + 'partida en estas frases:', ordenes)
     rango_vocabulario = range (len (vocabulario))
     for f in range (len (ordenes)):
       frase = {'Verbo': None, 'Nombre1': None, 'Nombre2': None, 'Adjetivo1': None, 'Adjetivo2': None, 'Adverbio': None, 'Preposición': None, 'Pronombre': None}
