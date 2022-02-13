@@ -257,6 +257,33 @@ class CampoTexto (QTextEdit):
             self.setTextCursor (cursor)
       elif linea.userState() > -1:  # Estamos en la cabecera
         prn ('En cabecera')
+    elif evento.key() in (Qt.Key_At, Qt.Key_BracketLeft):
+      cursor  = self.textCursor()
+      columna = cursor.positionInBlock()
+      linea   = cursor.block()
+      colsValidas = self._daColsValidas (linea.text())
+      if not linea.text().trimmed() or linea.userState() > -1:
+        return  # Intentando cambiar indirección en línea sin condacto
+      numEntrada, posicion = self._daNumEntradaYLinea (linea)
+      numProceso = pestanyas.currentIndex()
+      proceso    = mod_actual.tablas_proceso[numProceso]  # El proceso seleccionado
+      entrada    = proceso[1][numEntrada]  # La entrada seleccionada
+      condacto   = entrada[posicion - 2]
+      lineaNueva = (condacto[0] ^ 128, condacto[1])  # Alternamos indirección en el condacto
+      entrada[posicion - 2] = lineaNueva  # Código y parámetros de la nueva línea
+      cursor.movePosition (QTextCursor.EndOfBlock)
+      cursor.movePosition (QTextCursor.StartOfBlock, QTextCursor.KeepAnchor)
+      cursor.movePosition (QTextCursor.Left,         QTextCursor.KeepAnchor)
+      self.setTextCursor (cursor)
+      imprimeCondacto (*lineaNueva)
+      if columna in colsValidas:  # Recuperamos posición anterior correcta
+        indice = colsValidas.index (columna)
+        linea  = cursor.block()
+        colsValidas = self._daColsValidas (linea.text())
+        columna  = cursor.positionInBlock()
+        colNueva = colsValidas[indice]
+        cursor.setPosition (cursor.position() + (colNueva - columna))
+        self.setTextCursor (cursor)
     elif evento.key() >= Qt.Key_0 and evento.key() <= Qt.Key_9:  # Números
       cursor  = self.textCursor()
       columna = cursor.positionInBlock()
