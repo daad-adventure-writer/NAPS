@@ -22,7 +22,7 @@
 
 \title{Guía unificada de los sistemas de creación de aventuras conversacionales
        \\\ \\\Huge{\quill, \paw, \swan y \daad}}
-\author{\copyright\ 2010, 2018-2021 José Manuel Ferrer Ortiz}
+\author{\copyright\ 2010, 2018-2022 José Manuel Ferrer Ortiz}
 
 \begin{document}
 
@@ -505,6 +505,14 @@ Inexistente en \daad.
 \sistemas{\paw y \daad}
 
 Comprobado con \daad, desde la tabla de proceso 1 no se permite llamar ni al proceso 0 ni al 2, ni a un número de proceso inexistente (en todos estos casos da error 6).
+
+\subsubsection{SWAP num\_objeto num\_objeto}
+
+\sistemas{\quill, \paw, \swan y \daad}
+
+Intercambia las localidades donde se encuentran los objetos dados como parámetro.
+
+En \daad, el compilador DC rescatado no soporta indirección para esta acción, mientras que los intérpretes lo soportan sin problema.
 
 \subsubsection{TIME}
 
