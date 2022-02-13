@@ -736,13 +736,6 @@ Si el resultado es menor que 0, la bandera flagno2 se pone a 0"""
   if banderas[flagno2] < 0:
     banderas[flagno2] = 0
 
-def a2_SWAP (objno1, objno2):
-  """Se intercambian las localidades del objeto objno1 y objno2, y se marca objno2 como objeto actualmente referido"""
-  obj_referido (objno2)
-  locno = locs_objs[objno1]
-  locs_objs[objno1] = locs_objs[objno2]
-  locs_objs[objno2] = locno
-
 def a2_TAKEOUT (objno, locno):
   """Si el objeto objno se lleva encima o puesto, imprime MS25. Si el objeto objno está en la localización actual, imprime MS45, la descripción corta del contenedor locno y MS51. Si no está en locno, imprime MS52, la descripción corta del contenedor locno y MS51. Si el peso total de los objetos llevados (puestos o no) más el de este objeto superará el máximo permitido, imprime MS43. Si se superaría el máximo de objetos llevables, imprime MS27. En caso de una de estas condiciones de fallo, ejecuta NEWTEXT y termina con DONE. En caso contrario (éxito), mueve el objeto al contenedor locno, incrementa la bandera 1, e imprime MS36"""
   # XXX: ¿no debería comprobar también que el contenedor locno esté presente?
