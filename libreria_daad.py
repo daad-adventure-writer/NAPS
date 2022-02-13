@@ -258,6 +258,8 @@ condactos_nuevos = {
    73 : ('PARSE',   1, False),  # Se comporta como condición
    84 : ('PICTURE', 1, False),  # Se comporta como condición, en función si esa imagen existe
    86 : ('MOUSE',   1, True),   # Era PROMPT
+  112 : ('BIGGER',  2, False),  # Mismo orden que en el manual
+  113 : ('SMALLER', 2, False),  # Mismo orden que en el manual
 }
 
 
