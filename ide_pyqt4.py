@@ -667,43 +667,6 @@ def dialogoImportaBD ():
     importaBD (nombreFichero)
     selector.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
 
-def icono (nombre):
-  """Devuelve un QIcon, sacando la imagen de la carpeta de iconos"""
-  return QIcon (os.path.join ('iconos_ide', nombre + '.png'))
-
-def importaBD (nombreFichero):
-  """Importa una base de datos desde el fichero de nombre dado"""
-  global mod_actual
-  try:
-    fichero = open (nombreFichero, 'rb')
-  except IOError as excepcion:
-    muestraFallo ('No se puede abrir el fichero:\n' + nombreFichero,
-                  'Causa:\n' + excepcion.args[1])
-    return
-  if '.' not in nombreFichero:
-    muestraFallo ('No se puede importar una base datos de:\n' + nombreFichero,
-                  'Causa:\nNo tiene extensión')
-    return
-  extension = nombreFichero[nombreFichero.rindex ('.') + 1 :].lower()
-  for modulo, funcion, extensiones, descripcion in info_importar:
-    if extension in extensiones:
-      mod_actual = __import__ (modulo)
-      break
-  else:
-    muestraFallo ('No se puede importar una base datos de:\n' + nombreFichero,
-                  'Causa:\nExtensión no reconocida')
-    return
-  # Damos acceso al módulo a funciones del IDE
-  mod_actual.muestraFallo = muestraFallo
-  # Solicitamos la importación
-  if mod_actual.__dict__[funcion] (fichero, os.path.getsize (nombreFichero)) == False:
-    muestraFallo ('No se puede importar una base datos de:\n' +
-                  nombreFichero, 'Causa:\nFormato de fichero incompatible o base de datos corrupta')
-    mod_actual = None
-    return
-  fichero.close()
-  postCarga (os.path.basename (nombreFichero))
-
 def exportaBD ():
   """Exporta la base de datos a fichero"""
   global dlg_guardar, mod_actual
@@ -747,6 +710,43 @@ def exportaBD ():
     mod_actual.__dict__[info_exportar[indiceFiltro][0]] (fichero)
     fichero.close()
     selector.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
+
+def icono (nombre):
+  """Devuelve un QIcon, sacando la imagen de la carpeta de iconos"""
+  return QIcon (os.path.join ('iconos_ide', nombre + '.png'))
+
+def importaBD (nombreFichero):
+  """Importa una base de datos desde el fichero de nombre dado"""
+  global mod_actual
+  try:
+    fichero = open (nombreFichero, 'rb')
+  except IOError as excepcion:
+    muestraFallo ('No se puede abrir el fichero:\n' + nombreFichero,
+                  'Causa:\n' + excepcion.args[1])
+    return
+  if '.' not in nombreFichero:
+    muestraFallo ('No se puede importar una base datos de:\n' + nombreFichero,
+                  'Causa:\nNo tiene extensión')
+    return
+  extension = nombreFichero[nombreFichero.rindex ('.') + 1 :].lower()
+  for modulo, funcion, extensiones, descripcion in info_importar:
+    if extension in extensiones:
+      mod_actual = __import__ (modulo)
+      break
+  else:
+    muestraFallo ('No se puede importar una base datos de:\n' + nombreFichero,
+                  'Causa:\nExtensión no reconocida')
+    return
+  # Damos acceso al módulo a funciones del IDE
+  mod_actual.muestraFallo = muestraFallo
+  # Solicitamos la importación
+  if mod_actual.__dict__[funcion] (fichero, os.path.getsize (nombreFichero)) == False:
+    muestraFallo ('No se puede importar una base datos de:\n' +
+                  nombreFichero, 'Causa:\nFormato de fichero incompatible o base de datos corrupta')
+    mod_actual = None
+    return
+  fichero.close()
+  postCarga (os.path.basename (nombreFichero))
 
 def imprimeCondacto (condacto, parametros):
   campo_txt.insertPlainText ('\n  ')
