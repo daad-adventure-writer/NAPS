@@ -691,6 +691,9 @@ Devuelve True si termina con DESC o equivalente. False si hay que reiniciar la a
 
 def imprime_condacto ():
   """Imprime en la salida estándar el siguiente condacto que se ejecutará"""
+  if ide:
+    prn (pila_procs)
+    return
   # Obtenemos los índices de tabla, entrada y condacto actuales
   num_tabla, num_entrada, num_condacto = pila_procs[-1]
   tabla = tablas_proceso[num_tabla]
@@ -846,11 +849,13 @@ if __name__ == '__main__':
   argsParser = argparse.ArgumentParser (sys.argv[0], description = 'Intérprete de Quill/PAWS/SWAN/DAAD en Python')
   argsParser.add_argument ('-D', '--debug', action = 'store_true', help = 'ejecutar los condactos paso a paso')
   argsParser.add_argument ('-g', '--gui', choices = ('pygame', 'stdio'), help = 'interfaz gráfica a utilizar')
+  argsParser.add_argument ('--ide', action = 'store_true', help = argparse.SUPPRESS)
   argsParser.add_argument ('-s', '--scale', type = int, choices = (1, 2, 3), help = 'factor de escalado para la ventana')
   argsParser.add_argument ('bbdd', metavar = 'bd_o_carpeta', help = 'base de datos o carpeta de Quill/PAWS/SWAN/DAAD a ejecutar')
   argsParser.add_argument ('ruta_graficos', metavar = 'carpeta_gráficos', nargs = '?', help = 'carpeta de la que tomar las imágenes (con nombre pic###.png)')
   args  = argsParser.parse_args()
-  traza = args.debug
+  ide   = args.ide
+  traza = args.debug or args.ide
 
   if not args.gui:
     if args.ruta_graficos:

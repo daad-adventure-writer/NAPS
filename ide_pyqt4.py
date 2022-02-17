@@ -27,9 +27,10 @@ from prn_func import prn
 
 import codecs
 import locale
-import os     # Para listdir y para path
-import sys    # Para exit
-import types  # Para poder comprobar si algo es una función
+import os          # Para curdir, listdir y path
+import subprocess  # Para ejecutar el intérprete
+import sys
+import types       # Para poder comprobar si algo es una función
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui  import *
@@ -54,6 +55,12 @@ pestanyas = None  # La barra de pestañas del diálogo de procesos
 
 mod_actual   = None    # Módulo de librería activo
 pal_sinonimo = dict()  # Sinónimos preferidos para cada par código y tipo válido
+
+color_base      = QColor (10, 10, 10)   # Color de fondo gris oscuro
+color_pila      = QColor (60, 35, 110)  # Color de fondo azul brillante
+color_tope_pila = QColor (35, 40, 110)  # Color de fondo morado oscuro
+pila_procs      = []    # Pila con estado de los procesos en ejecución
+proc_interprete = None  # Proceso del intérprete
 
 
 # Funciones de exportación e importación, con sus módulos, extensiones y descripciones
@@ -111,7 +118,7 @@ class CampoTexto (QTextEdit):
     return numEntrada, posicion
 
   def contextMenuEvent (self, evento):
-    linea       = self.cursorForPosition (evento.pos()).block()
+    linea      = self.cursorForPosition (evento.pos()).block()
     numEntrada = self._daNumEntradaYLinea (linea)[0]
     # prn ('Nº línea:', linea.blockNumber())
     # prn ('Nº entrada guardado en la línea:', linea.userState())
@@ -188,6 +195,8 @@ class CampoTexto (QTextEdit):
       else:
         self.setCursorWidth   (self.font().pointSize() * 0.7)
         self.setOverwriteMode (True)
+    elif proc_interprete:
+      return  # No se puede modificar nada cuando la BD está en ejecución
     elif str (evento.text()).isalpha():  # Letras
       cursor  = self.textCursor()
       columna = cursor.positionInBlock()
@@ -355,6 +364,33 @@ class CampoTexto (QTextEdit):
     else:
       super (CampoTexto, self).wheelEvent (evento)
 
+class ManejoInterprete (QThread):
+  """Maneja la comunicación con el intérprete ejecutando la base de datos"""
+  def __init__ (self, procInterprete, padre):
+    QThread.__init__ (self, parent = padre)
+    self.procInterprete = procInterprete
+    self.cambiaPila     = SIGNAL ('cambiaPila')
+
+  def run (self):
+    """Lee del proceso del intérprete, obteniendo por dónde va la ejecución"""
+    global proc_interprete
+    pilaProcs = []
+    while True:
+      linea = self.procInterprete.stdout.readline()
+      if not linea:
+        break  # Ocurre cuando el proceso ha terminado
+      if linea[0] == '[' and ']' in linea:
+        pilaProcs = eval (linea)
+        # prn (pilaProcs)
+        self.emit (self.cambiaPila, pilaProcs)
+    accPasoAPaso.setEnabled (True)
+    proc_interprete = None
+    if pilaProcs:
+      ultimaEntrada = [pilaProcs[-1][0]]
+      if len (pilaProcs[-1]) > 1:
+        ultimaEntrada.extend ([pilaProcs[-1][1], -2])
+      self.emit (self.cambiaPila, [ultimaEntrada])
+
 class ModalEntrada (QInputDialog):
   """Modal de entrada QInputDialog con el primer carácter ya introducido, para continuar en siguiente pulsación sin machacarlo"""
   def __init__ (self, parent, etiqueta, textoInicial, textoOriginal = ''):
@@ -445,6 +481,16 @@ class ModeloVocabulario (QAbstractTableModel):
     return len (mod_actual.vocabulario)
 
 
+def actualizaPosProcesos (pilaProcs):
+  """Refleja la posición de ejecución paso a paso actual en el diálogo de tablas de proceso"""
+  global pila_procs
+  pila_procs = pilaProcs
+  muestraProcesos()
+  if pestanyas.currentIndex() == pilaProcs[-1][0]:
+    cambiaProceso (pilaProcs[-1][0], pilaProcs[-1][1] if len (pilaProcs[-1]) > 1 else None)
+  else:
+    pestanyas.setCurrentIndex (pilaProcs[-1][0])
+
 # FIXME: Diferencias entre PAWS estándar y DAAD
 def cambiaProceso (numero, numEntrada = None):
   """Llamada al cambiar de pestaña en el diálogo de procesos"""
@@ -458,6 +504,10 @@ def cambiaProceso (numero, numEntrada = None):
   for i in range (len (cabeceras)):
     if i == numEntrada:
       posicion = campo_txt.textCursor().position()
+    if [numero, i, -1] in pila_procs:
+      campo_txt.setTextBackgroundColor (color_tope_pila if pila_procs[-1] == [numero, i, -1] else color_pila)
+    else:
+      campo_txt.setTextBackgroundColor (color_base)
     campo_txt.setTextColor (QColor (200, 200, 200))  # Color gris claro
     campo_txt.setFontItalic (True)  # Cursiva activada
     verbo = cabeceras[i][0]  # Código del verbo (de esta cabecera)
@@ -491,15 +541,20 @@ def cambiaProceso (numero, numEntrada = None):
         noExisten.append ((nombre, 2))
       campo_txt.insertPlainText (str (nombre).center (5).rstrip())
     campo_txt.setFontItalic (False)  # Cursiva desactivada
+    campo_txt.setTextBackgroundColor (color_base)
     campo_txt.textCursor().block().setUserState (i)  # Guardamos el número de la entrada
     campo_txt.insertPlainText ('\n     ')
-    for condacto, parametros in entradas[i]:
+    for c in range (len (entradas[i])):
+      condacto, parametros = entradas[i][c]
+      if [numero, i, c] in pila_procs:
+        campo_txt.setTextBackgroundColor (color_tope_pila if pila_procs[-1] == [numero, i, c] else color_pila)
       imprimeCondacto (condacto, parametros)
+      campo_txt.setTextBackgroundColor (color_base)
     campo_txt.insertPlainText ('\n     ')
     if i < (len (cabeceras) - 1):
       campo_txt.insertPlainText ('\n\n')
   if posicion != None:
-    campo_txt.moveCursor(QTextCursor.End)  # Vamos al final, para que al ir a la línea que toca, esa quede arriba
+    campo_txt.moveCursor (QTextCursor.End)  # Vamos al final, para que al ir a la línea que toca, esa quede arriba
     cursor = campo_txt.textCursor()
     cursor.setPosition  (posicion)
     cursor.movePosition (QTextCursor.Right, n = 2)
@@ -558,7 +613,7 @@ def compruebaNombre (modulo, nombre, tipo):
 def creaAcciones ():
   """Crea las acciones de menú y barra de botones"""
   global accAcercaDe, accContadores, accDireccs, accExportar, accImportar, accMsgSys, \
-         accMsgUsr, accSalir, accTblProcs, accTblVocab
+         accMsgUsr, accPasoAPaso, accSalir, accTblProcs, accTblVocab
   accAcercaDe   = QAction (icono_ide, '&Acerca de NAPS IDE', selector)
   accContadores = QAction (icono ('contadores'), '&Contadores', selector)
   accDireccs    = QAction (icono ('direccion'), '&Direcciones', selector)
@@ -566,6 +621,7 @@ def creaAcciones ():
   accImportar   = QAction (icono ('importar'), '&Importar', selector)
   accMsgSys     = QAction (icono ('msg_sistema'), '&Sistema', selector)
   accMsgUsr     = QAction (icono ('msg_usuario'), '&Usuario', selector)
+  accPasoAPaso  = QAction (icono ('pasoapaso'), '&Paso a paso', selector)
   accSalir      = QAction (icono ('salir'), '&Salir', selector)
   accTblProcs   = QAction (icono ('proceso'), '&Tablas', selector)
   accTblVocab   = QAction (icono ('vocabulario'), '&Tabla', selector)
@@ -573,6 +629,7 @@ def creaAcciones ():
   accDireccs.setEnabled    (False)
   accMsgSys.setEnabled     (False)
   accMsgUsr.setEnabled     (False)
+  accPasoAPaso.setEnabled  (False)
   accTblProcs.setEnabled   (False)
   accTblVocab.setEnabled   (False)
   accSalir.setShortcut ('Ctrl+Q')
@@ -583,6 +640,7 @@ def creaAcciones ():
   accImportar.setStatusTip   ('Importa una base de datos desde un fichero')
   accMsgSys.setStatusTip     ('Permite consultar los mensajes de sistema')
   accMsgUsr.setStatusTip     ('Permite consultar los mensajes de usuario')
+  accPasoAPaso.setStatusTip  ('Depura la base de datos ejecutándola paso a paso')
   accSalir.setStatusTip      ('Sale de la aplicación')
   accTblProcs.setStatusTip   ('Permite consultar las tablas de proceso')
   accTblVocab.setStatusTip   ('Permite consultar el vocabulario')
@@ -594,6 +652,7 @@ def creaAcciones ():
   selector.connect (accImportar,   SIGNAL ('triggered()'), dialogoImportaBD)
   selector.connect (accMsgSys,     SIGNAL ('triggered()'), muestraMsgSys)
   selector.connect (accMsgUsr,     SIGNAL ('triggered()'), muestraMsgUsr)
+  selector.connect (accPasoAPaso,  SIGNAL ('triggered()'), ejecutaPorPasos)
   selector.connect (accSalir,      SIGNAL ('triggered()'), SLOT ('close()'))
   selector.connect (accTblProcs,   SIGNAL ('triggered()'), muestraProcesos)
   selector.connect (accTblVocab,   SIGNAL ('triggered()'), muestraVistaVocab)
@@ -622,6 +681,8 @@ def creaMenus ():
   menuBD.addAction (accContadores)
   menuBD.addSeparator()
   menuBD.addAction (accSalir)
+  menuEjecutar = selector.menuBar().addMenu ('&Ejecutar')
+  menuEjecutar.addAction (accPasoAPaso)
   menuMensajes = selector.menuBar().addMenu ('&Mensajes')
   menuMensajes.addAction (accMsgSys)
   menuMensajes.addAction (accMsgUsr)
@@ -666,6 +727,16 @@ def dialogoImportaBD ():
     nombreFichero = str (dlg_abrir.selectedFiles()[0])
     importaBD (nombreFichero)
     selector.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
+
+def ejecutaPorPasos ():
+  """Ejecuta la base de datos para depuración paso a paso"""
+  global proc_interprete
+  accPasoAPaso.setEnabled (False)
+  rutaInterprete  = os.curdir + '/interprete.py'
+  proc_interprete = subprocess.Popen ([rutaInterprete, nombre_fich_bd, '--ide'], stderr = subprocess.PIPE, stdout = subprocess.PIPE)
+  hilo = ManejoInterprete (proc_interprete, aplicacion)
+  QObject.connect (hilo, hilo.cambiaPila, actualizaPosProcesos)
+  hilo.start()
 
 def exportaBD ():
   """Exporta la base de datos a fichero"""
@@ -717,7 +788,8 @@ def icono (nombre):
 
 def importaBD (nombreFichero):
   """Importa una base de datos desde el fichero de nombre dado"""
-  global mod_actual
+  global mod_actual, nombre_fich_bd
+  nombre_fich_bd = None
   try:
     fichero = open (nombreFichero, 'rb')
   except IOError as excepcion:
@@ -746,6 +818,7 @@ def importaBD (nombreFichero):
     mod_actual = None
     return
   fichero.close()
+  nombre_fich_bd = nombreFichero
   postCarga (os.path.basename (nombreFichero))
 
 def imprimeCondacto (condacto, parametros):
@@ -899,7 +972,7 @@ def muestraProcesos ():
       pestanyas.addTab (str_numero)
       pestanyas.setTabToolTip (numero, titulo)
   paleta = QPalette (campo_txt.palette())
-  paleta.setColor (QPalette.Base, QColor (10, 10, 10))     # Color de fondo gris oscuro
+  paleta.setColor (QPalette.Base, color_base)              # Color de fondo gris oscuro
   paleta.setColor (QPalette.Text, QColor (255, 255, 255))  # Color de frente (para el cursor) blanco
   campo_txt.setFont            (QFont ('Courier'))  # Fuente que usaremos
   campo_txt.setPalette         (paleta)
@@ -995,6 +1068,7 @@ def postCarga (nombre):
   accExportar.setEnabled   (len (info_exportar) > 0)
   accMsgSys.setEnabled     (True)
   accMsgUsr.setEnabled     (True)
+  accPasoAPaso.setEnabled  (True)
   accTblProcs.setEnabled   (True)
   accTblVocab.setEnabled   (True)
   selector.setWindowTitle ('NAPS IDE - ' + nombre + ' (' + mod_actual.NOMBRE_SISTEMA + ')')
