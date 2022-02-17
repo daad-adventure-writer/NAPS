@@ -832,7 +832,7 @@ Para depuración paso a paso, devuelve el número de pasos a ejecutar, que es: 10,
     return 100
   if tecla in (gui.pygame.K_KP_ENTER, gui.pygame.K_RETURN):
     return 1000
-  if tecla == gui.pygame.K_d:  # Depuramos desde Python
+  if tecla == gui.pygame.K_d and not ide:  # Depuramos desde Python
     import pdb
     pdb.set_trace()
   return 1
