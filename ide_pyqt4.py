@@ -849,7 +849,7 @@ def imprimeCondacto (condacto, parametros):
     for parametro in parametros[1:]:
       campo_txt.insertPlainText (',' + str (parametro).rjust (4))
   else:  # Condacto sin parámetros
-    campo_txt.insertPlainText (nombre.center (7).rstrip())
+    campo_txt.insertPlainText ((nombre + indirecto).center (7).rstrip())
   if indirecto == ' ' and nombre in ('MES', 'MESSAGE', 'SYSMESS'):
     if nombre == 'SYSMESS' and parametros[0] < len (mod_actual.msgs_sys):
       mensaje = mod_actual.msgs_sys[parametros[0]]
