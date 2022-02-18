@@ -611,6 +611,7 @@ Devuelve True si ha ejecutado DESC o equivalente. False si se debe reiniciar la 
           # Aseguramos que PARSE sea de órdenes del jugador, que será con parámetro 0
           if entrada[numCondacto][0] != 73 or (entrada[numCondacto][1] and not entrada[numCondacto][1][0]):
             paso = numPasos
+            sys.stdout.flush()  # Que se imprima todo lo que quede
         cambioFlujo = ejecuta_condacto (entrada[numCondacto][0], entrada[numCondacto][1])
       if type (cambioFlujo) == int:
         if cambioFlujo < 0:  # Ejecutar subproceso
