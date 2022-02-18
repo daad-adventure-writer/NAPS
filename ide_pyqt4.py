@@ -736,8 +736,11 @@ def ejecutaPorPasos ():
   """Ejecuta la base de datos para depuración paso a paso"""
   global proc_interprete
   accPasoAPaso.setEnabled (False)
-  rutaInterprete  = os.curdir + '/interprete.py'
-  proc_interprete = subprocess.Popen ([rutaInterprete, nombre_fich_bd, '--ide'], stderr = subprocess.PIPE, stdout = subprocess.PIPE)
+  rutaInterprete = os.curdir + '/interprete.py'
+  argumentos     = [rutaInterprete, '--ide', nombre_fich_bd]
+  if nombre_fich_gfx:
+    argumentos.append (nombre_fich_gfx)
+  proc_interprete = subprocess.Popen (argumentos, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
   hilo = ManejoInterprete (proc_interprete, aplicacion)
   QObject.connect (hilo, hilo.cambiaPila, actualizaPosProcesos)
   hilo.start()
@@ -790,40 +793,41 @@ def icono (nombre):
   """Devuelve un QIcon, sacando la imagen de la carpeta de iconos"""
   return QIcon (os.path.join ('iconos_ide', nombre + '.png'))
 
-def importaBD (nombreFichero):
+def importaBD (nombreFicheroBD, nombreFicheroGfx = None):
   """Importa una base de datos desde el fichero de nombre dado"""
-  global mod_actual, nombre_fich_bd
+  global mod_actual, nombre_fich_bd, nombre_fich_gfx
   nombre_fich_bd = None
   try:
-    fichero = open (nombreFichero, 'rb')
+    fichero = open (nombreFicheroBD, 'rb')
   except IOError as excepcion:
-    muestraFallo ('No se puede abrir el fichero:\n' + nombreFichero,
+    muestraFallo ('No se puede abrir el fichero:\n' + nombreFicheroBD,
                   'Causa:\n' + excepcion.args[1])
     return
-  if '.' not in nombreFichero:
-    muestraFallo ('No se puede importar una base datos de:\n' + nombreFichero,
+  if '.' not in nombreFicheroBD:
+    muestraFallo ('No se puede importar una base datos de:\n' + nombreFicheroBD,
                   'Causa:\nNo tiene extensión')
     return
-  extension = nombreFichero[nombreFichero.rindex ('.') + 1 :].lower()
+  extension = nombreFicheroBD[nombreFicheroBD.rindex ('.') + 1 :].lower()
   for modulo, funcion, extensiones, descripcion in info_importar:
     if extension in extensiones:
       mod_actual = __import__ (modulo)
       break
   else:
-    muestraFallo ('No se puede importar una base datos de:\n' + nombreFichero,
+    muestraFallo ('No se puede importar una base datos de:\n' + nombreFicheroBD,
                   'Causa:\nExtensión no reconocida')
     return
   # Damos acceso al módulo a funciones del IDE
   mod_actual.muestraFallo = muestraFallo
   # Solicitamos la importación
-  if mod_actual.__dict__[funcion] (fichero, os.path.getsize (nombreFichero)) == False:
+  if mod_actual.__dict__[funcion] (fichero, os.path.getsize (nombreFicheroBD)) == False:
     muestraFallo ('No se puede importar una base datos de:\n' +
-                  nombreFichero, 'Causa:\nFormato de fichero incompatible o base de datos corrupta')
+                  nombreFicheroBD, 'Causa:\nFormato de fichero incompatible o base de datos corrupta')
     mod_actual = None
     return
   fichero.close()
-  nombre_fich_bd = nombreFichero
-  postCarga (os.path.basename (nombreFichero))
+  nombre_fich_bd  = nombreFicheroBD
+  nombre_fich_gfx = nombreFicheroGfx
+  postCarga (os.path.basename (nombreFicheroBD))
 
 def imprimeCondacto (condacto, parametros):
   campo_txt.insertPlainText ('\n  ')
@@ -1094,6 +1098,9 @@ selector.showMaximized()
 cargaInfoModulos()
 
 if len (sys.argv) > 1:
-  importaBD (sys.argv[1])
+  if len (sys.argv) > 2:
+    importaBD (sys.argv[1], sys.argv[2])
+  else:
+    importaBD (sys.argv[1])
 
 sys.exit (aplicacion.exec_())
