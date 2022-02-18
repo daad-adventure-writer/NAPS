@@ -552,7 +552,7 @@ Devuelve el modo en que el condacto altera el flujo de ejecución:
    7: termina completamente la ejecución de la aventura
 None: pasa al siguiente condacto"""
   global proceso_acc
-  if codigo > 127:  # TODO: Sólo válido si la librería soporta indirección
+  if libreria.INDIRECCION and codigo > 127:  # Si el sistema soporta indirección
     codigo    -= 128
     indirecto  = True
   else:

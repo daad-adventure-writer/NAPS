@@ -266,7 +266,7 @@ class CampoTexto (QTextEdit):
             self.setTextCursor (cursor)
       elif linea.userState() > -1:  # Estamos en la cabecera
         prn ('En cabecera')
-    elif evento.key() in (Qt.Key_At, Qt.Key_BracketLeft):
+    elif evento.key() in (Qt.Key_At, Qt.Key_BracketLeft) and mod_actual.INDIRECCION:
       cursor  = self.textCursor()
       columna = cursor.positionInBlock()
       linea   = cursor.block()
