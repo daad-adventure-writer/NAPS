@@ -33,9 +33,9 @@ Requisitos:
 
 Uso:
 
-``ide_pyqt4.py [base_de_datos] [base_de_datos_gráficos]``
+``ide_pyqt4.py [base_de_datos] [base_de_datos_gráfica]``
 
 Parámetros:
 
 - ``base_de_datos`` (opcional) Base de datos de PAWS/SWAN/DAAD a cargar
-- ``base_de_datos_gráficos`` (opcional) Base de datos gráfica que usar al depurar
+- ``base_de_datos_gráfica`` (opcional) Base de datos gráfica que usar al depurar
