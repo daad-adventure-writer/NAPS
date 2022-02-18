@@ -553,6 +553,8 @@ Devuelve el modo en que el condacto altera el flujo de ejecución:
 None: pasa al siguiente condacto"""
   global proceso_acc
   if libreria.INDIRECCION and codigo > 127:  # Si el sistema soporta indirección
+    if traza and codigo == 220:  # Condacto DEBUG (NEWTEXT con indirección)
+      return None
     codigo    -= 128
     indirecto  = True
   else:
@@ -605,8 +607,8 @@ Devuelve True si ha ejecutado DESC o equivalente. False si se debe reiniciar la 
       entrada = tabla[1][numEntrada]
       if cambioFlujo == 0:  # La cabecera encajó (ahora o en su momento)
         cambioFlujo = ejecuta_condacto (entrada[numCondacto][0], entrada[numCondacto][1])
-      # Dejamos de ejecutar pasos tras ANYKEY, y tras PARSE de órdenes del jugador
-      if traza and entrada[numCondacto][0] in (24, 73):
+      # Dejamos de ejecutar pasos tras ANYKEY, PARSE de órdenes del jugador, y DEBUG
+      if traza and entrada[numCondacto][0] in (24, 73, 220):
         # Aseguramos que PARSE sea de órdenes del jugador, que será con parámetro 0
         if entrada[numCondacto][0] != 73 or (entrada[numCondacto][1] and not entrada[numCondacto][1][0]):
           paso = numPasos

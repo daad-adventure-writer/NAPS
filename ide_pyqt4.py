@@ -831,6 +831,9 @@ def imprimeCondacto (condacto, parametros):
   if condacto in mod_actual.acciones:
     campo_txt.setTextColor (QColor (100, 200, 255))  # Color azul claro
     nombre = mod_actual.acciones[condacto][0]
+    if nombre == 'NEWTEXT' and indirecto == '@':
+      indirecto = ' '
+      nombre    = 'DEBUG'
   elif condacto in mod_actual.condiciones:
     campo_txt.setTextColor (QColor (100, 255, 50))  # Color verde claro
     nombre = mod_actual.condiciones[condacto][0]
