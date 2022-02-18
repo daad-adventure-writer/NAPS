@@ -858,7 +858,7 @@ if __name__ == '__main__':
   argsParser.add_argument ('--ide', action = 'store_true', help = argparse.SUPPRESS)
   argsParser.add_argument ('-s', '--scale', type = int, choices = (1, 2, 3), help = 'factor de escalado para la ventana')
   argsParser.add_argument ('bbdd', metavar = 'bd_o_carpeta', help = 'base de datos o carpeta de Quill/PAWS/SWAN/DAAD a ejecutar')
-  argsParser.add_argument ('ruta_graficos', metavar = 'carpeta_gráficos', nargs = '?', help = 'carpeta de la que tomar las imágenes (con nombre pic###.png)')
+  argsParser.add_argument ('ruta_graficos', metavar = 'bd_o_carpeta_gráficos', nargs = '?', help = 'base de datos gráfica o carpeta de la que tomar las imágenes (con nombre pic###.png)')
   args  = argsParser.parse_args()
   ide   = args.ide
   traza = args.debug or args.ide
@@ -939,9 +939,12 @@ if __name__ == '__main__':
     gui.prepara_topes (53, 25)
 
   if args.ruta_graficos:
-    gui.ruta_graficos = args.ruta_graficos
-    if gui.ruta_graficos[-1] != '/':
-      gui.ruta_graficos += '/'
+    if os.path.isfile (args.ruta_graficos):
+      gui.graficos_daad.carga_bd_pics (args.ruta_graficos)
+    else:
+      if gui.ruta_graficos[-1] != '/':
+        gui.ruta_graficos += '/'
+      gui.ruta_graficos = args.ruta_graficos
 
   if NOMBRE_SISTEMA != 'DAAD':
     gui.todo_mayusculas = True
