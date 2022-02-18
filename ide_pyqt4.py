@@ -374,14 +374,19 @@ class ManejoInterprete (QThread):
   def run (self):
     """Lee del proceso del intérprete, obteniendo por dónde va la ejecución"""
     global proc_interprete
+    if sys.version_info[0] < 3:
+      inicioLista = '['
+      finLista    = ']'
+    else:
+      inicioLista = ord ('[')
+      finLista    = ord (']')
     pilaProcs = []
     while True:
       linea = self.procInterprete.stdout.readline()
       if not linea:
         break  # Ocurre cuando el proceso ha terminado
-      if linea[0] == '[' and ']' in linea:
+      if linea[0] == inicioLista and finLista in linea:
         pilaProcs = eval (linea)
-        # prn (pilaProcs)
         self.emit (self.cambiaPila, pilaProcs)
     accPasoAPaso.setEnabled (True)
     proc_interprete = None
@@ -592,11 +597,10 @@ def cargaInfoModulos ():
       if compruebaNombre (modulo, entrada[0], types.FunctionType):
         info_importar.append ((nombre_modulo, entrada[0], entrada[1], entrada[2]))
     if compruebaNombre (modulo, modulo.func_nueva, types.FunctionType):
-      exec 'def f():\n nuevaBD(' + str (len (info_nueva)) + ')'
       info_nueva.append ((nombre_modulo, modulo.func_nueva))
       accion = QAction ('Base de datos ' + modulo.NOMBRE_SISTEMA, menuBDNueva)
       accion.setStatusTip ('Crea una nueva base de datos de ' + modulo.NOMBRE_SISTEMA)
-      selector.connect (accion, SIGNAL ('triggered()'), f)
+      selector.connect (accion, SIGNAL ('triggered()'), lambda: nuevaBD (len (info_nueva) - 1))
       menuBDNueva.addAction (accion)
     del modulo
   # Actualizamos las distintas acciones y menús, según corresponda
@@ -1078,9 +1082,10 @@ def postCarga (nombre):
   selector.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
 
 
-reload (sys)  # Necesario para poder ejecutar sys.setdefaultencoding
-sys.stdout = codecs.getwriter (locale.getpreferredencoding()) (sys.stdout)  # Locale del sistema para la salida estándar
-sys.setdefaultencoding ('iso-8859-15')  # Nuestras cadenas están en esta codificación, no en ASCII
+if sys.version_info[0] < 3:
+  reload (sys)  # Necesario para poder ejecutar sys.setdefaultencoding
+  sys.stdout = codecs.getwriter (locale.getpreferredencoding()) (sys.stdout)  # Locale del sistema para la salida estándar
+  sys.setdefaultencoding ('iso-8859-15')  # Nuestras cadenas están en esta codificación, no en ASCII
 
 aplicacion = QApplication (sys.argv)
 
