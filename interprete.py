@@ -605,8 +605,11 @@ Devuelve True si ha ejecutado DESC o equivalente. False si se debe reiniciar la 
       entrada = tabla[1][numEntrada]
       if cambioFlujo == 0:  # La cabecera encajó (ahora o en su momento)
         cambioFlujo = ejecuta_condacto (entrada[numCondacto][0], entrada[numCondacto][1])
-      if traza and NOMBRE_SISTEMA == 'DAAD' and nueva_version and entrada[numCondacto][0] in (24, 73):
-        paso = numPasos  # Dejaremos de ejecutar pasos tras ANYKEY, y tras PARSE en nueva_version
+      # Dejamos de ejecutar pasos tras ANYKEY, y tras PARSE de órdenes del jugador
+      if traza and entrada[numCondacto][0] in (24, 73):
+        # Aseguramos que PARSE sea de órdenes del jugador, que será con parámetro 0
+        if entrada[numCondacto][0] != 73 or (entrada[numCondacto][1] and not entrada[numCondacto][1][0]):
+          paso = numPasos
       if type (cambioFlujo) == int:
         if cambioFlujo < 0:  # Ejecutar subproceso
           prepara_tabla_proceso (-cambioFlujo)
