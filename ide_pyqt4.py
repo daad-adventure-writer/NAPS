@@ -740,7 +740,8 @@ def ejecutaPorPasos ():
   argumentos     = [rutaInterprete, '--ide', nombre_fich_bd]
   if nombre_fich_gfx:
     argumentos.append (nombre_fich_gfx)
-  proc_interprete = subprocess.Popen (argumentos, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+  devnull = open (os.devnull, 'w')
+  proc_interprete = subprocess.Popen (argumentos, stdout = subprocess.PIPE, stderr = devnull)
   hilo = ManejoInterprete (proc_interprete, aplicacion)
   QObject.connect (hilo, hilo.cambiaPila, actualizaPosProcesos)
   hilo.start()
