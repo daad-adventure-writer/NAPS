@@ -33,7 +33,7 @@ import sys
 import types       # Para poder comprobar si algo es una función
 
 try:
-  from aPyQt4.QtCore import *
+  from PyQt4.QtCore import *
   from PyQt4.QtGui  import *
   vers_pyqt = 4
 except:
