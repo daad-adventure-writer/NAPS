@@ -921,11 +921,9 @@ def cambiaPaleta (nuevaPaleta, convertir = True):
 
 def cargaGrafico (numero):
   """Carga un gráfico del recurso de base de datos gráfica de número dado, dejando su información y la imagen PyGame preparada en graficos"""
-  recurso = graficos_daad.recursos[numero]
-  strImg  = ''
-  for pixel in recurso['imagen']:
-    strImg += chr (pixel)
-  graficos[numero] = {'grafico': pygame.image.frombuffer (strImg, recurso['dimensiones'], 'P')}
+  recurso   = graficos_daad.recursos[numero]
+  bufferImg = bytes (bytearray (recurso['imagen']))
+  graficos[numero] = {'grafico': pygame.image.frombuffer (bufferImg, recurso['dimensiones'], 'P')}
   for propiedad in ('banderas', 'paleta', 'posicion'):
     graficos[numero][propiedad] = recurso[propiedad]
 
