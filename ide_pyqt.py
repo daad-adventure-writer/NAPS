@@ -745,7 +745,7 @@ def ejecutaPorPasos ():
   global proc_interprete
   accPasoAPaso.setEnabled (False)
   rutaInterprete = os.curdir + '/interprete.py'
-  argumentos     = [rutaInterprete, '--ide', nombre_fich_bd]
+  argumentos     = ['python', rutaInterprete, '--ide', nombre_fich_bd]
   if nombre_fich_gfx:
     argumentos.append (nombre_fich_gfx)
   devnull = open (os.devnull, 'w')
