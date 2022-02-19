@@ -311,6 +311,7 @@ def cargaPaleta16 (bpc):
 
 def cargaRecursos ():
   """Carga todos los gráficos y sonidos de la base de datos gráfica. Devuelve un mensaje de error si falla"""
+  pos_recursos.clear()
   del recursos[:]
   for numRecurso in range (256):
     cabRecurso = long_cabecera + (long_cabecera_rec * numRecurso)  # Desplazamiento de la cabecera del recurso
