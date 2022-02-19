@@ -942,8 +942,8 @@ if __name__ == '__main__':
     if os.path.isfile (args.ruta_graficos):
       gui.graficos_daad.carga_bd_pics (args.ruta_graficos)
     else:
-      if gui.ruta_graficos[-1] != '/':
-        gui.ruta_graficos += '/'
+      if args.ruta_graficos[-1] != '/':
+        args.ruta_graficos += '/'
       gui.ruta_graficos = args.ruta_graficos
 
   if NOMBRE_SISTEMA != 'DAAD':
