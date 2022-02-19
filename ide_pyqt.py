@@ -373,7 +373,7 @@ class CampoTexto (QTextEdit):
 
 class ManejoInterprete (QThread):
   """Maneja la comunicación con el intérprete ejecutando la base de datos"""
-  cambiaPila = pyqtSignal (list)
+  cambiaPila = pyqtSignal()
 
   def __init__ (self, procInterprete, padre):
     QThread.__init__ (self, parent = padre)
@@ -393,16 +393,19 @@ class ManejoInterprete (QThread):
       linea = self.procInterprete.stdout.readline()
       if not linea:
         break  # Ocurre cuando el proceso ha terminado
+      # Si es actualización del estado de la pila, avisamos de ella
       if linea[0] == inicioLista and finLista in linea:
         pilaProcs = eval (linea)
-        self.cambiaPila.emit (pilaProcs)
+        pilas_pendientes.append (pilaProcs)
+        self.cambiaPila.emit()
     accPasoAPaso.setEnabled (True)
     proc_interprete = None
     if pilaProcs:
       ultimaEntrada = [pilaProcs[-1][0]]
       if len (pilaProcs[-1]) > 1:
         ultimaEntrada.extend ([pilaProcs[-1][1], -2])
-      self.cambiaPila.emit ([ultimaEntrada])
+      pilas_pendientes.append ([ultimaEntrada])
+      self.cambiaPila.emit()
 
 class ModalEntrada (QInputDialog):
   """Modal de entrada QInputDialog con el primer carácter ya introducido, para continuar en siguiente pulsación sin machacarlo"""
@@ -494,15 +497,22 @@ class ModeloVocabulario (QAbstractTableModel):
     return len (mod_actual.vocabulario)
 
 
-def actualizaPosProcesos (pilaProcs):
+def actualizaPosProcesos ():
   """Refleja la posición de ejecución paso a paso actual en el diálogo de tablas de proceso"""
   global pila_procs
-  pila_procs = pilaProcs
+  if len (pilas_pendientes) > 4:
+    # Se están acumulando, por lo que tomamos la última y descartamos las demás
+    pila_procs = pilas_pendientes[-1]
+    del pilas_pendientes[:]
+  elif pilas_pendientes:
+    pila_procs = pilas_pendientes.pop (0)
+  else:  # No queda nada más por actualizar
+    return
   muestraProcesos()
-  if pestanyas.currentIndex() == pilaProcs[-1][0]:
-    cambiaProceso (pilaProcs[-1][0], pilaProcs[-1][1] if len (pilaProcs[-1]) > 1 else None)
+  if pestanyas.currentIndex() == pila_procs[-1][0]:
+    cambiaProceso (pila_procs[-1][0], pila_procs[-1][1] if len (pila_procs[-1]) > 1 else None)
   else:
-    pestanyas.setCurrentIndex (pilaProcs[-1][0])
+    pestanyas.setCurrentIndex (pila_procs[-1][0])
 
 # FIXME: Diferencias entre PAWS estándar y DAAD
 def cambiaProceso (numero, numEntrada = None):
@@ -742,14 +752,15 @@ def dialogoImportaBD ():
 
 def ejecutaPorPasos ():
   """Ejecuta la base de datos para depuración paso a paso"""
-  global proc_interprete
+  global pilas_pendientes, proc_interprete
   accPasoAPaso.setEnabled (False)
   rutaInterprete = os.curdir + '/interprete.py'
   argumentos     = ['python', rutaInterprete, '--ide', nombre_fich_bd]
   if nombre_fich_gfx:
     argumentos.append (nombre_fich_gfx)
   devnull = open (os.devnull, 'w')
-  proc_interprete = subprocess.Popen (argumentos, stdout = subprocess.PIPE, stderr = devnull)
+  proc_interprete  = subprocess.Popen (argumentos, stdout = subprocess.PIPE, stderr = devnull)
+  pilas_pendientes = []
   hilo = ManejoInterprete (proc_interprete, aplicacion)
   hilo.cambiaPila.connect (actualizaPosProcesos)
   hilo.start()
