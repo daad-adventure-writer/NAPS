@@ -136,7 +136,7 @@ def actualizaVentana ():
     pygame.transform.scale (ventana, (resolucion[0] * factorEscala, resolucion[1] * factorEscala), escalada)
   pygame.display.flip()
 
-def redimensiona_ventana (evento = None):
+def redimensiona_ventana (evento = None, copiaVentana = None):
   """Maneja eventos en relación a la ventana, como si se ha redimensionado o se le ha dado al aspa de cerrar"""
   global escalada, factorEscala, ventana
   if not evento:
@@ -162,9 +162,12 @@ def redimensiona_ventana (evento = None):
       factorEscala = 3
     elif evento.w > resolucion[0] or evento.h > resolucion[1]:
       factorEscala = 2
-    superficie = ventana.copy()
-    escalada   = pygame.display.set_mode ((resolucion[0] * factorEscala, resolucion[1] * factorEscala), pygame.RESIZABLE)
-    ventana    = superficie
+    if copiaVentana:
+      superficie = copiaVentana.copy()
+    else:
+      superficie = ventana.copy()
+    escalada = pygame.display.set_mode ((resolucion[0] * factorEscala, resolucion[1] * factorEscala), pygame.RESIZABLE)
+    ventana  = superficie
     actualizaVentana()
 
 
@@ -439,8 +442,9 @@ def espera_tecla (tiempo = 0):
   global tras_portada
   tras_portada = False
   pygame.time.set_timer (pygame.USEREVENT, tiempo * 1000)  # Ponemos el timer
+  copia = ventana.copy()  # Porque con PyGame 2 se pierde al menos al redimensionar
   while True:
-    evento = pygame.event.wait()
+    evento = pygame.event.wait (500) if pygame.vernum[0] > 1 else pygame.event.wait()
     if evento.type == pygame.KEYDOWN:
       if evento.key not in teclas_pulsadas:
         teclas_pulsadas.append (evento.key)
@@ -453,7 +457,9 @@ def espera_tecla (tiempo = 0):
     elif evento.type == pygame.USEREVENT:  # Tiempo de espera superado
       pygame.time.set_timer (pygame.USEREVENT, 0)  # Paramos el timer
       return None
-    redimensiona_ventana (evento)
+    elif evento.type in (pygame.QUIT, pygame.VIDEORESIZE):
+      redimensiona_ventana (evento, copia)
+    pygame.display.update()  # Para que recupere el contenido si se cubrió la ventana
 
 def carga_cursor ():
   """Carga la posición del cursor guardada de la subventana elegida """
