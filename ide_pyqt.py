@@ -32,8 +32,15 @@ import subprocess  # Para ejecutar el intérprete
 import sys
 import types       # Para poder comprobar si algo es una función
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui  import *
+try:
+  from aPyQt4.QtCore import *
+  from PyQt4.QtGui  import *
+  vers_pyqt = 4
+except:
+  from PyQt5.QtCore    import *
+  from PyQt5.QtGui     import *
+  from PyQt5.QtWidgets import *
+  vers_pyqt = 5
 
 
 # TODO: Hacerlo internacionalizable:
@@ -355,7 +362,7 @@ class CampoTexto (QTextEdit):
 
   def wheelEvent (self, evento):
     if evento.modifiers() & Qt.ControlModifier:
-      if evento.delta() < 0:
+      if (evento.delta() if vers_pyqt < 5 else evento.angleDelta().y()) < 0:
         self.zoomOut (2)
       else:
         self.zoomIn (2)
@@ -366,10 +373,11 @@ class CampoTexto (QTextEdit):
 
 class ManejoInterprete (QThread):
   """Maneja la comunicación con el intérprete ejecutando la base de datos"""
+  cambiaPila = pyqtSignal (list)
+
   def __init__ (self, procInterprete, padre):
     QThread.__init__ (self, parent = padre)
     self.procInterprete = procInterprete
-    self.cambiaPila     = SIGNAL ('cambiaPila')
 
   def run (self):
     """Lee del proceso del intérprete, obteniendo por dónde va la ejecución"""
@@ -387,14 +395,14 @@ class ManejoInterprete (QThread):
         break  # Ocurre cuando el proceso ha terminado
       if linea[0] == inicioLista and finLista in linea:
         pilaProcs = eval (linea)
-        self.emit (self.cambiaPila, pilaProcs)
+        self.cambiaPila.emit (pilaProcs)
     accPasoAPaso.setEnabled (True)
     proc_interprete = None
     if pilaProcs:
       ultimaEntrada = [pilaProcs[-1][0]]
       if len (pilaProcs[-1]) > 1:
         ultimaEntrada.extend ([pilaProcs[-1][1], -2])
-      self.emit (self.cambiaPila, [ultimaEntrada])
+      self.cambiaPila.emit ([ultimaEntrada])
 
 class ModalEntrada (QInputDialog):
   """Modal de entrada QInputDialog con el primer carácter ya introducido, para continuar en siguiente pulsación sin machacarlo"""
@@ -600,7 +608,7 @@ def cargaInfoModulos ():
       info_nueva.append ((nombre_modulo, modulo.func_nueva))
       accion = QAction ('Base de datos ' + modulo.NOMBRE_SISTEMA, menuBDNueva)
       accion.setStatusTip ('Crea una nueva base de datos de ' + modulo.NOMBRE_SISTEMA)
-      selector.connect (accion, SIGNAL ('triggered()'), lambda: nuevaBD (len (info_nueva) - 1))
+      accion.triggered.connect (lambda: nuevaBD (len (info_nueva) - 1))
       menuBDNueva.addAction (accion)
     del modulo
   # Actualizamos las distintas acciones y menús, según corresponda
@@ -650,16 +658,16 @@ def creaAcciones ():
   accTblVocab.setStatusTip   ('Permite consultar el vocabulario')
   accTblProcs.setToolTip ('Tablas de proceso')
   accTblVocab.setToolTip ('Tabla de vocabulario')
-  selector.connect (accAcercaDe,   SIGNAL ('triggered()'), muestraAcercaDe)
-  selector.connect (accContadores, SIGNAL ('triggered()'), muestraContadores)
-  selector.connect (accExportar,   SIGNAL ('triggered()'), exportaBD)
-  selector.connect (accImportar,   SIGNAL ('triggered()'), dialogoImportaBD)
-  selector.connect (accMsgSys,     SIGNAL ('triggered()'), muestraMsgSys)
-  selector.connect (accMsgUsr,     SIGNAL ('triggered()'), muestraMsgUsr)
-  selector.connect (accPasoAPaso,  SIGNAL ('triggered()'), ejecutaPorPasos)
-  selector.connect (accSalir,      SIGNAL ('triggered()'), SLOT ('close()'))
-  selector.connect (accTblProcs,   SIGNAL ('triggered()'), muestraProcesos)
-  selector.connect (accTblVocab,   SIGNAL ('triggered()'), muestraVistaVocab)
+  accAcercaDe.triggered.connect   (muestraAcercaDe)
+  accContadores.triggered.connect (muestraContadores)
+  accExportar.triggered.connect   (exportaBD)
+  accImportar.triggered.connect   (dialogoImportaBD)
+  accMsgSys.triggered.connect     (muestraMsgSys)
+  accMsgUsr.triggered.connect     (muestraMsgUsr)
+  accPasoAPaso.triggered.connect  (ejecutaPorPasos)
+  accSalir.triggered.connect      (selector.close)
+  accTblProcs.triggered.connect   (muestraProcesos)
+  accTblVocab.triggered.connect   (muestraVistaVocab)
 
 def creaBarraBotones ():
   """Crea la barra de botones"""
@@ -743,7 +751,7 @@ def ejecutaPorPasos ():
   devnull = open (os.devnull, 'w')
   proc_interprete = subprocess.Popen (argumentos, stdout = subprocess.PIPE, stderr = devnull)
   hilo = ManejoInterprete (proc_interprete, aplicacion)
-  QObject.connect (hilo, hilo.cambiaPila, actualizaPosProcesos)
+  hilo.cambiaPila.connect (actualizaPosProcesos)
   hilo.start()
 
 def exportaBD ():
@@ -892,7 +900,7 @@ def muestraAcercaDe ():
     dlg_acerca_de.setText ('NAPS: The New Age PAW-like System\n' +
         'Entorno de desarrollo integrado (IDE)\n' +
         'Copyright © 2010, 2018-2022 José Manuel Ferrer Ortiz')
-    dlg_acerca_de.setInformativeText ('Versión de PyQt4: ' +
+    dlg_acerca_de.setInformativeText ('Versión de PyQt: ' +
         PYQT_VERSION_STR + '\nVersión de Qt: ' + QT_VERSION_STR +
         '\nVersión de Python: ' + sys.version[:fin])
     dlg_acerca_de.setWindowTitle ('Acerca de NAPS IDE')
@@ -970,7 +978,7 @@ def muestraProcesos ():
   campo_txt    = CampoTexto (dlg_procesos)
   layout.addWidget (pestanyas)
   layout.addWidget (campo_txt)
-  QObject.connect (pestanyas, SIGNAL ('currentChanged(int)'), cambiaProceso)
+  pestanyas.currentChanged.connect (cambiaProceso)
   num_procesos = len (mod_actual.tablas_proceso)
   for numero in range (num_procesos):
     str_numero = str (numero)

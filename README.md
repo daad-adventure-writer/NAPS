@@ -29,11 +29,11 @@ Entorno de desarrollo integrado (IDE)
 Requisitos:
 
 - Python versión 2.X ó 3.X
-- Para el IDE: PyQt versión 4
+- Para el IDE: PyQt versión 4.X ó 5.X
 
 Uso:
 
-``ide_pyqt4.py [base_de_datos] [base_de_datos_gráfica]``
+``ide_pyqt.py [base_de_datos] [base_de_datos_gráfica]``
 
 Parámetros:
 
