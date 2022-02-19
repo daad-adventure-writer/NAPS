@@ -976,6 +976,12 @@ if __name__ == '__main__':
       gui.centrar_graficos.append (True)
       gui.juego_alto = 14  # ü
       gui.juego_bajo = 15  # Ü
+    else:
+      gui.chichen = False
+      # XXX: apaño para detectar Chichén Itzá, al menos las versiones de 16 bits
+      import hashlib
+      if len (msgs_sys) > 99 and hashlib.sha1 ((msgs_sys[21] + msgs_sys[77] + msgs_sys[80] + msgs_sys[82] + msgs_sys[94] + msgs_sys[100]).encode ('utf8')).hexdigest() == 'cfea71b482cc37f6353bca664c8b36bbbed87f97':
+        gui.chichen = True
 
   # Fallamos ahora si falta algún condacto
   if False:

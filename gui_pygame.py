@@ -346,8 +346,8 @@ El parámetro parcial indica si es posible dibujar parte de la imagen"""
         if 'flotante' not in graficos[numero]['banderas']:
           pos_gfx_sub[elegida] = graficos[numero]['posicion']  # Otros graficos flotantes en esta subventana se dibujarán aquí
         destino = pos_gfx_sub[elegida]
-      elif nueva_version and tam_cabecera > 34:  # Bases de datos posteriores a Cozumel
-        # TODO: Probar esto más, ocurre así con gráficos de localidad de Los Templos Sagrados
+      elif nueva_version and tam_cabecera > 34 and not chichen:  # BD posteriores a Cozumel salvo Chichen Itzá
+        # TODO: Probar esto más, ocurre así con gráficos de localidad de Los Templos Sagrados, pero en Chichen Itzá
         ancho   = ((((tope[0] - cursor[0]) * 6) // 8) * 8)  # Anchura del dibujo
         destino = [(((subventana[0] + cursor[0]) * 6) // 8) * 8, (subventana[1] + cursor[1]) * 8]
       elif 'flotante' in graficos[numero]['banderas']:
