@@ -39,3 +39,13 @@ Parámetros:
 
 - ``base_de_datos`` (opcional) Base de datos de PAWS/SWAN/DAAD a cargar
 - ``base_de_datos_gráfica`` (opcional) Base de datos gráfica que usar al depurar
+
+
+Instalación de los requisitos en Windows
+----------------------------------------
+
+1. Instalar Python 3.X descargando un instalador desde esta web: https://www.python.org/downloads/windows/
+2. Abrir el Símbolo del sistema
+3. Ejecutar allí estos dos comandos:
+   - pip install pygame
+   - pip install pyqt5
