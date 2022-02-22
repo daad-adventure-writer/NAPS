@@ -829,27 +829,34 @@ def importaBD (nombreFicheroBD, indiceFuncion = None, nombreFicheroGfx = None):
     muestraFallo ('No se puede importar una base datos de:\n' + nombreFicheroBD,
                   'Causa:\nNo tiene extensión')
     return
+  modulos = []  # Módulos que soportan la extensión, junto con su función de carga
   if indiceFuncion:
     modulo, funcion, extensiones, descripcion = info_importar[indiceFuncion]
+    modulos.append ((modulo, funcion))
   else:
     extension = nombreFicheroBD[nombreFicheroBD.rindex ('.') + 1 :].lower()
     for modulo, funcion, extensiones, descripcion in info_importar:
       if extension in extensiones:
-        break
-    else:
+        modulos.append ((modulo, funcion))
+    if not modulos:
       muestraFallo ('No se puede importar una base datos de:\n' + nombreFicheroBD,
                     'Causa:\nExtensión no reconocida')
       return
-  # Damos acceso al módulo a funciones del IDE
-  mod_actual = __import__ (modulo)
-  mod_actual.muestraFallo = muestraFallo
-  # Solicitamos la importación
-  if mod_actual.__dict__[funcion] (fichero, os.path.getsize (nombreFicheroBD)) == False:
+  # Importamos la BD y damos acceso al módulo a funciones del IDE
+  hayFallo = True
+  for modulo, funcion in modulos:
+    mod_actual = __import__ (modulo)
+    mod_actual.muestraFallo = muestraFallo
+    # Solicitamos la importación
+    if mod_actual.__dict__[funcion] (fichero, os.path.getsize (nombreFicheroBD)) != False:
+      hayFallo = False
+      break
+  fichero.close()
+  if hayFallo:
     muestraFallo ('No se puede importar una base datos de:\n' +
                   nombreFicheroBD, 'Causa:\nFormato de fichero incompatible o base de datos corrupta')
     mod_actual = None
     return
-  fichero.close()
   nombre_fich_bd  = nombreFicheroBD
   nombre_fich_gfx = nombreFicheroGfx
   postCarga (os.path.basename (nombreFicheroBD))
