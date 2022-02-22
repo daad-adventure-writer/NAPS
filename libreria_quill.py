@@ -99,7 +99,7 @@ MAX_LOCS         = 252      # Número máximo de localidades posible
 MAX_MSGS_USR     = 255      # Número máximo de mensajes de usuario posible
 MAX_PROCS        = 2        # Número máximo de tablas de proceso posible
 NUM_ATRIBUTOS    = [0]      # Número de atributos de objeto
-NUM_BANDERAS     = 38       # Número de banderas del parser, para compatibilidad. XXX: considerar usar constantes para las banderas del sistema
+NUM_BANDERAS     = 39       # Número de banderas del parser, para compatibilidad. XXX: considerar usar constantes para las banderas del sistema
 NUM_BANDERAS_ACC = 33       # Número de banderas del parser accesibles por el programador
 NOMBRE_SISTEMA   = 'QUILL'  # Nombre de este sistema
 # Nombres de las primeras tablas de proceso (para el IDE)
@@ -113,12 +113,12 @@ TIPOS_PAL        = ('Palabra',)  # Nombres de los tipos de palabra (para el IDE)
 # código : (nombre, lista_parámetros)
 # Donde lista_parámetros es una lista con el tipo de cada parámetro
 # Y los tipos de los parámetros se definen así:
-# 0          : Número de bandera (flagno), de 0 a 255
-# 1          : Número de localidad (locno), de 0 a num_localidades
-# 2          : Número de mensaje de usuario (mesno), de 0 a num_msgs_usuario
-# 3          : Número de mensaje de sistema (sysno), de 0 a num_msgs_sistema
-# 4          : Número de objeto (objno), de 0 a num_objetos
-# 5          : Número de tabla de proceso (prono), de 0 a num_procesos
+# 0          : Número de bandera (flagno), de 0 a NUM_BANDERAS_ACC - 1
+# 1          : Número de localidad (locno), de 0 a num_localidades - 1
+# 2          : Número de mensaje de usuario (mesno), de 0 a num_msgs_usuario - 1
+# 3          : Número de mensaje de sistema (sysno), de 0 a num_msgs_sistema - 1
+# 4          : Número de objeto (objno), de 0 a num_objetos - 1
+# 5          : Número de tabla de proceso (procno), de 0 a num_procesos - 1
 # 10-16      : Número de palabra de vocabulario (word), de tipo número - 10,
 #              siendo: 0 verbo, 1 adverbio, 2 nombre, 3 adjetivo, 4 preposición,
 #              5 conjunción, 6 pronombre
