@@ -362,6 +362,12 @@ def carga_bd (fichero, longitud):
   except:
     return False
 
+def lee_secs_ctrl (cadena):
+  """Devuelve la cadena dada convirtiendo las secuencias de control en una representación imprimible. Usa la nomenclatura estándar del manual de DAAD"""
+  if nueva_version:
+    cadena = cadena.replace ('\x0b', '\\b').replace ('\x0c', '\\k')
+  return cadena.replace ('\n', '\\n')
+
 def nueva_bd ():
   """Crea una nueva base de datos de DAAD"""
   pass  # TODO: Por implementar

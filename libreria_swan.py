@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Librería de SWAN (parte común a editor, compilador e intérprete)
-# Copyright (C) 2020-2021 José Manuel Ferrer Ortiz
+# Copyright (C) 2020-2022 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -226,7 +226,7 @@ condactos = {
 }
 
 
-# Funciones que utiliza el IDE directamente
+# Funciones que utiliza el IDE o el intérprete directamente
 
 # Carga la base de datos entera desde el fichero de entrada
 # Para compatibilidad con el IDE:
@@ -253,6 +253,10 @@ def carga_bd (fichero, longitud):
     carga_tablas_procesos()
   except:
     return False
+
+def lee_secs_ctrl (cadena):
+  """Devuelve la cadena dada convirtiendo las secuencias de control en una representación imprimible"""
+  return cadena.replace ('\n', '\\n')
 
 
 # Funciones de apoyo de alto nivel

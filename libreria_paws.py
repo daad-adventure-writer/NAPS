@@ -194,7 +194,7 @@ condactos = {
 }
 
 
-# Funciones que utiliza el IDE directamente
+# Funciones que utiliza el IDE o el intérprete directamente
 
 # Carga la base de datos entera desde el fichero de entrada
 # Para compatibilidad con el IDE:
@@ -233,6 +233,11 @@ def carga_bd_sna (fichero, longitud):
     return False  # Cabecera de la base de datos no encontrada
   preparaPosCabecera ('sna48k', posicion)
   return cargaBD (fichero, longitud)
+
+def lee_secs_ctrl (cadena):
+  """Devuelve la cadena dada convirtiendo las secuencias de control en una representación imprimible"""
+  # TODO: el resto de las secuencias de control
+  return cadena.replace ('\n', '\\n')
 
 
 # Funciones de apoyo de alto nivel

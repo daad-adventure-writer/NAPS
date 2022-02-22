@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Librería de QUILL (versión de Spectrum). Parte común a editor, compilador e intérprete
-# Copyright (C) 2010, 2018-2020 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2018-2020, 2022 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -176,8 +176,15 @@ acciones = {
 }
 
 
-# Crea una nueva base de datos de The Quill (versión de Spectrum)
+# Funciones que utiliza el IDE o el intérprete directamente
+
+def lee_secs_ctrl (cadena):
+  """Devuelve la cadena dada convirtiendo las secuencias de control en una representación imprimible"""
+  # TODO: el resto de las secuencias de control
+  return cadena.replace ('\n', '\\n')
+
 def nueva_bd ():
+  """Crea una nueva base de datos de The Quill (versión de Spectrum)"""
   # Creamos la localidad 0
   desc_locs.append  ('Descripción de la localidad 0, la inicial.')
   conexiones.append ([])  # Ninguna conexión en esta localidad

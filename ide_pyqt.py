@@ -82,6 +82,7 @@ nombres_necesarios = (('acciones',       dict),
                       ('func_nueva',     str),
                       ('funcs_exportar', tuple),
                       ('funcs_importar', tuple),
+                      ('lee_secs_ctrl',  types.FunctionType),
                       ('INDIRECCION',    bool),
                       ('msgs_sys',       list),
                       ('msgs_usr',       list),
@@ -446,7 +447,7 @@ class ModeloMensajes (QAbstractTableModel):
 
   def data (self, index, role):
     if role == Qt.DisplayRole:
-      return self.listaMensajes[index.row()]
+      return mod_actual.lee_secs_ctrl (self.listaMensajes[index.row()])
 
   def flags (self, index):
     return Qt.ItemIsSelectable | Qt.ItemIsEnabled
@@ -456,7 +457,7 @@ class ModeloMensajes (QAbstractTableModel):
       return 'Texto del mensaje'
     if orientation == Qt.Vertical and role == Qt.DisplayRole:
       return section  # Cuenta el número de mensaje desde 0
-    return QAbstractTableModel.headerData(self, section, orientation, role)
+    return QAbstractTableModel.headerData (self, section, orientation, role)
 
   def rowCount (self, parent):
     return len (self.listaMensajes)
@@ -888,10 +889,7 @@ def imprimeCondacto (condacto, parametros):
       mensaje = mod_actual.msgs_usr[parametros[0]]
     else:
       return
-    # TODO: que la librería proporcione información sobre secuencias de escape
-    if mod_actual.NOMBRE_SISTEMA == 'DAAD' and mod_actual.nueva_version:
-      mensaje = mensaje.replace ('\x0b', '\\b').replace ('\x0c', '\\k')
-    mensaje = mensaje.replace ('\n', '\\n')
+    mensaje = mod_actual.lee_secs_ctrl (mensaje)
     campo_txt.setTextColor (QColor (100, 100, 100))  # Color gris oscuro
     campo_txt.insertPlainText ('       "')
     campo_txt.setFontItalic (True)  # Cursiva activada
