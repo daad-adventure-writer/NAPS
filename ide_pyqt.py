@@ -747,8 +747,9 @@ def dialogoImportaBD ():
     dlg_abrir.setLabelText (QFileDialog.Reject,   '&Cancelar')
   if dlg_abrir.exec_():  # No se ha cancelado
     selector.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
+    indiceFiltro  = dlg_abrir.filters().indexOf (dlg_abrir.selectedFilter())
     nombreFichero = str (dlg_abrir.selectedFiles()[0])
-    importaBD (nombreFichero)
+    importaBD (nombreFichero, indiceFiltro)
     selector.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
 
 def ejecutaPorPasos ():
@@ -814,7 +815,7 @@ def icono (nombre):
   """Devuelve un QIcon, sacando la imagen de la carpeta de iconos"""
   return QIcon (os.path.join ('iconos_ide', nombre + '.png'))
 
-def importaBD (nombreFicheroBD, nombreFicheroGfx = None):
+def importaBD (nombreFicheroBD, indiceFuncion = None, nombreFicheroGfx = None):
   """Importa una base de datos desde el fichero de nombre dado"""
   global mod_actual, nombre_fich_bd, nombre_fich_gfx
   nombre_fich_bd = None
@@ -828,16 +829,19 @@ def importaBD (nombreFicheroBD, nombreFicheroGfx = None):
     muestraFallo ('No se puede importar una base datos de:\n' + nombreFicheroBD,
                   'Causa:\nNo tiene extensión')
     return
-  extension = nombreFicheroBD[nombreFicheroBD.rindex ('.') + 1 :].lower()
-  for modulo, funcion, extensiones, descripcion in info_importar:
-    if extension in extensiones:
-      mod_actual = __import__ (modulo)
-      break
+  if indiceFuncion:
+    modulo, funcion, extensiones, descripcion = info_importar[indiceFuncion]
   else:
-    muestraFallo ('No se puede importar una base datos de:\n' + nombreFicheroBD,
-                  'Causa:\nExtensión no reconocida')
-    return
+    extension = nombreFicheroBD[nombreFicheroBD.rindex ('.') + 1 :].lower()
+    for modulo, funcion, extensiones, descripcion in info_importar:
+      if extension in extensiones:
+        break
+    else:
+      muestraFallo ('No se puede importar una base datos de:\n' + nombreFicheroBD,
+                    'Causa:\nExtensión no reconocida')
+      return
   # Damos acceso al módulo a funciones del IDE
+  mod_actual = __import__ (modulo)
   mod_actual.muestraFallo = muestraFallo
   # Solicitamos la importación
   if mod_actual.__dict__[funcion] (fichero, os.path.getsize (nombreFicheroBD)) == False:
@@ -1117,7 +1121,7 @@ cargaInfoModulos()
 
 if len (sys.argv) > 1:
   if len (sys.argv) > 2:
-    importaBD (sys.argv[1], sys.argv[2])
+    importaBD (sys.argv[1], nombreFicheroGfx = sys.argv[2])
   else:
     importaBD (sys.argv[1])
 
