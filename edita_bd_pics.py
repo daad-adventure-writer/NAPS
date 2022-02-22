@@ -36,8 +36,6 @@ except:
 
 import graficos_daad
 
-from bajo_nivel import *
-
 
 class Ventana (QMainWindow):
   """Ventana principal"""
