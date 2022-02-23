@@ -1003,12 +1003,13 @@ if __name__ == '__main__':
       gui.brillo     = 1   # Con brillo por defecto
       gui.juego_alto = 48  # @
       gui.juego_bajo = 48
-    elif NOMBRE_SISTEMA == 'PAWS' and libreria.num_abreviaturas < 128:  # PAWS de Spectrum
+    elif NOMBRE_SISTEMA in ('QUILL', 'PAWS') and extension == 'sna':  # Quill/PAWS de Spectrum
       gui.cambia_brillo = 19
       gui.cambia_flash  = 18
       gui.cambia_papel  = 17
       gui.cambia_tinta  = 16
-      gui.cambia_cursor (msgs_sys[34])
+      if NOMBRE_SISTEMA == 'PAWS':
+        gui.cambia_cursor (msgs_sys[34])
   else:  # Es DAAD
     gui.nueva_version = nueva_version
     gui.tam_cabecera  = libreria.tam_cabecera
