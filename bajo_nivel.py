@@ -55,20 +55,21 @@ def carga_desplazamiento (desplazamiento = None):
   """Carga un desplazamiento de 2 bytes en relación con el fichero
 
   desplazamiento (opcional) es la posición en el fichero de donde leerá el desplazamiento"""
-  if desplazamiento:
-    fich_ent.seek (desplazamiento)
+  muevePosicion (desplazamiento)
   return carga_int2() - despl_ini
 
 def carga_desplazamiento4 (desplazamiento = None):
   """Carga un desplazamiento de 4 bytes en relación con el fichero
 
   desplazamiento (opcional) es la posición en el fichero de donde leerá el desplazamiento"""
-  if desplazamiento:
-    fich_ent.seek (desplazamiento)
+  muevePosicion (desplazamiento)
   return carga_int4() - despl_ini
 
-def carga_int1 ():
-  """Carga un entero de tamaño 1 byte"""
+def carga_int1 (desplazamiento = None):
+  """Carga un entero de tamaño 1 byte
+
+  desplazamiento (opcional) es la posición en el fichero de donde leerá el desplazamiento"""
+  muevePosicion (desplazamiento)
   return ord (fich_ent.read (1))
 
 def carga_int2_be ():
@@ -104,3 +105,10 @@ def guarda_int2_le (entero):
   """Guarda un entero en dos bytes, en formato Little Endian"""
   fich_sal.write (chr (entero & 255))
   fich_sal.write (chr (entero >> 8))
+
+
+# Funciones auxiliares que sólo se usan en este módulo
+
+def muevePosicion (desplazamiento):
+  if desplazamiento != None:
+    fich_ent.seek (desplazamiento)
