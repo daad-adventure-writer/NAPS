@@ -22,6 +22,9 @@
 # *                                                                           *
 # *****************************************************************************
 
+from bajo_nivel import *
+from prn_func   import prn
+
 
 # Variables que se exportan (fuera del paquete)
 
@@ -39,6 +42,8 @@ num_objetos    = [0]  # Número de objetos (en lista para pasar por referencia)
 tablas_proceso = []   # Tablas de proceso (la de estado y la de eventos)
 vocabulario    = []   # Vocabulario
 
+max_llevables = 0
+
 # Identificadores (para hacer el código más legible) predefinidos
 ids_locs = {  0 : 'INICIAL',
                   'INICIAL'    :   0,
@@ -51,7 +56,9 @@ ids_locs = {  0 : 'INICIAL',
 
 # Funciones que importan bases de datos desde ficheros
 funcs_exportar = ()  # Ninguna, de momento
-funcs_importar = ()  # Ninguna, de momento
+funcs_importar = (
+  ('carga_bd', ('sna',), 'Imagen de memoria de ZX 48K con Quill'),
+)
 # Función que crea una nueva base de datos (vacía)
 func_nueva = 'nueva_bd'
 
@@ -95,6 +102,7 @@ nuevos_sys = (
 # Constantes que se exportan (fuera del paquete)
 
 INDIRECCION      = False    # El parser no soporta indirección (para el IDE)
+LONGITUD_PAL     = 4        # Longitud máxima para las palabras de vocabulario
 MAX_LOCS         = 252      # Número máximo de localidades posible
 MAX_MSGS_USR     = 255      # Número máximo de mensajes de usuario posible
 MAX_PROCS        = 2        # Número máximo de tablas de proceso posible
@@ -103,7 +111,7 @@ NUM_BANDERAS     = 39       # Número de banderas del parser, para compatibilidad
 NUM_BANDERAS_ACC = 33       # Número de banderas del parser accesibles por el programador
 NOMBRE_SISTEMA   = 'QUILL'  # Nombre de este sistema
 # Nombres de las primeras tablas de proceso (para el IDE)
-NOMBRES_PROCS    = ('Tabla de estado', 'Tabla de eventos')
+NOMBRES_PROCS    = ('Tabla de eventos', 'Tabla de estado')
 TIPOS_PAL        = ('Palabra',)  # Nombres de los tipos de palabra (para el IDE)
 
 
@@ -145,7 +153,6 @@ condiciones = {
 }
 
 # Diccionario de acciones
-# TODO: Añadir los que falten
 acciones = {
    0 : ('INVEN',   ()                  ),
    1 : ('DESC',    ()                  ),
@@ -172,11 +179,72 @@ acciones = {
   32 : ('CLEAR',   (       0,         )),
   33 : ('PLUS',    (       0, (0, 255))),
   34 : ('MINUS',   (       0, (0, 255))),
-  35 : ('LET',     (       0, (0, 255)))
+  35 : ('LET',     (       0, (0, 255))),
+  36 : ('BEEP',    ((0, 255), (0, 255)))
 }
+
+# Diccionario de condactos
+condactos = {}
+for codigo in condiciones:
+  condactos[codigo] = condiciones[codigo] + (False,)
+for codigo in acciones:
+  condactos[100 + codigo] = acciones[codigo] + (True,)
 
 
 # Funciones que utiliza el IDE o el intérprete directamente
+
+def carga_bd (fichero, longitud):
+  """Carga la base de datos entera desde el fichero de entrada
+
+Para compatibilidad con el IDE:
+- Recibe como primer parámetro un fichero abierto
+- Recibe como segundo parámetro la longitud del fichero abierto
+- Devuelve False si ha ocurrido algún error"""
+  global fich_ent, fin_cadena, max_llevables, nueva_linea
+  # if longitud not in (49179, 131103):  # Tamaño de 48K y de 128K
+  if longitud != 49179:
+    return False  # No parece un fichero de imagen de memoria de Spectrum
+  # Detectamos la posición de la cabecera de la base de datos
+  bajo_nivel_cambia_ent (fichero)
+  fich_ent = fichero
+  posicion = 0
+  encajeSec = []
+  secuencia = (16, None, 17, None, 18, None, 19, None, 20, None, 21)
+  c = carga_int1 (posicion)
+  while posicion < longitud:
+    if secuencia[len (encajeSec)] == None or c == secuencia[len (encajeSec)]:
+      encajeSec.append (c)
+      if len (encajeSec) == len (secuencia):
+        break
+    elif encajeSec:
+      del encajeSec[:]
+      continue  # Empezamos de nuevo desde este caracter
+    c = carga_int1()
+    posicion += 1
+  else:
+    return False  # Cabecera de la base de datos no encontrada
+  posicion += 3
+  bajo_nivel_cambia_endian (le = True)  # Al menos es así en ZX Spectrum
+  bajo_nivel_cambia_despl  (16357)      # Al menos es así en Hampstead, igual que PAWS
+  fin_cadena  = 31  # Igual que PAWS
+  nueva_linea = 6
+  try:
+    preparaPosCabecera (posicion)
+    cargaCadenas (CAB_NUM_LOCS,     CAB_POS_LST_POS_LOCS,     desc_locs)
+    cargaCadenas (CAB_NUM_OBJS,     CAB_POS_LST_POS_OBJS,     desc_objs)
+    cargaCadenas (CAB_NUM_MSGS_USR, CAB_POS_LST_POS_MSGS_USR, msgs_usr)
+    cargaCadenas (CAB_NUM_MSGS_SYS, CAB_POS_LST_POS_MSGS_SYS, msgs_sys)
+    cargaLocalidadesObjetos()
+    cargaVocabulario()
+    cargaTablasProcesos()
+    max_llevables = carga_int1 (CAB_MAX_LLEVABLES)
+  except:
+    return False
+
+def inicializa_banderas (banderas):
+  """Inicializa banderas con valores propios de Quill"""
+  # Banderas de sistema, no accesibles directamente, en posición estándar de PAWS
+  banderas[37] = max_llevables
 
 def lee_secs_ctrl (cadena):
   """Devuelve la cadena dada convirtiendo las secuencias de control en una representación imprimible"""
@@ -203,3 +271,126 @@ def nueva_bd ():
   # Creamos la tabla de estado y la de eventos
   tablas_proceso.append (([[], []]))
   tablas_proceso.append (([[], []]))
+
+
+# Funciones auxiliares que sólo se usan en este módulo
+
+def cargaCadenas (posNumCads, posListaPos, cadenas):
+  """Carga un conjunto genérico de cadenas
+
+posNumCads es la posición de donde obtener el número de cadenas
+posListaPos posición de donde obtener la lista de posiciones de las cadenas
+cadenas es la lista donde almacenar las cadenas que se carguen"""
+  # Cargamos el número de cadenas
+  numCads = carga_int1 (posNumCads)
+  # Vamos a la posición de la lista de posiciones de cadenas
+  fich_ent.seek (carga_desplazamiento (posListaPos))
+  # Cargamos las posiciones de las cadenas
+  posiciones = []
+  for i in range (numCads):
+    posiciones.append (carga_desplazamiento())
+  # Cargamos cada cadena
+  saltaSiguiente = False  # Si salta el siguiente carácter, como ocurre tras algunos códigos de control
+  for posicion in posiciones:
+    fich_ent.seek (posicion)
+    cadena = []
+    while True:
+      caracter = carga_int1() ^ 255
+      if caracter == fin_cadena:  # Fin de esta cadena
+        break
+      if saltaSiguiente or (caracter in (range (16, 21))):  # Códigos de control
+        cadena.append (chr (caracter))
+        saltaSiguiente = not saltaSiguiente
+      elif caracter == nueva_linea:  # Un carácter de nueva línea en la cadena
+        cadena.append ('\n')
+      else:
+        cadena.append (chr (caracter))
+    cadenas.append (''.join (cadena))
+
+def cargaLocalidadesObjetos ():
+  """Carga las localidades iniciales de los objetos (dónde está cada uno)"""
+  # Cargamos el número de objetos (no lo tenemos todavía)
+  num_objetos[0] = carga_int1 (CAB_NUM_OBJS)
+  # Vamos a la posición de las localidades de los objetos
+  fich_ent.seek (carga_desplazamiento (CAB_POS_LOCS_OBJS))
+  # Cargamos la localidad de cada objeto
+  for i in range (num_objetos[0]):
+    locs_iniciales.append (carga_int1())
+
+def cargaTablasProcesos ():
+  """Carga las dos tablas de procesos: la de estado y la de eventos"""
+  # Cargamos cada tabla de procesos
+  posiciones = (carga_desplazamiento (CAB_POS_EVENTOS), carga_desplazamiento (CAB_POS_ESTADO))
+  for numProceso in range (2):
+    posicion = posiciones[numProceso]
+    fich_ent.seek (posicion)
+    cabeceras   = []
+    posEntradas = []
+    while True:
+      verbo = carga_int1()
+      if verbo == 0:  # Fin de este proceso
+        break
+      cabeceras.append ((verbo, carga_int1()))
+      posEntradas.append (carga_desplazamiento())
+    entradas = []
+    for numEntrada in range (len (posEntradas)):
+      posEntrada = posEntradas[numEntrada]
+      fich_ent.seek (posEntrada)
+      entrada = []
+      for listaCondactos in (condiciones, acciones):
+        while True:
+          numCondacto = carga_int1()
+          if numCondacto == 255:  # Fin de esta entrada
+            break
+          if numCondacto not in listaCondactos:
+            prn ('FIXME: Número de', 'condición' if listaCondactos == condiciones else 'acción', numCondacto, 'desconocida, en entrada', numEntrada, 'de la tabla de', 'estado' if numProceso else 'eventos')
+          parametros = []
+          for i in range (len (listaCondactos[numCondacto][1])):
+            parametros.append (carga_int1())
+          if listaCondactos == acciones:
+            entrada.append ((numCondacto + 100, parametros))
+          else:
+            entrada.append ((numCondacto, parametros))
+      entradas.append (entrada)
+    if len (cabeceras) != len (entradas):
+      prn ('ERROR: Número distinto de cabeceras y entradas para una tabla de',
+           'procesos')
+      return
+    tablas_proceso.append ((cabeceras, entradas))
+
+def cargaVocabulario ():
+  """Carga el vocabulario"""
+  # Vamos a la posición del vocabulario
+  fich_ent.seek (carga_desplazamiento (CAB_POS_VOCAB))
+  # Cargamos cada palabra de vocabulario
+  while True:
+    caracter = carga_int1()
+    if caracter == 0:  # Fin del vocabulario
+      return
+    caracter ^= 255
+    palabra   = [chr (caracter)]
+    for i in range (3):
+      caracter = carga_int1() ^ 255
+      palabra.append (chr (caracter))
+    # Quill guarda las palabras de menos de cuatro letras con espacios al final
+    # Quill guarda las palabras en mayúsculas
+    vocabulario.append ((''.join (palabra).rstrip().lower(), carga_int1(), 0))
+
+def preparaPosCabecera (inicio):
+  """Asigna las "constantes" de desplazamientos (offsets/posiciones) en la cabecera"""
+  global CAB_MAX_LLEVABLES, CAB_NUM_OBJS, CAB_NUM_LOCS, CAB_NUM_MSGS_USR, CAB_NUM_MSGS_SYS, CAB_POS_EVENTOS, CAB_POS_ESTADO, CAB_POS_LST_POS_OBJS, CAB_POS_LST_POS_LOCS, CAB_POS_LST_POS_MSGS_USR, CAB_POS_LST_POS_MSGS_SYS, CAB_POS_LST_POS_CNXS, CAB_POS_VOCAB, CAB_POS_LOCS_OBJS, CAB_POS_NOMS_OBJS
+  CAB_MAX_LLEVABLES        = inicio + 0   # Número máximo de objetos llevables
+  CAB_NUM_OBJS             = inicio + 1   # Número de objetos
+  CAB_NUM_LOCS             = inicio + 2   # Número de localidades
+  CAB_NUM_MSGS_USR         = inicio + 3   # Número de mensajes de usuario
+  CAB_NUM_MSGS_SYS         = inicio + 4   # Número de mensajes de sistema
+  CAB_POS_EVENTOS          = inicio + 5   # Posición de la tabla de eventos
+  CAB_POS_ESTADO           = inicio + 7   # Posición de la tabla de estado
+  CAB_POS_LST_POS_OBJS     = inicio + 9   # Posición lista de posiciones de objetos
+  CAB_POS_LST_POS_LOCS     = inicio + 11  # Posición lista de posiciones de localidades
+  CAB_POS_LST_POS_MSGS_USR = inicio + 13  # Pos. lista de posiciones de mensajes de usuario
+  CAB_POS_LST_POS_MSGS_SYS = inicio + 15  # Pos. lista de posiciones de mensajes de usuario
+  CAB_POS_LST_POS_CNXS     = inicio + 17  # Posición lista de posiciones de conexiones
+  CAB_POS_VOCAB            = inicio + 19  # Posición del vocabulario
+  CAB_POS_LOCS_OBJS        = inicio + 21  # Posición de localidades iniciales de objetos
+  CAB_POS_NOMS_OBJS        = inicio + 23  # Posición de los nombres de los objetos

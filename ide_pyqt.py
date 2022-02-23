@@ -602,7 +602,7 @@ def cargaInfoModulos ():
       prn ('Error al importar el módulo:', excepcion)
       continue
     # Apaño para que funcione las librerías de DAAD y SWAN tal y como están (con lista unificada de condactos)
-    if compruebaNombre (modulo, 'condactos', dict):
+    if compruebaNombre (modulo, 'condactos', dict) and not compruebaNombre (modulo, 'acciones', dict):
       modulo.acciones    = {}
       modulo.condiciones = {}
     # Comprobamos que el módulo tenga todos los nombres necesarios
@@ -868,15 +868,17 @@ def imprimeCondacto (condacto, parametros):
     indirecto = '@'  # Condacto indirecto
   else:
     indirecto = ' '  # Condacto no indirecto
-  if condacto in mod_actual.acciones:
+  if condacto in mod_actual.condiciones:
+    campo_txt.setTextColor (QColor (100, 255, 50))  # Color verde claro
+    nombre = mod_actual.condiciones[condacto][0]
+  elif condacto - (100 if mod_actual.NOMBRE_SISTEMA == 'QUILL' else 0) in mod_actual.acciones:
     campo_txt.setTextColor (QColor (100, 200, 255))  # Color azul claro
+    if mod_actual.NOMBRE_SISTEMA == 'QUILL':
+      condacto -= 100
     nombre = mod_actual.acciones[condacto][0]
     if nombre == 'NEWTEXT' and indirecto == '@':
       indirecto = ' '
       nombre    = 'DEBUG'
-  elif condacto in mod_actual.condiciones:
-    campo_txt.setTextColor (QColor (100, 255, 50))  # Color verde claro
-    nombre = mod_actual.condiciones[condacto][0]
   else:  # No debería ocurrir
     prn ('FIXME: Condacto', condacto, 'no reconocido por la librería')
     campo_txt.setTextColor (QColor (255, 0, 0))  # Color rojo
@@ -1082,7 +1084,7 @@ def postCarga (nombre):
   global tipo_nombre, tipo_verbo
   # Apaño para que funcionen tal y como están las librerías con lista unificada de condactos
   # Lo hacemos aquí, porque la lista de condactos se puede extender tras cargar una BD
-  if compruebaNombre (mod_actual, 'condactos', dict):
+  if compruebaNombre (mod_actual, 'condactos', dict) and not compruebaNombre (mod_actual, 'acciones', dict):
     for codigo in mod_actual.condactos:
       if mod_actual.condactos[codigo][2]:  # Es acción
         mod_actual.acciones[codigo] = mod_actual.condactos[codigo]

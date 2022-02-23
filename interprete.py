@@ -107,7 +107,7 @@ def da_peso (objeto, nivel = 0):
 
 def imprime_mensaje (texto):
   objetoReferido = ''
-  if banderas[51] < len (desc_objs):
+  if NOMBRE_SISTEMA != 'QUILL' and banderas[51] < len (desc_objs):
     objetoReferido = desc_objs[banderas[51]]
     if '.' in objetoReferido:
       objetoReferido = objetoReferido[:objetoReferido.index ('.')]
@@ -215,7 +215,7 @@ def bucle_paws ():
       elif valor != True:
         estado = 2
     elif estado == 2:  # Proceso 2 y obtener orden
-      valor = ejecuta_proceso (2)
+      valor = ejecuta_proceso (2) if len (tablas_proceso) > 2 else None
       if valor == False:  # Hay que reiniciar la aventura
         estado = 0
       elif valor == 7:  # Terminar completamente la aventura
@@ -276,12 +276,13 @@ def inicializa ():
 
   # La bandera 37, contiene el número máximo de objetos llevados, que se pondrá a 4
   banderas[37] = 4
-  # La bandera 52, lleva el máximo peso permitido, que se pone a 10
-  banderas[52] = 10
-  # Las banderas 46 y 47, que llevan el pronombre actual, que se pondrán a 255
-  # (no hay pronombre)
-  banderas[46] = 255
-  banderas[47] = 255
+  if NOMBRE_SISTEMA != 'QUILL':
+    # La bandera 52, lleva el máximo peso permitido, que se pone a 10
+    banderas[52] = 10
+    # Las banderas 46 y 47, que llevan el pronombre actual, que se pondrán a 255
+    # (no hay pronombre)
+    banderas[46] = 255
+    banderas[47] = 255
 
   del gui.historial[:]
 
@@ -347,6 +348,17 @@ def describe_localidad ():
     if desc_locs[banderas[38]]:
       gui.imprime_cadena (desc_locs[banderas[38]])  # la bandera 38 contiene la localidad actual
 
+    # Lista objetos presentes en QUILL
+    if NOMBRE_SISTEMA == 'QUILL':
+      alguno = False
+      for objno in range (num_objetos[0]):
+        if locs_objs[objno] == banderas[38]:
+          if not alguno:
+            gui.imprime_cadena (msgs_sys[1])
+            alguno = True
+          gui.imprime_cadena (desc_objs[objno])
+          gui.imprime_cadena ('\n')
+
 def obtener_orden ():
   """Hace lo que dice la guía técnica de PAWS, páginas 8 y 9: 5.- COGER LA FRASE
 
@@ -374,7 +386,10 @@ def prepara_orden (espaciar = False, psi = False):
 Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
   global frases, orden, orden_psi, traza
   # Borramos las banderas de SL actual
-  for i in (tuple (range (33, 37)) + tuple (range (43, 46))):
+  banderasSL = tuple (range (33, 37))
+  if NUM_BANDERAS > 39:
+    banderasSL += tuple (range (43, 46))
+  for i in banderasSL:
     banderas[i] = 255
   # Si no hay órdenes ya parseadas pendientes de ejecutar
   if not frases:
@@ -386,7 +401,7 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
       # Si el buffer de input está vacío
       if not orden:
         # se imprime el mensaje que contenga la bandera 42.
-        if banderas[42] == 0:  # Si tiene un valor igual a 0,
+        if NUM_BANDERAS < 40 or banderas[42] == 0:  # Si tiene un valor igual a 0,
           # los mensajes 2-5 serán seleccionados con una frecuencia de
           # 30:30:30:10, respectivamente
           peticion = random.choice ((2, 2, 2, 3, 3, 3, 4, 4, 4, 5))
@@ -396,13 +411,15 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
       else:
         peticion = ''
       # Quitamos la marca de tiempo muerto
-      if banderas[49] & 128:
+      if NUM_BANDERAS > 39 and banderas[49] & 128:
         banderas[49] ^= 128
+      if len (msgs_sys) > 32:
+        peticion += msgs_sys[33]
       if traza:
         gui.imprime_banderas (banderas)
       # Aunque no lo vea en la Guía Técnica, se imprime el mensaje 33 justo antes de esperar la orden
-      timeout = [banderas[48]]
-      orden   = gui.lee_cadena (peticion + msgs_sys[33], orden, timeout, espaciar)
+      timeout = [banderas[48]] if NUM_BANDERAS > 39 else [0]
+      orden   = gui.lee_cadena (peticion, orden, timeout, espaciar)
 
       # FIXME: esto es posible que no se haga automáticamente (¿cuando es desde PARSE en nueva_version?)
       # Si ha vencido el tiempo muerto, el mensaje de sistema 35 aparece, y se
@@ -414,7 +431,8 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
         if msgs_sys[35]:  # Así evitamos añadir una línea en blanco sin necesidad
           gui.imprime_cadena (msgs_sys[35])
           gui.imprime_cadena ('\n')
-        banderas[49] |= 128  # Indicador de tiempo muerto vencido
+        if NUM_BANDERAS > 39:
+          banderas[49] |= 128  # Indicador de tiempo muerto vencido
         return False
 
       # Activamos o desactivamos la depuración paso a paso
@@ -443,10 +461,16 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
           continue
         for i in rango_vocabulario:
           if vocabulario[i][0] == palabra:  # Hay encaje con esta palabra
+            codigo = vocabulario[i][1]
+            if len (TIPOS_PAL) == 1:  # Como en Quill
+              if not frase['Verbo']:
+                frase['Verbo'] = codigo
+              elif not frase['Nombre1']:
+                frase['Nombre1'] = codigo
+              continue
             if vocabulario[i][2] > len (TIPOS_PAL):
               continue
-            codigo = vocabulario[i][1]
-            tipo   = TIPOS_PAL[vocabulario[i][2]]
+            tipo = TIPOS_PAL[vocabulario[i][2]]
             if tipo in ('Verbo', 'Adverbio', 'Preposición', 'Pronombre'):
               if not frase[tipo]:
                 frase[tipo] = codigo
@@ -501,11 +525,12 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
         frase['Adjetivo1'] = banderas[47]
     # Guardamos las palabras de la frase en las banderas correspondientes
     for flagno, tipo in {33: 'Verbo', 34: 'Nombre1', 35: 'Adjetivo1', 36: 'Adverbio', 43: 'Preposición', 44: 'Nombre2', 45: 'Adjetivo2'}.items():
-      banderas[flagno] = frase[tipo] if frase[tipo] else 255
-    if frase['Nombre1'] and frase['Nombre1'] >= 50:  # Guardamos pronombres, sólo para nombres considerados no propios (código >= 50)
+      if flagno < NUM_BANDERAS:
+        banderas[flagno] = frase[tipo] if frase[tipo] else 255
+    if len (TIPOS_PAL) > 1 and frase['Nombre1'] and frase['Nombre1'] >= 50:  # Guardamos pronombres, sólo para nombres considerados no propios (código >= 50)
       banderas[46] = frase['Nombre1']
       banderas[47] = frase['Adjetivo1'] if frase['Adjetivo1'] else 255
-    else:
+    elif NUM_BANDERAS > 39:
       banderas[46] = 255
       banderas[47] = 255
     # TODO: ver cuándo se cambia o vacía el último objeto referido
@@ -529,8 +554,9 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
     if not valida:
       del frases[:]  # Dejamos de procesar frases
 
-    orden         = ''   # Vaciamos ya la orden
-    banderas[49] &= 127  # Quitamos el indicador de tiempo muerto vencido
+    orden = ''  # Vaciamos ya la orden
+    if NUM_BANDERAS > 39:
+      banderas[49] &= 127  # Quitamos el indicador de tiempo muerto vencido
     if not frases:
       gui.borra_orden()
 
@@ -560,7 +586,7 @@ None: pasa al siguiente condacto"""
   else:
     indirecto = False
   condacto = libreria.condactos[codigo]
-  firma    = ('a' if condacto[2] else 'c') + str (condacto[1]) + '_' + condacto[0]
+  firma    = ('a' if condacto[2] else 'c') + str (condacto[1] if type (condacto[1]) == int else len (condacto[1])) + '_' + condacto[0]
   funcion  = busca_condacto (firma)
   if indirecto:
     parametros = [banderas[parametros[0]]] + parametros[1:]
@@ -715,12 +741,12 @@ def imprime_condacto ():
     elif hay_asterisco and cabecera[0] == 1:
       prn ('*', end = ' ')
     else:
-      if cabecera[0] < 20:  # Podría ser un nombre convertible en verbo
-        id_tipos = (cabecera[0], 0), (cabecera[0], 2)
+      if len (TIPOS_PAL) > 1 and cabecera[0] < 20:  # Podría ser un nombre convertible en verbo
+        idTipos = (cabecera[0], 0), (cabecera[0], 2)
       else:
-        id_tipos = ((cabecera[0], 0),)
+        idTipos = ((cabecera[0], 0),)
       for palabra in vocabulario:
-        if palabra[1:] in id_tipos:
+        if palabra[1:] in idTipos:
           prn (palabra[0].rstrip().upper(), end = ' ')
           break
       else:  # Palabra no encontrada, así que imprimimos el número
@@ -730,8 +756,12 @@ def imprime_condacto ():
     elif hay_asterisco and cabecera[1] == 1:
       prn ('*')
     else:
+      if len (TIPOS_PAL) > 1:
+        idTipo = (cabecera[1], 2)
+      else:
+        idTipo = (cabecera[1], 0)
       for palabra in vocabulario:
-        if palabra[1:] == (cabecera[1], 2):
+        if palabra[1:] == idTipo:
           prn (palabra[0].rstrip().upper())
           break
       else:  # Palabra no encontrada, así que imprimimos el número
@@ -1021,15 +1051,16 @@ if __name__ == '__main__':
   banderas.extend  ([0,] * NUM_BANDERAS)    # Banderas del sistema
   locs_objs.extend ([0,] * num_objetos[0])  # Localidades de los objetos
   pronombre = 'Pronombre'
-  for palabraVoc in vocabulario:
-    if palabraVoc[2] < len (TIPOS_PAL):
-      tipo = TIPOS_PAL[palabraVoc[2]]
-      if tipo == 'Conjunción':
-        conjunciones.append (palabraVoc[0])
-      elif tipo == 'Pronombre':
-        pronombre = palabraVoc[0]
-    elif NOMBRE_SISTEMA == 'PAWS' and palabraVoc[0] == '*' and palabraVoc[1] == 1 and palabraVoc[2] == 255:
-      hay_asterisco = True
+  if len (TIPOS_PAL) > 1:
+    for palabraVoc in vocabulario:
+      if palabraVoc[2] < len (TIPOS_PAL):
+        tipo = TIPOS_PAL[palabraVoc[2]]
+        if tipo == 'Conjunción':
+          conjunciones.append (palabraVoc[0])
+        elif tipo == 'Pronombre':
+          pronombre = palabraVoc[0]
+      elif NOMBRE_SISTEMA == 'PAWS' and palabraVoc[0] == '*' and palabraVoc[1] == 1 and palabraVoc[2] == 255:
+        hay_asterisco = True
 
   if NOMBRE_SISTEMA == 'DAAD' and nueva_version:
     bucle_daad_nuevo()
