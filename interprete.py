@@ -285,7 +285,7 @@ def inicializa ():
 
   del gui.historial[:]
 
-  if NOMBRE_SISTEMA == 'DAAD' or (NOMBRE_SISTEMA == 'PAWS' and extension == '.sna'):
+  if NOMBRE_SISTEMA == 'DAAD' or (NOMBRE_SISTEMA == 'PAWS' and extension == 'sna'):
     gui.reinicia_subventanas()  # Inicializamos las subventanas de impresión
     if NOMBRE_SISTEMA == 'DAAD':
       # La subventana predeterminada es la 1
@@ -891,13 +891,45 @@ if __name__ == '__main__':
     gui.abre_ventana (traza, args.scale, args.bbdd)
     args.bbdd = gui.elige_parte (partes, gfx)
 
-  extension = args.bbdd[-4:].lower()
-  if extension in ('.pdb', '.sna'):
-    libreria = __import__ ('libreria_paws')
-  elif extension == '.adb':
-    libreria = __import__ ('libreria_swan')
+  # Detectamos qué librerías pueden cargar bases de datos con esa extensión
+  extension = args.bbdd[args.bbdd.rindex ('.') + 1:].lower()
+  modLibs   = []  # Librerías que soportan la extensión, junto con su función de carga
+  librerias = (f[:-3] for f in os.listdir (os.curdir)
+               if (f[:9] == 'libreria_' and f[-3:] == '.py'))
+  for nombreModulo in librerias:
+    try:
+      modulo = __import__ (nombreModulo)
+    except SyntaxError as excepcion:
+      prn ('Error al importar el módulo:', excepcion, file = sys.stderr)
+      continue
+    for funcion, extensiones, descripcion in modulo.funcs_importar:
+      if extension in extensiones:
+        modLibs.append ((modulo, funcion))
+  if not modLibs:
+    prn ('No se puede importar la base datos: extensión no reconocida', file = sys.stderr)
+    sys.exit()
+
+  # Cargamos la base de datos
+  bbdd = open (args.bbdd, 'rb')
+  for modulo, funcion in modLibs:
+    # Solicitamos la importación
+    try:
+      correcto = modulo.__dict__[funcion] (bbdd, os.path.getsize (args.bbdd)) != False
+    except:
+      correcto = False
+    if correcto:
+      libreria = modulo
+      gui.NUM_BANDERAS = libreria.NUM_BANDERAS
+      break
+  bbdd.close()
+  if not correcto:
+    prn ('Error al tratar de cargar la base de datos: formato incompatible o fichero corrupto', file = sys.stderr)
+    sys.exit()
+
+  if extension == 'sna' or libreria.plataforma == 17:
+    gui.prepara_topes (42, 24)
   else:
-    libreria = __import__ ('libreria_daad')
+    gui.prepara_topes (53, 25)
 
   constantes = ('EXT_SAVEGAME', 'LONGITUD_PAL', 'NOMBRE_SISTEMA', 'NUM_BANDERAS', 'TIPOS_PAL')
   funciones  = ('busca_condacto', 'cambia_articulo', 'da_peso', 'imprime_mensaje', 'obj_referido', 'parsea_orden', 'restaura_objetos', 'tabla_hizo_algo')
@@ -921,22 +953,6 @@ if __name__ == '__main__':
     for funcion in funciones:
       modulo.__dict__[funcion] = globals()[funcion]
     modulos.append (modulo)
-
-  # Cargamos la base de datos
-  bbdd = open (args.bbdd, 'rb')
-  if extension == '.sna':
-    correcto = libreria.carga_bd_sna (bbdd, os.path.getsize (args.bbdd))
-  else:
-    correcto = libreria.carga_bd (bbdd, os.path.getsize (args.bbdd))
-  if correcto == False:
-    prn ('Error al tratar de cargar la base de datos', file = sys.stderr)
-    sys.exit()
-  bbdd.close()
-
-  if extension == '.sna' or libreria.plataforma == 17:
-    gui.prepara_topes (42, 24)
-  else:
-    gui.prepara_topes (53, 25)
 
   if args.ruta_graficos:
     if os.path.isfile (args.ruta_graficos):
