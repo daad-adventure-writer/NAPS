@@ -77,6 +77,7 @@ chr_cursor = pygame.Surface ((6, 8))  # Carácter con transparencia, para marcar 
 brillo           = 0         # Sin brillo por defecto
 cambia_brillo    = None      # Carácter que si se encuentra en una cadena, dará o quitará brillo al color de tinta de la letra
 cambia_flash     = None      # Carácter que si se encuentra en una cadena, pondría o quitaría efecto flash a la letra
+cambia_inversa   = None      # Carácter que si se encuentra en una cadena, invertirá o no el papel/fondo de la letra
 cambia_papel     = None      # Carácter que si se encuentra en una cadena, cambiará el color de papel/fondo de la letra
 cambia_tinta     = None      # Carácter que si se encuentra en una cadena, cambiará el color de tinta de la letra
 centrar_graficos = []        # Si se deben centrar los gráficos al dibujarlos
@@ -945,6 +946,7 @@ def daColorBorde ():
 def parseaColores (cadena):
   """Procesa los códigos de control de colores, devolviendo la cadena sin ellos, y un diccionario posición: colores a aplicar"""
   global brillo
+  inversa = False  # Si se invierten o no papel y fondo
   papel   = color_subv[elegida][1]  # Color de papel/fondo
   tinta   = color_subv[elegida][0]  # Color de tinta
   colores = {0: (paleta[brillo][tinta], paleta[brillo][papel])}
@@ -952,17 +954,25 @@ def parseaColores (cadena):
     return cadena, colores
   sigBrillo  = False  # Si el siguiente carácter indica si se pone o quita brillo al color de tinta
   sigFlash   = False  # Si el siguiente carácter indica si se pone o quita efecto flash
+  sigInversa = False  # Si el siguiente carácter indica si se invierten o no papel y fondo
   sigPapel   = False  # Si el siguiente carácter indica el color de papel/fondo
   sigTinta   = False  # Si el siguiente carácter indica el color de tinta
   sinColores = ''     # Cadena sin los códigos de control de colores
   for i in range (len (cadena)):
     c = ord (cadena[i])
-    if sigBrillo or sigFlash or sigPapel or sigTinta:
+    if sigBrillo or sigFlash or sigInversa or sigPapel or sigTinta:
       if sigBrillo:
         brillo    = 1 if c else 0
         sigBrillo = False
       elif sigFlash:
         sigFlash = False
+      elif sigInversa:
+        if inversa and not c or not inversa and c:  # Si se ha activado o desactivado
+          color = papel
+          papel = tinta
+          tinta = color
+        inversa    = True if c else False
+        sigInversa = False
       elif sigPapel:
         papel    = c % len (paleta[brillo])
         sigPapel = False
@@ -970,11 +980,13 @@ def parseaColores (cadena):
         sigTinta = False
         tinta    = c % len (paleta[brillo])
       colores[len (sinColores)] = (paleta[brillo][tinta], paleta[brillo][papel])  # Color de tinta y papel a aplicar
-    elif c in (cambia_brillo, cambia_flash, cambia_papel, cambia_tinta):
+    elif c in (cambia_brillo, cambia_flash, cambia_inversa, cambia_papel, cambia_tinta):
       if c == cambia_brillo:
         sigBrillo = True
       elif c == cambia_flash:
         sigFlash = True
+      elif c == cambia_inversa:
+        sigInversa = True
       elif c == cambia_papel:
         sigPapel = True
       else:

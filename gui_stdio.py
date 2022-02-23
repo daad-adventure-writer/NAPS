@@ -217,12 +217,12 @@ def mueve_cursor (columna, fila = None):
 # Funciones auxiliares que sólo se usan en este módulo
 
 def limpiaCadena (cadena):
-  if not cambia_brillo and not cambia_flash and not cambia_papel and not cambia_tinta and not juego_alto and not juego_bajo:
+  if not cambia_brillo and not cambia_flash and not cambia_inversa and not cambia_papel and not cambia_tinta and not juego_alto and not juego_bajo:
     return cadena
   limpia = ''
   c = 0
   while c < len (cadena):
-    if cadena[c] in (cambia_brillo, cambia_flash, cambia_papel, cambia_tinta, juego_alto, juego_bajo):
+    if cadena[c] in (cambia_brillo, cambia_flash, cambia_inversa, cambia_papel, cambia_tinta, juego_alto, juego_bajo):
       if cadena[c] not in (juego_alto, juego_bajo):
         c += 1  # Descartamos también el siguiente byte, que indica el color o si se activa o no
     else:

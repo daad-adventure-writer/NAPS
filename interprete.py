@@ -1004,10 +1004,11 @@ if __name__ == '__main__':
       gui.juego_alto = 48  # @
       gui.juego_bajo = 48
     elif NOMBRE_SISTEMA in ('QUILL', 'PAWS') and extension == 'sna':  # Quill/PAWS de Spectrum
-      gui.cambia_brillo = 19
-      gui.cambia_flash  = 18
-      gui.cambia_papel  = 17
-      gui.cambia_tinta  = 16
+      gui.cambia_brillo  = 19
+      gui.cambia_flash   = 18
+      gui.cambia_inversa = 20
+      gui.cambia_papel   = 17
+      gui.cambia_tinta   = 16
       if NOMBRE_SISTEMA == 'PAWS':
         gui.cambia_cursor (msgs_sys[34])
   else:  # Es DAAD
