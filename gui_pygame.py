@@ -117,7 +117,10 @@ def abre_ventana (traza, escalar, bbdd):
   pygame.display.set_caption ('NAPS - ' + bbdd)
   factorEscala = escalar
   if traza:
-    resolucion = (780, 200)  # Ventana juego + banderas
+    if NUM_BANDERAS > 50:
+      resolucion = (780, 200)  # Ventana juego + banderas
+    else:
+      resolucion = (400, 200)  # Ventana juego + banderas
   else:  # Ventana juego sólo
     if limite[0] == 42:
       resolucion = (256, 192)
@@ -645,12 +648,12 @@ def imprime_banderas (banderas):
   """Imprime el contenido de las banderas (en la extensión de la ventana)"""
   global banderas_antes, banderas_viejas
   if banderas_antes == None:
-    banderas_antes  = [0,] * 256
-    banderas_viejas = set (range (256))
+    banderas_antes  = [0,] * NUM_BANDERAS
+    banderas_viejas = set (range (NUM_BANDERAS))
     # Seleccionamos el color de impresión
     fuente.set_palette (((0, 192, 192), (0, 0, 0)))
     # Imprimimos los índices de cada bandera
-    for num in range (256):
+    for num in range (NUM_BANDERAS):
       columna = 320 + ((num // 25) * 42)
       fila    = (num % 25) * 8
       cadena = str (num).zfill (3).translate (iso8859_15_a_fuente)
@@ -658,7 +661,7 @@ def imprime_banderas (banderas):
         c = ord (cadena[pos])
         ventana.blit (fuente, (columna + (pos * 6), fila),
                       ((c % 63) * 10, (c // 63) * 10, 6, 8))
-  for num in range (256):
+  for num in range (NUM_BANDERAS):
     # Sólo imprimimos cada bandera la primera vez y cuando cambie de color
     if (banderas[num] == banderas_antes[num]) and (num not in banderas_viejas):
       continue
