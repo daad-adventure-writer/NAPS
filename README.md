@@ -15,7 +15,7 @@ Uso:
 
 Parámetros:
 
-- ``bd_o_carpeta`` (obligatorio) Base de datos o carpeta de PAWS/SWAN/DAAD a ejecutar
+- ``bd_o_carpeta`` (obligatorio) Base de datos o carpeta de Quill/PAWS/SWAN/DAAD a ejecutar
 - ``bd_o_carpeta_gráficos`` (opcional) Base de datos gráfica para las imágenes, o carpeta de la que tomarlas (con nombre pic###.png)
 - ``--help`` (opcional) Muestra ayuda sobre los parámetros de línea de comandos
 - ``--debug`` (opcional) Ejecutar los condactos paso a paso
@@ -37,7 +37,7 @@ Uso:
 
 Parámetros:
 
-- ``base_de_datos`` (opcional) Base de datos de PAWS/SWAN/DAAD a cargar
+- ``base_de_datos`` (opcional) Base de datos de Quill/PAWS/SWAN/DAAD a cargar
 - ``base_de_datos_gráfica`` (opcional) Base de datos gráfica que usar al depurar
 
 
