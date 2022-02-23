@@ -393,10 +393,7 @@ def carga_tablas_procesos ():
         condacto = carga_int1()
         if condacto == 255:  # Fin de esta entrada
           break
-        if condacto > 127:  # Condacto con indirección
-          num_condacto = condacto - 128
-        else:
-          num_condacto = condacto
+        num_condacto = condacto
         parametros = []
         if num_condacto not in condactos:
           try:
