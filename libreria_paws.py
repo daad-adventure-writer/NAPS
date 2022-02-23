@@ -23,6 +23,7 @@
 # *****************************************************************************
 
 from bajo_nivel import *
+from prn_func   import prn
 
 
 # Variables que se exportan (fuera del paquete)
