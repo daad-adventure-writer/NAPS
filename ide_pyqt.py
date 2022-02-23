@@ -539,15 +539,15 @@ def cambiaProceso (numero, numEntrada = None):
       campo_txt.insertPlainText ('  _  ')
     elif verbo == 1 and (1, 255) in pal_sinonimo:
       campo_txt.insertPlainText ('  *  ')
-    elif (verbo, 0) in pal_sinonimo:  # Hay un verbo con ese código
-      campo_txt.insertPlainText (pal_sinonimo[(verbo, 0)].center (5))
-    elif verbo < 20 and (verbo, 2) in pal_sinonimo:  # Es un nombre convertible en verbo
-      campo_txt.insertPlainText (pal_sinonimo[(verbo, 2)].center (5))
+    elif (verbo, tipo_verbo) in pal_sinonimo:  # Hay un verbo con ese código
+      campo_txt.insertPlainText (pal_sinonimo[(verbo, tipo_verbo)].center (5))
+    elif verbo < 20 and (verbo, tipo_nombre) in pal_sinonimo:  # Es nombre convertible en verbo
+      campo_txt.insertPlainText (pal_sinonimo[(verbo, tipo_nombre)].center (5))
     else:
       campo_txt.setTextColor (QColor (255, 0, 0))  # Color rojo
-      if (verbo, 0) not in noExisten:
+      if (verbo, tipo_verbo) not in noExisten:
         muestraFallo ('Verbo no existente', 'Verbo de código ' + str (verbo) + ' no encontrado en el vocabulario')
-        noExisten.append ((verbo, 0))
+        noExisten.append ((verbo, tipo_verbo))
       campo_txt.insertPlainText (str (verbo).center (5))
       campo_txt.setTextColor (QColor (200, 200, 200))  # Color gris claro
     campo_txt.insertPlainText ('  ')
@@ -556,11 +556,11 @@ def cambiaProceso (numero, numEntrada = None):
       campo_txt.insertPlainText ('  _')
     elif nombre == 1 and (1, 255) in pal_sinonimo:
       campo_txt.insertPlainText ('  *')
-    elif (nombre, 2) in pal_sinonimo:
-      campo_txt.insertPlainText (pal_sinonimo[(nombre, 2)].center (5).rstrip())
+    elif (nombre, tipo_nombre) in pal_sinonimo:
+      campo_txt.insertPlainText (pal_sinonimo[(nombre, tipo_nombre)].center (5).rstrip())
     else:
       campo_txt.setTextColor (QColor (255, 0, 0))  # Color rojo
-      if (nombre, 2) not in noExisten:
+      if (nombre, tipo_nombre) not in noExisten:
         muestraFallo ('Nombre no existente', 'Nombre de código ' + str (nombre) + ' no encontrado en el vocabulario')
         noExisten.append ((nombre, 2))
       campo_txt.insertPlainText (str (nombre).center (5).rstrip())
@@ -1079,7 +1079,8 @@ def postCarga (nombre):
   """Realiza las acciones convenientes tras la carga satisfactoria de una BD
 
   Recibe como parámetro el nombre de la base de datos"""
-  # Apaño para que funcione la librería DAAD tal y como está (con lista unificada de condactos)
+  global tipo_nombre, tipo_verbo
+  # Apaño para que funcionen tal y como están las librerías con lista unificada de condactos
   # Lo hacemos aquí, porque la lista de condactos se puede extender tras cargar una BD
   if compruebaNombre (mod_actual, 'condactos', dict):
     for codigo in mod_actual.condactos:
@@ -1089,14 +1090,16 @@ def postCarga (nombre):
         mod_actual.condiciones[codigo] = mod_actual.condactos[codigo]
   # Cogemos la primera palabra de cada tipo y número como sinónimo preferido
   if 'Verbo' in mod_actual.TIPOS_PAL:
-    tipoVerbo = mod_actual.TIPOS_PAL.index('Verbo')
+    tipo_nombre = mod_actual.TIPOS_PAL.index ('Nombre')
+    tipo_verbo  = mod_actual.TIPOS_PAL.index ('Verbo')
   else:
-    tipoVerbo = -1
+    tipo_nombre = 0
+    tipo_verbo  = 0
   for palabra, codigo, tipo in mod_actual.vocabulario:
     idYtipo = (codigo, tipo)
     # Preferiremos terminación en R para verbos (heurística para que sean en forma infinitiva)
     if idYtipo not in pal_sinonimo or \
-        (tipo == tipoVerbo and palabra[-1] == 'r' and pal_sinonimo[idYtipo][-1] != 'r'):
+        (tipo == tipo_verbo and palabra[-1] == 'r' and pal_sinonimo[idYtipo][-1] != 'r'):
       pal_sinonimo[idYtipo] = palabra
   # Preparamos las funciones de exportación
   for entrada in mod_actual.funcs_exportar:
