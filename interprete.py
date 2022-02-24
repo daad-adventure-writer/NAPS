@@ -413,11 +413,11 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
       # Quitamos la marca de tiempo muerto
       if NUM_BANDERAS > 39 and banderas[49] & 128:
         banderas[49] ^= 128
+      # Aunque no lo vea en la Guía Técnica, se imprime el mensaje 33 justo antes de esperar la orden
       if len (msgs_sys) > 32:
         peticion += msgs_sys[33]
       if traza:
         gui.imprime_banderas (banderas)
-      # Aunque no lo vea en la Guía Técnica, se imprime el mensaje 33 justo antes de esperar la orden
       timeout = [banderas[48]] if NUM_BANDERAS > 39 else [0]
       orden   = gui.lee_cadena (peticion, orden, timeout, espaciar)
 
