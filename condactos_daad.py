@@ -228,20 +228,12 @@ def c2_SMALLER (flagno1, flagno2):
 def a0_CENTRE ():
   prn ('TODO: a0_CENTRE no implementado', file = sys.stderr)  # TODO
 
-def a0_END ():
-  """Pregunta si se desea volver a empezar (MS13), y si la respuesta empieza por la primera letra del MS31, imprime el MS14 y termina completamente la ejecución de la aventura. Si no, reinicia la aventura"""
-  respuesta = gui.lee_cadena (msgs_sys[13] + msgs_sys[33], '', [0], False)
-  if respuesta[0].lower() == msgs_sys[31][0].lower():
-    gui.imprime_cadena (msgs_sys[14])
-    return 7
-  return 0
-
 def a0_LISTOBJ ():
   """Lista los objetos presentes, si los hay, anteponiendo el mensaje de sistema 1"""
   presentes = []
   for objno in range (len (locs_objs)):
     if locs_objs[objno] == banderas[38]:
-      presentes.append(objno)
+      presentes.append (objno)
   if presentes:
     gui.imprime_cadena (msgs_sys[1])  # 'Puedes ver '
     if not banderas[53] & 64:  # Listar uno por línea

@@ -241,9 +241,10 @@ def a0_DROPALL ():
       locs_objs[objno] = banderas[38]
 
 def a0_END ():
-  """Pregunta si se desea volver a empezar (MS13), y si la respuesta empieza por la primera letra del MS31, termina completamente la ejecución de la aventura. Si no, reinicia la aventura"""
+  """Pregunta si se desea volver a empezar (MS13), y si la respuesta empieza por la primera letra del MS31, imprime el MS14 y termina completamente la ejecución de la aventura. Si no, reinicia la aventura"""
   respuesta = gui.lee_cadena (msgs_sys[13] + msgs_sys[33], '', [0], False)
   if respuesta[0].lower() == msgs_sys[31][0].lower():
+    gui.imprime_cadena (msgs_sys[14])
     return 7
   return 0
 
