@@ -85,6 +85,7 @@ juego_alto       = None      # Carácter que si se encuentra en una cadena, pasar
 juego_bajo       = None      # Carácter que si se encuentra en una cadena, pasará al juego de caracteres bajo
 paleta           = ([], [])  # Paleta de colores sin y con brillo, para los cambios con cambia_*
 ruta_graficos    = ''        # Carpeta de donde cargar los gráficos a dibujar
+tabulador        = None      # Carácter que si se encuentra en una cadena, pondrá espacios hasta mitad o final de línea
 todo_mayusculas  = False     # Si la entrada del jugador será incondicionalmente en mayúsculas
 txt_mas          = '(más)'   # Cadena a mostrar cuando no cabe más texto y se espera a que el jugador pulse una tecla
 
@@ -756,6 +757,21 @@ Si scroll es True, se desplazará el texto del buffer hacia arriba (scrolling) cu
       juego = 128
     elif ordinal == juego_bajo:
       juego = 0
+    elif ordinal == tabulador:
+      posTabulador = iniLineas[-1] + len (linea)
+      if restante > tope[0] // 2:
+        numEspacios = (tope[0] // 2) - len (linea)  # Rellena con espacios hasta mitad de línea
+      else:
+        numEspacios = restante  # Rellena el resto de la línea con espacios
+      linea.extend (chr (16) * numEspacios)
+      restante -= numEspacios
+      coloresNuevos = {}
+      for inicio in tuple (colores.keys()):
+        if inicio > posTabulador:
+          coloresNuevos[inicio + numEspacios - 1] = colores[inicio]
+        else:
+          coloresNuevos[inicio] = colores[inicio]
+      colores = coloresNuevos
     elif restante > 0:
       linea.append (chr (ordinal + juego))
       restante -= 1

@@ -1009,6 +1009,7 @@ if __name__ == '__main__':
       gui.cambia_inversa = 20
       gui.cambia_papel   = 17
       gui.cambia_tinta   = 16
+      gui.tabulador      = 6
       if NOMBRE_SISTEMA == 'PAWS':
         gui.cambia_cursor (msgs_sys[34])
   else:  # Es DAAD
