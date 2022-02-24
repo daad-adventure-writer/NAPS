@@ -762,14 +762,14 @@ Si scroll es True, se desplazará el texto del buffer hacia arriba (scrolling) cu
     else:  # Hay que partir la línea, desde el último carácter de espacio
       for i in range (len (linea) - 1, -1, -1):  # Desde el final al inicio
         if ord (linea[i]) == 16:  # Este carácter es un espacio
-          lineas.append (''.join (linea[:i]))
+          lineas.append (''.join (linea[:i + 1]))
           linea = linea[i + 1:]
-          iniLineas.append (iniLineas[-1] + i)
+          iniLineas.append (iniLineas[-1] + i + 1)
           break
       else:  # Ningún carácter de espacio en la línea
         if len (linea) == tope[0]:  # La línea nunca se podrá partir limpiamente
           # La partimos suciamente (en mitad de palabra)
-          lineas.append   (''.join (linea))
+          lineas.append    (''.join (linea))
           iniLineas.append (iniLineas[-1] + len (linea))
           linea = []
         else:  # Lo que ya teníamos será para una nueva línea
