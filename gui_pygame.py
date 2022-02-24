@@ -695,6 +695,7 @@ def imprime_cadena (cadena, scroll = True, redibujar = True):
 El cursor deberá quedar actualizado.
 
 Si scroll es True, se desplazará el texto del buffer hacia arriba (scrolling) cuando se vaya a sobrepasar la última línea"""
+  # TODO: revisar por qué hacía falta el parámetro scroll, dado que se está omitiendo
   if not cadena:
     return
   if not texto_nuevo:
@@ -822,7 +823,11 @@ Si scroll es True, se desplazará el texto del buffer hacia arriba (scrolling) cu
       imprime_linea (lineas[i], redibujar = redibujar, colores = colores)
   if lineas:  # Había alguna línea
     if cadena[-1] == '\n':  # La cadena terminaba en nueva línea
-      cursor = [0, cursor[1] + 1]
+      if cursor[1] == tope[1] - 1:
+        scrollLineas (1, subventana, tope, redibujar)
+        cursor = [0, cursor[1]]
+      else:
+        cursor = [0, cursor[1] + 1]
     else:
       cursor = [cursor[0] + len (lineas[-1]), cursor[1]]
     cursores[elegida] = cursor  # Actualizamos el cursor de la subventana
