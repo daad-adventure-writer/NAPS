@@ -798,6 +798,8 @@ Si scroll es True, se desplazará el texto del buffer hacia arriba (scrolling) cu
         # TODO: Hacer scroll de golpe, del número de líneas necesario
       elif i >= tope[1]:  # Tras sobrepasar el tope de líneas, hay que hacer scroll con cada una
         scrollLineas (1, subventana, tope)
+    elif 0 in colores and not lineas[i]:  # La primera línea es sólo \n
+      fuente.set_palette (colores[0])  # Cargamos el color inicial de la cadena
     if cambia_brillo:
       imprime_linea (lineas[i], redibujar = redibujar, colores = colores, inicioLinea = iniLineas[i])
     else:
