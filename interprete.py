@@ -249,22 +249,24 @@ def bucle_paws ():
       elif proceso_ok:  # Ha terminado con DONE u OK
         estado = 2
       # TODO: ¡parece que en Jabato sí lo hace! Al menos tras un DOALL sin objetos que encajen, y tras un NOTDONE
-      elif NOMBRE_SISTEMA == 'PAWS':  # DAAD no busca automáticamente en la tabla de conexiones, para eso la aventura debe usar MOVE 38 y demás
+      elif NOMBRE_SISTEMA in ('PAWS', 'QUILL'):  # Ni SWAN ni DAAD buscan automáticamente en la tabla de conexiones, para eso la aventura debe usar MOVE 38 y demás
         estado = 4
       else:
         estado = 5
-    elif estado == 4:  # Tabla de conexiones
-      if busca_condacto ('c1_MOVE') (38):
+    elif estado == 4:  # Búsqueda en tabla de conexiones
+      destino = busca_conexion (banderas[38])  # De la localidad actual
+      if destino == None:
+        estado = 5
+      else:
+        banderas[38] = destino
         estado = 1
         if traza:
           gui.imprime_banderas (banderas)
-      else:
-        estado = 5
     elif estado == 5:  # Tablas de respuestas y de conexiones exhaustas, o se terminó con NOTDONE
       if not proceso_acc:  # No se ha ejecutado ninguna "acción"
         if banderas[33] >= 14:  # No es verbo de dirección
           gui.imprime_cadena (msgs_sys[8])  # No puedes hacer eso
-        elif NOMBRE_SISTEMA == 'PAWS':  # DAAD no imprime este mensaje por sí mismo
+        elif NOMBRE_SISTEMA in ('QUILL', 'PAWS'):  # Ni SWAN ni DAAD imprimen este mensaje por sí mismos
           gui.imprime_cadena (msgs_sys[7])  # No puedes ir por ahí
       estado = 2
 
