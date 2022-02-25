@@ -1026,7 +1026,6 @@ if __name__ == '__main__':
   else:  # Es DAAD
     gui.nueva_version = nueva_version
     gui.tam_cabecera  = libreria.tam_cabecera
-    gui.txt_mas       = msgs_sys[32]  # (más)
     if not gui.paleta[0]:
       # Colores con brillo en este orden: negro, azul, rojo, magenta, verde, cyan, amarillo, blanco
       gui.paleta[0].extend (((0, 0, 0), (0, 0, 255), (255, 0, 0), (255, 0, 255),
@@ -1042,6 +1041,8 @@ if __name__ == '__main__':
       import hashlib
       if len (msgs_sys) > 99 and hashlib.sha1 ((msgs_sys[21] + msgs_sys[77] + msgs_sys[80] + msgs_sys[82] + msgs_sys[94] + msgs_sys[100]).encode ('utf8')).hexdigest() == 'cfea71b482cc37f6353bca664c8b36bbbed87f97':
         gui.chichen = True
+  if NOMBRE_SISTEMA != 'QUILL':
+    gui.txt_mas = msgs_sys[32]  # (más)
 
   # Fallamos ahora si falta algún condacto
   if False:
