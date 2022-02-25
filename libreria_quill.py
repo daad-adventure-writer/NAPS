@@ -234,6 +234,7 @@ Para compatibilidad con el IDE:
     cargaCadenas (CAB_NUM_OBJS,     CAB_POS_LST_POS_OBJS,     desc_objs)
     cargaCadenas (CAB_NUM_MSGS_USR, CAB_POS_LST_POS_MSGS_USR, msgs_usr)
     cargaCadenas (CAB_NUM_MSGS_SYS, CAB_POS_LST_POS_MSGS_SYS, msgs_sys)
+    cargaConexiones()
     cargaLocalidadesObjetos()
     cargaVocabulario()
     cargaTablasProcesos()
@@ -306,6 +307,28 @@ cadenas es la lista donde almacenar las cadenas que se carguen"""
       else:
         cadena.append (chr (caracter))
     cadenas.append (''.join (cadena))
+
+def cargaConexiones ():
+  """Carga las conexiones"""
+  # Cargamos el número de localidades
+  num_locs = carga_int1 (CAB_NUM_LOCS)
+  # Vamos a la posición de la lista de posiciones de las conexiones
+  fich_ent.seek (carga_desplazamiento (CAB_POS_LST_POS_CNXS))
+  # Cargamos las posiciones de las conexiones de cada localidad
+  posiciones = []
+  for i in range (num_locs):
+    posiciones.append (carga_desplazamiento())
+  # Cargamos las conexiones de cada localidad
+  for posicion in posiciones:
+    fich_ent.seek (posicion)
+    salidas = []
+    while True:
+      verbo = carga_int1()  # Verbo de dirección
+      if verbo == 255:  # Fin de las conexiones de esta localidad
+        break
+      destino = carga_int1()  # Localidad de destino
+      salidas.append ((verbo, destino))
+    conexiones.append (salidas)
 
 def cargaLocalidadesObjetos ():
   """Carga las localidades iniciales de los objetos (dónde está cada uno)"""
