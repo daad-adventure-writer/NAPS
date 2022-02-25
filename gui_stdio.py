@@ -33,6 +33,7 @@ traza = False  # Si queremos una traza del funcionamiento del módulo
 # Variables que ajusta el intérprete
 cambia_brillo    = None      # Carácter que si se encuentra en una cadena, daría o quitaría brillo al color de tinta de la letra
 cambia_flash     = None      # Carácter que si se encuentra en una cadena, pondría o quitaría efecto flash a la letra
+cambia_inversa   = None      # Carácter que si se encuentra en una cadena, invertirá o no el papel/fondo de la letra
 cambia_papel     = None      # Carácter que si se encuentra en una cadena, cambiaría el color de papel/fondo de la letra
 cambia_tinta     = None      # Carácter que si se encuentra en una cadena, cambiaría el color de tinta de la letra
 centrar_graficos = []        # Si se deben centrar los gráficos al dibujarlos
@@ -115,7 +116,7 @@ def reinicia_subventanas ():
 
 def abre_ventana (traza, factorEscala, bbdd):
   """Abre la ventana gráfica de la aplicación"""
-  global cambia_brillo, cambia_flash, cambia_papel, cambia_tinta, juego_alto, juego_bajo
+  global cambia_brillo, cambia_flash, cambia_inversa, cambia_papel, cambia_tinta, juego_alto, juego_bajo
   if juego_alto == 48:  # La @ de SWAN
     juego_alto = '@'
     juego_bajo = '@'
@@ -123,10 +124,11 @@ def abre_ventana (traza, factorEscala, bbdd):
     juego_alto = '\x0e'
     juego_bajo = '\x0f'
   if cambia_brillo:
-    cambia_brillo = chr (cambia_brillo)
-    cambia_flash  = chr (cambia_flash)
-    cambia_papel  = chr (cambia_papel)
-    cambia_tinta  = chr (cambia_tinta)
+    cambia_brillo  = chr (cambia_brillo)
+    cambia_inversa = chr (cambia_inversa)
+    cambia_flash   = chr (cambia_flash)
+    cambia_papel   = chr (cambia_papel)
+    cambia_tinta   = chr (cambia_tinta)
 
 def borra_pantalla (desdeCursor = False, noRedibujar = False):
   """Limpia la subventana de impresión"""
