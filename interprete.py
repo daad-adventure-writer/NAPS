@@ -894,6 +894,7 @@ if __name__ == '__main__':
   random.seed()  # Inicializamos el generador de números aleatorios
 
   argsParser = argparse.ArgumentParser (sys.argv[0], description = 'Intérprete de Quill/PAWS/SWAN/DAAD en Python')
+  argsParser.add_argument ('-c', '--columns', type = int, choices = range (32, 43), help = 'número de columnas a usar al imitar Spectrum')
   argsParser.add_argument ('-D', '--debug', action = 'store_true', help = 'ejecutar los condactos paso a paso')
   argsParser.add_argument ('-g', '--gui', choices = ('pygame', 'stdio'), help = 'interfaz gráfica a utilizar')
   argsParser.add_argument ('--ide', action = 'store_true', help = argparse.SUPPRESS)
@@ -968,7 +969,7 @@ if __name__ == '__main__':
     sys.exit()
 
   if extension == 'sna' or libreria.plataforma == 1:  # Plataforma ZX Spectrum
-    gui.prepara_topes (42, 24)
+    gui.prepara_topes (args.columns if args.columns else 42, 24)
   else:
     gui.prepara_topes (53, 25)
 

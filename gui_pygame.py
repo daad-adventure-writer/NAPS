@@ -124,8 +124,8 @@ def abre_ventana (traza, escalar, bbdd):
     else:
       resolucion = (400, 200)  # Ventana juego + banderas
   else:  # Ventana juego sólo
-    if limite[0] == 42:
-      resolucion = (256, 192)
+    if limite[0] < 53:
+      resolucion = (limite[0] * 6, limite[1] * 8)
   if escalar > 1:
     escalada = pygame.display.set_mode ((resolucion[0] * factorEscala, resolucion[1] * factorEscala), pygame.RESIZABLE)
     ventana  = pygame.Surface (resolucion)
