@@ -510,6 +510,7 @@ El parámetro prompt, es el mensaje de prompt
 El parámetro inicio es la entrada a medias anterior
 El parámetro timeout es una lista con el tiempo muerto, en segundos
 El parámetro espaciar permite elegir si se debe dejar una línea en blanco tras el último texto"""
+  cursorMovido = None  # Posición de cursor que recuperar si se ha movido
   posHistorial = len (historial)
   textoAntes   = False  # Si había texto en la subventana de entrada antes de la línea del prompt
   if subv_input:  # Guardamos la subventana que estaba elegida justo antes, y cambiamos a la de entrada
@@ -525,6 +526,9 @@ El parámetro espaciar permite elegir si se debe dejar una línea en blanco tras e
       subventanas[elegida][1] += 1  # FIXME: no asumir que es una línea lo que se había ocupado antes del prompt en la subventana de entrada
       prompt     = prompt[1:]
       textoAntes = True
+  elif opcs_input & 8 and cursores[elegida][1] < topes[elegida][1] - 2:  # Pedir la entrada debajo del todo
+    cursorMovido         = cursores[elegida]
+    cursores[elegida][1] = topes[elegida][1] - 2
   elif espaciar and cursores[elegida][1] >= topes[elegida][1] - 2 and cursores[elegida][0]:
     prompt = '\n' + prompt  # Dejaremos una línea en blanco entre el último texto y el prompt
   # El prompt se imprimirá en la siguiente línea de la subventana de entrada
@@ -636,6 +640,8 @@ El parámetro espaciar permite elegir si se debe dejar una línea en blanco tras e
       subventanas[elegida][1] -= 1  # FIXME: no asumir que es una línea lo que se había ocupado antes del prompt en la subventana de entrada
     elegida = subvAntes  # Recuperamos la subventana elegida
   else:
+    if cursorMovido:
+      cursores[elegida] = cursorMovido
     borra_pantalla (True)
   if not subv_input or opcs_input & 2:  # Realimentación permanente de la orden, junto al texto del juego
     imprime_cadena (''.join (entrada) + ' ')
