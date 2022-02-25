@@ -503,8 +503,12 @@ def a1_GET (objno):
 def a1_GRAPHIC (option):
   prn ('TODO: a1_GRAPHIC no implementado', file = sys.stderr)  # TODO
 
-def a1_INPUT (option):
-  prn ('TODO: a1_INPUT no implementado', file = sys.stderr)  # TODO
+def a1_INPUT (options):
+  """Cambia opciones de la entrada del jugador"""
+  if options & 1:  # Pedir la orden en la parte de abajo de la pantalla
+    # Usaremos el número de opción 8 porque el 1 en DAAD es otra cosa
+    options = options - (options & 1) + 8
+  gui.cambia_subv_input (0, options)
 
 def a1_LINE (lineno):
   """Cambia el número de línea donde inicia el texto, para dejar la parte de arriba reservada para gráficos"""
