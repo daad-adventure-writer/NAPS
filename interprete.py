@@ -967,7 +967,7 @@ if __name__ == '__main__':
     prn ('Error al tratar de cargar la base de datos: formato incompatible o fichero corrupto', file = sys.stderr)
     sys.exit()
 
-  if extension == 'sna' or libreria.plataforma == 17:
+  if extension == 'sna' or libreria.plataforma == 1:  # Plataforma ZX Spectrum
     gui.prepara_topes (42, 24)
   else:
     gui.prepara_topes (53, 25)
