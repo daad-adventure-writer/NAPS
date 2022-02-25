@@ -157,13 +157,11 @@ def c1_ADVERB (word):
 
 def c1_MOVE (flagno):
   """Busca el verbo de la SL actual en las conexiones de la localidad contenida en la bandera flagno. Si ese verbo estaba, guarda la localidad de destino en esa bandera, y devuelve resultado satisfactorio"""
-  if banderas[flagno] >= len (conexiones):
+  destino = busca_conexion (banderas[flagno])
+  if destino == None:
     return False
-  for verbo, destino in conexiones[banderas[flagno]]:
-    if verbo == banderas[33]:
-      banderas[flagno] = destino
-      return True
-  return False
+  banderas[flagno] = destino
+  return True
 
 def c1_NOUN2 (word):
   """Satisfactorio si el segundo nombre de la SL actual es igual a word"""

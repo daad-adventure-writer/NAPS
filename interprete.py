@@ -67,6 +67,15 @@ def busca_condacto (firma):
   prn ('FIXME: Condacto con firma', firma, 'no implementado')
   sys.exit()
 
+def busca_conexion (locOrigen):
+  """Busca en las entradas de locOrigen en la tabla de conexiones el verbo de la SL actual, y devuelve la localidad de destino, o bien None si no estaba"""
+  if locOrigen >= len (conexiones):
+    return None
+  for verbo, destino in conexiones[locOrigen]:
+    if verbo == banderas[33]:  # Verbo de la SL actual
+      return destino
+  return None
+
 def cambia_articulo (texto, mayusculas = False):
   if not texto:
     return texto
@@ -962,7 +971,7 @@ if __name__ == '__main__':
     gui.prepara_topes (53, 25)
 
   constantes = ('EXT_SAVEGAME', 'LONGITUD_PAL', 'NOMBRE_SISTEMA', 'NUM_BANDERAS', 'TIPOS_PAL')
-  funciones  = ('busca_condacto', 'cambia_articulo', 'da_peso', 'imprime_mensaje', 'obj_referido', 'parsea_orden', 'restaura_objetos', 'tabla_hizo_algo')
+  funciones  = ('busca_condacto', 'busca_conexion', 'cambia_articulo', 'da_peso', 'imprime_mensaje', 'obj_referido', 'parsea_orden', 'restaura_objetos', 'tabla_hizo_algo')
   variables  = ('atributos', 'atributos_extra', 'banderas', 'compatibilidad', 'conexiones', 'desc_locs', 'desc_objs', 'doall_activo', 'frases', 'locs_iniciales', 'locs_objs', 'msgs_usr', 'msgs_sys', 'nombres_objs', 'nueva_version', 'num_objetos', 'partida', 'peso_llevado', 'pila_procs', 'tablas_proceso', 'vocabulario')
 
   # Hacemos lo equivalente a: from libreria import *, cargando sólo lo exportable
