@@ -977,34 +977,6 @@ def muestraFallo (mensaje, detalle):
   dlg_fallo.setInformativeText (detalle)
   dlg_fallo.exec_()
 
-def muestraTextos (dialogo, listaTextos, tipoTextos):
-  """Muestra uno de los diálogos para consultar los textos"""
-  global dlg_desc_locs, dlg_desc_objs, dlg_msg_sys, dlg_msg_usr
-  if dialogo:  # Diálogo ya creado
-    try:
-      dialogo.showMaximized()
-      return
-    except RuntimeError:  # Diálogo borrado por Qt
-      pass  # Lo crearemos de nuevo
-  # Creamos el diálogo
-  selector.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
-  dialogo = QTableView (selector)
-  dialogo.horizontalHeader().setStretchLastSection(True)
-  dialogo.setModel (ModeloTextos (dialogo, listaTextos))
-  titulo = ('Mensaj' if tipoTextos[0] == 'm' else 'Descripcion') + 'es de ' + tipoTextos[5:]
-  dialogo.setWindowTitle (titulo)
-  selector.centralWidget().addSubWindow (dialogo)
-  dialogo.showMaximized()
-  selector.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
-  if tipoTextos == 'desc_localidades':
-    dlg_desc_locs = dialogo
-  elif tipoTextos == 'desc_objetos':
-    dlg_desc_objs = dialogo
-  elif tipoTextos == 'msgs_sistema':
-    dlg_msg_sys = dialogo
-  else:
-    dlg_msg_usr = dialogo
-
 def muestraMsgSys ():
   """Muestra el diálogo para consultar los mensajes de sistema"""
   muestraTextos (dlg_msg_sys, mod_actual.msgs_sys, 'msgs_sistema')
@@ -1052,6 +1024,34 @@ def muestraProcesos ():
   dlg_procesos.setWindowTitle ('Tablas de proceso')
   selector.centralWidget().addSubWindow (dlg_procesos)
   dlg_procesos.showMaximized()
+
+def muestraTextos (dialogo, listaTextos, tipoTextos):
+  """Muestra uno de los diálogos para consultar los textos"""
+  global dlg_desc_locs, dlg_desc_objs, dlg_msg_sys, dlg_msg_usr
+  if dialogo:  # Diálogo ya creado
+    try:
+      dialogo.showMaximized()
+      return
+    except RuntimeError:  # Diálogo borrado por Qt
+      pass  # Lo crearemos de nuevo
+  # Creamos el diálogo
+  selector.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
+  dialogo = QTableView (selector)
+  dialogo.horizontalHeader().setStretchLastSection(True)
+  dialogo.setModel (ModeloTextos (dialogo, listaTextos))
+  titulo = ('Mensaj' if tipoTextos[0] == 'm' else 'Descripcion') + 'es de ' + tipoTextos[5:]
+  dialogo.setWindowTitle (titulo)
+  selector.centralWidget().addSubWindow (dialogo)
+  dialogo.showMaximized()
+  selector.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
+  if tipoTextos == 'desc_localidades':
+    dlg_desc_locs = dialogo
+  elif tipoTextos == 'desc_objetos':
+    dlg_desc_objs = dialogo
+  elif tipoTextos == 'msgs_sistema':
+    dlg_msg_sys = dialogo
+  else:
+    dlg_msg_usr = dialogo
 
 def muestraVistaVocab ():
   """Muestra el diálogo para consultar el vocabulario"""
