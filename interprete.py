@@ -328,7 +328,9 @@ def describe_localidad ():
   # pantalla (el que se contiene en la bandera 40) es par
   # Según http://graemeyeandle.atwebpages.com/advent/pawtech.html debe ser así,
   # en lugar de si no está a 1, como decía la guía técnica en papel
-  if NOMBRE_SISTEMA == 'PAWS' and not banderas[40] & 1:
+  if NOMBRE_SISTEMA == 'QUILL':
+    gui.borra_pantalla()
+  elif NOMBRE_SISTEMA == 'PAWS' and not banderas[40] & 1:
     if gui.elegida == 2:  # Se había usado PROTECT
       gui.elige_subventana (1)
     gui.borra_pantalla()
@@ -361,14 +363,14 @@ def describe_localidad ():
 
     # Lista objetos presentes en QUILL
     if NOMBRE_SISTEMA == 'QUILL':
+      gui.imprime_cadena ('\n')
       alguno = False
       for objno in range (num_objetos[0]):
         if locs_objs[objno] == banderas[38]:
           if not alguno:
-            gui.imprime_cadena (msgs_sys[1])
+            gui.imprime_cadena (msgs_sys[1] + '\n')
             alguno = True
-          gui.imprime_cadena (desc_objs[objno])
-          gui.imprime_cadena ('\n')
+          gui.imprime_cadena (desc_objs[objno] + '\n')
 
 def obtener_orden ():
   """Hace lo que dice la guía técnica de PAWS, páginas 8 y 9: 5.- COGER LA FRASE
@@ -427,6 +429,8 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
       # Aunque no lo vea en la Guía Técnica, se imprime el mensaje 33 justo antes de esperar la orden
       if len (msgs_sys) > 32:
         peticion += msgs_sys[33]
+      else:
+        peticion += '>'  # Prompt de QUILL
       if traza:
         gui.imprime_banderas (banderas)
       timeout = [banderas[48]] if NUM_BANDERAS > 39 else [0]
