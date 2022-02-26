@@ -225,6 +225,12 @@ def c2_SMALLER (flagno1, flagno2):
 
 # ACCIONES
 
+def a0_ANYKEY ():
+  """Imprime el mensaje del sistema 16 y se espera hasta que se pulse una tecla, o hasta que haya pasado el tiempo muerto, si se ha usado tiempo muerto"""
+  gui.imprime_cadena (msgs_sys[16])
+  gui.espera_tecla()
+  # TODO: Tiempo muerto
+
 def a0_CENTRE ():
   prn ('TODO: a0_CENTRE no implementado', file = sys.stderr)  # TODO
 

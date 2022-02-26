@@ -384,7 +384,7 @@ En plataformas Atari ST y PC, aquí se refleja cuál es el modo gráfico actual de 
 
 \sistema{\paw}
 
-Esta bandera no tiene ningún propósito predefinido y, por tanto, puede ser utilizadas libremente por el programador.
+Esta bandera no tiene ningún propósito predefinido y, por tanto, puede ser utilizada libremente por el programador.
 
 \sistema{\daad}
 
@@ -483,6 +483,18 @@ Las acciones son condactos que no interrumpen el flujo de ejecución.
 Las acciones de cada sistema y sus finalidades son:
 
 \subsubsection{ANYKEY}
+
+\sistema{\quill}
+
+Imprime el mensaje de sistema 16 en las dos últimas líneas de la pantalla, y espera a que se pulse una tecla. ¿Luego borra el mensaje?
+
+\sistema{\paw}
+
+Imprime el mensaje de sistema 16 en las dos últimas líneas de la pantalla, espera a que se pulse una tecla o se supere el tiempo muerto, y borra el mensaje.
+
+\sistemas{\swan y \daad}
+
+Imprime el mensaje de sistema 16, y espera a que se pulse una tecla o se supere el tiempo muerto. Al menos en Jabato, luego no borra el mensaje.
 
 Al menos en \daad, este condacto no tiene en cuenta pulsaciones de teclas
 modificadoras, al menos no tiene en cuenta: Ctrl, Shift, Alt, Teclas de Windows

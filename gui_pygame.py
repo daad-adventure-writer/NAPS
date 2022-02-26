@@ -435,12 +435,14 @@ def elige_parte (partes, graficos):
   return partes[entrada]
 
 def elige_subventana (numero):
-  """Selecciona una de las subventanas"""
+  """Selecciona la subventana dada y devuelve el número de subventana anterior"""
   global elegida
-  elegida = numero
+  anterior = elegida
+  elegida  = numero
   if traza:
     prn ('Subventana', elegida, 'elegida, en', subventanas[elegida],
          'con topes', topes[elegida], 'y cursor en', cursores[elegida])
+  return anterior
 
 def espera_tecla (tiempo = 0):
   """Espera hasta que se pulse una tecla (modificadores no), o hasta que pase tiempo segundos, si tiempo > 0"""

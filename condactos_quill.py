@@ -122,9 +122,13 @@ def c2_LT (flagno, value):
 
 def a0_ANYKEY ():
   """Imprime el mensaje del sistema 16 al final de la pantalla, y se espera hasta que se pulse una tecla, o hasta que haya pasado el tiempo muerto, si se ha usado tiempo muerto"""
-  # TODO: Al final de la pantalla
+  subvActual = gui.elige_subventana (3)
+  gui.mueve_cursor (0, gui.limite[1] - 2)  # Es en las dos últimas líneas donde se imprime
   gui.imprime_cadena (msgs_sys[16])
   gui.espera_tecla()
+  gui.mueve_cursor (0, gui.limite[1] - 2)
+  gui.borra_pantalla (True)          # Borra el texto escrito
+  gui.elige_subventana (subvActual)  # Vuelve a la subventana inicial
   # TODO: Tiempo muerto
 
 def a0_AUTOG ():

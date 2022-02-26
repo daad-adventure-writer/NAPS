@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Condactos específicos de SWAN
-# Copyright (C) 2020-2021 José Manuel Ferrer Ortiz
+# Copyright (C) 2020-2022 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -48,6 +48,12 @@ def c2_OAT (objno, flagno):
 
 
 # ACCIONES
+
+def a0_ANYKEY ():
+  """Imprime el mensaje del sistema 16 y se espera hasta que se pulse una tecla, o hasta que haya pasado el tiempo muerto, si se ha usado tiempo muerto"""
+  gui.imprime_cadena (msgs_sys[16])
+  gui.espera_tecla()
+  # TODO: Tiempo muerto
 
 def a0_DESC ():
   """Termina todo lo que estuviese en ejecución (tablas, bucles DOALL, etc.) y salta a describir la localidad actual"""
