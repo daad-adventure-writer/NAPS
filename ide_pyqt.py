@@ -52,10 +52,10 @@ dlg_acerca_de   = None  # Diálogo "Acerca de"
 dlg_contadores  = None  # Diálogo de contadores
 dlg_guardar     = None  # Diálogo de guardar fichero
 dlg_fallo       = None  # Diálogo para mostrar fallos leves
-dlg_desc_locs   = None  # Diálogo para consultar las descripciones de localidades
-dlg_desc_objs   = None  # Diálogo para consultar las descripciones de objetos
-dlg_msg_sys     = None  # Diálogo para consultar los mensajes de sistema
-dlg_msg_usr     = None  # Diálogo para consultar los mensajes de usuario
+dlg_desc_locs   = None  # Diálogo para consultar y modificar las descripciones de localidades
+dlg_desc_objs   = None  # Diálogo para consultar y modificar las descripciones de objetos
+dlg_msg_sys     = None  # Diálogo para consultar y modificar los mensajes de sistema
+dlg_msg_usr     = None  # Diálogo para consultar y modificar los mensajes de usuario
 dlg_procesos    = None  # Diálogo para consultar y modificar las tablas de proceso
 dlg_vista_vocab = None  # Diálogo para consultar el vocabulario
 
@@ -79,19 +79,20 @@ info_importar = []
 info_nueva = []
 
 # Pares nombre y tipos posibles que deben tener los módulos de librería
-nombres_necesarios = (('acciones',       dict),
-                      ('condiciones',    dict),
-                      ('func_nueva',     str),
-                      ('funcs_exportar', tuple),
-                      ('funcs_importar', tuple),
-                      ('lee_secs_ctrl',  types.FunctionType),
-                      ('INDIRECCION',    bool),
-                      ('msgs_sys',       list),
-                      ('msgs_usr',       list),
-                      ('NOMBRE_SISTEMA', str),
-                      ('tablas_proceso', list),
-                      ('TIPOS_PAL',      tuple),
-                      ('vocabulario',    list))
+nombres_necesarios = (('acciones',          dict),
+                      ('condiciones',       dict),
+                      ('func_nueva',        str),
+                      ('funcs_exportar',    tuple),
+                      ('funcs_importar',    tuple),
+                      ('escribe_secs_ctrl', types.FunctionType),
+                      ('lee_secs_ctrl',     types.FunctionType),
+                      ('INDIRECCION',       bool),
+                      ('msgs_sys',          list),
+                      ('msgs_usr',          list),
+                      ('NOMBRE_SISTEMA',    str),
+                      ('tablas_proceso',    list),
+                      ('TIPOS_PAL',         tuple),
+                      ('vocabulario',       list))
 
 
 class CampoTexto (QTextEdit):
@@ -438,6 +439,27 @@ class ModalEntrada (QInputDialog):
   def showEvent (self, evento):
     QTimer.singleShot (0, self._valorInicial)
 
+class ModalEntradaTexto (QDialog):
+  """Modal de entrada de texto multilínea"""
+  def __init__ (self, parent, texto):
+    QDialog.__init__ (self, parent)
+    self.campo = QPlainTextEdit (mod_actual.lee_secs_ctrl (texto, QChar).replace ('\\n', '\n'), self)
+    layout = QVBoxLayout (self)
+    layout.addWidget (self.campo)
+    layoutBotones = QHBoxLayout()
+    botonAceptar  = QPushButton ('&Aceptar',  self)
+    botonCancelar = QPushButton ('&Cancelar', self)
+    botonAceptar.clicked.connect (self.accept)
+    botonCancelar.clicked.connect (self.reject)
+    layoutBotones.addWidget (botonAceptar)
+    layoutBotones.addWidget (botonCancelar)
+    layout.addLayout (layoutBotones)
+    self.setWindowTitle ('Edita el texto')
+
+  def daTexto (self):
+    """Devuelve el texto editado"""
+    return mod_actual.escribe_secs_ctrl (str (self.campo.toPlainText()))
+
 class ModeloTextos (QAbstractTableModel):
   """Modelo para las tablas de mensajes y de descripciones"""
   def __init__ (self, parent, listaTextos):
@@ -665,16 +687,16 @@ def creaAcciones ():
   accSalir.setShortcut ('Ctrl+Q')
   accAcercaDe.setStatusTip   ('Muestra información del programa')
   accContadores.setStatusTip ('Muestra el número de elementos de cada tipo')
-  accDescLocs.setStatusTip   ('Permite consultar las descripciones de las localidades')
-  accDescObjs.setStatusTip   ('Permite consultar las descripciones de los objetos')
+  accDescLocs.setStatusTip   ('Permite consultar y modificar las descripciones de las localidades')
+  accDescObjs.setStatusTip   ('Permite consultar y modificar las descripciones de los objetos')
   accDireccs.setStatusTip    ('Permite añadir y editar las palabras de dirección')
   accExportar.setStatusTip   ('Exporta la base de datos a un fichero')
   accImportar.setStatusTip   ('Importa una base de datos desde un fichero')
-  accMsgSys.setStatusTip     ('Permite consultar los mensajes de sistema')
-  accMsgUsr.setStatusTip     ('Permite consultar los mensajes de usuario')
+  accMsgSys.setStatusTip     ('Permite consultar y modificar los mensajes de sistema')
+  accMsgUsr.setStatusTip     ('Permite consultar y modificar los mensajes de usuario')
   accPasoAPaso.setStatusTip  ('Depura la base de datos ejecutándola paso a paso')
   accSalir.setStatusTip      ('Sale de la aplicación')
-  accTblProcs.setStatusTip   ('Permite consultar las tablas de proceso')
+  accTblProcs.setStatusTip   ('Permite consultar y modificar las tablas de proceso')
   accTblVocab.setStatusTip   ('Permite consultar el vocabulario')
   accTblProcs.setToolTip ('Tablas de proceso')
   accTblVocab.setToolTip ('Tabla de vocabulario')
@@ -767,6 +789,30 @@ def dialogoImportaBD ():
     nombreFichero = str (dlg_abrir.selectedFiles()[0])
     importaBD (nombreFichero, indiceFiltro)
     selector.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
+
+def editaDescLoc (indice):
+  """Permite editar el texto de una descripción de localidad, tras hacer doble click en su tabla"""
+  dialogo = ModalEntradaTexto (dlg_desc_locs, mod_actual.desc_locs[indice.row()])
+  if dialogo.exec_() == QDialog.Accepted:
+    mod_actual.desc_locs[indice.row()] = dialogo.daTexto()
+
+def editaDescObj (indice):
+  """Permite editar el texto de una descripción de objeto, tras hacer doble click en su tabla"""
+  dialogo = ModalEntradaTexto (dlg_desc_objs, mod_actual.desc_objs[indice.row()])
+  if dialogo.exec_() == QDialog.Accepted:
+    mod_actual.desc_objs[indice.row()] = dialogo.daTexto()
+
+def editaMsgSys (indice):
+  """Permite editar el texto de un mensaje de sistema, tras hacer doble click en su tabla"""
+  dialogo = ModalEntradaTexto (dlg_msg_sys, mod_actual.msgs_sys[indice.row()])
+  if dialogo.exec_() == QDialog.Accepted:
+    mod_actual.msgs_sys[indice.row()] = dialogo.daTexto()
+
+def editaMsgUsr (indice):
+  """Permite editar el texto de un mensaje de usuario, tras hacer doble click en su tabla"""
+  dialogo = ModalEntradaTexto (dlg_msg_usr, mod_actual.msgs_usr[indice.row()])
+  if dialogo.exec_() == QDialog.Accepted:
+    mod_actual.msgs_usr[indice.row()] = dialogo.daTexto()
 
 def ejecutaPorPasos ():
   """Ejecuta la base de datos para depuración paso a paso"""
@@ -1041,17 +1087,21 @@ def muestraTextos (dialogo, listaTextos, tipoTextos):
   dialogo.setModel (ModeloTextos (dialogo, listaTextos))
   titulo = ('Mensaj' if tipoTextos[0] == 'm' else 'Descripcion') + 'es de ' + tipoTextos[5:]
   dialogo.setWindowTitle (titulo)
+  if tipoTextos == 'desc_localidades':
+    dialogo.doubleClicked.connect (editaDescLoc)
+    dlg_desc_locs = dialogo
+  elif tipoTextos == 'desc_objetos':
+    dialogo.doubleClicked.connect (editaDescObj)
+    dlg_desc_objs = dialogo
+  elif tipoTextos == 'msgs_sistema':
+    dialogo.doubleClicked.connect (editaMsgSys)
+    dlg_msg_sys = dialogo
+  else:
+    dialogo.doubleClicked.connect (editaMsgUsr)
+    dlg_msg_usr = dialogo
   selector.centralWidget().addSubWindow (dialogo)
   dialogo.showMaximized()
   selector.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
-  if tipoTextos == 'desc_localidades':
-    dlg_desc_locs = dialogo
-  elif tipoTextos == 'desc_objetos':
-    dlg_desc_objs = dialogo
-  elif tipoTextos == 'msgs_sistema':
-    dlg_msg_sys = dialogo
-  else:
-    dlg_msg_usr = dialogo
 
 def muestraVistaVocab ():
   """Muestra el diálogo para consultar el vocabulario"""
