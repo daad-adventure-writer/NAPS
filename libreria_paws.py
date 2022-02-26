@@ -484,7 +484,7 @@ def prepara_plataforma ():
     bajo_nivel_cambia_endian (le = False)
   # Preparamos el desplazamiento inicial para carga desde memoria
   if plataforma == 0 and version == 21:  # Formato sna de Spectrum 48K
-    conversion       = {'#': 'é', '$': 'í', '%': 'ó', '&': 'ú', '@': 'á', '[': '¡', ']': '¿', '^': '»', '`': '«', '|': 'ñ', '\x7f': '©', '\x80': ' ', '\x92': u'\u2192', '\x93': u'\u2190', '\x97': '%'}
+    conversion       = {'#': 'é', '$': 'í', '%': 'ó', '&': 'ú', '@': 'á', '[': '¡', ']': '¿', '^': '»', '`': '«', '|': 'ñ', '\x7f': '©', '\x80': ' ', '\x90': 'X', '\x92': u'\u2192', '\x93': u'\u2190', '\x97': '%'}
     despl_ini        = 16357
     fin_cadena       = 31
     nueva_linea      = 7
