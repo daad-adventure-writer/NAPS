@@ -904,10 +904,8 @@ Los caracteres de linea deben estar convertidos a posiciones en la tipografía"""
 def mueve_cursor (columna, fila = cursores[elegida][1]):
   """Cambia de posición el cursor de la subventana elegida"""
   cursores[elegida] = [columna, fila]
-  subventana        = subventanas[elegida]
-  tope              = topes[elegida]
   if traza:
-    prn ('Subventana', elegida, 'en', subventana, 'con topes', tope,
+    prn ('Subventana', elegida, 'en', subventanas[elegida], 'con topes', topes[elegida],
          'y cursor movido a', cursores[elegida])
 
 def prepara_topes (columnas, filas):
