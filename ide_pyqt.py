@@ -52,6 +52,8 @@ dlg_acerca_de   = None  # Diálogo "Acerca de"
 dlg_contadores  = None  # Diálogo de contadores
 dlg_guardar     = None  # Diálogo de guardar fichero
 dlg_fallo       = None  # Diálogo para mostrar fallos leves
+dlg_desc_locs   = None  # Diálogo para consultar las descripciones de localidades
+dlg_desc_objs   = None  # Diálogo para consultar las descripciones de objetos
 dlg_msg_sys     = None  # Diálogo para consultar los mensajes de sistema
 dlg_msg_usr     = None  # Diálogo para consultar los mensajes de usuario
 dlg_procesos    = None  # Diálogo para consultar y modificar las tablas de proceso
@@ -436,31 +438,33 @@ class ModalEntrada (QInputDialog):
   def showEvent (self, evento):
     QTimer.singleShot (0, self._valorInicial)
 
-class ModeloMensajes (QAbstractTableModel):
-  """Modelo para las tablas de mensajes"""
-  def __init__ (self, parent, listaMensajes):
+class ModeloTextos (QAbstractTableModel):
+  """Modelo para las tablas de mensajes y de descripciones"""
+  def __init__ (self, parent, listaTextos):
     QAbstractTableModel.__init__ (self, parent)
-    self.listaMensajes = listaMensajes
+    self.listaTextos = listaTextos
 
   def columnCount (self, parent):
     return 1
 
   def data (self, index, role):
     if role == Qt.DisplayRole:
-      return mod_actual.lee_secs_ctrl (self.listaMensajes[index.row()])
+      return mod_actual.lee_secs_ctrl (self.listaTextos[index.row()])
 
   def flags (self, index):
     return Qt.ItemIsSelectable | Qt.ItemIsEnabled
 
   def headerData (self, section, orientation, role):
     if orientation == Qt.Horizontal and role == Qt.DisplayRole:
-      return 'Texto del mensaje'
+      if self.listaTextos in (mod_actual.msgs_sys, mod_actual.msgs_sys):
+        return 'Texto del mensaje'
+      return 'Texto de la descripción'
     if orientation == Qt.Vertical and role == Qt.DisplayRole:
       return section  # Cuenta el número de mensaje desde 0
     return QAbstractTableModel.headerData (self, section, orientation, role)
 
   def rowCount (self, parent):
-    return len (self.listaMensajes)
+    return len (self.listaTextos)
 
 class ModeloVocabulario (QAbstractTableModel):
   """Modelo para la tabla de vocabulario"""
@@ -635,20 +639,23 @@ def compruebaNombre (modulo, nombre, tipo):
 
 def creaAcciones ():
   """Crea las acciones de menú y barra de botones"""
-  global accAcercaDe, accContadores, accDireccs, accExportar, accImportar, accMsgSys, \
-         accMsgUsr, accPasoAPaso, accSalir, accTblProcs, accTblVocab
+  global accAcercaDe, accContadores, accDescLocs, accDescObjs, accDireccs, accExportar, accImportar, accMsgSys, accMsgUsr, accPasoAPaso, accSalir, accTblProcs, accTblVocab
   accAcercaDe   = QAction (icono_ide, '&Acerca de NAPS IDE', selector)
   accContadores = QAction (icono ('contadores'), '&Contadores', selector)
+  accDescLocs   = QAction (icono ('desc_localidad'), 'Descripciones de &localidades', selector)
+  accDescObjs   = QAction (icono ('desc_objeto'),    'Descripciones de &objetos',     selector)
   accDireccs    = QAction (icono ('direccion'), '&Direcciones', selector)
   accExportar   = QAction (icono ('exportar'), '&Exportar', selector)
   accImportar   = QAction (icono ('importar'), '&Importar', selector)
-  accMsgSys     = QAction (icono ('msg_sistema'), '&Sistema', selector)
-  accMsgUsr     = QAction (icono ('msg_usuario'), '&Usuario', selector)
+  accMsgSys     = QAction (icono ('msg_sistema'), 'Mensajes de &sistema', selector)
+  accMsgUsr     = QAction (icono ('msg_usuario'), 'Mensajes de &usuario', selector)
   accPasoAPaso  = QAction (icono ('pasoapaso'), '&Paso a paso', selector)
   accSalir      = QAction (icono ('salir'), '&Salir', selector)
   accTblProcs   = QAction (icono ('proceso'), '&Tablas', selector)
   accTblVocab   = QAction (icono ('vocabulario'), '&Tabla', selector)
   accContadores.setEnabled (False)
+  accDescLocs.setEnabled   (False)
+  accDescObjs.setEnabled   (False)
   accDireccs.setEnabled    (False)
   accMsgSys.setEnabled     (False)
   accMsgUsr.setEnabled     (False)
@@ -658,6 +665,8 @@ def creaAcciones ():
   accSalir.setShortcut ('Ctrl+Q')
   accAcercaDe.setStatusTip   ('Muestra información del programa')
   accContadores.setStatusTip ('Muestra el número de elementos de cada tipo')
+  accDescLocs.setStatusTip   ('Permite consultar las descripciones de las localidades')
+  accDescObjs.setStatusTip   ('Permite consultar las descripciones de los objetos')
   accDireccs.setStatusTip    ('Permite añadir y editar las palabras de dirección')
   accExportar.setStatusTip   ('Exporta la base de datos a un fichero')
   accImportar.setStatusTip   ('Importa una base de datos desde un fichero')
@@ -671,6 +680,8 @@ def creaAcciones ():
   accTblVocab.setToolTip ('Tabla de vocabulario')
   accAcercaDe.triggered.connect   (muestraAcercaDe)
   accContadores.triggered.connect (muestraContadores)
+  accDescLocs.triggered.connect   (muestraDescLocs)
+  accDescObjs.triggered.connect   (muestraDescObjs)
   accExportar.triggered.connect   (exportaBD)
   accImportar.triggered.connect   (dialogoImportaBD)
   accMsgSys.triggered.connect     (muestraMsgSys)
@@ -689,6 +700,8 @@ def creaBarraBotones ():
   barraBotones.addAction (accTblVocab)
   barraBotones.addAction (accMsgSys)
   barraBotones.addAction (accMsgUsr)
+  barraBotones.addAction (accDescLocs)
+  barraBotones.addAction (accDescObjs)
   barraBotones.setIconSize (QSize (16, 16))
 
 def creaMenus ():
@@ -706,11 +719,14 @@ def creaMenus ():
   menuBD.addAction (accSalir)
   menuEjecutar = selector.menuBar().addMenu ('&Ejecutar')
   menuEjecutar.addAction (accPasoAPaso)
-  menuMensajes = selector.menuBar().addMenu ('&Mensajes')
-  menuMensajes.addAction (accMsgSys)
-  menuMensajes.addAction (accMsgUsr)
   menuProcesos = selector.menuBar().addMenu ('&Procesos')
   menuProcesos.addAction (accTblProcs)
+  menuTextos = selector.menuBar().addMenu ('&Textos')
+  menuTextos.addAction (accDescLocs)
+  menuTextos.addAction (accDescObjs)
+  menuTextos.addSeparator()
+  menuTextos.addAction (accMsgSys)
+  menuTextos.addAction (accMsgUsr)
   menuVocabulario = selector.menuBar().addMenu ('&Vocabulario')
   menuVocabulario.addAction (accDireccs)
   menuVocabulario.addAction (accTblVocab)
@@ -941,6 +957,14 @@ def muestraContadores ():
     dlg_contadores.setWindowTitle ('Contadores')
   dlg_contadores.exec_()
 
+def muestraDescLocs ():
+  """Muestra el diálogo para consultar las descripciones de localidades"""
+  muestraTextos (dlg_desc_locs, mod_actual.desc_locs, 'desc_localidades')
+
+def muestraDescObjs ():
+  """Muestra el diálogo para consultar las descripciones de objetos"""
+  muestraTextos (dlg_desc_objs, mod_actual.desc_objs, 'desc_objetos')
+
 def muestraFallo (mensaje, detalle):
   """Muestra un diálogo de fallo leve"""
   global dlg_fallo
@@ -953,9 +977,9 @@ def muestraFallo (mensaje, detalle):
   dlg_fallo.setInformativeText (detalle)
   dlg_fallo.exec_()
 
-def muestraMensajes (dialogo, listaMensajes, tipoMensajes):
-  """Muestra uno de los diálogos para consultar los mensajes"""
-  global dlg_msg_sys, dlg_msg_usr
+def muestraTextos (dialogo, listaTextos, tipoTextos):
+  """Muestra uno de los diálogos para consultar los textos"""
+  global dlg_desc_locs, dlg_desc_objs, dlg_msg_sys, dlg_msg_usr
   if dialogo:  # Diálogo ya creado
     try:
       dialogo.showMaximized()
@@ -966,23 +990,28 @@ def muestraMensajes (dialogo, listaMensajes, tipoMensajes):
   selector.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
   dialogo = QTableView (selector)
   dialogo.horizontalHeader().setStretchLastSection(True)
-  dialogo.setModel (ModeloMensajes (dialogo, listaMensajes))
-  dialogo.setWindowTitle ('Mensajes de ' + tipoMensajes)
+  dialogo.setModel (ModeloTextos (dialogo, listaTextos))
+  titulo = ('Mensaj' if tipoTextos[0] == 'm' else 'Descripcion') + 'es de ' + tipoTextos[5:]
+  dialogo.setWindowTitle (titulo)
   selector.centralWidget().addSubWindow (dialogo)
   dialogo.showMaximized()
   selector.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
-  if tipoMensajes == 'sistema':
+  if tipoTextos == 'desc_localidades':
+    dlg_desc_locs = dialogo
+  elif tipoTextos == 'desc_objetos':
+    dlg_desc_objs = dialogo
+  elif tipoTextos == 'msgs_sistema':
     dlg_msg_sys = dialogo
   else:
     dlg_msg_usr = dialogo
 
 def muestraMsgSys ():
   """Muestra el diálogo para consultar los mensajes de sistema"""
-  muestraMensajes (dlg_msg_sys, mod_actual.msgs_sys, 'sistema')
+  muestraTextos (dlg_msg_sys, mod_actual.msgs_sys, 'msgs_sistema')
 
 def muestraMsgUsr ():
   """Muestra el diálogo para consultar los mensajes de usuario"""
-  muestraMensajes (dlg_msg_usr, mod_actual.msgs_usr, 'usuario')
+  muestraTextos (dlg_msg_usr, mod_actual.msgs_usr, 'msgs_usuario')
 
 def muestraProcesos ():
   """Muestra el diálogo para las tablas de proceso"""
@@ -1109,6 +1138,8 @@ def postCarga (nombre):
       info_exportar.append ((entrada[0], entrada[1], entrada[2]))
   # Habilitamos las acciones que requieran tener una base de datos cargada
   accContadores.setEnabled (True)
+  accDescLocs.setEnabled   (True)
+  accDescObjs.setEnabled   (True)
   accDireccs.setEnabled    (True)
   accExportar.setEnabled   (len (info_exportar) > 0)
   accMsgSys.setEnabled     (True)
