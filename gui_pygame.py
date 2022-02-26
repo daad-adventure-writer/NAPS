@@ -1048,16 +1048,18 @@ def preparaCursor ():
 def scrollLineas (lineasAsubir, subventana, tope, redibujar = True):
   """Hace scroll gráfico del número dado de líneas, en la subventana dada, con topes dados"""
   destino = (subventana[0] * 6, subventana[1] * 8)  # Posición de destino
-  origenX = subventana[0] * 6  # Coordenada X del origen (a subir)
+  origenX = destino[0]  # Coordenada X del origen (a subir)
   origenY = (subventana[1] + lineasAsubir) * 8  # Coordenada Y del origen
   anchura = tope[0] * 6  # Anchura del área a subir
   altura  = (tope[1] - lineasAsubir) * 8  # Altura del área a subir
   # Copiamos las líneas a subir
-  ventana.blit (ventana, destino, (origenX, origenY, anchura, altura))
+  if altura > 0:
+    ventana.blit (ventana, destino, (origenX, origenY, anchura, altura))
   # Borramos el hueco
-  colorBorde = daColorBorde()
-  origenY    = (subventana[1] + tope[1] - lineasAsubir) * 8
-  altura     = lineasAsubir * 8
+  lineasAsubir = min (lineasAsubir, tope[1])
+  colorBorde   = daColorBorde()
+  origenY      = (subventana[1] + tope[1] - lineasAsubir) * 8
+  altura       = lineasAsubir * 8
   ventana.fill (colorBorde, (origenX, origenY, anchura, altura))
   if redibujar:
     actualizaVentana()
