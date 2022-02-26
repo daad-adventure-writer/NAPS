@@ -235,6 +235,21 @@ def carga_bd_sna (fichero, longitud):
   preparaPosCabecera ('sna48k', posicion)
   return cargaBD (fichero, longitud)
 
+def escribe_secs_ctrl (cadena):
+  """Devuelve la cadena dada convirtiendo la representación de secuencias de control en sus códigos"""
+  convertida = ''
+  i = 0
+  while i < len (cadena):
+    c = cadena[i]
+    o = ord (c)
+    if c == '\t':
+      convertida += '\x06'  # Tabulador
+    else:
+      convertida += c
+    i += 1
+  # TODO: interpretar las secuencias escapadas con barra invertida (\)
+  return convertida
+
 def lee_secs_ctrl (cadena, QChar):
   """Devuelve la cadena dada convirtiendo las secuencias de control en una representación imprimible"""
   convertida = ''

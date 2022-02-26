@@ -255,6 +255,11 @@ def carga_bd (fichero, longitud):
   except:
     return False
 
+def escribe_secs_ctrl (cadena):
+  """Devuelve la cadena dada convirtiendo la representación de secuencias de control en sus códigos"""
+  # TODO: implementar
+  return cadena
+
 def lee_secs_ctrl (cadena, QChar):
   """Devuelve la cadena dada convirtiendo las secuencias de control en una representación imprimible"""
   return cadena.replace ('\\', '\\\\').replace ('\n', '\\n')

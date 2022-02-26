@@ -247,6 +247,21 @@ def inicializa_banderas (banderas):
   # Banderas de sistema, no accesibles directamente, en posición estándar de PAWS
   banderas[37] = max_llevables
 
+def escribe_secs_ctrl (cadena):
+  """Devuelve la cadena dada convirtiendo la representación de secuencias de control en sus códigos"""
+  convertida = ''
+  i = 0
+  while i < len (cadena):
+    c = cadena[i]
+    o = ord (c)
+    if c == '\t':
+      convertida += '\x06'  # Tabulador
+    else:
+      convertida += c
+    i += 1
+  # TODO: interpretar las secuencias escapadas con barra invertida (\)
+  return convertida
+
 def lee_secs_ctrl (cadena, QChar):
   """Devuelve la cadena dada convirtiendo las secuencias de control en una representación imprimible"""
   convertida = ''
