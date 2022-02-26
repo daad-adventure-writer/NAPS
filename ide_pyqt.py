@@ -1084,7 +1084,7 @@ def postCarga (nombre):
   global tipo_nombre, tipo_verbo
   # Apaño para que funcionen tal y como están las librerías con lista unificada de condactos
   # Lo hacemos aquí, porque la lista de condactos se puede extender tras cargar una BD
-  if compruebaNombre (mod_actual, 'condactos', dict) and not compruebaNombre (mod_actual, 'acciones', dict):
+  if compruebaNombre (mod_actual, 'condactos', dict) and (not compruebaNombre (mod_actual, 'acciones', dict) or not mod_actual.acciones):
     for codigo in mod_actual.condactos:
       if mod_actual.condactos[codigo][2]:  # Es acción
         mod_actual.acciones[codigo] = mod_actual.condactos[codigo]
