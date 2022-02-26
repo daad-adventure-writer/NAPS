@@ -648,6 +648,9 @@ El parámetro espaciar permite elegir si se debe dejar una línea en blanco tras e
       cursores[elegida] = cursorMovido
     borra_pantalla (True)
   if not subv_input or opcs_input & 2:  # Realimentación permanente de la orden, junto al texto del juego
+    if prompt and opcs_input & 8:  # Se imprimía abajo del todo y había prompt
+      posNL = prompt.rfind ('\n')
+      imprime_cadena (prompt[posNL + 1:] if posNL > 0 else prompt)
     imprime_cadena (''.join (entrada) + ' ')
     imprime_cadena ('\n')
   # Guardamos la entrada en el historial
