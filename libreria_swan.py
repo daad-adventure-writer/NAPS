@@ -257,7 +257,7 @@ def carga_bd (fichero, longitud):
 
 def lee_secs_ctrl (cadena, QChar):
   """Devuelve la cadena dada convirtiendo las secuencias de control en una representación imprimible"""
-  return cadena.replace ('\n', '\\n')
+  return cadena.replace ('\\', '\\\\').replace ('\n', '\\n')
 
 
 # Funciones de apoyo de alto nivel
