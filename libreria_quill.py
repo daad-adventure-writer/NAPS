@@ -345,6 +345,7 @@ cadenas es la lista donde almacenar las cadenas que se carguen"""
   saltaSiguiente = False  # Si salta el siguiente carácter, como ocurre tras algunos códigos de control
   for posicion in posiciones:
     fich_ent.seek (posicion)
+    algo   = False  # Si hay algo imprimible en la línea
     cadena = []
     while True:
       caracter = carga_int1() ^ 255
@@ -354,8 +355,11 @@ cadenas es la lista donde almacenar las cadenas que se carguen"""
         cadena.append (chr (caracter))
         saltaSiguiente = not saltaSiguiente
       elif caracter == nueva_linea:  # Un carácter de nueva línea en la cadena
-        cadena.append ('\n')
+        if algo:
+          cadena.append ('\n')
+        algo = not algo
       else:
+        algo = True
         cadena.append (chr (caracter))
     cadenas.append (''.join (cadena))
 
