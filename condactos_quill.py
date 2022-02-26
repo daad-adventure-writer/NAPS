@@ -148,9 +148,10 @@ def a0_DONE ():
   return 3
 
 def a0_END ():
-  """Pregunta si se desea volver a empezar (MS13), y si la respuesta empieza por la primera letra del MS31, termina completamente la ejecución de la aventura. Si no, reinicia la aventura"""
-  respuesta = gui.lee_cadena (msgs_sys[13], '', [0], False)
+  """Pregunta si se desea volver a empezar (MS13), y si la respuesta empieza por la primera letra del MS31, imprime el MS14 y termina completamente la ejecución de la aventura. Si no, reinicia la aventura"""
+  respuesta = gui.lee_cadena (msgs_sys[13] + '>', '', [0], False)
   if respuesta[0].lower() == msgs_sys[31].lower():
+    gui.imprime_cadena (msgs_sys[14])
     return 7
   return 0
 
@@ -177,11 +178,10 @@ def a0_OK ():
   return 3  # Lo mismo que hace DONE
 
 def a0_QUIT ():
-  """Pide confirmación (MS12), y si la respuesta empieza por la primera letra del MS30, termina completamente la ejecución de la aventura. Si no, ejecuta DONE"""
-  respuesta = gui.lee_cadena (msgs_sys[12], '', [0], False)
-  if respuesta[0].lower() == msgs_sys[30][0].lower():
-    return 7
-  return 3  # Lo mismo que hace DONE
+  """Pide confirmación (MS12), y si la respuesta empieza por la primera letra del MS30, continúa. Si no, ejecuta DONE"""
+  respuesta = gui.lee_cadena (msgs_sys[12] + '>', '', [0], False)
+  if respuesta[0].lower() != msgs_sys[30][0].lower():
+    return 3  # Lo mismo que hace DONE
 
 def a0_SCORE ():
   """Imprime la puntuación, con los mensajes de sistema 21 y 22, y el valor de la bandera 30"""
