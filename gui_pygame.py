@@ -528,13 +528,15 @@ El parámetro espaciar permite elegir si se debe dejar una línea en blanco tras e
       subventanas[elegida][1] += 1  # FIXME: no asumir que es una línea lo que se había ocupado antes del prompt en la subventana de entrada
       prompt     = prompt[1:]
       textoAntes = True
-  elif opcs_input & 8 and cursores[elegida][1] < topes[elegida][1] - 2:  # Pedir la entrada debajo del todo
-    cursorMovido         = cursores[elegida]
-    cursores[elegida][1] = topes[elegida][1] - 2
+  elif opcs_input & 8:  # Pedir la entrada debajo del todo
+    cursorMovido = list (cursores[elegida])
   elif espaciar and cursores[elegida][1] >= topes[elegida][1] - 2 and cursores[elegida][0]:
     prompt = '\n' + prompt  # Dejaremos una línea en blanco entre el último texto y el prompt
-  # El prompt se imprimirá en la siguiente línea de la subventana de entrada
-  imprime_cadena (prompt, False)
+  # El prompt se imprimirá
+  if opcs_input & 8:  # Pedir la entrada debajo del todo
+    imprime_cadena (prompt, abajo = True)
+  else:  # Pedirla en la siguiente línea de la subventana de entrada
+    imprime_cadena (prompt, False)
   entrada = []
   entrada.extend (list (inicio))  # Partimos la entrada anterior por caracteres
   longAntes = len (inicio) + 1  # Longitud de la entrada más el marcador (_) de entrada de carácter (porque está al final)
@@ -697,12 +699,14 @@ def imprime_banderas (banderas):
   actualizaVentana()
   fuente.set_palette (((255, 255, 255), (0, 0, 0)))
 
-def imprime_cadena (cadena, scroll = True, redibujar = True):
+def imprime_cadena (cadena, scroll = True, redibujar = True, abajo = False):
   """Imprime una cadena en la posición del cursor (dentro de la subventana)
 
 El cursor deberá quedar actualizado.
 
-Si scroll es True, se desplazará el texto del buffer hacia arriba (scrolling) cuando se vaya a sobrepasar la última línea"""
+Si scroll es True, se desplazará el texto del buffer hacia arriba (scrolling) cuando se vaya a sobrepasar la última línea
+
+Si abajo es True, imprimirá abajo del todo de la subventana sin hacer scroll mientras no alcance el cursor"""
   # TODO: revisar por qué hacía falta el parámetro scroll, dado que se está omitiendo
   if not cadena:
     return
@@ -809,6 +813,9 @@ Si scroll es True, se desplazará el texto del buffer hacia arriba (scrolling) cu
   if lineasAsubir > 0:  # Hay que desplazar el texto ese número de líneas
     scrollLineas (lineasAsubir, subventana, tope)
     cursor[1] -= min (cursor[1], lineasAsubir)  # Actualizamos el cursor antes de imprimir
+  if abajo:
+    cursor[0] = 0
+    cursor[1] = max (0, tope[1] - len (lineas) - (1 if cadena[-1] == '\n' else 0))
   # Imprimimos la cadena línea por línea
   for i in range (len (lineas)):
     if i > 0:  # Nueva línea antes de cada una, salvo la primera
