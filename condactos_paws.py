@@ -323,14 +323,6 @@ def a0_PROTECT ():
     gui.mueve_cursor (gui.cursores[1][0])  # Deja el cursor en la misma columna que estaba
     banderas[41] = gui.cursores[1][1]
 
-def a0_QUIT ():
-  """Pide confirmación (MS12), y si la respuesta empieza por la primera letra del MS30, termina completamente la ejecución de la aventura. Si no, ejecuta NEWTEXT y DONE"""
-  respuesta = gui.lee_cadena (msgs_sys[12], '', [0])
-  if respuesta[0].lower() == msgs_sys[30].lower():
-    return 7
-  a0_NEWTEXT()
-  return 3  # Lo mismo que hace DONE
-
 def a0_RAMSAVE ():
   """Guarda el contenido de las banderas y de las localidades de los objetos a memoria"""
   del partida[:]
