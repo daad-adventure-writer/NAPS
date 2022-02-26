@@ -258,7 +258,7 @@ def lee_secs_ctrl (cadena, QChar):
         convertida += 'BRILLO'
       else:  # o == 20
         convertida += 'INVERSA'
-      convertida += '_' + str (ord (cadena[i + 1])).zfill (2)
+      convertida += '_%02X' % ord (cadena[i + 1])
       i += 1  # El siguiente carácter ya se ha procesado
     elif o < 32:
       convertida += '\\' + str (o).zfill (2)
