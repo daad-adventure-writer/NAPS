@@ -449,7 +449,7 @@ class ModeloTextos (QAbstractTableModel):
 
   def data (self, index, role):
     if role == Qt.DisplayRole:
-      return mod_actual.lee_secs_ctrl (self.listaTextos[index.row()])
+      return mod_actual.lee_secs_ctrl (self.listaTextos[index.row()], QChar)
 
   def flags (self, index):
     return Qt.ItemIsSelectable | Qt.ItemIsEnabled
@@ -918,7 +918,7 @@ def imprimeCondacto (condacto, parametros):
       mensaje = mod_actual.msgs_usr[parametros[0]]
     else:
       return
-    mensaje = mod_actual.lee_secs_ctrl (mensaje)
+    mensaje = mod_actual.lee_secs_ctrl (mensaje, QChar)
     campo_txt.setTextColor (QColor (100, 100, 100))  # Color gris oscuro
     campo_txt.insertPlainText ('       "')
     campo_txt.setFontItalic (True)  # Cursiva activada

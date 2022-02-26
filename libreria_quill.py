@@ -247,10 +247,46 @@ def inicializa_banderas (banderas):
   # Banderas de sistema, no accesibles directamente, en posición estándar de PAWS
   banderas[37] = max_llevables
 
-def lee_secs_ctrl (cadena):
+def lee_secs_ctrl (cadena, QChar):
   """Devuelve la cadena dada convirtiendo las secuencias de control en una representación imprimible"""
-  # TODO: el resto de las secuencias de control
-  return cadena.replace ('\n', '\\n')
+  convertida = ''
+  i = 0
+  while i < len (cadena):
+    c = cadena[i]
+    o = ord (c)
+    if c == '\n':
+      convertida += '\\n'
+    elif c == '\x06':  # Tabulador
+      convertida += '\\t'
+    elif o in range (16, 21) and (i + 1) < len (cadena):
+      convertida += '\\'
+      if o == 16:
+        convertida += 'TINTA'
+      elif o == 17:
+        convertida += 'PAPEL'
+      elif o == 18:
+        convertida += 'FLASH'
+      elif o == 19:
+        convertida += 'BRILLO'
+      else:  # o == 20
+        convertida += 'INVERSA'
+      convertida += '_' + str (ord (cadena[i + 1])).zfill (2)
+      i += 1  # El siguiente carácter ya se ha procesado
+    elif o < 32:
+      convertida += '\\' + str (o).zfill (2)
+    elif c == '\\':
+      convertida += '\\\\'
+    else:
+      try:
+        q = QChar (c)
+      except:
+         q = QChar ('\x80')  # Cualquiera no imprimible
+      if q.isPrint():
+        convertida += c
+      else:
+        convertida += '\\x%02X' % o
+    i += 1
+  return convertida
 
 def nueva_bd ():
   """Crea una nueva base de datos de The Quill (versión de Spectrum)"""
