@@ -362,10 +362,96 @@ def carga_bd (fichero, longitud):
   except:
     return False
 
+def guarda_bd_tradicional (ficheroBD):
+  """Almacena la base de datos entera en el fichero dado, en el formato tradicional de DC (el compilador de DAAD original)"""
+  guardaBDOrden (ficheroBD,
+    ('vocabulario', 'abreviaturas', 'msgs_sys+pos', 'msgs_usr+pos', 'desc_objs+pos', 'desc_locs+pos', 'conexiones', 'pos_conexiones', 'nombres_objs', 'atributos', 'atributos_extra', 'locs_iniciales', 'procesos_ent_cab', 'pos_procesos'),
+    {
+      'abrev_sys':   False,
+      'abrev_usr':   False,
+      'calc_abrevs': False,
+      'funcs_ext':   False,
+    })
+
 def escribe_secs_ctrl (cadena):
   """Devuelve la cadena dada convirtiendo la representación de secuencias de control en sus códigos"""
   # TODO: implementar
   return cadena
+
+def inicializa_banderas (banderas):
+  """Inicializa banderas con valores propios de DAAD"""
+  # Banderas 0-28:
+  # Comprobado con el intérprete DAAD de la versión EGA de Jabato, y el de Chichen Itzá:
+  # Se inicializan todas a 0
+
+  # Bandera 29:
+  # Es posible que el bit 7 signifique que tenemos un modo gráfico (320x200),
+  # con 53 columnas, en lugar de 80 (modo texto)
+  # Comprobado con el intérprete DAAD de la versión EGA de Jabato:
+  # - Con EGA-SVGA, se inicializa a 128
+  # - Con Hercules, se inicializa a 0
+  # Con el intérprete DAAD de Chichen Itzá, se inicializa al menos en algún modo gráfico, a 129
+  if nueva_version:
+    banderas[29] = 129
+  else:
+    banderas[29] = 128
+
+  # Banderas 30-36:
+  # Comprobado con el intérprete DAAD de la versión EGA de Jabato, y el de Chichen Itzá:
+  # Se inicializan todas a 0
+
+  # Bandera 37:
+  # Comprobado con el intérprete DAAD de la versión EGA de Jabato: se inicializa a 4
+  # Con el intérprete DAAD de Chichen Itzá: Se inicializa a 0
+  if nueva_version:
+    banderas[37] = 0
+
+  # Bandera 38:
+  # Comprobado con el intérprete DAAD de la versión EGA de Jabato, y el de Chichen Itzá:
+  # Se inicializa a 0
+
+  # Bandera 39:
+  # En el intérprete DAAD de la Aventura Original: Se inicializa a 4
+  # En el intérprete DAAD de la versión EGA de Jabato: Se inicializa a 13
+  # En el intérprete DAAD de Chichen Itzá: Se inicializa a 0
+  if not nueva_version:
+    banderas[39] = 13
+
+  # Banderas 40-45:
+  # Comprobado con el intérprete DAAD de la versión EGA de Jabato, y el de Chichen Itzá:
+  # Se inicializan todas a 0
+
+  # Banderas 46 y 47:
+  # Comprobado con el intérprete DAAD de la versión EGA de Jabato:
+  # Se inicializan a 255
+  # Con el intérprete DAAD de Chichen Itzá: Se inicializa a 0
+  if nueva_version:
+    banderas[46] = 0
+    banderas[47] = 0
+
+  # Banderas 48-51:
+  # Comprobado con el intérprete DAAD de la versión EGA de Jabato, y el de Chichen Itzá:
+  # Se inicializan todas a 0
+
+  # Bandera 52:
+  # Comprobado con el intérprete DAAD de la versión EGA de Jabato: Se inicializa a 10
+  # Con el intérprete DAAD de Chichen Itzá: Se inicializa a 0
+  if nueva_version:
+    banderas[52] = 0
+
+  # Banderas 53-61:
+  # Comprobado con el intérprete DAAD de la versión EGA de Jabato, y el de Chichen Itzá:
+  # Se inicializan todas a 0
+
+  # Bandera 62:
+  # Comprobado con el intérprete DAAD de la versión EGA de Jabato: Se inicializa a 0
+  # Con el intérprete DAAD de Chichen Itzá: Se inicializa a 13 en EGA, y 141 en VGA
+  if nueva_version:
+    banderas[62] = 13
+
+  # Banderas 63-254:
+  # Comprobado con el intérprete DAAD de la versión EGA de Jabato, y el de Chichen Itzá:
+  # Se inicializan todas a 0
 
 def lee_secs_ctrl (cadena, QChar):
   """Devuelve la cadena dada convirtiendo las secuencias de control en una representación imprimible. Usa la nomenclatura estándar del manual de DAAD"""
@@ -1332,78 +1418,3 @@ def validaPunteros (tamCabecera):
 
   # XXX: continuar la implementación si fuera necesario, revisando más punteros
   return True
-
-def inicializa_banderas (banderas):
-  """Inicializa banderas con valores propios de DAAD"""
-  # Banderas 0-28:
-  # Comprobado con el intérprete DAAD de la versión EGA de Jabato, y el de Chichen Itzá:
-  # Se inicializan todas a 0
-
-  # Bandera 29:
-  # Es posible que el bit 7 signifique que tenemos un modo gráfico (320x200),
-  # con 53 columnas, en lugar de 80 (modo texto)
-  # Comprobado con el intérprete DAAD de la versión EGA de Jabato:
-  # - Con EGA-SVGA, se inicializa a 128
-  # - Con Hercules, se inicializa a 0
-  # Con el intérprete DAAD de Chichen Itzá, se inicializa al menos en algún modo gráfico, a 129
-  if nueva_version:
-    banderas[29] = 129
-  else:
-    banderas[29] = 128
-
-  # Banderas 30-36:
-  # Comprobado con el intérprete DAAD de la versión EGA de Jabato, y el de Chichen Itzá:
-  # Se inicializan todas a 0
-
-  # Bandera 37:
-  # Comprobado con el intérprete DAAD de la versión EGA de Jabato: se inicializa a 4
-  # Con el intérprete DAAD de Chichen Itzá: Se inicializa a 0
-  if nueva_version:
-    banderas[37] = 0
-
-  # Bandera 38:
-  # Comprobado con el intérprete DAAD de la versión EGA de Jabato, y el de Chichen Itzá:
-  # Se inicializa a 0
-
-  # Bandera 39:
-  # En el intérprete DAAD de la Aventura Original: Se inicializa a 4
-  # En el intérprete DAAD de la versión EGA de Jabato: Se inicializa a 13
-  # En el intérprete DAAD de Chichen Itzá: Se inicializa a 0
-  if not nueva_version:
-    banderas[39] = 13
-
-  # Banderas 40-45:
-  # Comprobado con el intérprete DAAD de la versión EGA de Jabato, y el de Chichen Itzá:
-  # Se inicializan todas a 0
-
-  # Banderas 46 y 47:
-  # Comprobado con el intérprete DAAD de la versión EGA de Jabato:
-  # Se inicializan a 255
-  # Con el intérprete DAAD de Chichen Itzá: Se inicializa a 0
-  if nueva_version:
-    banderas[46] = 0
-    banderas[47] = 0
-
-  # Banderas 48-51:
-  # Comprobado con el intérprete DAAD de la versión EGA de Jabato, y el de Chichen Itzá:
-  # Se inicializan todas a 0
-
-  # Bandera 52:
-  # Comprobado con el intérprete DAAD de la versión EGA de Jabato: Se inicializa a 10
-  # Con el intérprete DAAD de Chichen Itzá: Se inicializa a 0
-  if nueva_version:
-    banderas[52] = 0
-
-  # Banderas 53-61:
-  # Comprobado con el intérprete DAAD de la versión EGA de Jabato, y el de Chichen Itzá:
-  # Se inicializan todas a 0
-
-  # Bandera 62:
-  # Comprobado con el intérprete DAAD de la versión EGA de Jabato: Se inicializa a 0
-  # Con el intérprete DAAD de Chichen Itzá: Se inicializa a 13 en EGA, y 141 en VGA
-  if nueva_version:
-    banderas[62] = 13
-
-  # Banderas 63-254:
-  # Comprobado con el intérprete DAAD de la versión EGA de Jabato, y el de Chichen Itzá:
-  # Se inicializan todas a 0
