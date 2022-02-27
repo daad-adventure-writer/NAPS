@@ -41,6 +41,7 @@ historial        = []        # Historial de órdenes del jugador
 juego_alto       = None      # Carácter que si se encuentra en una cadena, pasaría al juego de caracteres alto
 juego_bajo       = None      # Carácter que si se encuentra en una cadena, pasaría al juego de caracteres bajo
 paleta           = ([], [])  # Paleta de colores sin y con brillo, para los cambios con cambia_*
+tabulador        = None      # Carácter que si se encuentra en una cadena, pondrá espacios hasta mitad o final de línea
 
 cursores    = [[0, 0]] * 2  # Posición relativa del cursor de cada subventana
 limite      = [999, 25]     # Ancho y alto máximos absolutos de cada subventana
@@ -110,7 +111,7 @@ def reinicia_subventanas ():
 
 def abre_ventana (traza, factorEscala, bbdd):
   """Abre la ventana gráfica de la aplicación"""
-  global cambia_brillo, cambia_flash, cambia_inversa, cambia_papel, cambia_tinta, juego_alto, juego_bajo
+  global cambia_brillo, cambia_flash, cambia_inversa, cambia_papel, cambia_tinta, juego_alto, juego_bajo, tabulador
   if juego_alto == 48:  # La @ de SWAN
     juego_alto = '@'
     juego_bajo = '@'
@@ -123,6 +124,7 @@ def abre_ventana (traza, factorEscala, bbdd):
     cambia_flash   = chr (cambia_flash)
     cambia_papel   = chr (cambia_papel)
     cambia_tinta   = chr (cambia_tinta)
+    tabulador      = chr (tabulador)
 
 def borra_pantalla (desdeCursor = False, noRedibujar = False):
   """Limpia la subventana de impresión"""
@@ -186,8 +188,17 @@ def imprime_cadena (cadena, scroll = True, redibujar = True):
   nuevaLinea = False
   cadena = limpiaCadena (cadena)
   if limite[0] == 999:  # Sin límite
-    prn (cadena, end = '')
+    prn (cadena.replace (tabulador, '\t'), end = '')
     return
+  # Convertimos los tabuladores en espacios
+  while tabulador in cadena[:limite[0]]:
+    posTabulador = cadena[:limite[0]].index (tabulador)
+    restante     = limite[0] - posTabulador
+    if restante > limite[0] // 2:
+      numEspacios = (limite[0] // 2) - posTabulador  # Rellena con espacios hasta mitad de línea
+    else:
+      numEspacios = restante  # Rellena el resto de la línea con espacios
+    cadena = cadena[:posTabulador] + (' ' * numEspacios) + cadena[posTabulador + 1:]
   # Dividimos la cadena en líneas
   lineas = []
   while len (cadena) > limite[0]:
