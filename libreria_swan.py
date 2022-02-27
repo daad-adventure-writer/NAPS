@@ -240,18 +240,18 @@ def carga_bd (fichero, longitud):
   long_fich_ent = longitud
   bajo_nivel_cambia_ent (fichero)
   try:
-    prepara_plataforma()
-    carga_abreviaturas()
-    carga_cadenas (CAB_NUM_LOCS,     CAB_POS_LST_POS_LOCS,     desc_locs)
-    carga_cadenas (CAB_NUM_OBJS,     CAB_POS_LST_POS_OBJS,     desc_objs)
-    carga_cadenas (CAB_NUM_MSGS_USR, CAB_POS_LST_POS_MSGS_USR, msgs_usr)
-    carga_cadenas (CAB_NUM_MSGS_SYS, CAB_POS_LST_POS_MSGS_SYS, msgs_sys)
-    carga_atributos()
-    carga_conexiones()
-    carga_localidades_objetos()
-    carga_vocabulario()
-    carga_nombres_objetos()
-    carga_tablas_procesos()
+    preparaPlataforma()
+    cargaAbreviaturas()
+    cargaCadenas (CAB_NUM_LOCS,     CAB_POS_LST_POS_LOCS,     desc_locs)
+    cargaCadenas (CAB_NUM_OBJS,     CAB_POS_LST_POS_OBJS,     desc_objs)
+    cargaCadenas (CAB_NUM_MSGS_USR, CAB_POS_LST_POS_MSGS_USR, msgs_usr)
+    cargaCadenas (CAB_NUM_MSGS_SYS, CAB_POS_LST_POS_MSGS_SYS, msgs_sys)
+    cargaAtributos()
+    cargaConexiones()
+    cargaLocalidadesObjetos()
+    cargaVocabulario()
+    cargaNombresObjetos()
+    cargaTablasProcesos()
   except:
     return False
 
@@ -268,7 +268,7 @@ def lee_secs_ctrl (cadena, QChar):
 # Funciones de apoyo de alto nivel
 
 # Carga las abreviaturas
-def carga_abreviaturas ():
+def cargaAbreviaturas ():
   global abreviaturas
   abreviaturas = []
   # Vamos a la posición de las abreviaturas
@@ -289,7 +289,7 @@ def carga_abreviaturas ():
     #prn (i, ' |', abreviaturas[-1], '|', sep = '')
 
 # Carga los atributos de los objetos
-def carga_atributos ():
+def cargaAtributos ():
   # Cargamos el número de objetos (no lo tenemos todavía)
   fich_ent.seek (CAB_NUM_OBJS)
   num_objetos[0] = carga_int1()
@@ -303,7 +303,7 @@ def carga_atributos ():
 # pos_num_cads es la posición de donde obtener el número de cadenas
 # pos_lista_pos posición de donde obtener la lista de posiciones de las cadenas
 # cadenas es la lista donde almacenar las cadenas que se carguen
-def carga_cadenas (pos_num_cads, pos_lista_pos, cadenas):
+def cargaCadenas (pos_num_cads, pos_lista_pos, cadenas):
   # Cargamos el número de cadenas
   fich_ent.seek (pos_num_cads)
   num_cads = carga_int1()
@@ -337,7 +337,7 @@ def carga_cadenas (pos_num_cads, pos_lista_pos, cadenas):
     cadenas.append (''.join (cadena))
 
 # Carga las conexiones
-def carga_conexiones ():
+def cargaConexiones ():
   # Cargamos el número de localidades
   fich_ent.seek (CAB_NUM_LOCS)
   num_locs = carga_int1()
@@ -359,7 +359,7 @@ def carga_conexiones ():
       salidas.append ((verbo, destino))
     conexiones.append (salidas)
 
-def carga_localidades_objetos ():
+def cargaLocalidadesObjetos ():
   """Carga las localidades iniciales de los objetos (dónde está cada uno)"""
   # Vamos a la posición de las localidades de los objetos
   fich_ent.seek (carga_desplazamiento (CAB_POS_LOCS_OBJS))
@@ -367,7 +367,7 @@ def carga_localidades_objetos ():
   for i in range (num_objetos[0]):
     locs_iniciales.append (carga_int1())
 
-def carga_nombres_objetos ():
+def cargaNombresObjetos ():
   """Carga los nombres y adjetivos de los objetos"""
   # Vamos a la posición de los nombres de los objetos
   fich_ent.seek (carga_desplazamiento (CAB_POS_NOMS_OBJS))
@@ -378,7 +378,7 @@ def carga_nombres_objetos ():
 # Carga las tablas de procesos
 # El proceso 0 es la tabla de respuestas
 # En los procesos 1 y 2, las cabeceras de las entradas se ignoran
-def carga_tablas_procesos ():
+def cargaTablasProcesos ():
   # Cargamos el número de procesos
   fich_ent.seek (CAB_NUM_PROCS)
   num_procs = carga_int1()
@@ -432,7 +432,7 @@ def carga_tablas_procesos ():
     tablas_proceso.append ((cabeceras, entradas))
 
 # Carga el vocabulario
-def carga_vocabulario ():
+def cargaVocabulario ():
   # Vamos a la posición del vocabulario
   fich_ent.seek (carga_desplazamiento (CAB_POS_VOCAB))
   # Cargamos cada palabra de vocabulario
@@ -453,7 +453,7 @@ def carga_vocabulario ():
     vocabulario.append ((''.join (palabra).rstrip().lower(), carga_int1(), carga_int1()))
 
 # Prepara la configuración sobre la plataforma
-def prepara_plataforma ():
+def preparaPlataforma ():
   global alinear, carga_int2, despl_ini, guarda_int2, plataforma
   # Cargamos la versión del formato de base de datos y el identificador de plataforma
   fich_ent.seek (CAB_PLATAFORMA)
