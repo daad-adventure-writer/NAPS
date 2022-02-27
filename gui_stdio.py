@@ -231,11 +231,6 @@ El parámetro espaciar permite elegir si se debe dejar una línea en blanco tras e
     entrada = raw_input()
   return entrada
 
-def marcaNuevaLinea ():
-  """La próxima vez que se escriba algo, hacerlo en línea nueva"""
-  global nuevaLinea
-  nuevaLinea = True
-
 def mueve_cursor (columna, fila = None):
   """Cambia de posición el cursor de la subventana elegida"""
   marcaNuevaLinea()
@@ -260,3 +255,8 @@ def limpiaCadena (cadena):
       limpia += cadena[c]
     c += 1
   return limpia
+
+def marcaNuevaLinea ():
+  """La próxima vez que se escriba algo, hacerlo en línea nueva"""
+  global nuevaLinea
+  nuevaLinea = True
