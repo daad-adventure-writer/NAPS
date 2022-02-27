@@ -84,6 +84,7 @@ centrar_graficos = []        # Si se deben centrar los gráficos al dibujarlos
 juego_alto       = None      # Carácter que si se encuentra en una cadena, pasará al juego de caracteres alto
 juego_bajo       = None      # Carácter que si se encuentra en una cadena, pasará al juego de caracteres bajo
 paleta           = ([], [])  # Paleta de colores sin y con brillo, para los cambios con cambia_*
+partir_espacio   = True      # Si se deben partir las líneas en el último espacio
 ruta_graficos    = ''        # Carpeta de donde cargar los gráficos a dibujar
 tabulador        = None      # Carácter que si se encuentra en una cadena, pondrá espacios hasta mitad o final de línea
 todo_mayusculas  = False     # Si la entrada del jugador será incondicionalmente en mayúsculas
@@ -793,7 +794,7 @@ Si abajo es True, imprimirá abajo del todo de la subventana sin hacer scroll mie
       restante -= 1
     else:  # Hay que partir la línea, desde el último carácter de espacio
       for i in range (len (linea) - 1, -1, -1):  # Desde el final al inicio
-        if ord (linea[i]) == 16:  # Este carácter es un espacio
+        if partir_espacio and ord (linea[i]) == 16:  # Este carácter es un espacio
           lineas.append (''.join (linea[:i + 1]))
           linea = linea[i + 1:]
           iniLineas.append (iniLineas[-1] + i + 1)

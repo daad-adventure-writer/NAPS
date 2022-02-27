@@ -41,6 +41,7 @@ historial        = []        # Historial de órdenes del jugador
 juego_alto       = None      # Carácter que si se encuentra en una cadena, pasaría al juego de caracteres alto
 juego_bajo       = None      # Carácter que si se encuentra en una cadena, pasaría al juego de caracteres bajo
 paleta           = ([], [])  # Paleta de colores sin y con brillo, para los cambios con cambia_*
+partir_espacio   = True      # Si se deben partir las líneas en el último espacio
 tabulador        = None      # Carácter que si se encuentra en una cadena, pondrá espacios hasta mitad o final de línea
 
 cursores    = [[0, 0]] * 2  # Posición relativa del cursor de cada subventana
@@ -202,9 +203,10 @@ def imprime_cadena (cadena, scroll = True, redibujar = True):
   # Dividimos la cadena en líneas
   lineas = []
   while len (cadena) > limite[0]:
+    posPartir = -1
     if '\n' in cadena[:limite[0]]:
       posPartir = cadena.find ('\n')
-    else:
+    elif partir_espacio:
       posPartir = cadena.rfind (' ', 0, limite[0] + 1)
     if posPartir == -1:  # Ningún carácter de espacio en la línea
       posPartir = limite[0]  # La partimos suciamente (en mitad de palabra)

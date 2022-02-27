@@ -1029,6 +1029,8 @@ if __name__ == '__main__':
       gui.tabulador      = 6
       if NOMBRE_SISTEMA == 'PAWS':
         gui.cambia_cursor (msgs_sys[34])
+      else:  # Es QUILL
+        gui.partir_espacio = False
   else:  # Es DAAD
     gui.nueva_version = nueva_version
     gui.tam_cabecera  = libreria.tam_cabecera
