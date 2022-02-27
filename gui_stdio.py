@@ -189,7 +189,9 @@ def imprime_cadena (cadena, scroll = True, redibujar = True):
   nuevaLinea = False
   cadena = limpiaCadena (cadena)
   if limite[0] == 999:  # Sin límite
-    prn (cadena.replace (tabulador, '\t'), end = '')
+    if tabulador:
+      cadena = cadena.replace (tabulador, '\t')
+    prn (cadena, end = '')
     return
   # Convertimos los tabuladores en espacios
   while tabulador in cadena[:limite[0]]:
