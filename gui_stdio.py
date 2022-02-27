@@ -30,7 +30,7 @@ from prn_func import *
 
 traza = False  # Si queremos una traza del funcionamiento del módulo
 
-# Variables que ajusta el intérprete
+# Variables que ajusta el intérprete y usa esta GUI u otro módulo
 cambia_brillo    = None      # Carácter que si se encuentra en una cadena, daría o quitaría brillo al color de tinta de la letra
 cambia_flash     = None      # Carácter que si se encuentra en una cadena, pondría o quitaría efecto flash a la letra
 cambia_inversa   = None      # Carácter que si se encuentra en una cadena, invertirá o no el papel/fondo de la letra
@@ -41,8 +41,6 @@ historial        = []        # Historial de órdenes del jugador
 juego_alto       = None      # Carácter que si se encuentra en una cadena, pasaría al juego de caracteres alto
 juego_bajo       = None      # Carácter que si se encuentra en una cadena, pasaría al juego de caracteres bajo
 paleta           = ([], [])  # Paleta de colores sin y con brillo, para los cambios con cambia_*
-todo_mayusculas  = False     # Si la entrada del jugador será incondicionalmente en mayúsculas
-ruta_graficos    = ''
 
 cursores    = [[0, 0]] * 2  # Posición relativa del cursor de cada subventana
 limite      = [53, 25]      # Ancho y alto máximos absolutos de cada subventana
