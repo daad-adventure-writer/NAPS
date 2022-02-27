@@ -17,7 +17,7 @@ Parámetros:
 
 - ``bd_o_carpeta`` (obligatorio) Base de datos o carpeta de Quill/PAWS/SWAN/DAAD a ejecutar
 - ``bd_o_carpeta_gráficos`` (opcional) Base de datos gráfica para las imágenes, o carpeta de la que tomarlas (con nombre pic###.png)
-- ``--columns`` (opcional) Cambia el número de columnas a usar cuando se imita la plataforma Spectrum, desde 32 hasta 42 (valor por defecto)
+- ``--columns`` (opcional) Cambia el número de columnas a usar cuando se imita la plataforma Spectrum, desde 32 hasta 42 (valor por defecto en interfaz pygame, en la stdio por defecto es sin límite)
 - ``--help`` (opcional) Muestra ayuda sobre los parámetros de línea de comandos
 - ``--debug`` (opcional) Ejecutar los condactos paso a paso
 - ``--gui`` (opcional) Elige la interfaz gráfica a utilizar. Opciones posibles: pygame (interfaz gráfica con PyGame) y stdio (interfaz sólo texto, usando la entrada y salida estándar)

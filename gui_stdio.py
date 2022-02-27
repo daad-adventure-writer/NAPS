@@ -43,7 +43,7 @@ juego_bajo       = None      # Carácter que si se encuentra en una cadena, pasar
 paleta           = ([], [])  # Paleta de colores sin y con brillo, para los cambios con cambia_*
 
 cursores    = [[0, 0]] * 2  # Posición relativa del cursor de cada subventana
-limite      = [53, 25]      # Ancho y alto máximos absolutos de cada subventana
+limite      = [999, 25]     # Ancho y alto máximos absolutos de cada subventana
 num_subvens = 8             # DAAD tiene 8 subventanas
 
 # Variables propias de este módulo de entrada y salida estándar
@@ -95,10 +95,6 @@ def guarda_cursor ():
 
 def pos_subventana (columna, fila):
   """Cambia la posición de origen de la subventana de impresión elegida"""
-  pass
-
-def prepara_topes (columnas, filas):
-  """Inicializa los topes al número de columnas y filas dado"""
   pass
 
 def redimensiona_ventana (evento = None):
@@ -187,8 +183,26 @@ def imprime_cadena (cadena, scroll = True, redibujar = True):
   global nuevaLinea
   if nuevaLinea:
     prn()
-  prn (limpiaCadena (cadena), end = '')
   nuevaLinea = False
+  cadena = limpiaCadena (cadena)
+  if limite[0] == 999:  # Sin límite
+    prn (cadena, end = '')
+    return
+  # Dividimos la cadena en líneas
+  lineas = []
+  while len (cadena) > limite[0]:
+    if '\n' in cadena[:limite[0]]:
+      posPartir = cadena.find ('\n')
+    else:
+      posPartir = cadena.rfind (' ', 0, limite[0] + 1)
+    if posPartir == -1:  # Ningún carácter de espacio en la línea
+      posPartir = limite[0]  # La partimos suciamente (en mitad de palabra)
+    lineas.append (cadena[:posPartir])
+    cadena = cadena[posPartir + (1 if cadena[posPartir] in (' ', '\n') else 0):]
+  for linea in lineas:
+    prn (linea)
+  if cadena:  # Queda algo en la última línea
+    prn (cadena, end = '')
 
 def lee_cadena (prompt, inicio, timeout, espaciar = False):
   """Lee una cadena (terminada con Enter) desde el teclado, dando realimentación al jugador
@@ -212,6 +226,10 @@ def marcaNuevaLinea ():
 def mueve_cursor (columna, fila = None):
   """Cambia de posición el cursor de la subventana elegida"""
   marcaNuevaLinea()
+
+def prepara_topes (columnas, filas):
+  """Inicializa los topes al número de columnas y filas dado"""
+  limite[0] = columnas  # Ancho máximo absoluto de cada subventana
 
 
 # Funciones auxiliares que sólo se usan en este módulo

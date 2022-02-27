@@ -973,8 +973,9 @@ if __name__ == '__main__':
     sys.exit()
 
   if extension == 'sna' or libreria.plataforma == 1:  # Plataforma ZX Spectrum
-    gui.prepara_topes (args.columns if args.columns else 42, 24)
-  else:
+    if args.columns or args.gui != 'stdio':
+      gui.prepara_topes (args.columns if args.columns else 42, 24)
+  elif args.gui != 'stdio':
     gui.prepara_topes (53, 25)
 
   constantes = ('EXT_SAVEGAME', 'LONGITUD_PAL', 'NOMBRE_SISTEMA', 'NUM_BANDERAS', 'TIPOS_PAL')
