@@ -774,7 +774,7 @@ Si abajo es True, imprimirá abajo del todo de la subventana sin hacer scroll mie
       juego = 128
     elif ordinal == juego_bajo:
       juego = 0
-    elif ordinal == tabulador:
+    elif ordinal == 127:  # Es un tabulador
       posTabulador = iniLineas[-1] + len (linea)
       if restante > tope[0] // 2:
         numEspacios = (tope[0] // 2) - len (linea)  # Rellena con espacios hasta mitad de línea
@@ -1031,6 +1031,8 @@ def parseaColores (cadena):
         sigPapel = True
       else:
         sigTinta = True
+    elif c == tabulador:
+      sinColores += chr (127)  # Necesario para que quede sin convertir
     elif cadena[i] in noEnFuente:
       sinColores += noEnFuente[cadena[i]]
     else:
