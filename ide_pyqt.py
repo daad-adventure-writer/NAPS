@@ -1213,7 +1213,7 @@ selector.showMaximized()
 cargaInfoModulos()
 
 if len (sys.argv) > 1:
-  if len (sys.argv) > 2:
+  if len (sys.argv) > 2 and os.path.exists (sys.argv[2]):
     importaBD (sys.argv[1], nombreFicheroGfx = sys.argv[2])
   else:
     importaBD (sys.argv[1])
