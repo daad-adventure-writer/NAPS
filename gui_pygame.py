@@ -535,7 +535,10 @@ El parámetro espaciar permite elegir si se debe dejar una línea en blanco tras e
     prompt = '\n' + prompt  # Dejaremos una línea en blanco entre el último texto y el prompt
   # El prompt se imprimirá
   if opcs_input & 8:  # Pedir la entrada debajo del todo
-    imprime_cadena (prompt, abajo = True)
+    lineas    = imprime_cadena (prompt, abajo = True)
+    finPrompt = lineas[-1]  # Última línea del prompt
+    if cursorMovido[1] + len (lineas) >= topes[elegida][1]:  # Había hecho scroll
+      cursorMovido[1] = topes[elegida][1] - len (lineas)
   else:  # Pedirla en la siguiente línea de la subventana de entrada
     imprime_cadena (prompt, False)
   entrada = []
@@ -650,8 +653,8 @@ El parámetro espaciar permite elegir si se debe dejar una línea en blanco tras e
     borra_pantalla (True)
   if not subv_input or opcs_input & 2:  # Realimentación permanente de la orden, junto al texto del juego
     if prompt and opcs_input & 8:  # Se imprimía abajo del todo y había prompt
-      posNL = prompt.rfind ('\n')
-      imprime_cadena (prompt[posNL + 1:] if posNL > 0 else prompt)
+      imprime_linea (finPrompt)
+      cursores[elegida][0] += len (finPrompt)
     imprime_cadena (''.join (entrada) + ' ')
     imprime_cadena ('\n')
   # Guardamos la entrada en el historial
@@ -704,7 +707,7 @@ def imprime_banderas (banderas):
   fuente.set_palette (((255, 255, 255), (0, 0, 0)))
 
 def imprime_cadena (cadena, scroll = True, redibujar = True, abajo = False):
-  """Imprime una cadena en la posición del cursor (dentro de la subventana)
+  """Imprime una cadena en la posición del cursor (dentro de la subventana), y devuelve la cadena partida en líneas
 
 El cursor deberá quedar actualizado.
 
@@ -852,6 +855,7 @@ Si abajo es True, imprimirá abajo del todo de la subventana sin hacer scroll mie
     cursores[elegida] = cursor  # Actualizamos el cursor de la subventana
   if traza:
     prn ('Fin de impresión, cursor en', cursor)
+  return lineas
 
 def imprime_linea (linea, posInput = None, redibujar = True, colores = {}, inicioLinea = 0):
   """Imprime una línea de texto en la posición del cursor, sin cambiar el cursor
