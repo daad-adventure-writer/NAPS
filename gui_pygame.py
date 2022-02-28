@@ -137,6 +137,7 @@ def abre_ventana (traza, escalar, bbdd):
     ventana = pygame.display.set_mode (resolucion, pygame.RESIZABLE)
   if copia:  # Recuperamos contenido anterior
     ventana.blit (copia, (0, 0) + resolucion)
+    actualizaVentana()
   return
   # FIXME: si no funciona el modo gráfico, deja X Window mal permanentemente, aún al cerrarse el intérprete
   if escalar == 0:  # Pantalla completa
