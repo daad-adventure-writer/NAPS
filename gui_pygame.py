@@ -389,10 +389,14 @@ def elige_parte (partes, graficos):
       try:
         fichero = open (graficos[modoPortada][0], 'rb')
         imagen, palImg = graficos_daad.cargaPortada (fichero)
-        strImg = ''
+        strImg = b''
         for fila in imagen if modoPortada == 'cga' else [imagen]:
-          for pixel in fila:
-            strImg += chr (pixel)
+          if version_info[0] > 2:
+            for pixel in fila:
+              strImg += bytes ([pixel])
+          else:
+            for pixel in fila:
+              strImg += chr (pixel)
         portada = pygame.image.frombuffer (strImg, (320, 200), 'P')
         portada.set_palette (palImg)
         paleta[0].extend (palImg)
