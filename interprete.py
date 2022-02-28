@@ -934,6 +934,9 @@ if __name__ == '__main__':
     if not partes:
       prn ('Ninguna base de datos con nombre válido detectada en esa carpeta', file = sys.stderr)
       sys.exit()
+    if traza:
+      prn ('Bases de datos de partes detectadas:', partes, file = sys.stderr)
+      prn ('Bases de datos gráficas detectadas:',  gfx,    file = sys.stderr)
     gui.abre_ventana (traza, args.scale, args.bbdd)
     args.bbdd = gui.elige_parte (partes, gfx)
 
