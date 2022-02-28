@@ -117,9 +117,12 @@ resolucion  = (320, 200)       # Resolución gráfica de salida, sin escalar
 def abre_ventana (traza, escalar, bbdd):
   """Abre la ventana gráfica de la aplicación"""
   global escalada, factorEscala, resolucion, ventana
+  copia = None
+  if pygame.display.get_caption():  # Ya había sido inicializada antes
+    copia = ventana.copy()
   pygame.display.set_caption ('NAPS - ' + bbdd)
   factorEscala = escalar
-  if traza:
+  if traza and 'NUM_BANDERAS' in globals():
     if NUM_BANDERAS > 50:
       resolucion = (780, 200)  # Ventana juego + banderas
     else:
@@ -132,6 +135,8 @@ def abre_ventana (traza, escalar, bbdd):
     ventana  = pygame.Surface (resolucion)
   else:
     ventana = pygame.display.set_mode (resolucion, pygame.RESIZABLE)
+  if copia:  # Recuperamos contenido anterior
+    ventana.blit (copia, (0, 0) + resolucion)
   return
   # FIXME: si no funciona el modo gráfico, deja X Window mal permanentemente, aún al cerrarse el intérprete
   if escalar == 0:  # Pantalla completa

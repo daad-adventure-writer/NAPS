@@ -1067,8 +1067,7 @@ if __name__ == '__main__':
           funcion  = busca_condacto (firma)
           comprobados.add (codigo)
 
-  if 'partes' not in globals():  # Si no estaba abierta ya
-    gui.abre_ventana (traza, args.scale, args.bbdd)
+  gui.abre_ventana (traza, args.scale, args.bbdd)
 
   # Preparamos las listas banderas, locs_objs y conjunciones
   banderas.extend  ([0,] * NUM_BANDERAS)    # Banderas del sistema
