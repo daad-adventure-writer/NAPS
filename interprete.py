@@ -1006,7 +1006,7 @@ if __name__ == '__main__':
 
   if args.ruta_graficos:
     if os.path.isfile (args.ruta_graficos):
-      gui.graficos_daad.carga_bd_pics (args.ruta_graficos)
+      gui.carga_bd_pics (args.ruta_graficos)
     else:
       if args.ruta_graficos[-1] != os.sep:
         args.ruta_graficos += os.sep

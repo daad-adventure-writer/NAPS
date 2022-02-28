@@ -294,6 +294,21 @@ def da_tecla_pulsada ():
     return teclas_ascii[teclas_pulsadas[-1]]
   return (teclas_pulsadas[-1], 0)
 
+def carga_bd_pics (rutaBDGfx):
+  """Carga la base de datos gráfica de ruta dada, y prepara la paleta y lo relacionado con ella"""
+  extension = rutaBDGfx[rutaBDGfx.rfind ('.') + 1:]
+  graficos_daad.carga_bd_pics (rutaBDGfx)
+  if graficos_daad.modo_gfx == 'CGA':
+    cambiaPaleta (graficos_daad.paleta1b)  # Dejamos cargada la paleta CGA 1 con brillo
+    tinta = 3
+  else:
+    tinta = 15
+    cambiaPaleta (graficos_daad.paletaEGA, False)  # Dejamos cargada la paleta EGA
+  for subventana in range (num_subvens):
+    color_subv[subventana][0] = tinta  # Color de tinta
+  if graficos_daad.recursos:
+    precargaGraficos()
+
 # FIXME: Hay que dibujar sólo la región que no sale de los topes
 def dibuja_grafico (numero, descripcion = False, parcial = False):
   """Dibuja un gráfico en la posición del cursor
@@ -431,18 +446,15 @@ def elige_parte (partes, graficos):
     actualizaVentana()
     tras_portada = True
     if entrada in graficos[modoPortada]:
-      graficos_daad.carga_bd_pics (graficos[modoPortada][entrada])
-      if modoPortada == 'cga':
-        cambiaPaleta (graficos_daad.paleta1b)  # Dejamos cargada la paleta CGA 1 con brillo
+      carga_bd_pics (graficos[modoPortada][entrada])
     elif 'dat' in graficos and entrada in graficos['dat']:
-      graficos_daad.carga_bd_pics (graficos['dat'][entrada])
-      cambiaPaleta (graficos_daad.paletaEGA, False)  # Dejamos cargada la paleta EGA
-    else:
-      cambiaPaleta (graficos_daad.paleta1b, False)  # Dejamos cargada la paleta CGA 1 con brillo
-  elif 'dat' in graficos and entrada in graficos['dat']:
-    graficos_daad.carga_bd_pics (graficos['dat'][entrada])
-  if graficos_daad.recursos:
-    precargaGraficos()
+      carga_bd_pics (graficos['dat'][entrada])
+  else:
+    for modo in ('dat', 'ega', 'cga'):
+      if modo in graficos and entrada in graficos[modo]:
+        carga_bd_pics (graficos[modo][entrada])
+        if graficos_daad.recursos:
+          break
   return partes[entrada]
 
 def elige_subventana (numero):
