@@ -184,7 +184,7 @@ def cargaPortadaCGA (fichero):
   alto    = 200
   fila    = []           # Índices en la paleta de cada píxel en la fila actual
   imagen  = [[]] * alto  # Lista de filas, cada una con los índices en la paleta de cada píxel en ella
-  tamFila = ancho / 4    # Tamaño de una fila en bytes
+  tamFila = ancho // 4   # Tamaño de una fila en bytes
   for i in range (alto):  # Cada fila de la imagen
     # Primero van las filas pares, y luego las impares
     numFila = i * 2
@@ -268,8 +268,8 @@ def cargaImagenPlanar (ancho, alto, numPlanos, numImg, repetir, tamImg):
       repeticiones -= cuantas
       if len (bitsFila) == ancho:  # Al repetir no se excede la longitud de una fila
         if numPlanos == 1 and not repetir:  # Modo PCW sin compresión RLE
-          bytesEnFila   = ancho       / 8
-          bloquesEnFila = bytesEnFila / 8  # Bloques de 8 bytes por cada fila
+          bytesEnFila   = ancho       // 8
+          bloquesEnFila = bytesEnFila // 8  # Bloques de 8 bytes por cada fila
           for indiceByte in range (bytesEnFila):
             byte = bitsFila[indiceByte * 8 : (indiceByte * 8) + 8]
             numBloqueDest = numFila // 8      # Índice del bloque de 8 filas, en destino
@@ -297,8 +297,8 @@ def cargaImagenPlanar (ancho, alto, numPlanos, numImg, repetir, tamImg):
 
 def cargaPaleta16 (bpc):
   """Carga y devuelve una paleta de 16 colores, con el número de bits por componente de color dado"""
-  valorMax  = (2 ** bpc) - 1  # Valor máximo en componentes de color
-  distancia = 255 / valorMax  # Distancia para equiespaciar de 0 a 255
+  valorMax  = (2 ** bpc) - 1   # Valor máximo en componentes de color
+  distancia = 255. / valorMax  # Distancia para equiespaciar de 0 a 255
   paleta = []
   for color in range (16):
     rojo  = carga_int1()
