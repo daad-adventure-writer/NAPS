@@ -259,7 +259,7 @@ def cargaImagenPlanar (ancho, alto, numPlanos, numImg, repetir, tamImg):
         bits = []  # Bits del byte actual
         for indiceBit in range (7, -1, -1):  # Cada bit del byte actual
           bits.append (1 if b & (2 ** indiceBit) else 0)
-      cuantas = min (repeticiones, (ancho - len (bitsFila)) / 8)  # Evitamos exceder la longitud de una fila
+      cuantas = min (repeticiones, (ancho - len (bitsFila)) // 8)  # Evitamos exceder la longitud de una fila
       if izqAder:  # Sentido de izquierda a derecha
         bitsFila.extend (bits * cuantas)  # Añadimos al final
       else:  # Sentido de derecha a izquierda
