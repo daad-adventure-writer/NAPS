@@ -13,6 +13,16 @@ Uso:
 
 ``python interprete.py [-c|--columns 32..42] [-h|--help] [-D|--debug] [-g|--gui pygame|stdio] [-s|--scale 1|2|3] bd_o_carpeta [bd_o_carpeta_gráficos]``
 
+Ejemplos bajo Windows:
+- ``python interprete.py -g stdio -c 42 ..\disappearance\disappearance.sna``
+- ``python interprete.py --scale 3 C:\Juegos\templos\amiga``
+- ``python interprete.py C:\Juegos\MindFighter\mindf000.adb``
+
+Ejemplos bajos Linux:
+- ``python interprete.py -D ../jabato/dos/``
+- ``python3 interprete.py --gui pygame ../original/PART2.DDB ../pngs_original_parte2/``
+- ``./interprete.py ~/Juegos/Cozumel/amiga ~/Juegos/Cozumel/st/PART1.DAT``
+
 Parámetros:
 
 - ``bd_o_carpeta`` (obligatorio) Base de datos o carpeta de Quill/PAWS/SWAN/DAAD a ejecutar
