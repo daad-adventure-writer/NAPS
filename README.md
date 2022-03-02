@@ -11,7 +11,7 @@ Requisitos:
 
 Uso:
 
-``interprete.py [-c|--columns 32..42] [-h|--help] [-D|--debug] [-g|--gui pygame|stdio] [-s|--scale 1|2|3] bd_o_carpeta [bd_o_carpeta_gráficos]``
+``python interprete.py [-c|--columns 32..42] [-h|--help] [-D|--debug] [-g|--gui pygame|stdio] [-s|--scale 1|2|3] bd_o_carpeta [bd_o_carpeta_gráficos]``
 
 Parámetros:
 
@@ -34,7 +34,7 @@ Requisitos:
 
 Uso:
 
-``ide_pyqt.py [base_de_datos] [base_de_datos_gráfica]``
+``python ide_pyqt.py [base_de_datos] [base_de_datos_gráfica]``
 
 Parámetros:
 
