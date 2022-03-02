@@ -167,8 +167,9 @@ def redimensiona_ventana (evento = None, copiaVentana = None):
     factorEscala = 1
     superficie   = ventana.copy()
     ventana      = pygame.display.set_mode (resolucion, pygame.RESIZABLE)
+    while ventana.get_size() != resolucion:
+      ventana = pygame.display.set_mode (resolucion, pygame.RESIZABLE)
     ventana.blit (superficie, (0, 0) + resolucion)
-    actualizaVentana()
   else:
     if evento.w > (resolucion[0] * 2) or evento.h > (resolucion[1] * 2):
       factorEscala = 3
@@ -178,9 +179,13 @@ def redimensiona_ventana (evento = None, copiaVentana = None):
       superficie = copiaVentana.copy()
     else:
       superficie = ventana.copy()
-    escalada = pygame.display.set_mode ((resolucion[0] * factorEscala, resolucion[1] * factorEscala), pygame.RESIZABLE)
-    ventana  = superficie
-    actualizaVentana()
+    ventana    = superficie
+    resVentana = (resolucion[0] * factorEscala, resolucion[1] * factorEscala)
+    escalada   = pygame.display.set_mode (resVentana, pygame.RESIZABLE)
+    while escalada.get_size() != resVentana:
+      escalada = pygame.display.set_mode (resVentana, pygame.RESIZABLE)
+    pygame.transform.scale (ventana, resVentana, escalada)
+  pygame.display.flip()
 
 
 def borra_orden ():
