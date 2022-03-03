@@ -783,6 +783,7 @@ def dialogoImportaBD ():
     dlg_abrir.setLabelText (QFileDialog.FileType, 'Filtro:')
     dlg_abrir.setLabelText (QFileDialog.Accept,   '&Abrir')
     dlg_abrir.setLabelText (QFileDialog.Reject,   '&Cancelar')
+    dlg_abrir.setOption    (QFileDialog.DontUseNativeDialog)
   if dlg_abrir.exec_():  # No se ha cancelado
     selector.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
     indiceFiltro  = dlg_abrir.filters().indexOf (dlg_abrir.selectedFilter())
@@ -839,12 +840,13 @@ def exportaBD ():
     dlg_guardar = QFileDialog (selector, 'Exportar base de datos', os.curdir,
         ';;'.join (filtro))
     dlg_guardar.setAcceptMode (QFileDialog.AcceptSave)
-    dlg_guardar.setLabelText (QFileDialog.LookIn,   'Lugares')
-    dlg_guardar.setLabelText (QFileDialog.FileName, '&Nombre:')
-    dlg_guardar.setLabelText (QFileDialog.FileType, 'Filtro:')
-    dlg_guardar.setLabelText (QFileDialog.Accept,   '&Guardar')
-    dlg_guardar.setLabelText (QFileDialog.Reject,   '&Cancelar')
-    dlg_guardar.setOption (QFileDialog.DontConfirmOverwrite)
+    dlg_guardar.setLabelText  (QFileDialog.LookIn,   'Lugares')
+    dlg_guardar.setLabelText  (QFileDialog.FileName, '&Nombre:')
+    dlg_guardar.setLabelText  (QFileDialog.FileType, 'Filtro:')
+    dlg_guardar.setLabelText  (QFileDialog.Accept,   '&Guardar')
+    dlg_guardar.setLabelText  (QFileDialog.Reject,   '&Cancelar')
+    dlg_guardar.setOption     (QFileDialog.DontConfirmOverwrite)
+    dlg_guardar.setOption     (QFileDialog.DontUseNativeDialog)
   if dlg_guardar.exec_():  # No se ha cancelado
     indiceFiltro  = dlg_guardar.filters().indexOf (dlg_guardar.selectedFilter())
     nombreFichero = str (dlg_guardar.selectedFiles()[0])
