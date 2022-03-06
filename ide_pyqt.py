@@ -786,7 +786,7 @@ def dialogoImportaBD ():
     dlg_abrir.setOption    (QFileDialog.DontUseNativeDialog)
   if dlg_abrir.exec_():  # No se ha cancelado
     selector.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
-    indiceFiltro  = dlg_abrir.filters().indexOf (dlg_abrir.selectedFilter())
+    indiceFiltro  = dlg_abrir.nameFilters().index (dlg_abrir.selectedNameFilter())
     nombreFichero = str (dlg_abrir.selectedFiles()[0])
     importaBD (nombreFichero, indiceFiltro)
     selector.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
@@ -848,7 +848,7 @@ def exportaBD ():
     dlg_guardar.setOption     (QFileDialog.DontConfirmOverwrite)
     dlg_guardar.setOption     (QFileDialog.DontUseNativeDialog)
   if dlg_guardar.exec_():  # No se ha cancelado
-    indiceFiltro  = dlg_guardar.filters().indexOf (dlg_guardar.selectedFilter())
+    indiceFiltro  = dlg_guardar.nameFilters().index (dlg_guardar.selectedNameFilter())
     nombreFichero = str (dlg_guardar.selectedFiles()[0])
     extension     = '.' + info_exportar[indiceFiltro][1][0]
     if extension not in nombreFichero:
