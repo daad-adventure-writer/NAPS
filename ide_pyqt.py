@@ -443,7 +443,7 @@ class ModalEntradaTexto (QDialog):
   """Modal de entrada de texto multilínea"""
   def __init__ (self, parent, texto):
     QDialog.__init__ (self, parent)
-    self.campo = QPlainTextEdit (mod_actual.lee_secs_ctrl (texto, QChar).replace ('\\n', '\n'), self)
+    self.campo = QPlainTextEdit (daTextoImprimible (texto).replace ('\\n', '\n'), self)
     layout = QVBoxLayout (self)
     layout.addWidget (self.campo)
     layoutBotones = QHBoxLayout()
@@ -471,7 +471,7 @@ class ModeloTextos (QAbstractTableModel):
 
   def data (self, index, role):
     if role == Qt.DisplayRole:
-      return mod_actual.lee_secs_ctrl (self.listaTextos[index.row()], QChar)
+      return daTextoImprimible (self.listaTextos[index.row()])
 
   def flags (self, index):
     return Qt.ItemIsSelectable | Qt.ItemIsEnabled
@@ -769,6 +769,21 @@ def creaSelector ():
   creaBarraBotones()
   barraEstado = selector.statusBar()  # Queremos una barra de estado
 
+def daTextoImprimible (texto):
+  """Da la representación imprimible del texto dado según la librería de la plataforma PAW-like"""
+  texto      = mod_actual.lee_secs_ctrl (texto)
+  convertido = ''
+  i = 0
+  while i < len (texto):
+    c = texto[i]
+    o = ord (c)
+    if o < 32 or (o > 126 and o < 161):
+      convertido += '\\x%02X' % o
+    else:
+      convertido += c
+    i += 1
+  return convertido
+
 def dialogoImportaBD ():
   """Deja al usuario elegir un fichero de base datos, y lo intenta importar"""
   global dlg_abrir
@@ -966,7 +981,7 @@ def imprimeCondacto (condacto, parametros):
       mensaje = mod_actual.msgs_usr[parametros[0]]
     else:
       return
-    mensaje = mod_actual.lee_secs_ctrl (mensaje, QChar)
+    mensaje = daTextoImprimible (mensaje)
     campo_txt.setTextColor (QColor (100, 100, 100))  # Color gris oscuro
     campo_txt.insertPlainText ('       "')
     campo_txt.setFontItalic (True)  # Cursiva activada

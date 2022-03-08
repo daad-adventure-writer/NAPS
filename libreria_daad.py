@@ -453,7 +453,7 @@ def inicializa_banderas (banderas):
   # Comprobado con el intérprete DAAD de la versión EGA de Jabato, y el de Chichen Itzá:
   # Se inicializan todas a 0
 
-def lee_secs_ctrl (cadena, QChar):
+def lee_secs_ctrl (cadena):
   """Devuelve la cadena dada convirtiendo las secuencias de control en una representación imprimible. Usa la nomenclatura estándar del manual de DAAD"""
   if nueva_version:
     cadena = cadena.replace ('\x0b', '\\b').replace ('\x0c', '\\k')

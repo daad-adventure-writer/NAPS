@@ -262,7 +262,7 @@ def escribe_secs_ctrl (cadena):
   # TODO: interpretar las secuencias escapadas con barra invertida (\)
   return convertida
 
-def lee_secs_ctrl (cadena, QChar):
+def lee_secs_ctrl (cadena):
   """Devuelve la cadena dada convirtiendo las secuencias de control en una representación imprimible"""
   convertida = ''
   i = 0
@@ -287,19 +287,10 @@ def lee_secs_ctrl (cadena, QChar):
         convertida += 'INVERSA'
       convertida += '_%02X' % ord (cadena[i + 1])
       i += 1  # El siguiente carácter ya se ha procesado
-    elif o < 32:
-      convertida += '\\' + str (o).zfill (2)
     elif c == '\\':
       convertida += '\\\\'
     else:
-      try:
-        q = QChar (c)
-      except:
-         q = QChar ('\x80')  # Cualquiera no imprimible
-      if q.isPrint():
-        convertida += c
-      else:
-        convertida += '\\x%02X' % o
+      convertida += c
     i += 1
   return convertida
 

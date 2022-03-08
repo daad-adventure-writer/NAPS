@@ -260,7 +260,7 @@ def escribe_secs_ctrl (cadena):
   # TODO: implementar
   return cadena
 
-def lee_secs_ctrl (cadena, QChar):
+def lee_secs_ctrl (cadena):
   """Devuelve la cadena dada convirtiendo las secuencias de control en una representación imprimible"""
   return cadena.replace ('\\', '\\\\').replace ('\n', '\\n')
 
