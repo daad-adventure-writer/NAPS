@@ -250,6 +250,13 @@ def escribe_secs_ctrl (cadena):
   # TODO: interpretar las secuencias escapadas con barra invertida (\)
   return convertida
 
+def inicializa_banderas (banderas):
+  """Inicializa banderas con valores propios de PAWS"""
+  # Bandera 39:
+  # En todas las que he probado de ZX Spectrum, el intérprete la inicializa a 24
+  if plataforma == 0 and version == 21:  # Formato sna de Spectrum 48K
+    banderas[39] = 24
+
 def lee_secs_ctrl (cadena):
   """Devuelve la cadena dada convirtiendo las secuencias de control en una representación imprimible"""
   convertida = ''
