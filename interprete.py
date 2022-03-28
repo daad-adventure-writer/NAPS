@@ -939,6 +939,9 @@ if __name__ == '__main__':
       prn ('Bases de datos gráficas detectadas:',  gfx,    file = sys.stderr)
     gui.abre_ventana (traza, args.scale, args.bbdd)
     args.bbdd = gui.elige_parte (partes, gfx)
+  elif not os.path.isfile (args.bbdd):
+    prn ('No hay ningún fichero ni carpeta con ese nombre:', args.bbdd, file = sys.stderr)
+    sys.exit()
 
   # Detectamos qué librerías pueden cargar bases de datos con esa extensión
   extension = args.bbdd[args.bbdd.rfind ('.') + 1:].lower()
