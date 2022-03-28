@@ -469,7 +469,7 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
       prn ('Orden' + (' de PSI ' if psi else ' ') + 'partida en estas frases:', ordenes)
     rango_vocabulario = range (len (vocabulario))
     for f in range (len (ordenes)):
-      frase = {'Verbo': None, 'Nombre1': None, 'Nombre2': None, 'Adjetivo1': None, 'Adjetivo2': None, 'Adverbio': None, 'Preposición': None, 'Pronombre': None}
+      frase = {'Verbo': None, 'Nombre1': None, 'Nombre2': None, 'Adjetivo1': None, 'Adjetivo2': None, 'Adverbio': None, 'Preposicion': None, 'Pronombre': None}
       for palabra in ordenes[f]:
         if palabra == 'Pronombre':
           frase['Pronombre'] = palabra
@@ -486,7 +486,7 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
             if vocabulario[i][2] > len (TIPOS_PAL):
               continue
             tipo = TIPOS_PAL[vocabulario[i][2]]
-            if tipo in ('Verbo', 'Adverbio', 'Preposición', 'Pronombre'):
+            if tipo in ('Verbo', 'Adverbio', 'Preposicion', 'Pronombre'):
               if not frase[tipo]:
                 frase[tipo] = codigo
             elif tipo in ('Nombre', 'Adjetivo'):
@@ -504,13 +504,13 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
             break  # No hay palabras de más de un tipo, pasamos a la siguiente palabra
       if not frase['Verbo']:
         if frase['Nombre1']:
-          if frase['Nombre1'] < 20 and not frase['Preposición']:  # Sin verbo, pero con nombre que actúa como verbo
+          if frase['Nombre1'] < 20 and not frase['Preposicion']:  # Sin verbo, pero con nombre que actúa como verbo
             frase['Verbo'] = frase['Nombre1']
           elif f and frases[-1]['Verbo']:  # Verbo heredado de la frase anterior
             frase['Verbo'] = frases[-1]['Verbo']
-        elif NOMBRE_SISTEMA == 'SWAN' and frase['Preposición'] and frase['Preposición'] < 20:  # Con preposición que actúa como verbo
+        elif NOMBRE_SISTEMA == 'SWAN' and frase['Preposicion'] and frase['Preposicion'] < 20:  # Con preposición que actúa como verbo
           # TODO: ver si esto ocurre también en PAWS y/o en DAAD
-          frase['Verbo'] = frase['Preposición']
+          frase['Verbo'] = frase['Preposicion']
       frases.append (frase)
     if len (frases) > 1:
       del texto_nuevo[:]  # Hay más de una orden, por lo queremos saber cuándo se escribe texto nuevo
@@ -539,7 +539,7 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
         frase['Nombre1']   = banderas[46]
         frase['Adjetivo1'] = banderas[47]
     # Guardamos las palabras de la frase en las banderas correspondientes
-    for flagno, tipo in {33: 'Verbo', 34: 'Nombre1', 35: 'Adjetivo1', 36: 'Adverbio', 43: 'Preposición', 44: 'Nombre2', 45: 'Adjetivo2'}.items():
+    for flagno, tipo in {33: 'Verbo', 34: 'Nombre1', 35: 'Adjetivo1', 36: 'Adverbio', 43: 'Preposicion', 44: 'Nombre2', 45: 'Adjetivo2'}.items():
       if flagno < NUM_BANDERAS:
         banderas[flagno] = frase[tipo] if frase[tipo] else 255
     if len (TIPOS_PAL) > 1 and frase['Nombre1'] and frase['Nombre1'] >= 50:  # Guardamos pronombres, sólo para nombres considerados no propios (código >= 50)
@@ -1080,7 +1080,7 @@ if __name__ == '__main__':
     for palabraVoc in vocabulario:
       if palabraVoc[2] < len (TIPOS_PAL):
         tipo = TIPOS_PAL[palabraVoc[2]]
-        if tipo == 'Conjunción':
+        if tipo == 'Conjuncion':
           conjunciones.append (palabraVoc[0])
         elif tipo == 'Pronombre':
           pronombre = palabraVoc[0]

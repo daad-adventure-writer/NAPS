@@ -62,7 +62,7 @@ NOMBRE_SISTEMA   = 'PAWS'  # Nombre de este sistema
 NUM_ATRIBUTOS    = [8]     # Número de atributos de objeto
 NUM_BANDERAS     = 256     # Número de banderas del parser
 # Nombres de los tipos de palabra (para el IDE)
-TIPOS_PAL = ('Verbo', 'Adverbio', 'Nombre', 'Adjetivo', 'Preposición', 'Conjunción', 'Pronombre')
+TIPOS_PAL = ('Verbo', 'Adverbio', 'Nombre', 'Adjetivo', 'Preposicion', 'Conjuncion', 'Pronombre')
 
 
 alinear          = False       # Si alineamos con relleno (padding) las listas de desplazamientos a posiciones pares
