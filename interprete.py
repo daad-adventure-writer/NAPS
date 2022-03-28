@@ -943,7 +943,7 @@ if __name__ == '__main__':
   # Detectamos qué librerías pueden cargar bases de datos con esa extensión
   extension = args.bbdd[args.bbdd.rindex ('.') + 1:].lower()
   modLibs   = []  # Librerías que soportan la extensión, junto con su función de carga
-  librerias = (f[:-3] for f in os.listdir (os.curdir)
+  librerias = (f[:-3] for f in os.listdir (os.path.dirname (os.path.realpath (__file__)))
                if (f[:9] == 'libreria_' and f[-3:] == '.py'))
   for nombreModulo in librerias:
     try:

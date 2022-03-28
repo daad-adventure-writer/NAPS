@@ -22,6 +22,7 @@
 # *                                                                           *
 # *****************************************************************************
 
+from os       import path
 from prn_func import *
 from sys      import version_info
 
@@ -67,7 +68,7 @@ escalada     = None
 factorEscala = 1  # Factor de escalado, de 1 a 3
 ventana      = None
 
-fuente = pygame.image.load ('fuente.png')  # Fuente tipográfica
+fuente = pygame.image.load (path.dirname (path.realpath (__file__)) + path.sep + 'fuente.png')  # Fuente tipográfica
 fuente.set_palette (((255, 255, 255), (0, 0, 0)))
 
 cad_cursor = '_'
