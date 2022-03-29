@@ -126,6 +126,13 @@ def importaBD (nombreFichero):
     if ancho > anchoMax:
       anchoMax = ancho
 
+  # Borramos botones anteriores si los había
+  if ventana.rejilla.layout().count():
+    for i in range (255, -1, -1):
+      ventana.rejilla.layout().itemAt (i).widget().setParent (None)
+    ventana.rejilla.setMinimumSize (0, 0)
+    ventana.rejilla.resize (0, 0)
+
   dtWidget  = QDesktopWidget()  # Para obtener el ancho de la pantalla (dado que el de la ventana no se correspondía con el real)
   geometria = dtWidget.availableGeometry (ventana)
   margen    = 8
