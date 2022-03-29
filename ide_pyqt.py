@@ -854,11 +854,15 @@ def editaVocab (indice):
     if dialogo.exec_() == QDialog.Accepted:
       nuevaPal = (palVocab[0], dialogo.intValue(), palVocab[2])
   else:  # indice.column() == 2:  # Tipo
-    dialogo = ModalEntrada (dlg_vocabulario, 'Tipo de palabra:', mod_actual.TIPOS_PAL[palVocab[2]])
+    tiposPalabra = {255: 'Reservado'}
+    for i in range (len (mod_actual.TIPOS_PAL)):
+      tiposPalabra[i] = mod_actual.TIPOS_PAL[i]
+    dialogo = ModalEntrada (dlg_vocabulario, 'Tipo de palabra:', tiposPalabra[palVocab[2]])
     dialogo.setComboBoxEditable (True)
-    dialogo.setComboBoxItems (sorted (mod_actual.TIPOS_PAL))
-    if dialogo.exec_() == QDialog.Accepted and dialogo.textValue() in mod_actual.TIPOS_PAL:
-      nuevaPal = (palVocab[0], palVocab[1], mod_actual.TIPOS_PAL.index (dialogo.textValue()))
+    dialogo.setComboBoxItems (sorted (tiposPalabra.values()))
+    if dialogo.exec_() == QDialog.Accepted and dialogo.textValue() in tiposPalabra.values():
+      nuevaPal = (palVocab[0], palVocab[1],
+                  list (tiposPalabra.keys())[list (tiposPalabra.values()).index (dialogo.textValue())])
   if not nuevaPal:
     return  # No se ha modificado
   mod_actual.vocabulario[numFila] = nuevaPal
