@@ -73,7 +73,7 @@ def accionAUTO2 (accion, localidades, sysno, locno, sysno2 = None):
   if banderas[34] == 255 and banderas[35] == 255:
     gui.imprime_cadena (msgs_sys[sysno])
     if sysno2:
-      if locno < num_objetos:
+      if locno < num_objetos[0]:
         desc_obj = desc_objs[locno]
         if '.' in desc_obj:
           desc_obj = desc_obj[:desc_obj.index ('.')]
@@ -100,7 +100,7 @@ def accionAUTO2 (accion, localidades, sysno, locno, sysno2 = None):
         if localidad == -1:
           gui.imprime_cadena (msgs_sys[sysno])
           if sysno2:
-            if locno < num_objetos:
+            if locno < num_objetos[0]:
               desc_obj = desc_objs[locno]
               if '.' in desc_obj:
                 desc_obj = desc_obj[:desc_obj.index ('.')]
@@ -705,7 +705,7 @@ def a2_PUTIN (objno, locno):
     banderas[1]      = max (0, banderas[1] - 1)
     locs_objs[objno] = locno
     imprime_mensaje (msgs_sys[44])  # El _ está en
-    if locno < num_objetos:
+    if locno < num_objetos[0]:
       desc_obj = desc_objs[locno]
       if '.' in desc_obj:
         desc_obj = desc_obj[:desc_obj.index ('.')]
@@ -742,7 +742,7 @@ def a2_TAKEOUT (objno, locno):
       imprime_mensaje (msgs_sys[45])
     else:
       imprime_mensaje (msgs_sys[52])
-    if locno < num_objetos:
+    if locno < num_objetos[0]:
       desc_obj = desc_objs[locno]
       if '.' in desc_obj:
         desc_obj = desc_obj[:desc_obj.index ('.')]

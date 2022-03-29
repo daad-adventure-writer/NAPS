@@ -69,7 +69,7 @@ def accionAUTO2 (accion, localidades, sysno, locno, sysno2 = None):
   if banderas[34] == 255 and banderas[35] == 255:
     gui.imprime_cadena (msgs_sys[sysno])
     if sysno2:
-      if locno < num_objetos:
+      if locno < num_objetos[0]:
         desc_obj = desc_objs[locno]
         if '.' in desc_obj:
           desc_obj = desc_obj[:desc_obj.index ('.')]
@@ -95,7 +95,7 @@ def accionAUTO2 (accion, localidades, sysno, locno, sysno2 = None):
         if localidad == -1:
           gui.imprime_cadena (msgs_sys[sysno])
           if sysno2:
-            if locno < num_objetos:
+            if locno < num_objetos[0]:
               desc_obj = desc_objs[locno]
               if '.' in desc_obj:
                 desc_obj = desc_obj[:desc_obj.index ('.')]

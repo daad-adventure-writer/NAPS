@@ -305,7 +305,7 @@ def nueva_bd ():
   desc_objs.append      ('Descripción del objeto 0, emisor de luz.')
   locs_iniciales.append (ids_locs['NO_CREADOS'])
   nombres_objs.append   (13)
-  num_objetos = 1
+  num_objetos[0] = 1
   # Creamos el mensaje de usuario 0
   msgs_usr.append ('Texto del mensaje 0.')
   # Ponemos los mensajes de sistema predefinidos
