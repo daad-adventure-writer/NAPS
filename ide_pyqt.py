@@ -251,7 +251,6 @@ class CampoTexto (QTextEdit):
           dialogo = ModalEntrada (self, 'Elige un condacto:', evento.text())
         dialogo.setComboBoxEditable (True)
         dialogo.setComboBoxItems (sorted (self.condactos.keys()))
-        combo = dialogo.findChild (QComboBox)
         if dialogo.exec_() == QDialog.Accepted:
           nomCondacto = str (dialogo.textValue()).upper()
           if nomCondacto in self.condactos:
