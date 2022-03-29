@@ -37,6 +37,15 @@ except:
 import graficos_daad
 
 
+class Recurso (QPushButton):
+  """Botón para cada recurso"""
+  def __init__ (self, numRecurso, imagen = None):
+    if imagen:
+      super (Recurso, self).__init__ (QIcon (QPixmap (imagen)), str (numRecurso))
+      self.setIconSize (imagen.rect().size())
+    else:
+      super (Recurso, self).__init__ (str (numRecurso))
+
 class Ventana (QMainWindow):
   """Ventana principal"""
   def __init__ (self):
@@ -102,15 +111,7 @@ def importaBD (nombreFichero):
   fila = 0  # Fila actual
   for i in range (256):
     imagen = imagenes[i]
-    if imagen:
-      pixmap = QPixmap     (imagen)
-      icono  = QIcon       (pixmap)
-      widget = QPushButton (icono, str (i))
-      widget.setIconSize (pixmap.rect().size())
-      # widget.setAlignment   (Qt.AlignCenter)
-      # widget.setPixmap      (pixmap)
-    else:
-      widget = QPushButton (str (i))
+    widget = Recurso (i, imagen)
     widget.setMinimumSize (anchoMax + margen, altoMax + margen)
     ventana.rejilla.layout().addWidget (widget, fila, col)
     col += 1
