@@ -114,6 +114,22 @@ class CampoTexto (QTextEdit):
     colsValidas.append (len (textoLinea))
     return colsValidas
 
+  def _daColValida (self, numColumna, textoLinea, colsValidas = None):
+    """Devuelve la posición válida más cercana para el cursor en la columna dada de la línea de tabla de proceso con texto dado"""
+    if colsValidas == None:
+      colsValidas = self._daColsValidas (textoLinea)
+    if numColumna in colsValidas:
+      return numColumna  # Era válida
+    # Buscamos la columna válida más cercana
+    for c in range (len (colsValidas)):
+      if colsValidas[c] < numColumna:
+        continue
+      if c:  # No es la primera
+        # Nos quedamos con la más cercana de entre la de la posición actual y la anterior
+        if abs (numColumna - colsValidas[c]) > abs (numColumna - colsValidas[c - 1]):
+          return colsValidas[c - 1]
+      return colsValidas[c]
+
   def _daNumEntradaYLinea (self, bloqueLinea):
     """Devuelve el número de entrada de proceso y el de la línea en la entrada del bloque QTextBlock dado"""
     # Buscamos la línea de cabecera de la entrada, para obtener de allí el número de entrada del proceso
@@ -177,7 +193,7 @@ class CampoTexto (QTextEdit):
         cursor.movePosition (QTextCursor.EndOfBlock)
       else:  # Flecha izquierda o derecha
         colsValidas = self._daColsValidas (cursor.block().text())
-        columna     = cursor.positionInBlock()
+        columna     = self._daColValida (cursor.positionInBlock(), cursor.block().text(), colsValidas)
         posColumna  = colsValidas.index (columna)
         if evento.key() == Qt.Key_Left:
           colNueva = colsValidas[max (0, posColumna - 1)]
@@ -309,6 +325,7 @@ class CampoTexto (QTextEdit):
       columna = cursor.positionInBlock()
       linea   = cursor.block()
       colsValidas = self._daColsValidas (linea.text())
+      columna     = self._daColValida (columna, linea.text(), colsValidas)
       if columna in (colsValidas[0], colsValidas[-1]) or linea.text()[columna - 1] == '"':
         return  # Intentando escribir número donde no es posible
       numParam  = colsValidas.index (columna)
@@ -339,26 +356,12 @@ class CampoTexto (QTextEdit):
 
   def mousePressEvent (self, evento):
     if evento.button() & Qt.LeftButton or evento.button() & Qt.RightButton:
-      cursor      = self.cursorForPosition (evento.pos())
-      bloque      = cursor.block()
-      columna     = cursor.positionInBlock()
-      textoLinea  = bloque.text()
-      colsValidas = self._daColsValidas (textoLinea)
-      if columna not in colsValidas:
-        # Buscamos la columna válida más cercana
-        for c in range (len (colsValidas)):
-          if colsValidas[c] < columna:
-            continue
-          if c:  # No es la primera
-            # Nos quedamos con la más cercana de entre la de la posición actual y la anterior
-            if abs (columna - colsValidas[c]) > abs (columna - colsValidas[c - 1]):
-              colNueva = colsValidas[c - 1]
-            else:
-              colNueva = colsValidas[c]
-          else:  # Es la primera
-            colNueva = colsValidas[c]
-          break
-        cursor.setPosition (cursor.position() + (colNueva - columna))
+      cursor     = self.cursorForPosition (evento.pos())
+      bloque     = cursor.block()
+      columna    = cursor.positionInBlock()
+      textoLinea = bloque.text()
+      colNueva   = self._daColValida (columna, textoLinea)
+      cursor.setPosition (cursor.position() + (colNueva - columna))
       self.setTextCursor (cursor)
       if evento.button() & Qt.LeftButton:
         return
