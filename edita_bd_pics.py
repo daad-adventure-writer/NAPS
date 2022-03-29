@@ -24,6 +24,7 @@
 # *****************************************************************************
 
 import math
+import os
 import sys
 
 try:
@@ -35,6 +36,9 @@ except:
   from PyQt5.QtWidgets import *
 
 import graficos_daad
+
+
+dlg_abrir = None  # Diálogo de abrir fichero
 
 
 class Recurso (QPushButton):
@@ -50,9 +54,13 @@ class Ventana (QMainWindow):
   """Ventana principal"""
   def __init__ (self):
     super (Ventana, self).__init__()
-    accSalir = QAction ('&Salir', self)
+    accImportar = QAction ('&Importar', self)
+    accSalir    = QAction ('&Salir',    self)
+    accImportar.triggered.connect (dialogoImportaBD)
     accSalir.setShortcut ('Ctrl+Q')
     menuArchivo = self.menuBar().addMenu ('&Archivo')
+    menuArchivo.addAction (accImportar)
+    menuArchivo.addSeparator()
     menuArchivo.addAction (accSalir)
     scroll = QScrollArea (self)
     self.rejilla = QWidget (scroll)
@@ -63,6 +71,24 @@ class Ventana (QMainWindow):
     self.setWindowTitle ('Editor de bases de datos gráficas')
     self.showMaximized()
 
+
+def dialogoImportaBD ():
+  """Deja al usuario elegir un fichero de base datos gráfica, y lo intenta importar"""
+  global dlg_abrir
+  if not dlg_abrir:  # Diálogo no creado aún
+    dlg_abrir = QFileDialog (ventana, 'Importar base de datos gráfica', os.curdir, 'Bases de datos gráficas DAAD (*.cga *.dat *.ega *.pcw)')
+    dlg_abrir.setFileMode  (QFileDialog.ExistingFile)
+    dlg_abrir.setLabelText (QFileDialog.LookIn,   'Lugares')
+    dlg_abrir.setLabelText (QFileDialog.FileName, '&Nombre:')
+    dlg_abrir.setLabelText (QFileDialog.FileType, 'Filtro:')
+    dlg_abrir.setLabelText (QFileDialog.Accept,   '&Abrir')
+    dlg_abrir.setLabelText (QFileDialog.Reject,   '&Cancelar')
+    dlg_abrir.setOption    (QFileDialog.DontUseNativeDialog)
+  if dlg_abrir.exec_():  # No se ha cancelado
+    ventana.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
+    nombreFichero = str (dlg_abrir.selectedFiles()[0])
+    importaBD (nombreFichero)
+    ventana.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
 
 def importaBD (nombreFichero):
   """Importa una base de datos desde el fichero de nombre dado"""
