@@ -324,6 +324,10 @@ class CampoTexto (QTextEdit):
       cursor  = self.textCursor()
       columna = cursor.positionInBlock()
       linea   = cursor.block()
+      if cursor.selectedText().isnumeric():
+        columna -= len (cursor.selectedText())  # Inicio del parámetro
+      elif cursor.hasSelection():
+        return  # Intentando escribir número donde no es posible
       colsValidas = self._daColsValidas (linea.text())
       columna     = self._daColValida (columna, linea.text(), colsValidas)
       if columna == colsValidas[0] or (columna == colsValidas[-1] and len (colsValidas) < 3) or linea.text()[columna - 1] == '"':
