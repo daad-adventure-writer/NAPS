@@ -164,7 +164,8 @@ def redimensiona_ventana (evento = None, copiaVentana = None):
     sys.exit()
   if evento.type != pygame.VIDEORESIZE:
     return
-  if evento.w < resolucion[0] or evento.h < resolucion[1]:
+  if evento.w < resolucion[0] or evento.h < resolucion[1] or \
+      (factorEscala == 2 and (evento.w < (resolucion[0] * 2) or evento.h < (resolucion[1] * 2))):
     factorEscala = 1
     superficie   = ventana.copy()
     ventana      = pygame.display.set_mode (resolucion, pygame.RESIZABLE)
@@ -172,9 +173,11 @@ def redimensiona_ventana (evento = None, copiaVentana = None):
       ventana = pygame.display.set_mode (resolucion, pygame.RESIZABLE)
     ventana.blit (superficie, (0, 0) + resolucion)
   else:
-    if evento.w > (resolucion[0] * 2) or evento.h > (resolucion[1] * 2):
+    if evento.w >= (resolucion[0] * 3) or evento.h >= (resolucion[1] * 3) or \
+        (factorEscala == 2 and (evento.w > (resolucion[0] * 2) or evento.h > (resolucion[1] * 2))):
       factorEscala = 3
-    elif evento.w > resolucion[0] or evento.h > resolucion[1]:
+    elif evento.w > resolucion[0] or evento.h > resolucion[1] or \
+        (factorEscala == 3 and (evento.w < (resolucion[0] * 3) or evento.h < (resolucion[1] * 3))):
       factorEscala = 2
     if copiaVentana:
       superficie = copiaVentana.copy()
