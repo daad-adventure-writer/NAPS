@@ -57,7 +57,7 @@ dlg_desc_objs   = None  # Diálogo para consultar y modificar las descripciones d
 dlg_msg_sys     = None  # Diálogo para consultar y modificar los mensajes de sistema
 dlg_msg_usr     = None  # Diálogo para consultar y modificar los mensajes de usuario
 dlg_procesos    = None  # Diálogo para consultar y modificar las tablas de proceso
-dlg_vista_vocab = None  # Diálogo para consultar el vocabulario
+dlg_vocabulario = None  # Diálogo para consultar y modificar el vocabulario
 
 campo_txt = None  # El campo de texto    del diálogo de procesos
 pestanyas = None  # La barra de pestañas del diálogo de procesos
@@ -839,6 +839,33 @@ def editaMsgUsr (indice):
   if dialogo.exec_() == QDialog.Accepted:
     mod_actual.msgs_usr[indice.row()] = dialogo.daTexto()
 
+def editaVocab (indice):
+  """Permite editar una entrada de vocabulario, tras hacer doble click en su tabla"""
+  nuevaPal = None  # Entrada de vocabulario modificada
+  numFila  = indice.row()
+  palVocab = mod_actual.vocabulario[numFila]
+  if indice.column() == 0:  # Palabra
+    dialogo = ModalEntrada (dlg_vocabulario, 'Texto de la palabra:', palVocab[0])
+    if dialogo.exec_() == QDialog.Accepted:
+      nuevaPal = (str (dialogo.textValue())[:mod_actual.LONGITUD_PAL].lower(), ) + palVocab[1:]
+  elif indice.column() == 1:  # Código
+    dialogo = ModalEntrada (dlg_vocabulario, 'Código de la palabra:', str (palVocab[1]))
+    dialogo.setInputMode (QInputDialog.IntInput)
+    dialogo.setIntRange  (0, 255)
+    if dialogo.exec_() == QDialog.Accepted:
+      nuevaPal = (palVocab[0], dialogo.intValue(), palVocab[2])
+  else:  # indice.column() == 2:  # Tipo
+    dialogo = ModalEntrada (dlg_vocabulario, 'Tipo de palabra:', mod_actual.TIPOS_PAL[palVocab[2]])
+    dialogo.setComboBoxEditable (True)
+    dialogo.setComboBoxItems (sorted (mod_actual.TIPOS_PAL))
+    if dialogo.exec_() == QDialog.Accepted and dialogo.textValue() in mod_actual.TIPOS_PAL:
+      nuevaPal = (palVocab[0], palVocab[1], mod_actual.TIPOS_PAL.index (dialogo.textValue()))
+  if not nuevaPal:
+    return  # No se ha modificado
+  mod_actual.vocabulario[numFila] = nuevaPal
+  # TODO: comprobar si ya existe otra palabra así y pedir confirmar en ese caso (pero permitirlo)
+  # TODO: reordenar poniendo la palabra en el lugar correcto por orden alfabético (cuidado con acentos)
+
 def ejecutaPorPasos ():
   """Ejecuta la base de datos para depuración paso a paso"""
   global pilas_pendientes, proc_interprete
@@ -1131,21 +1158,22 @@ def muestraTextos (dialogo, listaTextos, tipoTextos):
 
 def muestraVistaVocab ():
   """Muestra el diálogo para consultar el vocabulario"""
-  global dlg_vista_vocab
-  if dlg_vista_vocab:  # Diálogo ya creado
+  global dlg_vocabulario
+  if dlg_vocabulario:  # Diálogo ya creado
     try:
-      dlg_vista_vocab.showMaximized()
+      dlg_vocabulario.showMaximized()
       return
     except RuntimeError:  # Diálogo borrado por Qt
       pass  # Lo crearemos de nuevo
   # Creamos el diálogo
   selector.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
-  dlg_vista_vocab = QTableView (selector)
-  dlg_vista_vocab.setModel (ModeloVocabulario (dlg_vista_vocab))
-  # dlg_vista_vocab.setHorizontalHeaderLabels (('Palabra', 'Número', 'Tipo'))
-  dlg_vista_vocab.setWindowTitle ('Vocabulario')
-  selector.centralWidget().addSubWindow (dlg_vista_vocab)
-  dlg_vista_vocab.showMaximized()
+  dlg_vocabulario = QTableView (selector)
+  dlg_vocabulario.setModel (ModeloVocabulario (dlg_vocabulario))
+  # dlg_vocabulario.setHorizontalHeaderLabels (('Palabra', 'Número', 'Tipo'))
+  dlg_vocabulario.setWindowTitle ('Vocabulario')
+  dlg_vocabulario.doubleClicked.connect (editaVocab)
+  selector.centralWidget().addSubWindow (dlg_vocabulario)
+  dlg_vocabulario.showMaximized()
   selector.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
 
 def nuevaBD (posicion):
