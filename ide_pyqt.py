@@ -616,8 +616,12 @@ def cambiaProceso (numero, numEntrada = None):
     if i < (len (cabeceras) - 1):
       campo_txt.insertPlainText ('\n\n')
   if posicion != None:
+    lineasVisibles = campo_txt.size().height() / float (campo_txt.cursorRect().height())
     campo_txt.moveCursor (QTextCursor.End)  # Vamos al final, para que al ir a la línea que toca, esa quede arriba
     cursor = campo_txt.textCursor()
+    cursor.setPosition  (posicion)
+    cursor.movePosition (QTextCursor.Up, n = (lineasVisibles // 2) - 1)
+    campo_txt.setTextCursor (cursor)
     cursor.setPosition  (posicion)
     cursor.movePosition (QTextCursor.Right, n = 2)
     campo_txt.setTextCursor (cursor)
