@@ -160,10 +160,10 @@ class CampoTexto (QTextEdit):
     if numEntrada == -1:
       accionElimEnt.setEnabled (False)
     accionElimTodo.setStatusTip ('Elimina todas las entradas del proceso')
-    accionElimEnt.triggered.connect  (lambda: quitaEntrada (numEntrada))
-    accionElimTodo.triggered.connect (quitaEntradas)
-    accionAntes.triggered.connect    (lambda: nuevaEntrada (numEntrada))
-    accionDespues.triggered.connect  (lambda: nuevaEntrada (numEntrada + 1))
+    accionElimEnt.triggered.connect  (lambda: quitaEntradaProceso (numEntrada))
+    accionElimTodo.triggered.connect (quitaEntradasProceso)
+    accionAntes.triggered.connect    (lambda: nuevaEntradaProceso (numEntrada))
+    accionDespues.triggered.connect  (lambda: nuevaEntradaProceso (numEntrada + 1))
     menuEliminar.addAction (accionElimEnt)
     menuEliminar.addAction (accionElimTodo)
     contextual.addSeparator()
@@ -846,7 +846,7 @@ def editaMsgUsr (indice):
   if dialogo.exec_() == QDialog.Accepted:
     mod_actual.msgs_usr[indice.row()] = dialogo.daTexto()
 
-def editaVocab (indice):
+def editaVocabulario (indice):
   """Permite editar una entrada de vocabulario, tras hacer doble click en su tabla"""
   nuevaPal = None  # Entrada de vocabulario modificada
   numFila  = indice.row()
@@ -1182,7 +1182,7 @@ def muestraVistaVocab ():
   dlg_vocabulario.setModel (ModeloVocabulario (dlg_vocabulario))
   # dlg_vocabulario.setHorizontalHeaderLabels (('Palabra', 'Número', 'Tipo'))
   dlg_vocabulario.setWindowTitle ('Vocabulario')
-  dlg_vocabulario.doubleClicked.connect (editaVocab)
+  dlg_vocabulario.doubleClicked.connect (editaVocabulario)
   selector.centralWidget().addSubWindow (dlg_vocabulario)
   dlg_vocabulario.showMaximized()
   selector.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
@@ -1195,7 +1195,7 @@ def nuevaBD (posicion):
   mod_actual.__dict__[info_nueva[posicion][1]]()
   postCarga ('Sin nombre')
 
-def nuevaEntrada (posicion):
+def nuevaEntradaProceso (posicion):
   """Añade una entrada de proceso vacía en la posición dada como parámetro"""
   if posicion < 0:
     posicion = 0
@@ -1205,7 +1205,7 @@ def nuevaEntrada (posicion):
   proceso[1].insert (posicion, [])
   cambiaProceso (numProceso, posicion)
 
-def quitaEntrada (posicion):
+def quitaEntradaProceso (posicion):
   """Quita la entrada de proceso de la posición dada como parámetro"""
   numProceso = pestanyas.currentIndex()
   proceso    = mod_actual.tablas_proceso[numProceso]  # El proceso seleccionado
@@ -1213,7 +1213,7 @@ def quitaEntrada (posicion):
   del proceso[1][posicion]
   cambiaProceso (numProceso, max (0, posicion - 1))
 
-def quitaEntradas ():
+def quitaEntradasProceso ():
   """Quita la entradas del proceso seleccionado"""
   numProceso = pestanyas.currentIndex()
   proceso    = mod_actual.tablas_proceso[numProceso]  # El proceso seleccionado
