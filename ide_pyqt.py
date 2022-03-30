@@ -605,7 +605,11 @@ def cambiaProceso (numero, numEntrada = None):
     for c in range (len (entradas[i])):
       condacto, parametros = entradas[i][c]
       if [numero, i, c] in pila_procs:
-        campo_txt.setTextBackgroundColor (color_tope_pila if pila_procs[-1] == [numero, i, c] else color_pila)
+        if pila_procs[-1] == [numero, i, c]:
+          posicion = campo_txt.textCursor().position()
+          campo_txt.setTextBackgroundColor (color_tope_pila)
+        else:
+          campo_txt.setTextBackgroundColor (color_pila)
       imprimeCondacto (condacto, parametros)
       campo_txt.setTextBackgroundColor (color_base)
     campo_txt.insertPlainText ('\n     ')
