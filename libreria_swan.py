@@ -171,7 +171,7 @@ condactos = {
    70 : ('ADJECT2', 1, False),
    71 : ('ADD',     2, True),
    72 : ('SUB',     2, True),
-   73 : ('PARSE',   0, True),
+   73 : ('PARSE',   0, False),  # Se comporta como condición, satisfecha con frase inválida
    74 : ('LISTAT',  1, True),
    75 : ('PROCESS', 1, True),
    76 : ('SAME',    2, False),
