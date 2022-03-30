@@ -871,11 +871,11 @@ def editaVocabulario (indice):
     if dialogo.exec_() == QDialog.Accepted and dialogo.textValue() in tiposPalabra.values():
       nuevaPal = (palVocab[0], palVocab[1],
                   list (tiposPalabra.keys())[list (tiposPalabra.values()).index (dialogo.textValue())])
-  if not nuevaPal:
+  if not nuevaPal or mod_actual.vocabulario[numFila] == nuevaPal:
     return  # No se ha modificado
-  mod_actual.vocabulario[numFila] = nuevaPal
+  del mod_actual.vocabulario[numFila]
+  nuevaEntradaVocabulario (nuevaPal)
   # TODO: comprobar si ya existe otra palabra así y pedir confirmar en ese caso (pero permitirlo)
-  # TODO: reordenar poniendo la palabra en el lugar correcto por orden alfabético (cuidado con acentos)
 
 def ejecutaPorPasos ():
   """Ejecuta la base de datos para depuración paso a paso"""
@@ -1204,6 +1204,14 @@ def nuevaEntradaProceso (posicion):
   proceso[0].insert (posicion, [255, 255])
   proceso[1].insert (posicion, [])
   cambiaProceso (numProceso, posicion)
+
+def nuevaEntradaVocabulario (entrada):
+  """Añade al vocabulario la entrada dada, en la posición que le corresponda"""
+  # TODO: usar el orden del "alfabeto" de DAAD
+  pos = 0
+  while pos < len (mod_actual.vocabulario) and entrada[0] > mod_actual.vocabulario[pos][0]:
+    pos += 1
+  mod_actual.vocabulario.insert (pos, entrada)
 
 def quitaEntradaProceso (posicion):
   """Quita la entrada de proceso de la posición dada como parámetro"""
