@@ -220,7 +220,7 @@ class CampoTexto (QTextEdit):
         self.setCursorWidth   (1)
         self.setOverwriteMode (False)
       else:
-        self.setCursorWidth   (self.font().pointSize() * 0.7)
+        self.setCursorWidth   (self.font().pointSize() * 0.8)
         self.setOverwriteMode (True)
     elif proc_interprete:
       return  # No se puede modificar nada cuando la BD está en ejecución
@@ -379,7 +379,7 @@ class CampoTexto (QTextEdit):
       else:
         self.zoomIn (2)
       if self.overwriteMode():
-        self.setCursorWidth (self.font().pointSize() * 0.75)
+        self.setCursorWidth (self.font().pointSize() * 0.8)
     else:
       super (CampoTexto, self).wheelEvent (evento)
 
