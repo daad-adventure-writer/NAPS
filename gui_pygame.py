@@ -984,6 +984,7 @@ def pos_subventana (columna, fila):
 def reinicia_subventanas ():
   """Ajusta todas las subventanas de impresión a sus valores por defecto"""
   for i in range (num_subvens):
+    color_subv[i]  = [len (paleta[0]) - 1, 0, 0]
     cursores[i]    = [0, 0]
     subventanas[i] = [0, 0]
     topes[i]       = list (limite)
