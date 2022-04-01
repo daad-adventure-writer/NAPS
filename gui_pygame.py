@@ -949,8 +949,10 @@ Los caracteres de linea deben estar convertidos a posiciones en la tipografía"""
   cursores[elegida] = cursor
   actualizaVentana()
 
-def mueve_cursor (columna, fila = cursores[elegida][1]):
+def mueve_cursor (columna, fila = None):
   """Cambia de posición el cursor de la subventana elegida"""
+  if fila == None:
+    fila = cursores[elegida][1]
   cursores[elegida] = [columna, fila]
   if traza:
     prn ('Subventana', elegida, 'en', subventanas[elegida], 'con topes', topes[elegida],
