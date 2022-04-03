@@ -961,10 +961,12 @@ def mueve_cursor (columna, fila = None):
 def prepara_topes (columnas, filas):
   """Inicializa los topes al número de columnas y filas dado"""
   global topes, topes_gfx
-  limite[0] = columnas                  # Ancho máximo absoluto de cada subventana
-  limite[1] = filas                     # Alto máximo absoluto de cada subventana
-  topes     = [[columnas, filas],] * 8  # Topes relativos de cada subventana de impresión
-  topes_gfx = [columnas,  filas]        # Ancho y alto del último gráfico dibujado en la subventana 0
+  limite[0] = columnas           # Ancho máximo absoluto de cada subventana
+  limite[1] = filas              # Alto máximo absoluto de cada subventana
+  topes_gfx = [columnas, filas]  # Ancho y alto del último gráfico dibujado en la subventana 0
+  for topesSubventana in topes:  # Topes relativos de cada subventana de impresión
+    topesSubventana[0] = columnas
+    topesSubventana[1] = filas
 
 def pos_subventana (columna, fila):
   """Cambia la posición de origen de la subventana de impresión elegida"""
