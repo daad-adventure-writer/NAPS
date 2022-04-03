@@ -300,9 +300,10 @@ def da_tecla_pulsada ():
   redimensiona_ventana()
   if not teclas_pulsadas:
     return None
-  if teclas_pulsadas[-1] in teclas_ascii:
-    return teclas_ascii[teclas_pulsadas[-1]]
-  return (teclas_pulsadas[-1], 0)
+  tecla = teclas_pulsadas.pop()  # Tomamos la última tecla pulsada y la quitamos de la lista
+  if tecla in teclas_ascii:
+    return teclas_ascii[tecla]
+  return (tecla, 0)
 
 def carga_bd_pics (rutaBDGfx):
   """Carga la base de datos gráfica de ruta dada, y prepara la paleta y lo relacionado con ella"""
