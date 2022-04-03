@@ -379,12 +379,12 @@ El parámetro parcial indica si es posible dibujar parte de la imagen"""
     ancho = ((tope[0] - cursor[0]) * 6)  # Anchura del dibujo
     alto  = ((tope[1] - cursor[1]) * 8)  # Altura del dibujo
     if numero in graficos:
-      if nueva_version and elegida > 0:
+      if nueva_version and elegida > 0 and not espacial:
         if 'flotante' not in recurso['banderas']:
           pos_gfx_sub[elegida] = recurso['posicion']  # Otros graficos flotantes en esta subventana se dibujarán aquí
         destino = pos_gfx_sub[elegida]
-      elif nueva_version and tam_cabecera > 34 and not chichen:  # BD posteriores a Cozumel salvo Chichen Itzá
-        # TODO: Probar esto más, ocurre así con gráficos de localidad de Los Templos Sagrados, pero en Chichen Itzá
+      elif templos:
+        # TODO: Probar esto más, ocurre así con gráficos de localidad de Los Templos Sagrados, pero no en Chichen Itzá, ni sirve para Aventura Espacial
         ancho   = ((((tope[0] - cursor[0]) * 6) // 8) * 8)  # Anchura del dibujo
         destino = [(((subventana[0] + cursor[0]) * 6) // 8) * 8, (subventana[1] + cursor[1]) * 8]
       elif 'flotante' in recurso['banderas']:
