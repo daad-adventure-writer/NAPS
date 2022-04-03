@@ -678,7 +678,7 @@ def a2_COPYFO (flagno, objno):
 
 def a2_COPYOF (objno, flagno):
   """La localidad del objeto objno se copia en la bandera flagno"""
-  banderas[flagno] = locs_objs[objno]
+  banderas[flagno] = locs_objs[objno] if objno < len (locs_objs) else 255  # XXX: al menos La Aventura Espacial lo hace así
 
 def a2_COPYOO (objno1, objno2):
   """La localidad del objeto objno1 se copia como localidad del objeto objno2, y se marca objno2 como objeto actualmente referido"""
