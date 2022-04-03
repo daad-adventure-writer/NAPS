@@ -366,8 +366,8 @@ El parámetro parcial indica si es posible dibujar parte de la imagen"""
     topes_gfx[1] = min (grafico.get_height() // 8, limite[1])
   if (descripcion or elegida == 0) and not parcial:
     ancho = tope[0] * 6
-    if numero in graficos and 'flotante' not in graficos[numero]['banderas']:
-      destino = graficos[numero]['posicion']
+    if numero in graficos and 'flotante' not in recurso['banderas']:
+      destino = recurso['posicion']
     elif centrar_graficos and ancho > grafico.get_width():  # Centramos el gráfico
       # Se centran los gráficos en la Aventura Original, pero no en El Jabato, así está en la base de datos gráfica
       destino      = ((ancho - grafico.get_width()) // 2, 0)
@@ -380,18 +380,18 @@ El parámetro parcial indica si es posible dibujar parte de la imagen"""
     alto  = ((tope[1] - cursor[1]) * 8)  # Altura del dibujo
     if numero in graficos:
       if nueva_version and elegida > 0:
-        if 'flotante' not in graficos[numero]['banderas']:
-          pos_gfx_sub[elegida] = graficos[numero]['posicion']  # Otros graficos flotantes en esta subventana se dibujarán aquí
+        if 'flotante' not in recurso['banderas']:
+          pos_gfx_sub[elegida] = recurso['posicion']  # Otros graficos flotantes en esta subventana se dibujarán aquí
         destino = pos_gfx_sub[elegida]
       elif nueva_version and tam_cabecera > 34 and not chichen:  # BD posteriores a Cozumel salvo Chichen Itzá
         # TODO: Probar esto más, ocurre así con gráficos de localidad de Los Templos Sagrados, pero en Chichen Itzá
         ancho   = ((((tope[0] - cursor[0]) * 6) // 8) * 8)  # Anchura del dibujo
         destino = [(((subventana[0] + cursor[0]) * 6) // 8) * 8, (subventana[1] + cursor[1]) * 8]
-      elif 'flotante' in graficos[numero]['banderas']:
+      elif 'flotante' in recurso['banderas']:
         # TODO: Asegurarse de si hay que tener en cuenta la posición del cursor
         destino = [(subventana[0] + cursor[0]) * 6, (subventana[1] + cursor[1]) * 8]
       else:
-        destino = graficos[numero]['posicion']
+        destino = recurso['posicion']
     else:
       # TODO: Asegurarse de si hay que tener en cuenta la posición del cursor
       destino = [(subventana[0] + cursor[0]) * 6, (subventana[1] + cursor[1]) * 8]
