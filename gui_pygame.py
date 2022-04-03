@@ -121,8 +121,9 @@ def abre_ventana (traza, escalar, bbdd):
   copia = None
   if pygame.display.get_caption():  # Ya había sido inicializada antes
     copia = ventana.copy()
+  else:
+    factorEscala = escalar
   pygame.display.set_caption ('NAPS - ' + bbdd)
-  factorEscala = escalar
   if traza and 'NUM_BANDERAS' in globals():
     if NUM_BANDERAS > 50:
       resolucion = (780, 200)  # Ventana juego + banderas
@@ -131,7 +132,7 @@ def abre_ventana (traza, escalar, bbdd):
   else:  # Ventana juego sólo
     if limite[0] < 53:
       resolucion = (limite[0] * 6, limite[1] * 8)
-  if escalar > 1:
+  if factorEscala > 1:
     escalada = pygame.display.set_mode ((resolucion[0] * factorEscala, resolucion[1] * factorEscala), pygame.RESIZABLE)
     ventana  = pygame.Surface (resolucion)
   else:
