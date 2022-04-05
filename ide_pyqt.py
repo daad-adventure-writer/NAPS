@@ -323,7 +323,7 @@ class CampoTexto (QTextEdit):
       cursor  = self.textCursor()
       columna = cursor.positionInBlock()
       linea   = cursor.block()
-      if cursor.selectedText().isnumeric():
+      if str (cursor.selectedText()).isdigit():
         columna -= len (cursor.selectedText())  # Inicio del parámetro
       elif cursor.hasSelection():
         return  # Intentando escribir número donde no es posible
