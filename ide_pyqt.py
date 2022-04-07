@@ -1028,6 +1028,8 @@ def imprimeCondacto (condacto, parametros):
           mensaje = mod_actual.msgs_usr[parametro]
         elif tiposParams == 's':
           mensaje = mod_actual.msgs_sys[parametro]
+        if tiposParams[p] == 'i' and parametro > 128:  # Es un número entero negativo
+          parametro -= 256
       campo_txt.insertPlainText (str (parametro).rjust (4))
     if mensaje != None:
       mensaje = daTextoImprimible (mensaje)
