@@ -255,14 +255,14 @@ class CampoTexto (QTextEdit):
           nomCondacto = str (dialogo.textValue()).upper()
           if nomCondacto in self.condactos:
             condacto   = self.condactos[nomCondacto]
-            lineaNueva = [condacto[3], [0] * condacto[1]]  # Código y parámetros de la nueva línea
+            lineaNueva = [condacto[3], [0] * len (condacto[1])]  # Código y parámetros de la nueva línea
             if posicion > 1:  # Si no añade al inicio de la entrada
               if self.overwriteMode():
                 cursor.movePosition (QTextCursor.EndOfBlock)
                 cursor.movePosition (QTextCursor.StartOfBlock, QTextCursor.KeepAnchor)
                 cursor.movePosition (QTextCursor.Left,         QTextCursor.KeepAnchor)
                 parametros    = entrada[posicion - 2][1]  # Conservaremos parámetros anteriores
-                lineaNueva[1] = parametros[: condacto[1]] + ([0] * (max (0, condacto[1] - len (parametros))))
+                lineaNueva[1] = parametros[: len (condacto[1])] + ([0] * (max (0, len (condacto[1]) - len (parametros))))
               elif columna < len (linea.text()) or posicion == len (entrada) + 2:  # No es fin de línea o es final de entrada
                 cursor.movePosition (QTextCursor.Up)
                 cursor.movePosition (QTextCursor.EndOfBlock)
@@ -996,45 +996,49 @@ def imprimeCondacto (condacto, parametros):
     indirecto = ' '  # Condacto no indirecto
   if condacto in mod_actual.condiciones:
     campo_txt.setTextColor (QColor (100, 255, 50))  # Color verde claro
-    nombre = mod_actual.condiciones[condacto][0]
+    nombre, tiposParams = mod_actual.condiciones[condacto][:2]
   elif condacto - (100 if mod_actual.NOMBRE_SISTEMA == 'QUILL' else 0) in mod_actual.acciones:
     campo_txt.setTextColor (QColor (100, 200, 255))  # Color azul claro
     if mod_actual.NOMBRE_SISTEMA == 'QUILL':
       condacto -= 100
-    nombre = mod_actual.acciones[condacto][0]
+    nombre, tiposParams = mod_actual.acciones[condacto][:2]
     if nombre == 'NEWTEXT' and indirecto == '@':
       indirecto = ' '
       nombre    = 'DEBUG'
   else:  # No debería ocurrir
     prn ('FIXME: Condacto', condacto, 'no reconocido por la librería')
     campo_txt.setTextColor (QColor (255, 0, 0))  # Color rojo
-    nombre = str (condacto)
+    nombre      = str (condacto)
+    tiposParams = '?' * len (parametros)
   if parametros:  # Imprimiremos los parámetros
-    campo_txt.insertPlainText (nombre.center (7))
-    campo_txt.setTextColor (QColor (255, 160, 32))  # Color anaranjado
-    if indirecto == ' ' and nombre in ('MES', 'MESSAGE', 'SYSMESS'):
-      if (nombre == 'SYSMESS' and parametros[0] >= len (mod_actual.msgs_sys)) or \
-         (nombre != 'SYSMESS' and parametros[0] >= len (mod_actual.msgs_usr)):
-        campo_txt.setTextColor (QColor (255, 0, 0))  # Color rojo
-    campo_txt.insertPlainText ((indirecto + str (parametros[0])).rjust (5))
-    for parametro in parametros[1:]:
-      campo_txt.insertPlainText (',' + str (parametro).rjust (4))
+    campo_txt.insertPlainText (nombre.center (7) + ' ')
+    for p in range (len (parametros)):
+      campo_txt.setTextColor (QColor (255, 160, 32))  # Color anaranjado
+      mensaje   = None
+      parametro = parametros[p]
+      if p > 0:
+        campo_txt.insertPlainText (',')
+      elif indirecto == '@':
+        parametro = '@' + str (parametro)
+      if (p > 0 or indirecto == ' '):
+        if (tiposParams[p] == 'm' and parametro >= len (mod_actual.msgs_usr)) or \
+           (tiposParams[p] == 's' and parametro >= len (mod_actual.msgs_sys)):
+          campo_txt.setTextColor (QColor (255, 0, 0))  # Color rojo
+        elif tiposParams == 'm':
+          mensaje = mod_actual.msgs_usr[parametro]
+        elif tiposParams == 's':
+          mensaje = mod_actual.msgs_sys[parametro]
+      campo_txt.insertPlainText (str (parametro).rjust (4))
+    if mensaje != None:
+      mensaje = daTextoImprimible (mensaje)
+      campo_txt.setTextColor (QColor (100, 100, 100))  # Color gris oscuro
+      campo_txt.insertPlainText ('       "')
+      campo_txt.setFontItalic (True)  # Cursiva activada
+      campo_txt.insertPlainText (mensaje)
+      campo_txt.setFontItalic (False)  # Cursiva desactivada
+      campo_txt.insertPlainText ('"')
   else:  # Condacto sin parámetros
     campo_txt.insertPlainText ((nombre + indirecto).center (7).rstrip())
-  if indirecto == ' ' and nombre in ('MES', 'MESSAGE', 'SYSMESS'):
-    if nombre == 'SYSMESS' and parametros[0] < len (mod_actual.msgs_sys):
-      mensaje = mod_actual.msgs_sys[parametros[0]]
-    elif nombre != 'SYSMESS' and parametros[0] < len (mod_actual.msgs_usr):
-      mensaje = mod_actual.msgs_usr[parametros[0]]
-    else:
-      return
-    mensaje = daTextoImprimible (mensaje)
-    campo_txt.setTextColor (QColor (100, 100, 100))  # Color gris oscuro
-    campo_txt.insertPlainText ('       "')
-    campo_txt.setFontItalic (True)  # Cursiva activada
-    campo_txt.insertPlainText (str (mensaje))
-    campo_txt.setFontItalic (False)  # Cursiva desactivada
-    campo_txt.insertPlainText ('"')
 
 def muestraAcercaDe ():
   """Muestra el diálogo 'Acerca de'"""

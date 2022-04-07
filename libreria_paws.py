@@ -83,115 +83,130 @@ plats_LE = (2, )  # Plataformas que son Little Endian (PC)
 
 condactos = {
   # El formato es el siguiente:
-  # código : (nombre, número_parámetros, es_acción)
-    0 : ('AT',      1, False),
-    1 : ('NOTAT',   1, False),
-    2 : ('ATGT',    1, False),
-    3 : ('ATLT',    1, False),
-    4 : ('PRESENT', 1, False),
-    5 : ('ABSENT',  1, False),
-    6 : ('WORN',    1, False),
-    7 : ('NOTWORN', 1, False),
-    8 : ('CARRIED', 1, False),
-    9 : ('NOTCARR', 1, False),
-   10 : ('CHANCE',  1, False),
-   11 : ('ZERO',    1, False),
-   12 : ('NOTZERO', 1, False),
-   13 : ('EQ',      2, False),
-   14 : ('GT',      2, False),
-   15 : ('LT',      2, False),
-   16 : ('ADJECT1', 1, False),
-   17 : ('ADVERB',  1, False),
-   18 : ('INVEN',   0, True),
-   19 : ('DESC',    0, True),
-   20 : ('QUIT',    0, False),  # Se comporta como condición, no satisfecha si no termina
-   21 : ('END',     0, True),
-   22 : ('DONE',    0, True),
-   23 : ('OK',      0, True),
-   24 : ('ANYKEY',  0, True),
-   25 : ('SAVE',    0, True),
-   26 : ('LOAD',    0, True),
-   27 : ('TURNS',   0, True),
-   28 : ('SCORE',   0, True),
-   29 : ('CLS',     0, True),
-   30 : ('DROPALL', 0, True),
-   31 : ('AUTOG',   0, True),
-   32 : ('AUTOD',   0, True),
-   33 : ('AUTOW',   0, True),
-   34 : ('AUTOR',   0, True),
-   35 : ('PAUSE',   1, True),
-   36 : ('TIMEOUT', 0, False),
-   37 : ('GOTO',    1, True),
-   38 : ('MESSAGE', 1, True),
-   39 : ('REMOVE',  1, True),
-   40 : ('GET',     1, True),
-   41 : ('DROP',    1, True),
-   42 : ('WEAR',    1, True),
-   43 : ('DESTROY', 1, True),
-   44 : ('CREATE',  1, True),
-   45 : ('SWAP',    2, True),
-   46 : ('PLACE',   2, False),  # Se comporta como condición, no satisfecha al intentar poner un objeto en 255
-   47 : ('SET',     1, True),
-   48 : ('CLEAR',   1, True),
-   49 : ('PLUS',    2, True),
-   50 : ('MINUS',   2, True),
-   51 : ('LET',     2, True),
-   52 : ('NEWLINE', 0, True),
-   53 : ('PRINT',   1, True),
-   54 : ('SYSMESS', 1, True),
-   55 : ('ISAT',    2, False),
-   56 : ('COPYOF',  2, True),
-   57 : ('COPYOO',  2, True),
-   58 : ('COPYFO',  2, True),
-   59 : ('COPYFF',  2, True),
-   60 : ('LISTOBJ', 0, True),
-   61 : ('EXTERN',  1, True),
-   62 : ('RAMSAVE', 0, True),
-   63 : ('RAMLOAD', 1, True),
-   64 : ('BELL',    0, True),   # O BEEP, según la plataforma que sea
-   65 : ('PAPER',   0, True),
-   66 : ('INK',     0, True),
-   67 : ('BORDER',  0, True),
-   68 : ('PREP',    1, False),
-   69 : ('NOUN2',   1, False),
-   70 : ('ADJECT2', 1, False),
-   71 : ('ADD',     2, True),
-   72 : ('SUB',     2, True),
-   73 : ('PARSE',   0, False),  # Se comporta como condición, satisfecha con frase inválida
-   74 : ('LISTAT',  1, True),
-   75 : ('PROCESS', 1, True),
-   76 : ('SAME',    2, False),
-   77 : ('MES',     1, True),
-   78 : ('CHARSET', 0, True),
-   79 : ('NOTEQ',   2, False),
-   80 : ('NOTSAME', 2, False),
-   81 : ('MODE',    1, True),
-   82 : ('LINE',    1, True),
-   83 : ('TIME',    2, True),
-   84 : ('PICTURE', 1, True),
-   85 : ('DOALL',   1, True),
-   86 : ('PROMPT',  1, True),
-   87 : ('GRAPHIC', 1, True),
-   88 : ('ISNOTAT', 2, False),
-   89 : ('WEIGH',   2, True),
-   90 : ('PUTIN',   2, True),
-   91 : ('TAKEOUT', 2, True),
-   92 : ('NEWTEXT', 0, True),
-   93 : ('ABILITY', 2, True),
-   94 : ('WEIGHT',  1, True),
-   95 : ('RANDOM',  1, True),
-   96 : ('INPUT',   1, True),
-   97 : ('SAVEAT',  0, True),
-   98 : ('BACKAT',  0, True),
-   99 : ('PRINTAT', 2, True),
-  100 : ('WHATO',   0, True),
-  101 : ('RESET',   1, True),
-  102 : ('PUTO',    1, True),
-  103 : ('NOTDONE', 0, True),
-  104 : ('AUTOP',   1, True),
-  105 : ('AUTOT',   1, True),
-  106 : ('MOVE',    1, False),  # Se comporta como condición
-  107 : ('PROTECT', 0, True),
+  # código : (nombre, parámetros, es_acción)
+  # Donde parámetros es una cadena con el tipo de cada parámetro
+  # Y los tipos de los parámetros se definen así:
+  # % : Porcentaje (percent), de 1 a 99 (TODO: comprobar si sirven 0 y 100)
+  # f : Número de bandera (flagno), de 0 a NUM_BANDERAS - 1
+  # j : Número de palabra de tipo adjetivo (adjective), ó 255
+  # l : Número de localidad (locno), de 0 a num_localidades - 1
+  # L : Número de localidad (locno+), de 0 a num_localidades - 1, ó 252-255
+  # m : Número de mensaje de usuario (mesno), de 0 a num_msgs_usuario - 1
+  # n : Número de palabra de tipo nombre (noun), ó 255
+  # o : Número de objeto (objno), de 0 a num_objetos - 1
+  # p : Número de process (procno), de 0 a num_procesos - 1
+  # r : Número de palabra de tipo preposición (preposition), ó 255
+  # s : Número de mensaje de sistema (sysno), de 0 a num_msgs_sistema - 1
+  # u : Valor (value) entero sin signo, de 0 a 255
+  # v : Número de palabra de tipo adverbio (adverb), ó 255
+    0 : ('AT',      'l',  False),
+    1 : ('NOTAT',   'l',  False),
+    2 : ('ATGT',    'l',  False),
+    3 : ('ATLT',    'l',  False),
+    4 : ('PRESENT', 'o',  False),
+    5 : ('ABSENT',  'o',  False),
+    6 : ('WORN',    'o',  False),
+    7 : ('NOTWORN', 'o',  False),
+    8 : ('CARRIED', 'o',  False),
+    9 : ('NOTCARR', 'o',  False),
+   10 : ('CHANCE',  '%',  False),
+   11 : ('ZERO',    'f',  False),
+   12 : ('NOTZERO', 'f',  False),
+   13 : ('EQ',      'fu', False),
+   14 : ('GT',      'fu', False),
+   15 : ('LT',      'fu', False),
+   16 : ('ADJECT1', 'j',  False),
+   17 : ('ADVERB',  'v',  False),
+   18 : ('INVEN',   '',   True),
+   19 : ('DESC',    '',   True),
+   20 : ('QUIT',    '',   False),  # Se comporta como condición, no satisfecha si no termina
+   21 : ('END',     '',   True),
+   22 : ('DONE',    '',   True),
+   23 : ('OK',      '',   True),
+   24 : ('ANYKEY',  '',   True),
+   25 : ('SAVE',    '',   True),
+   26 : ('LOAD',    '',   True),
+   27 : ('TURNS',   '',   True),
+   28 : ('SCORE',   '',   True),
+   29 : ('CLS',     '',   True),
+   30 : ('DROPALL', '',   True),
+   31 : ('AUTOG',   '',   True),
+   32 : ('AUTOD',   '',   True),
+   33 : ('AUTOW',   '',   True),
+   34 : ('AUTOR',   '',   True),
+   35 : ('PAUSE',   'u',  True),
+   36 : ('TIMEOUT', '',   False),
+   37 : ('GOTO',    'l',  True),
+   38 : ('MESSAGE', 'm',  True),
+   39 : ('REMOVE',  'o',  True),
+   40 : ('GET',     'o',  True),
+   41 : ('DROP',    'o',  True),
+   42 : ('WEAR',    'o',  True),
+   43 : ('DESTROY', 'o',  True),
+   44 : ('CREATE',  'o',  True),
+   45 : ('SWAP',    'oo', True),
+   46 : ('PLACE',   'oL', False),  # Se comporta como condición, no satisfecha al intentar poner un objeto en 255
+   47 : ('SET',     'f',  True),
+   48 : ('CLEAR',   'f',  True),
+   49 : ('PLUS',    'fu', True),
+   50 : ('MINUS',   'fu', True),
+   51 : ('LET',     'fu', True),
+   52 : ('NEWLINE', '',   True),
+   53 : ('PRINT',   'f',  True),
+   54 : ('SYSMESS', 's',  True),
+   55 : ('ISAT',    'oL', False),
+   56 : ('COPYOF',  'of', True),
+   57 : ('COPYOO',  'oo', True),
+   58 : ('COPYFO',  'fo', True),
+   59 : ('COPYFF',  'ff', True),
+   60 : ('LISTOBJ', '',   True),
+   61 : ('EXTERN',  'u',  True),
+   62 : ('RAMSAVE', '',   True),
+   63 : ('RAMLOAD', 'f',  True),
+   64 : ('BELL',    '',   True),   # O BEEP, según la plataforma que sea
+   65 : ('PAPER',   '',   True),
+   66 : ('INK',     '',   True),
+   67 : ('BORDER',  '',   True),
+   68 : ('PREP',    'r',  False),
+   69 : ('NOUN2',   'n',  False),
+   70 : ('ADJECT2', 'j',  False),
+   71 : ('ADD',     'ff', True),
+   72 : ('SUB',     'ff', True),
+   73 : ('PARSE',   '',   False),  # Se comporta como condición, satisfecha con frase inválida
+   74 : ('LISTAT',  'L',  True),
+   75 : ('PROCESS', 'p',  True),
+   76 : ('SAME',    'ff', False),
+   77 : ('MES',     'm',  True),
+   78 : ('CHARSET', '',   True),
+   79 : ('NOTEQ',   'fu', False),
+   80 : ('NOTSAME', 'ff', False),
+   81 : ('MODE',    'u',  True),
+   82 : ('LINE',    'u',  True),
+   83 : ('TIME',    'uu', True),
+   84 : ('PICTURE', 'l',  True),
+   85 : ('DOALL',   'L',  True),
+   86 : ('PROMPT',  's',  True),
+   87 : ('GRAPHIC', 'u',  True),
+   88 : ('ISNOTAT', 'oL', False),
+   89 : ('WEIGH',   'of', True),
+   90 : ('PUTIN',   'ol', True),
+   91 : ('TAKEOUT', 'ol', True),
+   92 : ('NEWTEXT', '',   True),
+   93 : ('ABILITY', 'uu', True),
+   94 : ('WEIGHT',  'f',  True),
+   95 : ('RANDOM',  'f',  True),
+   96 : ('INPUT',   'u',  True),
+   97 : ('SAVEAT',  '',   True),
+   98 : ('BACKAT',  '',   True),
+   99 : ('PRINTAT', 'uu', True),
+  100 : ('WHATO',   '',   True),
+  101 : ('RESET',   'l',  True),
+  102 : ('PUTO',    'L',  True),
+  103 : ('NOTDONE', '',   True),
+  104 : ('AUTOP',   'l',  True),
+  105 : ('AUTOT',   'l',  True),
+  106 : ('MOVE',    'f',  False),  # Se comporta como condición
+  107 : ('PROTECT', '',   True),
 }
 
 
@@ -450,7 +465,7 @@ def cargaTablasProcesos ():
           except:
             prn ('FIXME: Número de condacto', num_condacto, 'desconocido, en entrada', num_entrada, 'del proceso', num_proceso)
           return
-        for i in range (condactos[num_condacto][1]):
+        for i in range (len (condactos[num_condacto][1])):
           parametros.append (carga_int1())
         entrada.append ((condacto, parametros))
       entradas.append (entrada)
@@ -500,7 +515,7 @@ def preparaPlataforma ():
     fin_cadena       = 31
     nueva_linea      = 7
     num_abreviaturas = 91
-    condactos[81]    = ('MODE', 2, True)
+    condactos[81]    = ('MODE', 'uu', True)
   elif plataforma in despl_ini_plat:
     despl_ini = despl_ini_plat[plataforma]
   bajo_nivel_cambia_despl (despl_ini)

@@ -118,69 +118,65 @@ TIPOS_PAL        = ('Palabra',)  # Nombres de los tipos de palabra (para el IDE)
 # Diccionarios de condactos
 
 # El formato es el siguiente:
-# código : (nombre, lista_parámetros)
-# Donde lista_parámetros es una lista con el tipo de cada parámetro
+# código : (nombre, parámetros)
+# Donde parámetros es una cadena con el tipo de cada parámetro
 # Y los tipos de los parámetros se definen así:
-# 0          : Número de bandera (flagno), de 0 a NUM_BANDERAS_ACC - 1
-# 1          : Número de localidad (locno), de 0 a num_localidades - 1
-# 2          : Número de mensaje de usuario (mesno), de 0 a num_msgs_usuario - 1
-# 3          : Número de mensaje de sistema (sysno), de 0 a num_msgs_sistema - 1
-# 4          : Número de objeto (objno), de 0 a num_objetos - 1
-# 5          : Número de tabla de proceso (procno), de 0 a num_procesos - 1
-# 10-16      : Número de palabra de vocabulario (word), de tipo número - 10,
-#              siendo: 0 verbo, 1 adverbio, 2 nombre, 3 adjetivo, 4 preposición,
-#              5 conjunción, 6 pronombre
-# (mín, máx) : Rango de valores, de mín a máx
+# % : Porcentaje (percent), de 1 a 99 (TODO: comprobar si sirven 0 y 100)
+# f : Número de bandera (flagno), de 0 a NUM_BANDERAS_ACC - 1
+# l : Número de localidad (locno), de 0 a num_localidades - 1
+# m : Número de mensaje de usuario (mesno), de 0 a num_msgs_usuario - 1
+# o : Número de objeto (objno), de 0 a num_objetos - 1
+# u : Valor (value) entero sin signo, de 0 a 255
 
 # Diccionario de condiciones
 condiciones = {
-   0 : ('AT',      (      1,         )),
-   1 : ('NOTAT',   (      1,         )),
-   2 : ('ATGT',    (      1,         )),
-   3 : ('ATLT',    (      1,         )),
-   4 : ('PRESENT', (      4,         )),
-   5 : ('ABSENT',  (      4,         )),
-   6 : ('WORN',    (      4,         )),
-   7 : ('NOTWORN', (      4,         )),
-   8 : ('CARRIED', (      4,         )),
-   9 : ('NOTCARR', (      4,         )),
-  10 : ('CHANCE',  ((1, 99),         )),  # FIXME: Comprobar si sirven 0 y 100
-  11 : ('ZERO',    (      0,         )),
-  12 : ('NOTZERO', (      0,         )),
-  13 : ('EQ',      (      0, (0, 255))),
-  14 : ('GT',      (      0, (0, 255))),
-  15 : ('LT',      (      0, (0, 255)))
+   0 : ('AT',      'l'),
+   1 : ('NOTAT',   'l'),
+   2 : ('ATGT',    'l'),
+   3 : ('ATLT',    'l'),
+   4 : ('PRESENT', 'o'),
+   5 : ('ABSENT',  'o'),
+   6 : ('WORN',    'o'),
+   7 : ('NOTWORN', 'o'),
+   8 : ('CARRIED', 'o'),
+   9 : ('NOTCARR', 'o'),
+  10 : ('CHANCE',  '%'),
+  11 : ('ZERO',    'f'),
+  12 : ('NOTZERO', 'f'),
+  13 : ('EQ',      'fu'),
+  14 : ('GT',      'fu'),
+  15 : ('LT',      'fu'),
 }
 
 # Diccionario de acciones
 acciones = {
-   0 : ('INVEN',   ()                  ),
-   1 : ('DESC',    ()                  ),
-   2 : ('QUIT',    ()                  ),
-   3 : ('END',     ()                  ),
-   4 : ('DONE',    ()                  ),
-   5 : ('OK',      ()                  ),
-   6 : ('ANYKEY',  ()                  ),
-   7 : ('SAVE',    ()                  ),
-   8 : ('LOAD',    ()                  ),
-   9 : ('TURNS',   ()                  ),
-  10 : ('SCORE',   ()                  ),
-  17 : ('PAUSE',   ((0, 255),         )),
-  21 : ('GOTO',    (       1,         )),
-  22 : ('MESSAGE', (       2,         )),
-  23 : ('REMOVE',  (       4,         )),
-  24 : ('GET',     (       4,         )),
-  25 : ('DROP',    (       4,         )),
-  26 : ('WEAR',    (       4,         )),
-  27 : ('DESTROY', (       4,         )),
-  28 : ('CREATE',  (       4,         )),
-  29 : ('SWAP',    (       4,        4)),
-  31 : ('SET',     (       0,         )),
-  32 : ('CLEAR',   (       0,         )),
-  33 : ('PLUS',    (       0, (0, 255))),
-  34 : ('MINUS',   (       0, (0, 255))),
-  35 : ('LET',     (       0, (0, 255))),
-  36 : ('BEEP',    ((0, 255), (0, 255)))
+   0 : ('INVEN',   ''),
+   1 : ('DESC',    ''),
+   2 : ('QUIT',    ''),
+   3 : ('END',     ''),
+   4 : ('DONE',    ''),
+   5 : ('OK',      ''),
+   6 : ('ANYKEY',  ''),
+   7 : ('SAVE',    ''),
+   8 : ('LOAD',    ''),
+   9 : ('TURNS',   ''),
+  10 : ('SCORE',   ''),
+  17 : ('PAUSE',   'u'),
+  21 : ('GOTO',    'l'),
+  22 : ('MESSAGE', 'm'),
+  23 : ('REMOVE',  'o'),
+  24 : ('GET',     'o'),
+  25 : ('DROP',    'o'),
+  26 : ('WEAR',    'o'),
+  27 : ('DESTROY', 'o'),
+  28 : ('CREATE',  'o'),
+  29 : ('SWAP',    'oo'),
+  31 : ('SET',     'f'),
+  32 : ('CLEAR',   'f'),
+  33 : ('PLUS',    'fu'),
+  34 : ('MINUS',   'fu'),
+  35 : ('LET',     'fu'),
+  36 : ('BEEP',    'uu'),
 }
 
 # Diccionario de condactos
