@@ -1021,8 +1021,14 @@ def imprimeCondacto (condacto, parametros):
       elif indirecto == '@':
         parametro = '@' + str (parametro)
       if (p > 0 or indirecto == ' '):
-        if (tiposParams[p] == 'm' and parametro >= len (mod_actual.msgs_usr)) or \
-           (tiposParams[p] == 's' and parametro >= len (mod_actual.msgs_sys)):
+        if (tiposParams[p] in 'bw' and parametro >= 8)                    or \
+           (tiposParams[p] == '%'  and (parametro < 1 or parametro > 99)) or \
+           (tiposParams[p] == 'l'  and parametro >= len (mod_actual.desc_locs)) or \
+           (tiposParams[p] == 'L'  and parametro >= len (mod_actual.desc_locs) and parametro not in range (252, 256)) or \
+           (tiposParams[p] == 'm'  and parametro >= len (mod_actual.msgs_usr))       or \
+           (tiposParams[p] == 'o'  and parametro >= len (mod_actual.desc_objs))      or \
+           (tiposParams[p] == 'p'  and parametro >= len (mod_actual.tablas_proceso)) or \
+           (tiposParams[p] == 's'  and parametro >= len (mod_actual.msgs_sys)):
           campo_txt.setTextColor (QColor (255, 0, 0))  # Color rojo
         elif tiposParams == 'm':
           mensaje = mod_actual.msgs_usr[parametro]
