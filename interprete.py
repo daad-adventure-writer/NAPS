@@ -703,6 +703,10 @@ Devuelve True si ha ejecutado DESC o equivalente. False si se debe reiniciar la 
         numCondacto  = -1
         numEntrada  += 1
       if numEntrada >= len (tabla[0]):  # Se ha terminado esta tabla
+        if doall_activo and numTabla == doall_activo[0]:
+          numEntrada  = doall_activo[1]
+          numCondacto = doall_activo[2]
+          break
         pila_procs.pop()
         if not pila_procs:  # No quedan más tablas en ejecución
           break
