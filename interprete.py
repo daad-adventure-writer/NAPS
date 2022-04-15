@@ -115,6 +115,8 @@ def da_peso (objeto, nivel = 0):
   return peso
 
 def imprime_mensaje (texto):
+  if not texto:
+    return
   objetoReferido = ''
   if NOMBRE_SISTEMA != 'QUILL' and banderas[51] < len (desc_objs):
     objetoReferido = desc_objs[banderas[51]]
