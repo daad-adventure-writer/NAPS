@@ -277,10 +277,15 @@ def a0_LISTOBJ ():
 
 def a0_LOAD ():
   """Carga el contenido de las banderas y de las localidades de los objetos desde un fichero"""
-  nombreFich = gui.lee_cadena (msgs_sys[60] + msgs_sys[33], '', [0])
+  nombreFich = gui.lee_cadena (msgs_sys[60] + msgs_sys[33], '', [0]) + '.' + EXT_SAVEGAME
+  # Buscamos el fichero con independencia de mayúsculas y minúsculas
+  for nombreFichero in os.listdir (os.curdir):
+    if nombreFichero.lower() == nombreFich:
+      nombreFich = nombreFichero
+      break
   bien = True
   try:
-    fichero = open (nombreFich + '.' + EXT_SAVEGAME, 'rb')
+    fichero = open (nombreFich, 'rb')
   except:
     imprime_mensaje (msgs_sys[54])  # Fichero inexistente
     bien = False
