@@ -141,7 +141,7 @@ def cargaPortada (fichero):
     return cargaPortadaCGA (fichero)
   if longFichero == 32001:
     return cargaPortadaEGA (fichero)
-  if longFichero == 32034:
+  if longFichero in (32034, 32127):
     return cargaPortadaAmiga (fichero)
   if longFichero == 32066:
     return cargaPortadaAtari (fichero)
