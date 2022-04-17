@@ -96,7 +96,7 @@ def cargaImagenAmiga (repetir, tamImg):
         if color in repetir:
           continue  # El número de repeticiones vendrá en el valor del siguiente píxel
       if color in repetir:
-        repeticiones = colores[pixel] + 1
+        repeticiones = min (colores[pixel] + 1, tamImg - len (imagen))
       else:
         repeticiones = 1
       imagen += [color] * repeticiones
