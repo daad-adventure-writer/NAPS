@@ -661,7 +661,8 @@ El parámetro espaciar permite elegir si se debe dejar una línea en blanco tras e
           tecla = tecla.upper()
         insertaHastaMax (entrada, posInput, tecla, longMax)
       elif tecla == '\b':  # La tecla Backspace, arriba del Enter
-        entrada     = entrada[:posInput[0] - 1] + entrada[posInput[0]:]
+        if posInput[0]:
+          entrada = entrada[:posInput[0] - 1] + entrada[posInput[0]:]
         posInput[0] = max (0, posInput[0] - 1)
       elif not shift:  # Shift sin pulsar
         if altGr:  # Alt Gr pulsado
