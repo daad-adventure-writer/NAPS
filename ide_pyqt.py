@@ -635,7 +635,7 @@ def cargaInfoModulos ():
   # TODO: No permitir entradas con igual conjunto de extensiones y descripción,
   # pero distinta función a llamar (aunque sean de módulos distintos)
   # Nombres de los módulos de librería en el directorio
-  nombres = [f[:-3] for f in os.listdir (os.curdir)
+  nombres = [f[:-3] for f in os.listdir (os.path.dirname (os.path.realpath (__file__)))
              if (f[:9] == 'libreria_' and f[-3:] == '.py')]
   for nombre_modulo in nombres:
     try:
@@ -881,7 +881,7 @@ def ejecutaPorPasos ():
   """Ejecuta la base de datos para depuración paso a paso"""
   global pilas_pendientes, proc_interprete
   accPasoAPaso.setEnabled (False)
-  rutaInterprete = os.curdir + '/interprete.py'
+  rutaInterprete = os.path.join (os.path.dirname (os.path.realpath (__file__)), 'interprete.py')
   argumentos     = ['python', rutaInterprete, '--ide', nombre_fich_bd]
   if nombre_fich_gfx:
     argumentos.append (nombre_fich_gfx)
@@ -939,7 +939,7 @@ def exportaBD ():
 
 def icono (nombre):
   """Devuelve un QIcon, sacando la imagen de la carpeta de iconos"""
-  return QIcon (os.path.join ('iconos_ide', nombre + '.png'))
+  return QIcon (os.path.join (os.path.dirname (os.path.realpath (__file__)), 'iconos_ide', nombre + '.png'))
 
 def importaBD (nombreFicheroBD, indiceFuncion = None, nombreFicheroGfx = None):
   """Importa una base de datos desde el fichero de nombre dado"""
