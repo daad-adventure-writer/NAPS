@@ -854,17 +854,20 @@ def editaMsgUsr (indice):
 
 def editaVocabulario (indice):
   """Permite editar una entrada de vocabulario, tras hacer doble click en su tabla"""
+  dlg_vocabulario.indiceDobleClick = indice  # Para descartar evento activated posterior
   nuevaPal = None  # Entrada de vocabulario modificada
   numFila  = indice.row()
   palVocab = mod_actual.vocabulario[numFila]
   if indice.column() == 0:  # Palabra
     dialogo = ModalEntrada (dlg_vocabulario, 'Texto de la palabra:', palVocab[0])
+    dialogo.setWindowTitle ('Editar')
     if dialogo.exec_() == QDialog.Accepted:
       nuevaPal = (str (dialogo.textValue())[:mod_actual.LONGITUD_PAL].lower(), ) + palVocab[1:]
   elif indice.column() == 1:  # Código
     dialogo = ModalEntrada (dlg_vocabulario, 'Código de la palabra:', str (palVocab[1]))
-    dialogo.setInputMode (QInputDialog.IntInput)
-    dialogo.setIntRange  (0, 255)
+    dialogo.setInputMode   (QInputDialog.IntInput)
+    dialogo.setIntRange    (0, 255)
+    dialogo.setWindowTitle ('Editar')
     if dialogo.exec_() == QDialog.Accepted:
       nuevaPal = (palVocab[0], dialogo.intValue(), palVocab[2])
   else:  # indice.column() == 2:  # Tipo
@@ -873,15 +876,14 @@ def editaVocabulario (indice):
       tiposPalabra[i] = mod_actual.TIPOS_PAL[i]
     dialogo = ModalEntrada (dlg_vocabulario, 'Tipo de palabra:', tiposPalabra[palVocab[2]])
     dialogo.setComboBoxEditable (True)
-    dialogo.setComboBoxItems (sorted (tiposPalabra.values()))
+    dialogo.setComboBoxItems    (sorted (tiposPalabra.values()))
+    dialogo.setWindowTitle      ('Editar')
     if dialogo.exec_() == QDialog.Accepted and dialogo.textValue() in tiposPalabra.values():
       nuevaPal = (palVocab[0], palVocab[1],
                   list (tiposPalabra.keys())[list (tiposPalabra.values()).index (dialogo.textValue())])
   if not nuevaPal or mod_actual.vocabulario[numFila] == nuevaPal:
     return  # No se ha modificado
-  del mod_actual.vocabulario[numFila]
-  nuevaEntradaVocabulario (nuevaPal)
-  # TODO: comprobar si ya existe otra palabra así y pedir confirmar en ese caso (pero permitirlo)
+  nuevaEntradaVocabulario (nuevaPal, numFila)
 
 def ejecutaPorPasos ():
   """Ejecuta la base de datos para depuración paso a paso"""
@@ -1211,6 +1213,7 @@ def muestraVistaVocab ():
   dlg_vocabulario.setModel (ModeloVocabulario (dlg_vocabulario))
   # dlg_vocabulario.setHorizontalHeaderLabels (('Palabra', 'Número', 'Tipo'))
   dlg_vocabulario.setWindowTitle ('Vocabulario')
+  dlg_vocabulario.activated.connect     (nuevaFilaVocabulario)
   dlg_vocabulario.doubleClicked.connect (editaVocabulario)
   selector.centralWidget().addSubWindow (dlg_vocabulario)
   dlg_vocabulario.showMaximized()
@@ -1234,13 +1237,57 @@ def nuevaEntradaProceso (posicion):
   proceso[1].insert (posicion, [])
   cambiaProceso (numProceso, posicion)
 
-def nuevaEntradaVocabulario (entrada):
+def nuevaEntradaVocabulario (entrada, numFilaAntes = None):
   """Añade al vocabulario la entrada dada, en la posición que le corresponda"""
+  # TODO: comprobar si ya existe otra palabra así y pedir confirmar en ese caso (pero permitirlo)
   # TODO: usar el orden del "alfabeto" de DAAD
   pos = 0
   while pos < len (mod_actual.vocabulario) and entrada[0] > mod_actual.vocabulario[pos][0]:
     pos += 1
+  modeloVocab = dlg_vocabulario.model()
+  if numFilaAntes:
+    modeloVocab.beginRemoveRows (QModelIndex(), numFilaAntes, numFilaAntes)
+    del mod_actual.vocabulario[numFilaAntes]
+    modeloVocab.endRemoveRows()
+  modeloVocab.beginInsertRows (QModelIndex(), pos, pos)
   mod_actual.vocabulario.insert (pos, entrada)
+  modeloVocab.endInsertRows()
+
+def nuevaFilaVocabulario (indice):
+  """Permite añadir una entrada de vocabulario, tras pulsar Enter en la tabla"""
+  try:
+    if dlg_vocabulario.indiceDobleClick == indice:
+      dlg_vocabulario.indiceDobleClick = None
+      return  # Descartamos el evento por ocurrir tras un doble click anterior
+  except:
+    pass
+  nuevaPal = []  # Entrada de vocabulario a añadir
+  # Obtenemos el texto de la palabra
+  dialogo = ModalEntrada (dlg_vocabulario, 'Texto de la palabra:', '')
+  dialogo.setWindowTitle ('Añadir')
+  if dialogo.exec_() != QDialog.Accepted:
+    return
+  nuevaPal.append (str (dialogo.textValue())[:mod_actual.LONGITUD_PAL].lower())
+  # Obtenemos el código de la palabra
+  dialogo = ModalEntrada (dlg_vocabulario, 'Código de la palabra:', '')
+  dialogo.setInputMode   (QInputDialog.IntInput)
+  dialogo.setIntRange    (0, 255)
+  dialogo.setWindowTitle ('Añadir')
+  if dialogo.exec_() != QDialog.Accepted:
+    return
+  nuevaPal.append (dialogo.intValue())
+  # Obtenemos el tipo de la palabra
+  tiposPalabra = {255: 'Reservado'}
+  for i in range (len (mod_actual.TIPOS_PAL)):
+    tiposPalabra[i] = mod_actual.TIPOS_PAL[i]
+  dialogo = ModalEntrada (dlg_vocabulario, 'Tipo de palabra:', '')
+  dialogo.setComboBoxEditable (True)
+  dialogo.setComboBoxItems    (sorted (tiposPalabra.values()))
+  dialogo.setWindowTitle      ('Añadir')
+  if dialogo.exec_() != QDialog.Accepted or dialogo.textValue() not in tiposPalabra.values():
+    return
+  nuevaPal.append (list (tiposPalabra.keys())[list (tiposPalabra.values()).index (dialogo.textValue())])
+  nuevaEntradaVocabulario (tuple (nuevaPal))
 
 def quitaEntradaProceso (posicion):
   """Quita la entrada de proceso de la posición dada como parámetro"""
