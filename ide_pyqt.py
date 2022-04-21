@@ -169,7 +169,8 @@ class CampoTexto (QTextEdit):
     contextual.addSeparator()
     contextual.addAction (accionAntes)
     contextual.addAction (accionDespues)
-    contextual.addMenu (menuEliminar)
+    contextual.addMenu   (menuEliminar)
+    contextual.addAction ('&Ir a la entrada', irAEntradaProceso, 'Ctrl+G')
     contextual.exec_ (evento.globalPos())
 
   def keyPressEvent (self, evento):
@@ -1047,6 +1048,17 @@ def imprimeCondacto (condacto, parametros):
       campo_txt.insertPlainText ('"')
   else:  # Condacto sin parámetros
     campo_txt.insertPlainText ((nombre + indirecto).center (7).rstrip())
+
+def irAEntradaProceso ():
+  """Mueve el cursor a la entrada del proceso actual que elija el usuario"""
+  numProceso = pestanyas.currentIndex()
+  proceso    = mod_actual.tablas_proceso[numProceso]  # El proceso seleccionado
+  dialogo    = ModalEntrada (dlg_procesos, 'Número de entrada:', '')
+  dialogo.setInputMode   (QInputDialog.IntInput)
+  dialogo.setIntRange    (0, len (proceso[0]) - 1)
+  dialogo.setWindowTitle ('Ir a')
+  if dialogo.exec_() == QDialog.Accepted:
+    cambiaProceso (numProceso, dialogo.intValue())
 
 def muestraAcercaDe ():
   """Muestra el diálogo 'Acerca de'"""
