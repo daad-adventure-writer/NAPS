@@ -188,23 +188,6 @@ def c2_NOTSAME (flagno1, flagno2):
   """Satisfactorio si el contenido de la bandera flagno1 no es el mismo que el de la bandera flagno2"""
   return banderas[flagno1] != banderas[flagno2]
 
-def c2_PLACE (objno, locno):
-  """Mueve el objeto a la localidad locno, actualizando cuenta de objetos llevados en caso necesario. No satisfactorio si locno es 255"""
-  if locno == 255:
-    return False
-  obj_referido (objno)  # TODO: comprobar si PAWS también lo hace
-  locActual = locs_objs[objno]
-  if locno == locActual:
-    return True
-  locs_objs[objno] = locno
-  if locActual == 254:  # Estaba siendo llevado
-    banderas[1]      = max (0, banderas[1] - 1)
-    peso_llevado[0] -= min (peso_llevado[0], banderas[55])
-  elif locno == 254:  # Pasa a ser llevado
-    banderas[1]      = min (banderas[1] + 1, 255)
-    peso_llevado[0] += banderas[55]
-  return True
-
 def c2_SAME (flagno1, flagno2):
   """Satisfactorio si el contenido de la bandera flagno1 es el mismo que el de la bandera flagno2"""
   return banderas[flagno1] == banderas[flagno2]
@@ -694,6 +677,22 @@ def a2_MODE (value, option):
   """Cambia el modo de impresión"""
   banderas[40] = value
   # TODO: implementar interpretación del parámetro option
+
+def a2_PLACE (objno, locno):
+  """Mueve el objeto a la localidad locno, actualizando cuenta de objetos llevados en caso necesario."""
+  if locno == 255:  # Hace referencia a la localidad actual
+    locno = banderas[38]
+  obj_referido (objno)  # TODO: comprobar si PAWS también lo hace
+  locActual = locs_objs[objno]  # Localidad actual del objeto
+  if locno == locActual:
+    return
+  locs_objs[objno] = locno
+  if locActual == 254:  # Estaba siendo llevado
+    banderas[1]      = max (0, banderas[1] - 1)
+    peso_llevado[0] -= min (peso_llevado[0], banderas[55])
+  elif locno == 254:  # Pasa a ser llevado
+    banderas[1]      = min (banderas[1] + 1, 255)
+    peso_llevado[0] += banderas[55]
 
 def a2_PUTIN (objno, locno):
   """Si el objeto objno se lleva puesto, imprime MS24. Si el objeto objno está en la localización actual, imprime MS49. Si no está presente, imprime MS28. En caso de una de estas condiciones de fallo, ejecuta NEWTEXT y termina con DONE. En caso contrario (éxito), mueve el objeto al contenedor locno, decrementa la bandera 1, e imprime MS44, la descripción corta del contenedor locno y MS51"""

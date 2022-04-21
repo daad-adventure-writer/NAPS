@@ -160,7 +160,7 @@ condactos = {
    43 : ('DESTROY', 'o',  True),
    44 : ('CREATE',  'o',  True),
    45 : ('SWAP',    'oo', True),
-   46 : ('PLACE',   'oL', False),  # Se comporta como condición: cuando se intenta poner un objeto en 255, termina como condición no cumplida
+   46 : ('PLACE',   'oL', True),  # TODO: investigar más si en algún caso se comporta como condición
    47 : ('SET',     'f',  True),
    48 : ('CLEAR',   'f',  True),
    49 : ('PLUS',    'fu', True),
