@@ -359,6 +359,11 @@ class CampoTexto (QTextEdit):
           cursor.movePosition (QTextCursor.StartOfBlock)
           cursor.movePosition (QTextCursor.WordRight, n = 4)  # Vamos al segundo parámetro
           self.setTextCursor (cursor)
+    elif evento.modifiers() & Qt.ControlModifier:  # Teclas de acción
+      if evento.key() == Qt.Key_G:
+        irAEntradaProceso()
+      else:
+        super (CampoTexto, self).keyPressEvent (evento)
 
   def mousePressEvent (self, evento):
     if evento.button() & Qt.LeftButton or evento.button() & Qt.RightButton:
