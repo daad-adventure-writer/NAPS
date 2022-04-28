@@ -649,8 +649,8 @@ Devuelve True si ha ejecutado DESC o equivalente. False si se debe reiniciar la 
       # Toca ejecutar un condacto (o saltar la entrada si la cabecera no encaja)
       entrada = tabla[1][numEntrada]
       if cambioFlujo == 0:  # La cabecera encajó (ahora o en su momento)
-        # Dejamos de ejecutar pasos tras ANYKEY, PARSE de órdenes del jugador, y DEBUG
-        if traza and entrada[numCondacto][0] in (24, 73, 220):
+        # Dejamos de ejecutar pasos tras ANYKEY, LOAD, PARSE de órdenes del jugador, y DEBUG
+        if traza and entrada[numCondacto][0] in (24, 26, 73, 220):
           # Aseguramos que PARSE sea de órdenes del jugador, que será con parámetro 0
           if entrada[numCondacto][0] != 73 or (entrada[numCondacto][1] and not entrada[numCondacto][1][0]):
             paso = numPasos
