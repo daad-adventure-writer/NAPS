@@ -406,6 +406,27 @@ def cargaRecursos ():
     recurso['imagen'] = imagen
     recursos.append (recurso)
 
+def generaPaletaEGA (destino = 'paletas'):
+  try:
+    os.mkdir (destino)
+  except:
+    pass  # Asumimos que ese directorio ya existe
+  fichero = open (destino + '/ega.xpm', 'wb')
+  lineas  = [
+    '/* XPM */',
+    'static char * ega[] = {',
+    '"16 1 16 1",'
+  ]
+  for i in range (16):
+    lineas.append ('"%X c #%02x%02x%02x",' % (i, paletaEGA[i][0], paletaEGA[i][1], paletaEGA[i][2]))
+  lineas.extend ((
+      '"0123456789ABCDEF",',
+      '}',
+    ))
+  for linea in lineas:
+    fichero.write (linea + '\n')
+  fichero.close()
+
 def generaPaletasCGA (destino = 'paletas'):
   try:
     os.mkdir (destino)
@@ -416,7 +437,7 @@ def generaPaletasCGA (destino = 'paletas'):
       fichero = open ('%s/cga%s%x.xpm' % (destino, nombre, i), 'wb')
       lineas  = (
         '/* XPM */',
-        'static char * cga%s%x[] = {\n' % (nombre, i),
+        'static char * cga%s%x[] = {' % (nombre, i),
         '"4 1 4 1",',
         '"0 c #%02x%02x%02x",' % (paletaEGA[i][0], paletaEGA[i][1], paletaEGA[i][2]),
         '"1 c #%02x%02x%02x",' % (paleta[1][0],    paleta[1][1],    paleta[1][2]),
@@ -477,3 +498,4 @@ def preparaPlataforma (extension):
 
 if __name__ == '__main__':
   generaPaletasCGA()
+  generaPaletaEGA()
