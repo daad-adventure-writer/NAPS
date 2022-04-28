@@ -564,6 +564,8 @@ def cambiaProceso (numero, numEntrada = None):
   entradas  = proceso[1]  # Las entradas del proceso seleccionado
   noExisten = []
   posicion  = None  # Posición donde ir al terminar de cargar el contenido del proceso
+  if numEntrada == None and pila_procs and pila_procs[0] == numero and len (pila_procs[-1]) > 1:
+    numEntrada = pila_procs[-1][1]
   campo_txt.clear()  # Borramos el texto anterior
   for i in range (len (cabeceras)):
     if i == numEntrada:
