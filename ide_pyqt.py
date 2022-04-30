@@ -1030,7 +1030,7 @@ def imprimeCondacto (condacto, parametros):
         campo_txt.insertPlainText (',')
       elif indirecto == '@':
         parametro = '@' + str (parametro)
-      if (p > 0 or indirecto == ' '):
+      if (p > 0 or indirecto == ' ') and len (tiposParams) > p:
         if (tiposParams[p] in 'bw' and parametro >= 8)                    or \
            (tiposParams[p] == '%'  and (parametro < 1 or parametro > 99)) or \
            (tiposParams[p] == 'l'  and parametro >= len (mod_actual.desc_locs)) or \
