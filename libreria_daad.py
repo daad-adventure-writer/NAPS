@@ -308,7 +308,7 @@ def cargaCadena (fichero):
   return ''.join (cadena)
 
 # Guarda una cadena sin abreviar, en el formato de DAAD
-def guarda_cadena (cadena):
+def guardaCadena (cadena):
   cuenta = 0
   for caracter in cadena:
     if ord (caracter) > 127:  # Conversión necesaria
@@ -324,11 +324,11 @@ def guarda_cadena (cadena):
     guarda_int1 (caracter ^ 255)
   guarda_int1 (ord ('\n') ^ 255)  # Fin de cadena
   if cuenta:
-    prn ('Error en guarda_cadena: la cadena "%s" tiene %d caracteres que exceden el código 127, pero no salen en daad_a_chr' %
+    prn ('Error en guardaCadena: la cadena "%s" tiene %d caracteres que exceden el código 127, pero no salen en daad_a_chr' %
         (cadena, cuenta))
 
 # Guarda una cadena abreviada, en el formato de DAAD
-def guarda_cadena_abreviada (cadena):
+def guardaCadenaAbreviada (cadena):
   for caracter in cadena:
     caracter = ord (caracter)
     guarda_int1 (caracter ^ 255)
@@ -508,7 +508,7 @@ def nueva_bd ():
 
 # Funciones de apoyo de alto nivel
 
-def abrevia_cadenas ():
+def abreviaCadenas ():
   """Abrevia las distintas cadenas abreviables"""
   global desc_locs_abrev, desc_objs_abrev, msgs_sys_abrev, msgs_usr_abrev
   desc_locs_abrev = []
@@ -516,20 +516,20 @@ def abrevia_cadenas ():
   msgs_sys_abrev  = []
   msgs_usr_abrev  = []
   for cadena in desc_locs:
-    desc_locs_abrev.append (da_cadena_abreviada (cadena))
+    desc_locs_abrev.append (daCadenaAbreviada (cadena))
   if compatibilidad:
     for cadena in desc_objs:  # DC no los abrevia, porque no funciona bien en el intérprete
       desc_objs_abrev.append (cadena)
   else:
     for cadena in desc_objs:
       # XXX: ¿lista mal los objetos si se abrevian, al menos en la AO de PC (hace mal la conversión de su artículo)?
-      desc_objs_abrev.append (da_cadena_abreviada (cadena))
+      desc_objs_abrev.append (daCadenaAbreviada (cadena))
   for cadena in msgs_sys:
     # FIXME: parece mostrar mal alguno de ellos si se abrevian, al menos en la AO de PC
     # tal vez abrevie mal
-    msgs_sys_abrev.append (da_cadena_abreviada (cadena))
+    msgs_sys_abrev.append (daCadenaAbreviada (cadena))
   for cadena in msgs_usr:
-    msgs_usr_abrev.append (da_cadena_abreviada (cadena))
+    msgs_usr_abrev.append (daCadenaAbreviada (cadena))
 
 # Calcula y devuelve las abreviaturas óptimas, y la longitud de las cadenas tras aplicarse
 # maxAbrev Longitud máxima de las abreviaturas
@@ -821,7 +821,7 @@ def cargaVocabulario ():
     vocabulario.append ((''.join (palabra).rstrip().lower(), carga_int1(),
                          carga_int1()))
 
-def da_cadena_abreviada (cadena):
+def daCadenaAbreviada (cadena):
   """Devuelve una cadena abreviada, aplicándole las abreviaturas"""
   if not abreviaturas:
     return cadena
@@ -862,7 +862,7 @@ def da_cadena_abreviada (cadena):
         caracter = '\r'
       abreviada += caracter
   if cuenta:
-    prn ('Error en da_cadena_abreviada: la cadena "%s" tiene %d caracteres que exceden el código 127, pero no salen en daad_a_chr' %
+    prn ('Error en daCadenaAbreviada: la cadena "%s" tiene %d caracteres que exceden el código 127, pero no salen en daad_a_chr' %
         (cadena, cuenta))
   return abreviada
 
@@ -902,7 +902,7 @@ def guarda_bd_ (bbdd):
   #     else:
   #       abreviaturas = posibles
   #     longMin = longAbrev
-  abrevia_cadenas()
+  abreviaCadenas()
   fich_sal     = bbdd
   num_locs     = len (desc_locs)       # Número de localidades
   num_msgs_usr = len (msgs_usr)        # Número de mensajes de usuario
@@ -1052,7 +1052,7 @@ def guarda_bd (bbdd):
   prn ('La mejor combinación de abreviaturas se encontró con longitud máxima de abreviatura', longMax)
   prn (len (abreviaturas), 'abreviaturas en total, que son:')
   prn (abreviaturas)
-  abrevia_cadenas()
+  abreviaCadenas()
   fich_sal     = bbdd
   num_locs     = len (desc_locs)       # Número de localidades
   num_msgs_usr = len (msgs_usr)        # Número de mensajes de usuario
@@ -1237,12 +1237,12 @@ def guardaMsgs (msgs, msgsAbrev, posInicial = 0):
   if abreviaturas and msgsAbrev:
     for mensaje in msgsAbrev:
       posiciones.append (posInicial + ocupado)
-      guarda_cadena_abreviada (mensaje)
+      guardaCadenaAbreviada (mensaje)
       ocupado += len (mensaje) + 1
   else:
     for mensaje in msgs:
       posiciones.append (posInicial + ocupado)
-      guarda_cadena (mensaje)
+      guardaCadena (mensaje)
       ocupado += len (mensaje) + 1
   return ocupado, posiciones
 
