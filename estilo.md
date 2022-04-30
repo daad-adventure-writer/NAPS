@@ -1,6 +1,11 @@
 Convenciones de estilo
 ======================
 
+Comentarios
+-----------
+
+Los comentarios al inicio de cada clase y cada método explicando qué son, qué hacen y/o cómo se usan, se pondrán como docstrings de Python con tres comillas dobles tras los dos puntos de su definición.
+
 Nombre de clases
 ----------------
 
