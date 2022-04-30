@@ -280,61 +280,6 @@ condactos_nuevos = {
 }
 
 
-# Funciones de apoyo de bajo nivel
-
-def cargaCadena (fichero):
-  """Carga una cadena desde el fichero dado y la devuelve"""
-  cadena = []
-  while True:
-    caracter = ord (fichero.read (1)) ^ 255
-    if caracter == ord ('\n'):  # Fin de esta cadena
-      break
-    # Hay 129 abreviaturas, pero la 0 nunca se reemplaza por lo que tenga, sino por un espacio en blanco
-    if (caracter >= 127) and abreviaturas:
-      if compatibilidad and caracter - 127 == 0:
-        cadena.append (' ')
-      else:
-        try:
-          cadena.append (abreviaturas[caracter - 127])
-        except:
-          prn (caracter)
-          raise
-    elif caracter == ord ('\r'):  # Un carácter de nueva línea en la cadena
-      cadena.append ('\n')
-    elif (caracter < 16) or (caracter > 31):
-      cadena.append (chr (caracter))
-    else:
-      cadena.append (daad_a_chr[caracter - 16])
-  return ''.join (cadena)
-
-def guardaCadena (cadena):
-  """Guarda una cadena sin abreviar, en el formato de DAAD"""
-  cuenta = 0
-  for caracter in cadena:
-    if ord (caracter) > 127:  # Conversión necesaria
-      try:
-        caracter = daad_a_chr.index (caracter) + 16
-      except:
-        cuenta += 1
-        caracter = ord (caracter)
-    elif caracter == '\n':
-      caracter = ord ('\r')
-    else:
-      caracter = ord (caracter)
-    guarda_int1 (caracter ^ 255)
-  guarda_int1 (ord ('\n') ^ 255)  # Fin de cadena
-  if cuenta:
-    prn ('Error en guardaCadena: la cadena "%s" tiene %d caracteres que exceden el código 127, pero no salen en daad_a_chr' %
-        (cadena, cuenta))
-
-def guardaCadenaAbreviada (cadena):
-  """Guarda una cadena abreviada, en el formato de DAAD"""
-  for caracter in cadena:
-    caracter = ord (caracter)
-    guarda_int1 (caracter ^ 255)
-  guarda_int1 (ord ('\n') ^ 255)  # Fin de cadena
-
-
 # Funciones que utiliza el IDE o el intérprete directamente
 
 def busca_partes (rutaCarpeta):
@@ -504,6 +449,61 @@ def lee_secs_ctrl (cadena):
 def nueva_bd ():
   """Crea una nueva base de datos de DAAD"""
   pass  # TODO: Por implementar
+
+
+# Funciones de apoyo de bajo nivel
+
+def cargaCadena (fichero):
+  """Carga una cadena desde el fichero dado y la devuelve"""
+  cadena = []
+  while True:
+    caracter = ord (fichero.read (1)) ^ 255
+    if caracter == ord ('\n'):  # Fin de esta cadena
+      break
+    # Hay 129 abreviaturas, pero la 0 nunca se reemplaza por lo que tenga, sino por un espacio en blanco
+    if (caracter >= 127) and abreviaturas:
+      if compatibilidad and caracter - 127 == 0:
+        cadena.append (' ')
+      else:
+        try:
+          cadena.append (abreviaturas[caracter - 127])
+        except:
+          prn (caracter)
+          raise
+    elif caracter == ord ('\r'):  # Un carácter de nueva línea en la cadena
+      cadena.append ('\n')
+    elif (caracter < 16) or (caracter > 31):
+      cadena.append (chr (caracter))
+    else:
+      cadena.append (daad_a_chr[caracter - 16])
+  return ''.join (cadena)
+
+def guardaCadena (cadena):
+  """Guarda una cadena sin abreviar, en el formato de DAAD"""
+  cuenta = 0
+  for caracter in cadena:
+    if ord (caracter) > 127:  # Conversión necesaria
+      try:
+        caracter = daad_a_chr.index (caracter) + 16
+      except:
+        cuenta += 1
+        caracter = ord (caracter)
+    elif caracter == '\n':
+      caracter = ord ('\r')
+    else:
+      caracter = ord (caracter)
+    guarda_int1 (caracter ^ 255)
+  guarda_int1 (ord ('\n') ^ 255)  # Fin de cadena
+  if cuenta:
+    prn ('Error en guardaCadena: la cadena "%s" tiene %d caracteres que exceden el código 127, pero no salen en daad_a_chr' %
+        (cadena, cuenta))
+
+def guardaCadenaAbreviada (cadena):
+  """Guarda una cadena abreviada, en el formato de DAAD"""
+  for caracter in cadena:
+    caracter = ord (caracter)
+    guarda_int1 (caracter ^ 255)
+  guarda_int1 (ord ('\n') ^ 255)  # Fin de cadena
 
 
 # Funciones de apoyo de alto nivel
