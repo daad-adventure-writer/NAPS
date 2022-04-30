@@ -307,8 +307,8 @@ def cargaCadena (fichero):
       cadena.append (daad_a_chr[caracter - 16])
   return ''.join (cadena)
 
-# Guarda una cadena sin abreviar, en el formato de DAAD
 def guardaCadena (cadena):
+  """Guarda una cadena sin abreviar, en el formato de DAAD"""
   cuenta = 0
   for caracter in cadena:
     if ord (caracter) > 127:  # Conversión necesaria
@@ -327,8 +327,8 @@ def guardaCadena (cadena):
     prn ('Error en guardaCadena: la cadena "%s" tiene %d caracteres que exceden el código 127, pero no salen en daad_a_chr' %
         (cadena, cuenta))
 
-# Guarda una cadena abreviada, en el formato de DAAD
 def guardaCadenaAbreviada (cadena):
+  """Guarda una cadena abreviada, en el formato de DAAD"""
   for caracter in cadena:
     caracter = ord (caracter)
     guarda_int1 (caracter ^ 255)
@@ -339,7 +339,7 @@ def guardaCadenaAbreviada (cadena):
 
 def busca_partes (rutaCarpeta):
   """Analiza los ficheros en la carpeta dada, identificando por extensión y devuelviendo una lista con las bases de datos de las diferentes partes, y las bases de datos de gráficos correspondientes, para los diferentes modos gráficos encontrados"""
-  # FIXME: en PCW es parte???.*
+  # TODO: en PCW es parte???.*, y en SWAN es mindf???.*
   rutaCarpeta += '' if (rutaCarpeta[-1] == os.sep) else os.sep  # Asegura que termine con separador de directorio
   bd_gfx = {'cga': {}, 'ega': {}, 'dat': {}}
   partes = {}
@@ -531,9 +531,10 @@ def abreviaCadenas ():
   for cadena in msgs_usr:
     msgs_usr_abrev.append (daCadenaAbreviada (cadena))
 
-# Calcula y devuelve las abreviaturas óptimas, y la longitud de las cadenas tras aplicarse
-# maxAbrev Longitud máxima de las abreviaturas
 def calcula_abreviaturas (maxAbrev):
+  """Calcula y devuelve las abreviaturas óptimas, y la longitud de las cadenas tras aplicarse
+
+  maxAbrev es la longitud máxima de las abreviaturas"""
   global longAntes  # Longitud total de las cadenas antes de aplicar abreviaturas
   try:
     longAntes = longAntes
@@ -637,8 +638,8 @@ def calcula_abreviaturas (maxAbrev):
     nuevasAbreviaturas.append (abreviatura[0])
   return (nuevasAbreviaturas, longDespues)
 
-# Carga las abreviaturas
 def cargaAbreviaturas ():
+  """Carga las abreviaturas"""
   global abreviaturas
   abreviaturas = []
   # Vamos a la posición de las abreviaturas
@@ -661,8 +662,8 @@ def cargaAbreviaturas ():
     abreviaturas.append (''.join (abreviatura))
     #prn (i, ' |', abreviaturas[-1], '|', sep = '')
 
-# Carga los atributos de los objetos
 def cargaAtributos ():
+  """Carga los atributos de los objetos"""
   # Cargamos el número de objetos (no lo tenemos todavía)
   fich_ent.seek (CAB_NUM_OBJS)
   num_objetos[0] = carga_int1()
@@ -672,19 +673,20 @@ def cargaAtributos ():
   for i in range (num_objetos[0]):
     atributos.append (carga_int1())
 
-# Carga los atributos extra de los objetos
 def cargaAtributosExtra ():
+  """Carga los atributos extra de los objetos"""
   # Vamos a la posición de los atributos de los objetos
   fich_ent.seek (carga_desplazamiento (CAB_POS_ATRIBS_EXTRA_OBJS))
   # Cargamos los atributos de cada objeto
   for i in range (num_objetos[0]):
     atributos_extra.append (carga_int2())  # FIXME: averiguar si su "endianismo" es fijo
 
-# Carga un conjunto genérico de cadenas
-# pos_num_cads es la posición de donde obtener el número de cadenas
-# pos_lista_pos posición de donde obtener la lista de posiciones de las cadenas
-# cadenas es la lista donde almacenar las cadenas que se carguen
 def cargaCadenas (pos_num_cads, pos_lista_pos, cadenas):
+  """Carga un conjunto genérico de cadenas
+
+  pos_num_cads es la posición de donde obtener el número de cadenas
+  pos_lista_pos posición de donde obtener la lista de posiciones de las cadenas
+  cadenas es la lista donde almacenar las cadenas que se carguen"""
   # Cargamos el número de cadenas
   fich_ent.seek (pos_num_cads)
   num_cads = carga_int1()
@@ -699,8 +701,8 @@ def cargaCadenas (pos_num_cads, pos_lista_pos, cadenas):
     fich_ent.seek (posicion)
     cadenas.append (cargaCadena (fich_ent))
 
-# Carga las conexiones
 def cargaConexiones ():
+  """Carga las conexiones entre localidades"""
   # Cargamos el número de localidades
   fich_ent.seek (CAB_NUM_LOCS)
   num_locs = carga_int1()
@@ -738,10 +740,11 @@ def cargaNombresObjetos ():
   for i in range (num_objetos[0]):
     nombres_objs.append ((carga_int1(), carga_int1()))
 
-# Carga las tablas de procesos
-# El proceso 0 es la tabla de respuestas
-# En los procesos 1 y 2, las cabeceras de las entradas se ignoran
 def cargaTablasProcesos ():
+  """Carga las tablas de procesos"""
+  # En PAWS:
+  #   El proceso 0 es la tabla de respuestas
+  #   En los procesos 1 y 2, las cabeceras de las entradas se ignoran, condicionalmente según una bandera"""
   # Cargamos el número de procesos
   fich_ent.seek (CAB_NUM_PROCS)
   num_procs = carga_int1()
@@ -796,8 +799,8 @@ def cargaTablasProcesos ():
       return
     tablas_proceso.append ((cabeceras, entradas))
 
-# Carga el vocabulario
 def cargaVocabulario ():
+  """Carga el vocabulario"""
   # Vamos a la posición del vocabulario
   fich_ent.seek (carga_desplazamiento (CAB_POS_VOCAB))
   # Cargamos cada palabra de vocabulario
@@ -889,9 +892,9 @@ def guardaAbreviaturas ():
     return ocupado
   return 0
 
-# Almacena la base de datos entera en el fichero de salida, por orden de conveniencia, pero con vocabulario primero
-# TODO: poner paddings
 def guarda_bd_ (bbdd):
+  """Almacena la base de datos entera en el fichero de salida, por orden de conveniencia, pero con vocabulario primero"""
+  # TODO: poner paddings
   global abreviaturas, fich_sal
   # longMin = 999999
   # for maxAbrev in range (3, 20):
@@ -1257,19 +1260,19 @@ def guardaMsgsUsr (posInicial = 0):
 def guardaPosDescLocs (pos):
   """Guarda la sección de posiciones de las descripciones de localidades sobre el fichero de salida, y según el tipo del parámetro, devuelve cuántos bytes ocupa la sección o cuántos ocupan las descripciones
 
-  El parámetro pos es la posición donde se guardará la primera descripción, o bien una lista con la posición de cada descripción. Si es el primer caso, la función devuelve cuánto ocupan las descripciones, y en el segundo caso, devuelve cuánto ocupa la sección"""
+  pos es la posición donde se guardará la primera descripción, o bien una lista con la posición de cada descripción. Si es el primer caso, la función devuelve cuánto ocupan las descripciones, y en el segundo caso, devuelve cuánto ocupa la sección"""
   return guardaPosMsgs (desc_locs, desc_locs_abrev, pos)
 
 def guardaPosDescObjs (pos):
   """Guarda la sección de posiciones de las descripciones de objetos sobre el fichero de salida, y según el tipo del parámetro, devuelve cuántos bytes ocupa la sección o cuántos ocupan las descripciones
 
-  El parámetro pos es la posición donde se guardará la primera descripción, o bien una lista con la posición de cada descripción. Si es el primer caso, la función devuelve cuánto ocupan las descripciones, y en el segundo caso, devuelve cuánto ocupa la sección"""
+  pos es la posición donde se guardará la primera descripción, o bien una lista con la posición de cada descripción. Si es el primer caso, la función devuelve cuánto ocupan las descripciones, y en el segundo caso, devuelve cuánto ocupa la sección"""
   return guardaPosMsgs (desc_objs, desc_objs_abrev, pos)
 
 def guardaPosMsgs (msgs, msgsAbrev, pos):
   """Guarda una sección de posiciones de mensajes sobre el fichero de salida, y según el tipo del parámetro, devuelve cuántos bytes ocupa la sección o cuántos ocupan los mensajes
 
-  El parámetro pos es la posición donde se guardará el primer mensaje, o bien una lista con la posición de cada mensaje. Si es el primer caso, la función devuelve cuánto ocupan los mensajes, y en el segundo caso, devuelve cuánto ocupa la sección"""
+  pos es la posición donde se guardará el primer mensaje, o bien una lista con la posición de cada mensaje. Si es el primer caso, la función devuelve cuánto ocupan los mensajes, y en el segundo caso, devuelve cuánto ocupa la sección"""
   if type (pos) == int:
     ocupado = 0
     if abreviaturas and msgsAbrev:
@@ -1286,13 +1289,13 @@ def guardaPosMsgs (msgs, msgsAbrev, pos):
 def guardaPosMsgsSys (pos):
   """Guarda la sección de posiciones de los mensajes de sistema sobre el fichero de salida, y según el tipo del parámetro, devuelve cuántos bytes ocupa la sección o cuántos ocupan los mensajes
 
-  El parámetro pos es la posición donde se guardará el primer mensaje, o bien una lista con la posición de cada mensaje. Si es el primer caso, la función devuelve cuánto ocupan los mensajes, y en el segundo caso, devuelve cuánto ocupa la sección"""
+  pos es la posición donde se guardará el primer mensaje, o bien una lista con la posición de cada mensaje. Si es el primer caso, la función devuelve cuánto ocupan los mensajes, y en el segundo caso, devuelve cuánto ocupa la sección"""
   return guardaPosMsgs (msgs_sys, msgs_sys_abrev, pos)
 
 def guardaPosMsgsUsr (pos):
   """Guarda la sección de posiciones de los mensajes de sistema sobre el fichero de salida, y según el tipo del parámetro, devuelve cuántos bytes ocupa la sección o cuántos ocupan los mensajes
 
-  El parámetro pos es la posición donde se guardará el primer mensaje, o bien una lista con la posición de cada mensaje. Si es el primer caso, la función devuelve cuánto ocupan los mensajes, y en el segundo caso, devuelve cuánto ocupa la sección"""
+  pos es la posición donde se guardará el primer mensaje, o bien una lista con la posición de cada mensaje. Si es el primer caso, la función devuelve cuánto ocupan los mensajes, y en el segundo caso, devuelve cuánto ocupa la sección"""
   return guardaPosMsgs (msgs_usr, msgs_usr_abrev, pos)
 
 def guardaVocabulario ():
@@ -1311,8 +1314,8 @@ def guardaVocabulario ():
   guarda_int1 (0)  # Fin del vocabulario
   return (len (vocabulario) * (LONGITUD_PAL + 2)) + 1
 
-# Prepara la configuración sobre la plataforma
 def preparaPlataforma ():
+  """Prepara la configuración sobre la plataforma"""
   global alinear, carga_int2, despl_ini, guarda_int2, plataforma, tam_cabecera, version, CAB_LONG_FICH
   # Cargamos la versión del formato de base de datos
   fich_ent.seek (CAB_VERSION)
