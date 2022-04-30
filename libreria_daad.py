@@ -282,6 +282,31 @@ condactos_nuevos = {
 
 # Funciones de apoyo de bajo nivel
 
+def cargaCadena (fichero):
+  """Carga una cadena desde el fichero dado y la devuelve"""
+  cadena = []
+  while True:
+    caracter = ord (fichero.read (1)) ^ 255
+    if caracter == ord ('\n'):  # Fin de esta cadena
+      break
+    # Hay 129 abreviaturas, pero la 0 nunca se reemplaza por lo que tenga, sino por un espacio en blanco
+    if (caracter >= 127) and abreviaturas:
+      if compatibilidad and caracter - 127 == 0:
+        cadena.append (' ')
+      else:
+        try:
+          cadena.append (abreviaturas[caracter - 127])
+        except:
+          prn (caracter)
+          raise
+    elif caracter == ord ('\r'):  # Un carácter de nueva línea en la cadena
+      cadena.append ('\n')
+    elif (caracter < 16) or (caracter > 31):
+      cadena.append (chr (caracter))
+    else:
+      cadena.append (daad_a_chr[caracter - 16])
+  return ''.join (cadena)
+
 # Guarda una cadena sin abreviar, en el formato de DAAD
 def guarda_cadena (cadena):
   cuenta = 0
@@ -672,28 +697,7 @@ def cargaCadenas (pos_num_cads, pos_lista_pos, cadenas):
   # Cargamos cada cadena
   for posicion in posiciones:
     fich_ent.seek (posicion)
-    cadena = []
-    while True:
-      caracter = carga_int1() ^ 255
-      if caracter == ord ('\n'):  # Fin de esta cadena
-        break
-      # Hay 129 abreviaturas, pero la 0 nunca se reemplaza por lo que tenga, sino por un espacio en blanco
-      if (caracter >= 127) and abreviaturas:
-        if compatibilidad and caracter - 127 == 0:
-          cadena.append (' ')
-        else:
-          try:
-            cadena.append (abreviaturas[caracter - 127])
-          except:
-            prn (caracter)
-            raise
-      elif caracter == ord ('\r'):  # Un carácter de nueva línea en la cadena
-        cadena.append ('\n')
-      elif (caracter < 16) or (caracter > 31):
-        cadena.append (chr (caracter))
-      else:
-        cadena.append (daad_a_chr[caracter - 16])
-    cadenas.append (''.join (cadena))
+    cadenas.append (cargaCadena (fich_ent))
 
 # Carga las conexiones
 def cargaConexiones ():
