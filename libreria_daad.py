@@ -349,6 +349,31 @@ def carga_bd (fichero, longitud):
   except:
     return False
 
+def carga_xmessage (desplazamiento):
+  """Carga desde los ficheros de XMessages el mensaje que inicia en el desplazamiento dado, devolviendo None en caso de no lograrlo"""
+  global ficherosXMessages, longFichXMessages
+  try:
+    ficherosXMessages
+  except:
+    ficherosXMessages = {}
+    fichero = abreFichXMessages (0)
+    if fichero == None:
+      return None
+    ficherosXMessages[0] = fichero
+    # Comprobamos longitud para saber dónde está el desplazamiento dado, al poder estar los XMessages partidos en varios ficheros
+    fichero.seek (0, os.SEEK_END)
+    longFichXMessages = fichero.tell()
+  numFichero = desplazamiento // longFichXMessages
+  if numFichero in ficherosXMessages:
+    fichero = ficherosXMessages[numFichero]
+  else:
+    fichero = abreFichXMessages (numFichero)
+    if fichero == None:
+      return None
+    ficherosXMessages[numFichero] = fichero
+  fichero.seek (desplazamiento % longFichXMessages)
+  return cargaCadena (ficherosXMessages[numFichero])
+
 def escribe_secs_ctrl (cadena):
   """Devuelve la cadena dada convirtiendo la representación de secuencias de control en sus códigos"""
   # TODO: implementar
@@ -496,6 +521,24 @@ def guardaCadenaAbreviada (cadena):
 
 
 # Funciones de apoyo de alto nivel
+
+def abreFichXMessages (numFichero):
+  """Abre el fichero de XMessages de número dado buscándolo en la ruta de la base de datos actual, devolviendo None en caso de no lograrlo"""
+  nombreFich = str (numFichero) + '.xmb'
+  # Buscamos el fichero con independencia de mayúsculas y minúsculas
+  for nombreFichero in os.listdir (os.path.dirname (ruta_bbdd)):
+    if nombreFichero.lower() == nombreFich:
+      nombreFich = nombreFichero
+      break
+  else:
+    prn ('No se encuentra el fichero de XMessages de Maluva', str (numFichero) + '.XMB', file = sys.stderr)
+    return None
+  try:
+    fichero = open (os.path.join (os.path.dirname (ruta_bbdd), nombreFich), 'rb')
+  except:
+    prn ('No se puede abrir el fichero de XMessages de Maluva', nombreFich, file = sys.stderr)
+    return None
+  return fichero
 
 def abreviaCadenas ():
   """Abrevia las distintas cadenas abreviables"""
@@ -778,7 +821,7 @@ def cargaTablasProcesos ():
           return
         for i in range (len (condactos[num_condacto][1])):
           parametros.append (carga_int1())
-        if plataforma == 15 and num_condacto == 61 and parametros[1] == 3:  # XMESS de Maluva en MSX2
+        if plataforma not in (5, 6) and num_condacto == 61 and parametros[1] == 3:  # XMES de Maluva
           parametros.append (carga_int1())
         entrada.append ((condacto, parametros))
       entradas.append (entrada)

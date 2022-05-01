@@ -978,6 +978,7 @@ if __name__ == '__main__':
     if correcto:
       libreria = modulo
       gui.NUM_BANDERAS = libreria.NUM_BANDERAS
+      modulo.ruta_bbdd = args.bbdd
       break
   bbdd.close()
   if not correcto:
@@ -992,10 +993,11 @@ if __name__ == '__main__':
 
   constantes = ('EXT_SAVEGAME', 'LONGITUD_PAL', 'NOMBRE_SISTEMA', 'NUM_BANDERAS', 'TIPOS_PAL')
   funciones  = ('busca_condacto', 'busca_conexion', 'cambia_articulo', 'da_peso', 'imprime_mensaje', 'obj_referido', 'parsea_orden', 'restaura_objetos', 'tabla_hizo_algo')
+  funcsLib   = ('carga_xmessage', )
   variables  = ('atributos', 'atributos_extra', 'banderas', 'compatibilidad', 'conexiones', 'desc_locs', 'desc_objs', 'doall_activo', 'frases', 'locs_iniciales', 'locs_objs', 'msgs_usr', 'msgs_sys', 'nombres_objs', 'nueva_version', 'num_objetos', 'partida', 'peso_llevado', 'pila_procs', 'tablas_proceso', 'vocabulario')
 
   # Hacemos lo equivalente a: from libreria import *, cargando sólo lo exportable
-  for lista in (constantes, variables):
+  for lista in (constantes, funcsLib, variables):
     for variable in lista:
       if variable in libreria.__dict__:
         globals()[variable] = libreria.__dict__[variable]
@@ -1004,7 +1006,7 @@ if __name__ == '__main__':
     modulo = __import__ (modulo)
     # Propagamos las constantes y estructuras básicas del intérprete y la librería entre los módulos de condactos
     modulo.gui = gui
-    for lista in (constantes, variables):
+    for lista in (constantes, funcsLib, variables):
       for variable in lista:
         if variable in globals():
           modulo.__dict__[variable] = globals()[variable]

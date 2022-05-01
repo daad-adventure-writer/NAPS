@@ -417,8 +417,14 @@ def a2_COPYBF (flagno1, flagno2):
   banderas[flagno1] = banderas[flagno2]
 
 def a2_EXTERN (*args):
-  """Llamada a función externa. Toma número de parámetros ilimitado para futuro soporte de Maluva"""
-  prn ('a2_EXTERN no implementado', file = sys.stderr)
+  """Llamada a función externa. Toma número de parámetros ilimitado para soporte de Maluva"""
+  if len (args) == 3 and args[1] == 3:  # XMES de Maluva
+    mensaje = carga_xmessage (args[0] + args[2] * 256)
+    if mensaje == None:
+      mensaje = msgs_sys[57]  # Error E/S
+    imprime_mensaje (mensaje)
+    return
+  prn ('a2_EXTERN', args, 'no implementado', file = sys.stderr)
 
 def a2_GFX (value1, value2):
   """Es como un EXTERN"""
