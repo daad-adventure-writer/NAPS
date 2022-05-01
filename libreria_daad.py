@@ -349,17 +349,6 @@ def carga_bd (fichero, longitud):
   except:
     return False
 
-def guarda_bd_tradicional (ficheroBD):
-  """Almacena la base de datos entera en el fichero dado, en el formato tradicional de DC (el compilador de DAAD original)"""
-  guardaBDOrden (ficheroBD,
-    ('vocabulario', 'abreviaturas', 'msgs_sys+pos', 'msgs_usr+pos', 'desc_objs+pos', 'desc_locs+pos', 'conexiones', 'pos_conexiones', 'nombres_objs', 'atributos', 'atributos_extra', 'locs_iniciales', 'procesos_ent_cab', 'pos_procesos'),
-    {
-      'abrev_sys':   False,
-      'abrev_usr':   False,
-      'calc_abrevs': False,
-      'funcs_ext':   False,
-    })
-
 def escribe_secs_ctrl (cadena):
   """Devuelve la cadena dada convirtiendo la representación de secuencias de control en sus códigos"""
   # TODO: implementar
