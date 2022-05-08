@@ -100,7 +100,15 @@ despl_ini_plat = {
   1: [33600],  # Spectrum 48K
   7: 256,      # Amstrad PCW
 }
-plats_detectarLE = (0,)        # Plataformas que podrían ser tanto BE como LE, en formato 2 (PC)
+# Longitud máxima de los ficheros de XMessages por plataforma
+longitud_XMessages = {
+  2:     2048,  # Commodore 64
+  3:     2048,  # Amstrad CPC
+  8:     2048,  # Commodore Plus/4
+  15:   13684,  # MSX2
+  None: 65536,  # Demás plataformas
+}
+plats_detectarLE = (0,)        # Plataformas que podrían ser tanto BE como LE, en versión del formato 2 (PC)
 plats_LE         = (1, 7, 15)  # Plataformas que son Little Endian (Spectrum 48K, Amstrad PCW y MSX2)
 plats_word       = (0,)        # Plataformas que no pueden leer words en desplazamientos impares (PC)
 
@@ -355,14 +363,8 @@ def carga_xmessage (desplazamiento):
   try:
     ficherosXMessages
   except:
-    ficherosXMessages = {}
-    fichero = abreFichXMessages (0)
-    if fichero == None:
-      return None
-    ficherosXMessages[0] = fichero
-    # Comprobamos longitud para saber dónde está el desplazamiento dado, al poder estar los XMessages partidos en varios ficheros
-    fichero.seek (0, os.SEEK_END)
-    longFichXMessages = fichero.tell()
+    ficherosXMessages = {}  # Ficheros de XMessages abiertos
+    longFichXMessages = longitud_XMessages[plataforma] if plataforma in longitud_XMessages else longitud_XMessages[None]
   numFichero = desplazamiento // longFichXMessages
   if numFichero in ficherosXMessages:
     fichero = ficherosXMessages[numFichero]
@@ -372,7 +374,7 @@ def carga_xmessage (desplazamiento):
       return None
     ficherosXMessages[numFichero] = fichero
   fichero.seek (desplazamiento % longFichXMessages)
-  return cargaCadena (ficherosXMessages[numFichero])
+  return cargaCadena (fichero)
 
 def escribe_secs_ctrl (cadena):
   """Devuelve la cadena dada convirtiendo la representación de secuencias de control en sus códigos"""
