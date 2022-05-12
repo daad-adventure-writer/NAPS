@@ -212,6 +212,10 @@ condactos = {
 
 # Funciones que utiliza el IDE o el intérprete directamente
 
+def cadena_es_mayor (cadena1, cadena2):
+  """Devuelve si la cadena1 es mayor a la cadena2 en el juego de caracteres de este sistema"""
+  return cadena1 > cadena2
+
 # Carga la base de datos entera desde el fichero de entrada
 # Para compatibilidad con el IDE:
 # - Recibe como primer parámetro un fichero abierto

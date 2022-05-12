@@ -80,6 +80,7 @@ info_nueva = []
 
 # Pares nombre y tipos posibles que deben tener los módulos de librería
 nombres_necesarios = (('acciones',          dict),
+                      ('cadena_es_mayor',   types.FunctionType),
                       ('condiciones',       dict),
                       ('func_nueva',        str),
                       ('funcs_exportar',    tuple),
@@ -1242,9 +1243,8 @@ def nuevaEntradaProceso (posicion):
 def nuevaEntradaVocabulario (entrada, numFilaAntes = None):
   """Añade al vocabulario la entrada dada, en la posición que le corresponda"""
   # TODO: comprobar si ya existe otra palabra así y pedir confirmar en ese caso (pero permitirlo)
-  # TODO: usar el orden del "alfabeto" de DAAD
   pos = 0
-  while pos < len (mod_actual.vocabulario) and entrada[0] > mod_actual.vocabulario[pos][0]:
+  while pos < len (mod_actual.vocabulario) and mod_actual.cadena_es_mayor (entrada[0], mod_actual.vocabulario[pos][0]):
     pos += 1
   modeloVocab = dlg_vocabulario.model()
   if numFilaAntes:
