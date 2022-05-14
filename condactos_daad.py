@@ -311,7 +311,6 @@ def a0_SAVE ():
     except:
       imprime_mensaje (msgs_sys[57])  # Error I/O
       busca_condacto ('a0_ANYKEY')()
-  return 1  # Lo mismo que DESC
 
 def a0_SPACE ():
   """Imprime un espacio en blanco"""
