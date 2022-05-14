@@ -539,6 +539,14 @@ class ModeloVocabulario (QAbstractTableModel):
     return len (mod_actual.vocabulario)
 
 
+def actualizaProceso ():
+  """Redibuja el proceso actualmente mostrado, si hay alguno"""
+  if dlg_procesos:
+    cursor = campo_txt.textCursor()
+    linea  = cursor.block()
+    numEntrada, posicion = campo_txt._daNumEntradaYLinea (linea)
+    cambiaProceso (pestanyas.currentIndex(), numEntrada)
+
 def actualizaPosProcesos ():
   """Refleja la posición de ejecución paso a paso actual en el diálogo de tablas de proceso"""
   global pila_procs
@@ -686,7 +694,7 @@ def compruebaNombre (modulo, nombre, tipo):
 
 def creaAcciones ():
   """Crea las acciones de menú y barra de botones"""
-  global accAcercaDe, accContadores, accDescLocs, accDescObjs, accDireccs, accExportar, accImportar, accMsgSys, accMsgUsr, accPasoAPaso, accSalir, accTblProcs, accTblVocab
+  global accAcercaDe, accContadores, accDescLocs, accDescObjs, accDireccs, accExportar, accImportar, accMostrarSys, accMostrarUsr, accMsgSys, accMsgUsr, accPasoAPaso, accSalir, accTblProcs, accTblVocab
   accAcercaDe   = QAction (icono_ide, '&Acerca de NAPS IDE', selector)
   accContadores = QAction (icono ('contadores'), '&Contadores', selector)
   accDescLocs   = QAction (icono ('desc_localidad'), 'Descripciones de &localidades', selector)
@@ -694,16 +702,24 @@ def creaAcciones ():
   accDireccs    = QAction (icono ('direccion'), '&Direcciones', selector)
   accExportar   = QAction (icono ('exportar'), '&Exportar', selector)
   accImportar   = QAction (icono ('importar'), '&Importar', selector)
+  accMostrarSys = QAction ('Mensajes de &sistema', selector)
+  accMostrarUsr = QAction ('Mensajes de &usuario', selector)
   accMsgSys     = QAction (icono ('msg_sistema'), 'Mensajes de &sistema', selector)
   accMsgUsr     = QAction (icono ('msg_usuario'), 'Mensajes de &usuario', selector)
   accPasoAPaso  = QAction (icono ('pasoapaso'), '&Paso a paso', selector)
   accSalir      = QAction (icono ('salir'), '&Salir', selector)
   accTblProcs   = QAction (icono ('proceso'), '&Tablas', selector)
   accTblVocab   = QAction (icono ('vocabulario'), '&Tabla', selector)
+  accMostrarSys.setCheckable (True)
+  accMostrarUsr.setCheckable (True)
+  accMostrarSys.setChecked (True)
+  accMostrarUsr.setChecked (True)
   accContadores.setEnabled (False)
   accDescLocs.setEnabled   (False)
   accDescObjs.setEnabled   (False)
   accDireccs.setEnabled    (False)
+  accMostrarSys.setEnabled (False)
+  accMostrarUsr.setEnabled (False)
   accMsgSys.setEnabled     (False)
   accMsgUsr.setEnabled     (False)
   accPasoAPaso.setEnabled  (False)
@@ -717,6 +733,8 @@ def creaAcciones ():
   accDireccs.setStatusTip    ('Permite añadir y editar las palabras de dirección')
   accExportar.setStatusTip   ('Exporta la base de datos a un fichero')
   accImportar.setStatusTip   ('Importa una base de datos desde un fichero')
+  accMostrarSys.setStatusTip ('Mostrar texto de mensajes de sistema cuando los condactos los referencien')
+  accMostrarUsr.setStatusTip ('Mostrar texto de mensajes de usuario cuando los condactos los referencien')
   accMsgSys.setStatusTip     ('Permite consultar y modificar los mensajes de sistema')
   accMsgUsr.setStatusTip     ('Permite consultar y modificar los mensajes de usuario')
   accPasoAPaso.setStatusTip  ('Depura la base de datos ejecutándola paso a paso')
@@ -731,6 +749,8 @@ def creaAcciones ():
   accDescObjs.triggered.connect   (muestraDescObjs)
   accExportar.triggered.connect   (exportaBD)
   accImportar.triggered.connect   (dialogoImportaBD)
+  accMostrarSys.triggered.connect (actualizaProceso)
+  accMostrarUsr.triggered.connect (actualizaProceso)
   accMsgSys.triggered.connect     (muestraMsgSys)
   accMsgUsr.triggered.connect     (muestraMsgUsr)
   accPasoAPaso.triggered.connect  (ejecutaPorPasos)
@@ -766,8 +786,13 @@ def creaMenus ():
   menuBD.addAction (accSalir)
   menuEjecutar = selector.menuBar().addMenu ('&Ejecutar')
   menuEjecutar.addAction (accPasoAPaso)
-  menuProcesos = selector.menuBar().addMenu ('&Procesos')
+  menuProcesos     = selector.menuBar().addMenu ('&Procesos')
+  menuProcsMostrar = QMenu ('&Mostrar textos', menuProcesos)
+  menuProcsMostrar.addAction (accMostrarSys)
+  menuProcsMostrar.addAction (accMostrarUsr)
   menuProcesos.addAction (accTblProcs)
+  menuProcesos.addSeparator()
+  menuProcesos.addMenu (menuProcsMostrar)
   menuTextos = selector.menuBar().addMenu ('&Textos')
   menuTextos.addAction (accDescLocs)
   menuTextos.addAction (accDescObjs)
@@ -1041,11 +1066,11 @@ def imprimeCondacto (condacto, parametros):
            (tiposParams[p] == 'p'  and parametro >= len (mod_actual.tablas_proceso)) or \
            (tiposParams[p] == 's'  and parametro >= len (mod_actual.msgs_sys)):
           campo_txt.setTextColor (QColor (255, 0, 0))  # Color rojo
-        elif tiposParams == 'm':
+        elif tiposParams == 'm' and accMostrarUsr.isChecked():
           mensaje = mod_actual.msgs_usr[parametro]
-        elif tiposParams == 's':
+        elif tiposParams == 's' and accMostrarSys.isChecked():
           mensaje = mod_actual.msgs_sys[parametro]
-        if tiposParams[p] == 'i' and parametro > 128:  # Es un número entero negativo
+        elif tiposParams[p] == 'i' and parametro > 128:  # Es un número entero negativo
           parametro -= 256
       campo_txt.insertPlainText (str (parametro).rjust (4))
     if mensaje != None:
@@ -1318,7 +1343,7 @@ def postCarga (nombre):
     for codigo in mod_actual.condactos:
       if mod_actual.condactos[codigo][2]:  # Es acción
         mod_actual.acciones[codigo] = mod_actual.condactos[codigo]
-      else:
+      else:  # Es condición
         mod_actual.condiciones[codigo] = mod_actual.condactos[codigo]
   # Cogemos la primera palabra de cada tipo y número como sinónimo preferido
   if 'Verbo' in mod_actual.TIPOS_PAL:
@@ -1343,6 +1368,8 @@ def postCarga (nombre):
   accDescObjs.setEnabled   (True)
   accDireccs.setEnabled    (True)
   accExportar.setEnabled   (len (info_exportar) > 0)
+  accMostrarSys.setEnabled (True)
+  accMostrarUsr.setEnabled (True)
   accMsgSys.setEnabled     (True)
   accMsgUsr.setEnabled     (True)
   accPasoAPaso.setEnabled  (True)
