@@ -383,8 +383,23 @@ class CampoTexto (QTextEdit):
       cursor.setPosition (cursor.position() + (colNueva - columna))
       self.setTextCursor (cursor)
       if evento.button() & Qt.LeftButton:
-        return
+        if evento.modifiers() & Qt.ControlModifier:  # Puede ser Ctrl+click en un enlace
+          enlace = self.anchorAt (evento.pos())
+          if enlace and enlace[:8] == 'proceso:':
+            self.quitaFormatoEnlace()  # Quitamos el formato anterior
+            pestanyas.setCurrentIndex (int (enlace[8:]))
+        else:
+          return
     super (CampoTexto, self).mousePressEvent (evento)
+
+  def quitaFormatoEnlace (self):
+    """Quita el formato de enlace a la posición del cursor actual"""
+    cursor  = self.textCursor()
+    formato = cursor.charFormat()
+    formato.setAnchor (False)
+    formato.setFontUnderline (False)
+    formato.setToolTip ('')
+    campo_txt.setCurrentCharFormat (formato)
 
   def resizeEvent (self, evento):
     super (CampoTexto, self).resizeEvent (evento)
@@ -1098,6 +1113,7 @@ def imprimeCondacto (condacto, parametros):
     campo_txt.insertPlainText (nombre.center (7) + ' ')
     for p in range (len (parametros)):
       campo_txt.setTextColor (QColor (255, 160, 32))  # Color anaranjado
+      formato   = None
       mensaje   = None
       parametro = parametros[p]
       if p > 0:
@@ -1124,7 +1140,20 @@ def imprimeCondacto (condacto, parametros):
           mensaje = mod_actual.msgs_sys[parametro]
         elif tiposParams[p] == 'i' and parametro > 128:  # Es un número entero negativo
           parametro -= 256
-      campo_txt.insertPlainText (str (parametro).rjust (4))
+        elif tiposParams == 'p':  # Es un proceso
+          cursor  = campo_txt.textCursor()
+          formato = cursor.charFormat()
+          formato.setAnchor (True)
+          formato.setAnchorHref ('proceso:' + str (parametro))
+          formato.setFontUnderline (True)
+          formato.setToolTip ('Haz Ctrl+click aquí para abrir el proceso ' + str (parametro))
+      if formato:
+        parametro = str (parametro)
+        campo_txt.insertPlainText (' ' * (4 - len (parametro)))
+        cursor.insertText (parametro, formato)
+        campo_txt.quitaFormatoEnlace()
+      else:
+        campo_txt.insertPlainText (str (parametro).rjust (4))
     if mensaje != None:
       if accMostrarRec.isChecked():  # Recortar al ancho de línea disponible
         qfm = QFontMetrics (campo_txt.font())
