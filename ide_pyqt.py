@@ -407,9 +407,23 @@ class CampoTexto (QTextEdit):
       try:
         self.anchoAntes
       except:
-        self.anchoAntes = evento.oldSize().width()
-      if abs (evento.size().width() - self.anchoAntes) <= 15:
+        self.anchoAntes     = evento.oldSize().width()
+        self.cuentaDifAncho = {}    # Diccionario para contar cuántas veces se encuentra cada diferencia de anchura
+        self.difAutoAjuste  = None  # Valor de diferencia en los autoajustes al redibujar el campo de texto
+      # Ocurre un bucle de redimensiones por autoajustes al redibujar el campo de texto, en el cual la diferencia es siempre la misma, pero es dependiente del sistema (seguramente del estilo de la interfaz)
+      # Detectaremos cuál es esa diferencia por los autoajustes, y en cuanto la sepamos ignoraremos cambios de anchura de ese valor
+      diferencia = abs (evento.size().width() - self.anchoAntes)
+      if not diferencia or diferencia == self.difAutoAjuste:  # No cambia o es el valor de la diferencia detectada
         return  # Evitamos bucle de redimensiones por autoajustes al redibujar el campo de texto
+      if diferencia <= 25:
+        if diferencia in self.cuentaDifAncho:
+          if self.cuentaDifAncho[diferencia] >= 14:  # Debe ser éste el valor de diferencia de los autoajustes
+            self.cuentaDifAncho.clear()
+            self.difAutoAjuste = diferencia
+            return
+          self.cuentaDifAncho[diferencia] += 1
+        else:
+          self.cuentaDifAncho[diferencia] = 1
       self.actualizandoProceso.start (100)
       self.anchoAntes = evento.size().width()
 
