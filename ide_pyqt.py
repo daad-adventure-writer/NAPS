@@ -136,6 +136,7 @@ class CampoTexto (QTextEdit):
         if abs (numColumna - colsValidas[c]) > abs (numColumna - colsValidas[c - 1]):
           return colsValidas[c - 1]
       return colsValidas[c]
+    return colsValidas[-1]  # La última es la más cercana
 
   def _daNumEntradaYLinea (self, bloqueLinea):
     """Devuelve el número de entrada de proceso y el de la línea en la entrada del bloque QTextBlock dado"""
