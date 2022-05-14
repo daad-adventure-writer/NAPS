@@ -694,7 +694,7 @@ def compruebaNombre (modulo, nombre, tipo):
 
 def creaAcciones ():
   """Crea las acciones de menú y barra de botones"""
-  global accAcercaDe, accContadores, accDescLocs, accDescObjs, accDireccs, accExportar, accImportar, accMostrarSys, accMostrarUsr, accMsgSys, accMsgUsr, accPasoAPaso, accSalir, accTblProcs, accTblVocab
+  global accAcercaDe, accContadores, accDescLocs, accDescObjs, accDireccs, accExportar, accImportar, accMostrarLoc, accMostrarObj, accMostrarSys, accMostrarUsr, accMsgSys, accMsgUsr, accPasoAPaso, accSalir, accTblProcs, accTblVocab
   accAcercaDe   = QAction (icono_ide, '&Acerca de NAPS IDE', selector)
   accContadores = QAction (icono ('contadores'), '&Contadores', selector)
   accDescLocs   = QAction (icono ('desc_localidad'), 'Descripciones de &localidades', selector)
@@ -702,6 +702,8 @@ def creaAcciones ():
   accDireccs    = QAction (icono ('direccion'), '&Direcciones', selector)
   accExportar   = QAction (icono ('exportar'), '&Exportar', selector)
   accImportar   = QAction (icono ('importar'), '&Importar', selector)
+  accMostrarLoc = QAction ('Descripciones de &localidades', selector)
+  accMostrarObj = QAction ('Descripciones de &objetos',     selector)
   accMostrarSys = QAction ('Mensajes de &sistema', selector)
   accMostrarUsr = QAction ('Mensajes de &usuario', selector)
   accMsgSys     = QAction (icono ('msg_sistema'), 'Mensajes de &sistema', selector)
@@ -710,14 +712,20 @@ def creaAcciones ():
   accSalir      = QAction (icono ('salir'), '&Salir', selector)
   accTblProcs   = QAction (icono ('proceso'), '&Tablas', selector)
   accTblVocab   = QAction (icono ('vocabulario'), '&Tabla', selector)
+  accMostrarLoc.setCheckable (True)
+  accMostrarObj.setCheckable (True)
   accMostrarSys.setCheckable (True)
   accMostrarUsr.setCheckable (True)
+  accMostrarLoc.setChecked (False)
+  accMostrarObj.setChecked (True)
   accMostrarSys.setChecked (True)
   accMostrarUsr.setChecked (True)
   accContadores.setEnabled (False)
   accDescLocs.setEnabled   (False)
   accDescObjs.setEnabled   (False)
   accDireccs.setEnabled    (False)
+  accMostrarLoc.setEnabled (False)
+  accMostrarObj.setEnabled (False)
   accMostrarSys.setEnabled (False)
   accMostrarUsr.setEnabled (False)
   accMsgSys.setEnabled     (False)
@@ -733,6 +741,8 @@ def creaAcciones ():
   accDireccs.setStatusTip    ('Permite añadir y editar las palabras de dirección')
   accExportar.setStatusTip   ('Exporta la base de datos a un fichero')
   accImportar.setStatusTip   ('Importa una base de datos desde un fichero')
+  accMostrarLoc.setStatusTip ('Mostrar descripciones de localidades cuando los condactos las referencien')
+  accMostrarObj.setStatusTip ('Mostrar descripciones de objetos cuando los condactos los referencien')
   accMostrarSys.setStatusTip ('Mostrar texto de mensajes de sistema cuando los condactos los referencien')
   accMostrarUsr.setStatusTip ('Mostrar texto de mensajes de usuario cuando los condactos los referencien')
   accMsgSys.setStatusTip     ('Permite consultar y modificar los mensajes de sistema')
@@ -749,6 +759,8 @@ def creaAcciones ():
   accDescObjs.triggered.connect   (muestraDescObjs)
   accExportar.triggered.connect   (exportaBD)
   accImportar.triggered.connect   (dialogoImportaBD)
+  accMostrarLoc.triggered.connect (actualizaProceso)
+  accMostrarObj.triggered.connect (actualizaProceso)
   accMostrarSys.triggered.connect (actualizaProceso)
   accMostrarUsr.triggered.connect (actualizaProceso)
   accMsgSys.triggered.connect     (muestraMsgSys)
@@ -788,6 +800,8 @@ def creaMenus ():
   menuEjecutar.addAction (accPasoAPaso)
   menuProcesos     = selector.menuBar().addMenu ('&Procesos')
   menuProcsMostrar = QMenu ('&Mostrar textos', menuProcesos)
+  menuProcsMostrar.addAction (accMostrarLoc)
+  menuProcsMostrar.addAction (accMostrarObj)
   menuProcsMostrar.addAction (accMostrarSys)
   menuProcsMostrar.addAction (accMostrarUsr)
   menuProcesos.addAction (accTblProcs)
@@ -1066,8 +1080,12 @@ def imprimeCondacto (condacto, parametros):
            (tiposParams[p] == 'p'  and parametro >= len (mod_actual.tablas_proceso)) or \
            (tiposParams[p] == 's'  and parametro >= len (mod_actual.msgs_sys)):
           campo_txt.setTextColor (QColor (255, 0, 0))  # Color rojo
+        elif tiposParams == 'l' and accMostrarLoc.isChecked():
+          mensaje = mod_actual.desc_locs[parametro]
         elif tiposParams == 'm' and accMostrarUsr.isChecked():
           mensaje = mod_actual.msgs_usr[parametro]
+        elif tiposParams == 'o' and accMostrarObj.isChecked():
+          mensaje = mod_actual.desc_objs[parametro]
         elif tiposParams == 's' and accMostrarSys.isChecked():
           mensaje = mod_actual.msgs_sys[parametro]
         elif tiposParams[p] == 'i' and parametro > 128:  # Es un número entero negativo
@@ -1368,6 +1386,8 @@ def postCarga (nombre):
   accDescObjs.setEnabled   (True)
   accDireccs.setEnabled    (True)
   accExportar.setEnabled   (len (info_exportar) > 0)
+  accMostrarLoc.setEnabled (True)
+  accMostrarObj.setEnabled (True)
   accMostrarSys.setEnabled (True)
   accMostrarUsr.setEnabled (True)
   accMsgSys.setEnabled     (True)
