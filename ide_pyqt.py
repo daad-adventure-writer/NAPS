@@ -861,6 +861,11 @@ def creaSelector ():
   creaBarraBotones()
   barraEstado = selector.statusBar()  # Queremos una barra de estado
 
+def daTextoComoParrafoHtml (texto):
+  """Devuelve el texto dado metido en un párrafo html, con los caracteres que usa html correctamente escapados"""
+  texto = texto.replace ('&', '&amp;').replace ('<', '&lt;').replace ('>', '&gt;')
+  return '<p>' + texto + '</p>'
+
 def daTextoImprimible (texto):
   """Da la representación imprimible del texto dado según la librería de la plataforma PAW-like"""
   texto      = mod_actual.lee_secs_ctrl (texto)
@@ -1128,11 +1133,14 @@ def imprimeCondacto (condacto, parametros):
         campo_txt.setTextColor (QColor (100, 100, 100))  # Color gris oscuro
         campo_txt.insertPlainText ('       "')
         campo_txt.setFontItalic (True)  # Cursiva activada
-        if accMostrarRec.isChecked():  # Recortar al ancho de línea disponible
-          campo_txt.insertPlainText (mensaje[: columnasVisibles - 26])
-          if len (mensaje) > columnasVisibles - 26:  # Se ha recortado
-            campo_txt.insertPlainText (u'\u2026')
-        else:
+        if accMostrarRec.isChecked() and len (mensaje) > columnasVisibles - 26:  # Se recortará al ancho de línea disponible
+          cursor  = campo_txt.textCursor()
+          formato = cursor.charFormat()
+          formato.setToolTip (daTextoComoParrafoHtml (mensaje))
+          cursor.insertText (mensaje[: columnasVisibles - 26], formato)
+          formato.setToolTip ('')
+          cursor.insertText (u'\u2026', formato)
+        else:  # No se recorta
           campo_txt.insertPlainText (mensaje)
         campo_txt.setFontItalic (False)  # Cursiva desactivada
         campo_txt.insertPlainText ('"')
