@@ -97,8 +97,10 @@ plats_word = (266, )  # Plataformas que no pueden leer words en desplazamientos 
 
 condactos = {
   # El formato es el siguiente:
-  # código : (nombre, parámetros, es_acción)
-  # Donde parámetros es una cadena con el tipo de cada parámetro
+  # código : (nombre, parámetros, es_acción, flujo)
+  # Donde:
+  #   parámetros es una cadena con el tipo de cada parámetro
+  #   flujo indica si el condacto cambia el flujo de ejecución incondicionalmente, por lo que todo código posterior en su entrada será inalcanzable
   # Y los tipos de los parámetros se definen así:
   # % : Porcentaje (percent), de 1 a 99 (TODO: comprobar si sirven 0 y 100)
   # b : Número de bit, de 0 a 7
@@ -114,132 +116,132 @@ condactos = {
   # s : Número de mensaje de sistema (sysno), de 0 a num_msgs_sistema - 1
   # u : Valor (value) entero sin signo, de 0 a 255
   # v : Número de palabra de tipo adverbio (adverb), ó 255
-    0 : ('AT',      'l',  False),
-    1 : ('NOTAT',   'l',  False),
-    2 : ('ATGT',    'l',  False),
-    3 : ('ATLT',    'l',  False),
-    4 : ('PRESENT', 'o',  False),
-    5 : ('ABSENT',  'o',  False),
-    6 : ('WORN',    'o',  False),
-    7 : ('NOTWORN', 'o',  False),
-    8 : ('CARRIED', 'o',  False),
-    9 : ('NOTCARR', 'o',  False),
-   10 : ('CHANCE',  '%',  False),
-   11 : ('ZERO',    'f',  False),
-   12 : ('NOTZERO', 'f',  False),
-   13 : ('EQ',      'fu', False),
-   14 : ('GT',      'fu', False),
-   15 : ('LT',      'fu', False),
-   16 : ('ADJECT1', 'j',  False),
-   17 : ('ADVERB',  'v',  False),
-   # 18 : ('_18_',    '',   True),   # Formerly INVEN
-   19 : ('DESC',    '',   True),
-   20 : ('QUIT',    '',   False),  # Se comporta como condición, no satisfecha si no termina
-   21 : ('END',     '',   True),
-   22 : ('DONE',    '',   True),
-   23 : ('OK',      '',   True),
-   24 : ('ANYKEY',  '',   True),
-   25 : ('SAVE',    '',   True),
-   26 : ('LOAD',    '',   True),
-   27 : ('TURNS',   '',   True),
-   28 : ('SCORE',   '',   True),
-   # 29 : ('_29_',    '',   True),   # Formerly CLS
-   30 : ('DROPALL', '',   True),
-   31 : ('AUTOG',   '',   True),
-   32 : ('AUTOD',   '',   True),
-   33 : ('AUTOW',   '',   True),
-   34 : ('AUTOR',   '',   True),
-   35 : ('PAUSE',   'u',  True),
-   36 : ('TIMEOUT', '',   False),
-   37 : ('GOTO',    'l',  True),
-   38 : ('MESSAGE', 'm',  True),
-   39 : ('REMOVE',  'o',  True),
-   40 : ('GET',     'o',  True),
-   41 : ('DROP',    'o',  True),
-   42 : ('WEAR',    'o',  True),
-   43 : ('DESTROY', 'o',  True),
-   44 : ('CREATE',  'o',  True),
-   45 : ('SWAP',    'oo', True),
-   46 : ('PLACE',   'oL', True),  # TODO: investigar más si en algún caso se comporta como condición
-   47 : ('SET',     'f',  True),
-   48 : ('CLEAR',   'f',  True),
-   49 : ('PLUS',    'fu', True),
-   50 : ('MINUS',   'fu', True),
-   51 : ('LET',     'fu', True),
-   52 : ('NEWLINE', '',   True),
-   53 : ('PRINT',   'f',  True),
-   54 : ('SYSMESS', 's',  True),
-   55 : ('ISAT',    'oL', False),
-   56 : ('COPYOF',  'of', True),
-   57 : ('COPYOO',  'oo', True),
-   58 : ('COPYFO',  'fo', True),
-   59 : ('COPYFF',  'ff', True),
-   60 : ('LISTOBJ', '',   True),
-   # 61 : ('_61_',    '',   True),   # Formerly EXTERN
-   62 : ('RAMSAVE', '',   True),
-   63 : ('RAMLOAD', 'f',  True),
-   # 64 : ('_64_',    '',   True),   # Formerly BEEP/BELL
-   # 65 : ('_65_',    '',   True),   # Formerly PAPER
-   # 66 : ('_66_',    '',   True),   # Formerly INK
-   # 67 : ('_67_',    '',   True),   # Formerly BORDER
-   68 : ('PREP',    'r',  False),
-   69 : ('NOUN2',   'n',  False),
-   70 : ('ADJECT2', 'j',  False),
-   71 : ('ADD',     'ff', True),
-   72 : ('SUB',     'ff', True),
-   73 : ('PARSE',   '',   False),  # Se comporta como condición, satisfecha con frase inválida
-   74 : ('LISTAT',  'L',  True),
-   75 : ('PROCESS', 'p',  True),
-   76 : ('SAME',    'ff', False),
-   77 : ('MES',     'm',  True),
-   # 78 : ('_78_',    '',   True),   # Formerly CHARSET
-   79 : ('NOTEQ',   'fu', False),
-   80 : ('NOTSAME', 'ff', False),
-   # 81 : ('_81_',    '',   True),   # Formerly MODE
-   # 82 : ('_82_',    '',   True),   # Formerly LINE
-   # 83 : ('_83_',    '',   True),   # Formerly TIME
-   # 84 : ('_84_',    '',   True),   # Formerly PICTURE
-   85 : ('DOALL',   'L',  True),
-   # 86 : ('_86_',    '',   True),   # Formerly PROMPT
-   # 87 : ('_87_',    '',   True),   # Formerly GRAPHIC
-   88 : ('ISNOTAT', 'oL', False),
-   89 : ('WEIGH',   'of', True),
-   90 : ('PUTIN',   'ol', True),
-   91 : ('TAKEOUT', 'ol', True),
-   92 : ('NEWTEXT', '',   True),
-   # 93 : ('_93_',    '',   True),   # Formerly ABILITY
-   94 : ('WEIGHT',  'f',  True),
-   95 : ('RANDOM',  'f',  True),
-   # 96 : ('_96_',    '',   True),   # Formerly INPUT
-   # 97 : ('_97_',    '',   True),   # Formerly SAVEAT
-   # 98 : ('_98_',    '',   True),   # Formerly BACKAT
-   # 99 : ('_99_',    '',   True),   # Formerly PRINTAT
-  100 : ('WHATO',   '',   True),
-  # 101 : ('_101_',   '',   True),   # Formerly RESET
-  102 : ('PUTO',    'L',  True),
-  103 : ('NOTDONE', '',   True),
-  104 : ('AUTOP',   'l',  True),
-  105 : ('AUTOT',   'l',  True),
-  106 : ('MOVE',    'f',  False),  # Se comporta como condición
-  # 107 : ('_107_',   '',   True),   # Formerly PROTECT
+    0 : ('AT',      'l',  False, False),
+    1 : ('NOTAT',   'l',  False, False),
+    2 : ('ATGT',    'l',  False, False),
+    3 : ('ATLT',    'l',  False, False),
+    4 : ('PRESENT', 'o',  False, False),
+    5 : ('ABSENT',  'o',  False, False),
+    6 : ('WORN',    'o',  False, False),
+    7 : ('NOTWORN', 'o',  False, False),
+    8 : ('CARRIED', 'o',  False, False),
+    9 : ('NOTCARR', 'o',  False, False),
+   10 : ('CHANCE',  '%',  False, False),
+   11 : ('ZERO',    'f',  False, False),
+   12 : ('NOTZERO', 'f',  False, False),
+   13 : ('EQ',      'fu', False, False),
+   14 : ('GT',      'fu', False, False),
+   15 : ('LT',      'fu', False, False),
+   16 : ('ADJECT1', 'j',  False, False),
+   17 : ('ADVERB',  'v',  False, False),
+   # 18 : ('_18_',    '',   True,  True),   # Formerly INVEN
+   19 : ('DESC',    '',   True,  True),
+   20 : ('QUIT',    '',   False, False),  # Se comporta como condición, no satisfecha si no termina
+   21 : ('END',     '',   True,  True),
+   22 : ('DONE',    '',   True,  True),
+   23 : ('OK',      '',   True,  True),
+   24 : ('ANYKEY',  '',   True,  False),
+   25 : ('SAVE',    '',   True,  True),
+   26 : ('LOAD',    '',   True,  True),
+   27 : ('TURNS',   '',   True,  False),
+   28 : ('SCORE',   '',   True,  False),
+   # 29 : ('_29_',    '',   True,  False),  # Formerly CLS
+   30 : ('DROPALL', '',   True,  False),
+   31 : ('AUTOG',   '',   True,  False),
+   32 : ('AUTOD',   '',   True,  False),
+   33 : ('AUTOW',   '',   True,  False),
+   34 : ('AUTOR',   '',   True,  False),
+   35 : ('PAUSE',   'u',  True,  False),
+   36 : ('TIMEOUT', '',   False, False),
+   37 : ('GOTO',    'l',  True,  False),
+   38 : ('MESSAGE', 'm',  True,  False),
+   39 : ('REMOVE',  'o',  True,  False),
+   40 : ('GET',     'o',  True,  False),
+   41 : ('DROP',    'o',  True,  False),
+   42 : ('WEAR',    'o',  True,  False),
+   43 : ('DESTROY', 'o',  True,  False),
+   44 : ('CREATE',  'o',  True,  False),
+   45 : ('SWAP',    'oo', True,  False),
+   46 : ('PLACE',   'oL', True,  False),  # TODO: investigar más si en algún caso se comporta como condición
+   47 : ('SET',     'f',  True,  False),
+   48 : ('CLEAR',   'f',  True,  False),
+   49 : ('PLUS',    'fu', True,  False),
+   50 : ('MINUS',   'fu', True,  False),
+   51 : ('LET',     'fu', True,  False),
+   52 : ('NEWLINE', '',   True,  False),
+   53 : ('PRINT',   'f',  True,  False),
+   54 : ('SYSMESS', 's',  True,  False),
+   55 : ('ISAT',    'oL', False, False),
+   56 : ('COPYOF',  'of', True,  False),
+   57 : ('COPYOO',  'oo', True,  False),
+   58 : ('COPYFO',  'fo', True,  False),
+   59 : ('COPYFF',  'ff', True,  False),
+   60 : ('LISTOBJ', '',   True,  False),
+   # 61 : ('_61_',    '',   True,  False),   # Formerly EXTERN
+   62 : ('RAMSAVE', '',   True,  False),
+   63 : ('RAMLOAD', 'f',  True,  False),
+   # 64 : ('_64_',    '',   True,  False),   # Formerly BEEP/BELL
+   # 65 : ('_65_',    '',   True,  False),   # Formerly PAPER
+   # 66 : ('_66_',    '',   True,  False),   # Formerly INK
+   # 67 : ('_67_',    '',   True,  False),   # Formerly BORDER
+   68 : ('PREP',    'r',  False, False),
+   69 : ('NOUN2',   'n',  False, False),
+   70 : ('ADJECT2', 'j',  False, False),
+   71 : ('ADD',     'ff', True,  False),
+   72 : ('SUB',     'ff', True,  False),
+   73 : ('PARSE',   '',   False, False),  # Se comporta como condición, satisfecha con frase inválida
+   74 : ('LISTAT',  'L',  True,  False),
+   75 : ('PROCESS', 'p',  True,  False),
+   76 : ('SAME',    'ff', False, False),
+   77 : ('MES',     'm',  True,  False),
+   # 78 : ('_78_',    '',   True,  False),   # Formerly CHARSET
+   79 : ('NOTEQ',   'fu', False, False),
+   80 : ('NOTSAME', 'ff', False, False),
+   # 81 : ('_81_',    '',   True,  False),   # Formerly MODE
+   # 82 : ('_82_',    '',   True,  False),   # Formerly LINE
+   # 83 : ('_83_',    '',   True,  False),   # Formerly TIME
+   # 84 : ('_84_',    '',   True,  False),   # Formerly PICTURE
+   85 : ('DOALL',   'L',  True,  False),
+   # 86 : ('_86_',    '',   True,  False),   # Formerly PROMPT
+   # 87 : ('_87_',    '',   True,  False),   # Formerly GRAPHIC
+   88 : ('ISNOTAT', 'oL', False, False),
+   89 : ('WEIGH',   'of', True,  False),
+   90 : ('PUTIN',   'ol', True,  False),
+   91 : ('TAKEOUT', 'ol', True,  False),
+   92 : ('NEWTEXT', '',   True,  False),
+   # 93 : ('_93_',    '',   True,  False),   # Formerly ABILITY
+   94 : ('WEIGHT',  'f',  True,  False),
+   95 : ('RANDOM',  'f',  True,  False),
+   # 96 : ('_96_',    '',   True,  False),   # Formerly INPUT
+   # 97 : ('_97_',    '',   True,  False),   # Formerly SAVEAT
+   # 98 : ('_98_',    '',   True,  False),   # Formerly BACKAT
+   # 99 : ('_99_',    '',   True,  False),   # Formerly PRINTAT
+  100 : ('WHATO',   '',   True,  False),
+  # 101 : ('_101_',   '',   True,  False),   # Formerly RESET
+  102 : ('PUTO',    'L',  True,  False),
+  103 : ('NOTDONE', '',   True,  True),
+  104 : ('AUTOP',   'l',  True,  False),
+  105 : ('AUTOT',   'l',  True,  False),
+  106 : ('MOVE',    'f',  False, False),  # Se comporta como condición
+  # 107 : ('_107_',   '',   True,  False),   # Formerly PROTECT
   # Desde aquí, todos estos son nuevos en SWAN
-  108 : ('OAT',     'of', False),
-  109 : ('FGET',    'ff', True),
-  110 : ('FPUT',    'ff', True),
-  111 : ('FMES',    'f',  True),
-  112 : ('SETB',    'fb', True),
-  113 : ('CLEARB',  'fb', True),
-  114 : ('BSET',    'fb', False),
-  115 : ('NOTBSET', 'fb', False),
-  116 : ('NOTOAT',  'of', False),
-  117 : ('OOPSAVE', '',   True),
-  118 : ('OOPS',    'f',  True),
-  119 : ('GON',     '',   True),
-  120 : ('GOFF',    '',   True),
-  121 : ('OVERLAY', 'u',  True),
-  122 : ('COMMAND', '',   True),
-  123 : ('CSAVE',   '',   True),
-  124 : ('CLOAD',   '',   True),
+  108 : ('OAT',     'of', False, False),
+  109 : ('FGET',    'ff', True,  False),
+  110 : ('FPUT',    'ff', True,  False),
+  111 : ('FMES',    'f',  True,  False),
+  112 : ('SETB',    'fb', True,  False),
+  113 : ('CLEARB',  'fb', True,  False),
+  114 : ('BSET',    'fb', False, False),
+  115 : ('NOTBSET', 'fb', False, False),
+  116 : ('NOTOAT',  'of', False, False),
+  117 : ('OOPSAVE', '',   True,  False),
+  118 : ('OOPS',    'f',  True,  False),
+  119 : ('GON',     '',   True,  False),
+  120 : ('GOFF',    '',   True,  False),
+  121 : ('OVERLAY', 'u',  True,  False),
+  122 : ('COMMAND', '',   True,  False),
+  123 : ('CSAVE',   '',   True,  False),
+  124 : ('CLOAD',   '',   True,  False),
 }
 
 

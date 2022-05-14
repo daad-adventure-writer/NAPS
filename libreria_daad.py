@@ -120,8 +120,10 @@ daad_a_chr = ('ª', '¡', '¿', '«', '»', 'á', 'é', 'í', 'ó', 'ú', 'ñ', 'Ñ', 'ç', '
 
 condactos = {
   # El formato es el siguiente:
-  # código : (nombre, parámetros, es_acción)
-  # Donde parámetros es una cadena con el tipo de cada parámetro
+  # código : (nombre, parámetros, es_acción, flujo)
+  # Donde:
+  #   parámetros es una cadena con el tipo de cada parámetro
+  #   flujo indica si el condacto cambia el flujo de ejecución incondicionalmente, por lo que todo código posterior en su entrada será inalcanzable
   # Y los tipos de los parámetros se definen así:
   # % : Porcentaje (percent), de 1 a 99 (TODO: comprobar si sirven 0 y 100)
   # f : Número de bandera (flagno), de 0 a NUM_BANDERAS - 1
@@ -139,152 +141,152 @@ condactos = {
   # v : Número de palabra de tipo adverbio (adverb), ó 255
   # V : Número de palabra de tipo verbo (verb), ó 255
   # w : Número de subventana (stream), de 0 a 7
-    0 : ('AT',      'l',  False),
-    1 : ('NOTAT',   'l',  False),
-    2 : ('ATGT',    'l',  False),
-    3 : ('ATLT',    'l',  False),
-    4 : ('PRESENT', 'o',  False),
-    5 : ('ABSENT',  'o',  False),
-    6 : ('WORN',    'o',  False),
-    7 : ('NOTWORN', 'o',  False),
-    8 : ('CARRIED', 'o',  False),
-    9 : ('NOTCARR', 'o',  False),
-   10 : ('CHANCE',  '%',  False),
-   11 : ('ZERO',    'f',  False),
-   12 : ('NOTZERO', 'f',  False),
-   13 : ('EQ',      'fu', False),
-   14 : ('GT',      'fu', False),
-   15 : ('LT',      'fu', False),
-   16 : ('ADJECT1', 'j',  False),
-   17 : ('ADVERB',  'v',  False),
-   18 : ('INVEN',   '',   True),   # Implementado en intérprete de Jabato EGA
-   19 : ('DESC',    '',   True),
-   20 : ('QUIT',    '',   False),  # Se comporta como condición, no satisfecha si no termina
-   21 : ('END',     '',   True),
-   22 : ('DONE',    '',   True),
-   23 : ('OK',      '',   True),
-   24 : ('ANYKEY',  '',   True),
-   25 : ('SAVE',    '',   True),
-   26 : ('LOAD',    '',   False),  # Se comporta como condición, satisfecha si carga bien
-   27 : ('TURNS',   '',   True),
-   28 : ('DISPLAY', 'u',  True),   # Era SCORE
-   29 : ('CLS',     '',   True),
-   30 : ('DROPALL', '',   True),
-   31 : ('AUTOG',   '',   True),
-   32 : ('AUTOD',   '',   True),
-   33 : ('AUTOW',   '',   True),
-   34 : ('AUTOR',   '',   True),
-   35 : ('PAUSE',   'u',  True),
-   36 : ('TIMEOUT', '',   False),
-   37 : ('GOTO',    'l',  True),
-   38 : ('MESSAGE', 'm',  True),
-   39 : ('REMOVE',  'o',  True),
-   40 : ('GET',     'o',  True),
-   41 : ('DROP',    'o',  True),
-   42 : ('WEAR',    'o',  True),
-   43 : ('DESTROY', 'o',  True),
-   44 : ('CREATE',  'o',  True),
-   45 : ('SWAP',    'oo', True),
-   46 : ('PLACE',   'oL', True),  # TODO: investigar más si en algún caso se comporta como condición
-   47 : ('SET',     'f',  True),
-   48 : ('CLEAR',   'f',  True),
-   49 : ('PLUS',    'fu', True),
-   50 : ('MINUS',   'fu', True),
-   51 : ('LET',     'fu', True),
-   52 : ('NEWLINE', '',   True),
-   53 : ('PRINT',   'f',  True),
-   54 : ('SYSMESS', 's',  True),
-   55 : ('ISAT',    'oL', False),
-   56 : ('COPYOF',  'of', True),
-   57 : ('COPYOO',  'oo', True),
-   58 : ('COPYFO',  'fo', True),
-   59 : ('COPYFF',  'ff', True),
-   60 : ('LISTOBJ', '',   True),
-   61 : ('EXTERN',  'uu', True),
-   62 : ('RAMSAVE', '',   True),
-   63 : ('RAMLOAD', 'f',  False),  # Se comporta como condición, satisfecha si carga bien
-   64 : ('BEEP',    'uu', True),
-   65 : ('PAPER',   'u',  True),
-   66 : ('INK',     'u',  True),
-   67 : ('BORDER',  'u',  True),
-   68 : ('PREP',    'r',  False),
-   69 : ('NOUN2',   'n',  False),
-   70 : ('ADJECT2', 'j',  False),
-   71 : ('ADD',     'ff', True),
-   72 : ('SUB',     'ff', True),
-   73 : ('PARSE',   '',   False),  # Se comporta como condición, satisfecha si no hay frase válida
-   74 : ('LISTAT',  'L',  True),
-   75 : ('PROCESS', 'p',  True),
-   76 : ('SAME',    'ff', False),
-   77 : ('MES',     'm',  True),
-   78 : ('WINDOW',  'w',  True),   # Era CHARSET
-   79 : ('NOTEQ',   'fu', False),
-   80 : ('NOTSAME', 'ff', False),
-   81 : ('MODE',    'u',  True),
-   82 : ('WINAT',   'uu', True),   # Era LINE
-   83 : ('TIME',    'uu', True),
-   84 : ('PICTURE', 'u',  True),
-   85 : ('DOALL',   'L',  True),
-   86 : ('PROMPT',  's',  True),
-   87 : ('GFX',     'uu', True),   # Era GRAPHIC
-   88 : ('ISNOTAT', 'oL', False),
-   89 : ('WEIGH',   'of', True),
-   90 : ('PUTIN',   'ol', True),
-   91 : ('TAKEOUT', 'ol', True),
-   92 : ('NEWTEXT', '',   True),
-   93 : ('ABILITY', 'uu', True),
-   94 : ('WEIGHT',  'f',  True),
-   95 : ('RANDOM',  'f',  True),
-   96 : ('INPUT',   'wu', True),
-   97 : ('SAVEAT',  '',   True),
-   98 : ('BACKAT',  '',   True),
-   99 : ('PRINTAT', 'uu', True),
-  100 : ('WHATO',   '',   True),
-  101 : ('CALL',    'u',  True),   # Era RESET. Tal vez tome dos bytes para un desplazamiento
-  102 : ('PUTO',    'L',  True),
-  103 : ('NOTDONE', '',   True),
-  104 : ('AUTOP',   'l',  True),
-  105 : ('AUTOT',   'l',  True),
-  106 : ('MOVE',    'f',  False),  # Se comporta como condición
-  107 : ('WINSIZE', 'uu', True),   # Era PROTECT
-  108 : ('REDO',    '',   True),
-  109 : ('CENTRE',  '',   True),
-  110 : ('EXIT',    'u',  True),
-  111 : ('INKEY',   '',   False),
-  112 : ('SMALLER', 'ff', False),  # Del revés a como está en el manual
-  113 : ('BIGGER',  'ff', False),  # Del revés a como está en el manual
-  114 : ('ISDONE',  '',   False),
-  115 : ('ISNDONE', '',   False),
-  116 : ('SKIP',    'i',  True),
-  117 : ('RESTART', '',   True),
-  118 : ('TAB',     'u',  True),
-  119 : ('COPYOF',  'of', True),
-  121 : ('COPYOO',  'oo', True),
-  123 : ('COPYFO',  'fo', True),
-  125 : ('COPYFF',  'ff', True),
-  126 : ('COPYBF',  'ff', True),
-  127 : ('RESET',   '',   True),
+    0 : ('AT',      'l',  False, False),
+    1 : ('NOTAT',   'l',  False, False),
+    2 : ('ATGT',    'l',  False, False),
+    3 : ('ATLT',    'l',  False, False),
+    4 : ('PRESENT', 'o',  False, False),
+    5 : ('ABSENT',  'o',  False, False),
+    6 : ('WORN',    'o',  False, False),
+    7 : ('NOTWORN', 'o',  False, False),
+    8 : ('CARRIED', 'o',  False, False),
+    9 : ('NOTCARR', 'o',  False, False),
+   10 : ('CHANCE',  '%',  False, False),
+   11 : ('ZERO',    'f',  False, False),
+   12 : ('NOTZERO', 'f',  False, False),
+   13 : ('EQ',      'fu', False, False),
+   14 : ('GT',      'fu', False, False),
+   15 : ('LT',      'fu', False, False),
+   16 : ('ADJECT1', 'j',  False, False),
+   17 : ('ADVERB',  'v',  False, False),
+   18 : ('INVEN',   '',   True,  True),   # Implementado en intérprete de Jabato EGA
+   19 : ('DESC',    '',   True,  True),
+   20 : ('QUIT',    '',   False, False),  # Se comporta como condición, no satisfecha si no termina
+   21 : ('END',     '',   True,  True),
+   22 : ('DONE',    '',   True,  True),
+   23 : ('OK',      '',   True,  True),
+   24 : ('ANYKEY',  '',   True,  False),
+   25 : ('SAVE',    '',   True,  False),
+   26 : ('LOAD',    '',   False, False),  # Se comporta como condición, satisfecha si carga bien
+   27 : ('TURNS',   '',   True,  False),
+   28 : ('DISPLAY', 'u',  True,  False),  # Era SCORE
+   29 : ('CLS',     '',   True,  False),
+   30 : ('DROPALL', '',   True,  False),
+   31 : ('AUTOG',   '',   True,  False),
+   32 : ('AUTOD',   '',   True,  False),
+   33 : ('AUTOW',   '',   True,  False),
+   34 : ('AUTOR',   '',   True,  False),
+   35 : ('PAUSE',   'u',  True,  False),
+   36 : ('TIMEOUT', '',   False, False),
+   37 : ('GOTO',    'l',  True,  False),
+   38 : ('MESSAGE', 'm',  True,  False),
+   39 : ('REMOVE',  'o',  True,  False),
+   40 : ('GET',     'o',  True,  False),
+   41 : ('DROP',    'o',  True,  False),
+   42 : ('WEAR',    'o',  True,  False),
+   43 : ('DESTROY', 'o',  True,  False),
+   44 : ('CREATE',  'o',  True,  False),
+   45 : ('SWAP',    'oo', True,  False),
+   46 : ('PLACE',   'oL', True,  False),  # TODO: investigar más si en algún caso se comporta como condición
+   47 : ('SET',     'f',  True,  False),
+   48 : ('CLEAR',   'f',  True,  False),
+   49 : ('PLUS',    'fu', True,  False),
+   50 : ('MINUS',   'fu', True,  False),
+   51 : ('LET',     'fu', True,  False),
+   52 : ('NEWLINE', '',   True,  False),
+   53 : ('PRINT',   'f',  True,  False),
+   54 : ('SYSMESS', 's',  True,  False),
+   55 : ('ISAT',    'oL', False, False),
+   56 : ('COPYOF',  'of', True,  False),
+   57 : ('COPYOO',  'oo', True,  False),
+   58 : ('COPYFO',  'fo', True,  False),
+   59 : ('COPYFF',  'ff', True,  False),
+   60 : ('LISTOBJ', '',   True,  False),
+   61 : ('EXTERN',  'uu', True,  False),
+   62 : ('RAMSAVE', '',   True,  False),
+   63 : ('RAMLOAD', 'f',  False, False),  # Se comporta como condición, satisfecha si carga bien
+   64 : ('BEEP',    'uu', True,  False),
+   65 : ('PAPER',   'u',  True,  False),
+   66 : ('INK',     'u',  True,  False),
+   67 : ('BORDER',  'u',  True,  False),
+   68 : ('PREP',    'r',  False, False),
+   69 : ('NOUN2',   'n',  False, False),
+   70 : ('ADJECT2', 'j',  False, False),
+   71 : ('ADD',     'ff', True,  False),
+   72 : ('SUB',     'ff', True,  False),
+   73 : ('PARSE',   '',   False, False),  # Se comporta como condición, satisfecha si no hay frase válida
+   74 : ('LISTAT',  'L',  True,  False),
+   75 : ('PROCESS', 'p',  True,  False),
+   76 : ('SAME',    'ff', False, False),
+   77 : ('MES',     'm',  True,  False),
+   78 : ('WINDOW',  'w',  True,  False),  # Era CHARSET
+   79 : ('NOTEQ',   'fu', False, False),
+   80 : ('NOTSAME', 'ff', False, False),
+   81 : ('MODE',    'u',  True,  False),
+   82 : ('WINAT',   'uu', True,  False),  # Era LINE
+   83 : ('TIME',    'uu', True,  False),
+   84 : ('PICTURE', 'u',  True,  False),
+   85 : ('DOALL',   'L',  True,  False),
+   86 : ('PROMPT',  's',  True,  False),
+   87 : ('GFX',     'uu', True,  False),  # Era GRAPHIC
+   88 : ('ISNOTAT', 'oL', False, False),
+   89 : ('WEIGH',   'of', True,  False),
+   90 : ('PUTIN',   'ol', True,  False),
+   91 : ('TAKEOUT', 'ol', True,  False),
+   92 : ('NEWTEXT', '',   True,  False),
+   93 : ('ABILITY', 'uu', True,  False),
+   94 : ('WEIGHT',  'f',  True,  False),
+   95 : ('RANDOM',  'f',  True,  False),
+   96 : ('INPUT',   'wu', True,  False),
+   97 : ('SAVEAT',  '',   True,  False),
+   98 : ('BACKAT',  '',   True,  False),
+   99 : ('PRINTAT', 'uu', True,  False),
+  100 : ('WHATO',   '',   True,  False),
+  101 : ('CALL',    'u',  True,  False),  # Era RESET. Tal vez tome dos bytes para un desplazamiento
+  102 : ('PUTO',    'L',  True,  False),
+  103 : ('NOTDONE', '',   True,  True),
+  104 : ('AUTOP',   'l',  True,  False),
+  105 : ('AUTOT',   'l',  True,  False),
+  106 : ('MOVE',    'f',  False, False),  # Se comporta como condición
+  107 : ('WINSIZE', 'uu', True,  False),  # Era PROTECT
+  108 : ('REDO',    '',   True,  False),
+  109 : ('CENTRE',  '',   True,  False),
+  110 : ('EXIT',    'u',  True,  True),
+  111 : ('INKEY',   '',   False, False),
+  112 : ('SMALLER', 'ff', False, False),  # Del revés a como está en el manual
+  113 : ('BIGGER',  'ff', False, False),  # Del revés a como está en el manual
+  114 : ('ISDONE',  '',   False, False),
+  115 : ('ISNDONE', '',   False, False),
+  116 : ('SKIP',    'i',  True,  True),
+  117 : ('RESTART', '',   True,  True),
+  118 : ('TAB',     'u',  True,  False),
+  119 : ('COPYOF',  'of', True,  False),
+  121 : ('COPYOO',  'oo', True,  False),
+  123 : ('COPYFO',  'fo', True,  False),
+  125 : ('COPYFF',  'ff', True,  False),
+  126 : ('COPYBF',  'ff', True,  False),
+  127 : ('RESET',   '',   True,  False),
 }
 
 # Reemplazo de condactos en nuevas versiones de DAAD
 condactos_nuevos = {
   # El formato es el siguiente:
   # código : (nombre, número_parámetros, es_acción)
-   18 : ('SFX',     'uu', True),   # Era INVEN
-   19 : ('DESC',    'l',  True),
-   25 : ('SAVE',    'u',  True),
-   26 : ('LOAD',    'u',  False),  # Se comporta como condición, satisfecha si carga bien
-   27 : ('DPRINT',  'f',  True),   # Era TURNS
-   36 : ('SYNONYM', 'Vn', True),   # Era TIMEOUT
-   56 : ('SETCO',   'o',  True),   # Era COPYOF
-   57 : ('SPACE',   '',   True),   # Era COPYOO
-   58 : ('HASAT',   'u',  False),  # Era COPYFO
-   59 : ('HASNAT',  'u',  False),  # Era COPYFF
-   73 : ('PARSE',   'u',  False),  # Se comporta como condición
-   84 : ('PICTURE', 'u',  False),  # Se comporta como condición, en función si esa imagen existe
-   86 : ('MOUSE',   'u',  True),   # Era PROMPT
-  112 : ('BIGGER',  'ff', False),  # Mismo orden que en el manual
-  113 : ('SMALLER', 'ff', False),  # Mismo orden que en el manual
+   18 : ('SFX',     'uu', True,  False),  # Era INVEN
+   19 : ('DESC',    'l',  True,  False),
+   25 : ('SAVE',    'u',  True,  False),
+   26 : ('LOAD',    'u',  False, False),  # Se comporta como condición, satisfecha si carga bien
+   27 : ('DPRINT',  'f',  True,  False),  # Era TURNS
+   36 : ('SYNONYM', 'Vn', True,  False),  # Era TIMEOUT
+   56 : ('SETCO',   'o',  True,  False),  # Era COPYOF
+   57 : ('SPACE',   '',   True,  False),  # Era COPYOO
+   58 : ('HASAT',   'u',  False, False),  # Era COPYFO
+   59 : ('HASNAT',  'u',  False, False),  # Era COPYFF
+   73 : ('PARSE',   'u',  False, False),  # Se comporta como condición
+   84 : ('PICTURE', 'u',  False, False),  # Se comporta como condición, en función si esa imagen existe
+   86 : ('MOUSE',   'u',  True,  False),  # Era PROMPT
+  112 : ('BIGGER',  'ff', False, False),  # Mismo orden que en el manual
+  113 : ('SMALLER', 'ff', False, False),  # Mismo orden que en el manual
 }
 
 

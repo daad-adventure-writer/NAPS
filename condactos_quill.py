@@ -179,6 +179,7 @@ def a0_OK ():
 
 def a0_QUIT ():
   """Pide confirmación (MS12), y si la respuesta empieza por la primera letra del MS30, continúa. Si no, ejecuta DONE"""
+  # FIXME: según el manual, no cambia el flujo incondicionalmente
   respuesta = gui.lee_cadena (msgs_sys[12] + '>', '', [0], False)
   if respuesta[0].lower() != msgs_sys[30][0].lower():
     return 3  # Lo mismo que hace DONE

@@ -118,8 +118,10 @@ TIPOS_PAL        = ('Palabra',)  # Nombres de los tipos de palabra (para el IDE)
 # Diccionarios de condactos
 
 # El formato es el siguiente:
-# código : (nombre, parámetros)
-# Donde parámetros es una cadena con el tipo de cada parámetro
+# código : (nombre, parámetros, flujo)
+# Donde:
+#   parámetros es una cadena con el tipo de cada parámetro
+#   flujo indica si el condacto cambia el flujo de ejecución incondicionalmente, por lo que todo código posterior en su entrada será inalcanzable
 # Y los tipos de los parámetros se definen así:
 # % : Porcentaje (percent), de 1 a 99 (TODO: comprobar si sirven 0 y 100)
 # f : Número de bandera (flagno), de 0 a NUM_BANDERAS_ACC - 1
@@ -150,41 +152,41 @@ condiciones = {
 
 # Diccionario de acciones
 acciones = {
-   0 : ('INVEN',   ''),
-   1 : ('DESC',    ''),
-   2 : ('QUIT',    ''),
-   3 : ('END',     ''),
-   4 : ('DONE',    ''),
-   5 : ('OK',      ''),
-   6 : ('ANYKEY',  ''),
-   7 : ('SAVE',    ''),
-   8 : ('LOAD',    ''),
-   9 : ('TURNS',   ''),
-  10 : ('SCORE',   ''),
-  17 : ('PAUSE',   'u'),
-  21 : ('GOTO',    'l'),
-  22 : ('MESSAGE', 'm'),
-  23 : ('REMOVE',  'o'),
-  24 : ('GET',     'o'),
-  25 : ('DROP',    'o'),
-  26 : ('WEAR',    'o'),
-  27 : ('DESTROY', 'o'),
-  28 : ('CREATE',  'o'),
-  29 : ('SWAP',    'oo'),
-  31 : ('SET',     'f'),
-  32 : ('CLEAR',   'f'),
-  33 : ('PLUS',    'fu'),
-  34 : ('MINUS',   'fu'),
-  35 : ('LET',     'fu'),
-  36 : ('BEEP',    'uu'),
+   0 : ('INVEN',   '',   True),
+   1 : ('DESC',    '',   True),
+   2 : ('QUIT',    '',   False),
+   3 : ('END',     '',   True),
+   4 : ('DONE',    '',   True),
+   5 : ('OK',      '',   True),
+   6 : ('ANYKEY',  '',   False),
+   7 : ('SAVE',    '',   True),
+   8 : ('LOAD',    '',   True),
+   9 : ('TURNS',   '',   False),
+  10 : ('SCORE',   '',   False),
+  17 : ('PAUSE',   'u',  False),
+  21 : ('GOTO',    'l',  False),
+  22 : ('MESSAGE', 'm',  False),
+  23 : ('REMOVE',  'o',  False),
+  24 : ('GET',     'o',  False),
+  25 : ('DROP',    'o',  False),
+  26 : ('WEAR',    'o',  False),
+  27 : ('DESTROY', 'o',  False),
+  28 : ('CREATE',  'o',  False),
+  29 : ('SWAP',    'oo', False),
+  31 : ('SET',     'f',  False),
+  32 : ('CLEAR',   'f',  False),
+  33 : ('PLUS',    'fu', False),
+  34 : ('MINUS',   'fu', False),
+  35 : ('LET',     'fu', False),
+  36 : ('BEEP',    'uu', False),
 }
 
-# Diccionario de condactos
-condactos = {}
+acciones_flujo = []  # Acciones que cambian el flujo de ejecución incondicionalmente
+condactos      = {}  # Diccionario de condactos
 for codigo in condiciones:
-  condactos[codigo] = condiciones[codigo] + (False,)
+  condactos[codigo] = condiciones[codigo] + (False, False)
 for codigo in acciones:
-  condactos[100 + codigo] = acciones[codigo] + (True,)
+  condactos[100 + codigo] = acciones[codigo][:2] + (True, acciones[codigo][2])
 
 
 # Funciones que utiliza el IDE o el intérprete directamente

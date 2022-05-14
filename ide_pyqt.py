@@ -264,7 +264,7 @@ class CampoTexto (QTextEdit):
           nomCondacto = str (dialogo.textValue()).upper()
           if nomCondacto in self.condactos:
             condacto   = self.condactos[nomCondacto]
-            lineaNueva = [condacto[3], [0] * len (condacto[1])]  # Código y parámetros de la nueva línea
+            lineaNueva = [condacto[4], [0] * len (condacto[1])]  # Código y parámetros de la nueva línea
             if posicion > 1:  # Si no añade al inicio de la entrada
               if self.overwriteMode():
                 cursor.movePosition (QTextCursor.EndOfBlock)
@@ -669,6 +669,7 @@ def cambiaProceso (numero, numEntrada = None):
     campo_txt.setTextBackgroundColor (color_base)
     campo_txt.textCursor().block().setUserState (i)  # Guardamos el número de la entrada
     campo_txt.insertPlainText ('\n     ')
+    inalcanzable = False  # Marca de código inalcanzable
     for c in range (len (entradas[i])):
       condacto, parametros = entradas[i][c]
       if [numero, i, c] in pila_procs:
@@ -677,7 +678,7 @@ def cambiaProceso (numero, numEntrada = None):
           campo_txt.setTextBackgroundColor (color_tope_pila)
         else:
           campo_txt.setTextBackgroundColor (color_pila)
-      imprimeCondacto (condacto, parametros)
+      inalcanzable = imprimeCondacto (condacto, parametros, inalcanzable)
       campo_txt.setTextBackgroundColor (color_base)
     campo_txt.insertPlainText ('\n     ')
     if i < (len (cabeceras) - 1):
@@ -710,7 +711,7 @@ def cargaInfoModulos ():
     except SyntaxError as excepcion:
       prn ('Error al importar el módulo:', excepcion)
       continue
-    # Apaño para que funcione las librerías de DAAD y SWAN tal y como están (con lista unificada de condactos)
+    # Apaño para que funcione las librerías de DAAD, PAW y SWAN tal y como están (con lista unificada de condactos)
     if compruebaNombre (modulo, 'condactos', dict) and not compruebaNombre (modulo, 'acciones', dict):
       modulo.acciones    = {}
       modulo.condiciones = {}
@@ -1100,7 +1101,10 @@ def importaBD (nombreFicheroBD, indiceFuncion = None, nombreFicheroGfx = None):
   nombre_fich_gfx = nombreFicheroGfx
   postCarga (os.path.basename (nombreFicheroBD))
 
-def imprimeCondacto (condacto, parametros):
+def imprimeCondacto (condacto, parametros, inalcanzable = False):
+  """Imprime el condacto de código y parámetros dados en campo_txt en la posición del cursor actual, opcionalmente indicando si era código inalcanzable. Devuelve True si el parámetro inalcanzable era True o el condacto cambia el flujo incondicionalmente"""
+  if inalcanzable:
+    campo_txt.setTextColor (QColor (60, 60, 60))  # Color gris muy oscuro
   campo_txt.insertPlainText ('\n  ')
   if condacto > 127 and mod_actual.INDIRECCION:  # Condacto indirecto
     condacto -= 128
@@ -1108,10 +1112,12 @@ def imprimeCondacto (condacto, parametros):
   else:
     indirecto = ' '  # Condacto no indirecto
   if condacto in mod_actual.condiciones:
-    campo_txt.setTextColor (QColor (100, 255, 50))  # Color verde claro
+    if not inalcanzable:
+      campo_txt.setTextColor (QColor (100, 255, 50))  # Color verde claro
     nombre, tiposParams = mod_actual.condiciones[condacto][:2]
   elif condacto - (100 if mod_actual.NOMBRE_SISTEMA == 'QUILL' else 0) in mod_actual.acciones:
-    campo_txt.setTextColor (QColor (100, 200, 255))  # Color azul claro
+    if not inalcanzable:
+      campo_txt.setTextColor (QColor (100, 200, 255))  # Color azul claro
     if mod_actual.NOMBRE_SISTEMA == 'QUILL':
       condacto -= 100
     nombre, tiposParams = mod_actual.acciones[condacto][:2]
@@ -1119,14 +1125,18 @@ def imprimeCondacto (condacto, parametros):
       indirecto = ' '
       nombre    = 'DEBUG'
   else:  # No debería ocurrir
-    prn ('FIXME: Condacto', condacto, 'no reconocido por la librería')
-    campo_txt.setTextColor (QColor (255, 0, 0))  # Color rojo
+    if not inalcanzable:
+      prn ('FIXME: Condacto', condacto, 'no reconocido por la librería')
+      campo_txt.setTextColor (QColor (255, 0, 0))  # Color rojo
     nombre      = str (condacto)
     tiposParams = '?' * len (parametros)
   if parametros:  # Imprimiremos los parámetros
     campo_txt.insertPlainText (nombre.center (7) + ' ')
     for p in range (len (parametros)):
-      campo_txt.setTextColor (QColor (255, 160, 32))  # Color anaranjado
+      if inalcanzable:
+        campo_txt.setTextColor (QColor (60, 60, 60))  # Color gris muy oscuro
+      else:
+        campo_txt.setTextColor (QColor (255, 160, 32))  # Color anaranjado
       formato   = None
       mensaje   = None
       parametro = parametros[p]
@@ -1143,7 +1153,10 @@ def imprimeCondacto (condacto, parametros):
            (tiposParams[p] == 'o'  and parametro >= len (mod_actual.desc_objs))      or \
            (tiposParams[p] == 'p'  and parametro >= len (mod_actual.tablas_proceso)) or \
            (tiposParams[p] == 's'  and parametro >= len (mod_actual.msgs_sys)):
-          campo_txt.setTextColor (QColor (255, 0, 0))  # Color rojo
+          if inalcanzable:
+            campo_txt.setTextColor (QColor (120, 0, 0))  # Color rojo oscuro
+          else:
+            campo_txt.setTextColor (QColor (255, 0, 0))  # Color rojo
         elif tiposParams == 'l' and accMostrarLoc.isChecked():
           mensaje = mod_actual.desc_locs[parametro]
         elif tiposParams == 'm' and accMostrarUsr.isChecked():
@@ -1154,7 +1167,7 @@ def imprimeCondacto (condacto, parametros):
           mensaje = mod_actual.msgs_sys[parametro]
         elif tiposParams[p] == 'i' and parametro > 128:  # Es un número entero negativo
           parametro -= 256
-        elif tiposParams == 'p':  # Es un proceso
+        elif not inalcanzable and tiposParams == 'p':  # Es un proceso
           cursor  = campo_txt.textCursor()
           formato = cursor.charFormat()
           formato.setAnchor (True)
@@ -1168,13 +1181,14 @@ def imprimeCondacto (condacto, parametros):
         campo_txt.quitaFormatoEnlace()
       else:
         campo_txt.insertPlainText (str (parametro).rjust (4))
-    if mensaje != None:
+    if not inalcanzable and mensaje != None:
       if accMostrarRec.isChecked():  # Recortar al ancho de línea disponible
         qfm = QFontMetrics (campo_txt.font())
         columnasVisibles = int (campo_txt.size().width() // (qfm.size (0, '#').width()))
       if not accMostrarRec.isChecked() or columnasVisibles > 26:  # No recortamos o hay espacio suficiente para mostrar algo de texto
         mensaje = daTextoImprimible (mensaje)
-        campo_txt.setTextColor (QColor (100, 100, 100))  # Color gris oscuro
+        if not inalcanzable:
+          campo_txt.setTextColor (QColor (100, 100, 100))  # Color gris oscuro
         campo_txt.insertPlainText ('       "')
         campo_txt.setFontItalic (True)  # Cursiva activada
         if accMostrarRec.isChecked() and len (mensaje) > columnasVisibles - 26:  # Se recortará al ancho de línea disponible
@@ -1190,6 +1204,9 @@ def imprimeCondacto (condacto, parametros):
         campo_txt.insertPlainText ('"')
   else:  # Condacto sin parámetros
     campo_txt.insertPlainText ((nombre + indirecto).center (7).rstrip())
+  if inalcanzable or mod_actual.condactos[condacto][3]:
+    return True
+  return False
 
 def irAEntradaProceso ():
   """Mueve el cursor a la entrada del proceso actual que elija el usuario"""
