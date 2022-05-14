@@ -98,6 +98,12 @@ nombres_necesarios = (('acciones',          dict),
 
 class CampoTexto (QTextEdit):
   """Campo de texto para las tablas de proceso"""
+  def __init__ (self, parent):
+    QTextEdit.__init__ (self, parent)
+    self.actualizandoProceso = QTimer()
+    self.actualizandoProceso.setSingleShot (True)
+    self.actualizandoProceso.timeout.connect (actualizaProceso)
+
   def _daColsValidas (self, textoLinea):
     """Devuelve las posiciones válidas para el cursor en la línea de tabla de proceso con texto dado"""
     colsValidas  = []
@@ -379,6 +385,18 @@ class CampoTexto (QTextEdit):
         return
     super (CampoTexto, self).mousePressEvent (evento)
 
+  def resizeEvent (self, evento):
+    super (CampoTexto, self).resizeEvent (evento)
+    if accMostrarRec.isChecked():  # Recortar al ancho de línea disponible
+      try:
+        self.anchoAntes
+      except:
+        self.anchoAntes = evento.oldSize().width()
+      if abs (evento.size().width() - self.anchoAntes) <= 15:
+        return  # Evitamos bucle de redimensiones por autoajustes al redibujar el campo de texto
+      self.actualizandoProceso.start (100)
+      self.anchoAntes = evento.size().width()
+
   def wheelEvent (self, evento):
     if evento.modifiers() & Qt.ControlModifier:
       if (evento.delta() if vers_pyqt < 5 else evento.angleDelta().y()) < 0:
@@ -387,6 +405,8 @@ class CampoTexto (QTextEdit):
         self.zoomIn (2)
       if self.overwriteMode():
         self.setCursorWidth (self.font().pointSize() * 0.8)
+      if accMostrarRec.isChecked():  # Recortar al ancho de línea disponible
+        self.actualizandoProceso.start (100)
     else:
       super (CampoTexto, self).wheelEvent (evento)
 
@@ -694,7 +714,7 @@ def compruebaNombre (modulo, nombre, tipo):
 
 def creaAcciones ():
   """Crea las acciones de menú y barra de botones"""
-  global accAcercaDe, accContadores, accDescLocs, accDescObjs, accDireccs, accExportar, accImportar, accMostrarLoc, accMostrarObj, accMostrarSys, accMostrarUsr, accMsgSys, accMsgUsr, accPasoAPaso, accSalir, accTblProcs, accTblVocab
+  global accAcercaDe, accContadores, accDescLocs, accDescObjs, accDireccs, accExportar, accImportar, accMostrarLoc, accMostrarObj, accMostrarRec, accMostrarSys, accMostrarUsr, accMsgSys, accMsgUsr, accPasoAPaso, accSalir, accTblProcs, accTblVocab
   accAcercaDe   = QAction (icono_ide, '&Acerca de NAPS IDE', selector)
   accContadores = QAction (icono ('contadores'), '&Contadores', selector)
   accDescLocs   = QAction (icono ('desc_localidad'), 'Descripciones de &localidades', selector)
@@ -704,6 +724,7 @@ def creaAcciones ():
   accImportar   = QAction (icono ('importar'), '&Importar', selector)
   accMostrarLoc = QAction ('Descripciones de &localidades', selector)
   accMostrarObj = QAction ('Descripciones de &objetos',     selector)
+  accMostrarRec = QAction ('&Recortar al ancho de línea',   selector)
   accMostrarSys = QAction ('Mensajes de &sistema', selector)
   accMostrarUsr = QAction ('Mensajes de &usuario', selector)
   accMsgSys     = QAction (icono ('msg_sistema'), 'Mensajes de &sistema', selector)
@@ -714,10 +735,12 @@ def creaAcciones ():
   accTblVocab   = QAction (icono ('vocabulario'), '&Tabla', selector)
   accMostrarLoc.setCheckable (True)
   accMostrarObj.setCheckable (True)
+  accMostrarRec.setCheckable (True)
   accMostrarSys.setCheckable (True)
   accMostrarUsr.setCheckable (True)
-  accMostrarLoc.setChecked (False)
+  accMostrarLoc.setChecked (True)
   accMostrarObj.setChecked (True)
+  accMostrarRec.setChecked (True)
   accMostrarSys.setChecked (True)
   accMostrarUsr.setChecked (True)
   accContadores.setEnabled (False)
@@ -726,6 +749,7 @@ def creaAcciones ():
   accDireccs.setEnabled    (False)
   accMostrarLoc.setEnabled (False)
   accMostrarObj.setEnabled (False)
+  accMostrarRec.setEnabled (False)
   accMostrarSys.setEnabled (False)
   accMostrarUsr.setEnabled (False)
   accMsgSys.setEnabled     (False)
@@ -743,6 +767,7 @@ def creaAcciones ():
   accImportar.setStatusTip   ('Importa una base de datos desde un fichero')
   accMostrarLoc.setStatusTip ('Mostrar descripciones de localidades cuando los condactos las referencien')
   accMostrarObj.setStatusTip ('Mostrar descripciones de objetos cuando los condactos los referencien')
+  accMostrarRec.setStatusTip ('Recortar textos a la anchura de línea disponible')
   accMostrarSys.setStatusTip ('Mostrar texto de mensajes de sistema cuando los condactos los referencien')
   accMostrarUsr.setStatusTip ('Mostrar texto de mensajes de usuario cuando los condactos los referencien')
   accMsgSys.setStatusTip     ('Permite consultar y modificar los mensajes de sistema')
@@ -761,6 +786,7 @@ def creaAcciones ():
   accImportar.triggered.connect   (dialogoImportaBD)
   accMostrarLoc.triggered.connect (actualizaProceso)
   accMostrarObj.triggered.connect (actualizaProceso)
+  accMostrarRec.triggered.connect (actualizaProceso)
   accMostrarSys.triggered.connect (actualizaProceso)
   accMostrarUsr.triggered.connect (actualizaProceso)
   accMsgSys.triggered.connect     (muestraMsgSys)
@@ -804,6 +830,8 @@ def creaMenus ():
   menuProcsMostrar.addAction (accMostrarObj)
   menuProcsMostrar.addAction (accMostrarSys)
   menuProcsMostrar.addAction (accMostrarUsr)
+  menuProcsMostrar.addSeparator()
+  menuProcsMostrar.addAction (accMostrarRec)
   menuProcesos.addAction (accTblProcs)
   menuProcesos.addSeparator()
   menuProcesos.addMenu (menuProcsMostrar)
@@ -1092,13 +1120,22 @@ def imprimeCondacto (condacto, parametros):
           parametro -= 256
       campo_txt.insertPlainText (str (parametro).rjust (4))
     if mensaje != None:
-      mensaje = daTextoImprimible (mensaje)
-      campo_txt.setTextColor (QColor (100, 100, 100))  # Color gris oscuro
-      campo_txt.insertPlainText ('       "')
-      campo_txt.setFontItalic (True)  # Cursiva activada
-      campo_txt.insertPlainText (mensaje)
-      campo_txt.setFontItalic (False)  # Cursiva desactivada
-      campo_txt.insertPlainText ('"')
+      if accMostrarRec.isChecked():  # Recortar al ancho de línea disponible
+        qfm = QFontMetrics (campo_txt.font())
+        columnasVisibles = int (campo_txt.size().width() // (qfm.size (0, '#').width()))
+      if not accMostrarRec.isChecked() or columnasVisibles > 26:  # No recortamos o hay espacio suficiente para mostrar algo de texto
+        mensaje = daTextoImprimible (mensaje)
+        campo_txt.setTextColor (QColor (100, 100, 100))  # Color gris oscuro
+        campo_txt.insertPlainText ('       "')
+        campo_txt.setFontItalic (True)  # Cursiva activada
+        if accMostrarRec.isChecked():  # Recortar al ancho de línea disponible
+          campo_txt.insertPlainText (mensaje[: columnasVisibles - 26])
+          if len (mensaje) > columnasVisibles - 26:  # Se ha recortado
+            campo_txt.insertPlainText (u'\u2026')
+        else:
+          campo_txt.insertPlainText (mensaje)
+        campo_txt.setFontItalic (False)  # Cursiva desactivada
+        campo_txt.insertPlainText ('"')
   else:  # Condacto sin parámetros
     campo_txt.insertPlainText ((nombre + indirecto).center (7).rstrip())
 
@@ -1388,6 +1425,7 @@ def postCarga (nombre):
   accExportar.setEnabled   (len (info_exportar) > 0)
   accMostrarLoc.setEnabled (True)
   accMostrarObj.setEnabled (True)
+  accMostrarRec.setEnabled (True)
   accMostrarSys.setEnabled (True)
   accMostrarUsr.setEnabled (True)
   accMsgSys.setEnabled     (True)
