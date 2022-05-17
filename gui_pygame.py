@@ -352,6 +352,10 @@ El parámetro parcial indica si es posible dibujar parte de la imagen"""
     grafico.set_palette (paleta[0])
   else:
     return  # No dibujamos nada
+  global tras_portada
+  if tras_portada:
+    espera_tecla()
+    tras_portada = False
   tope = topes[elegida]
   if descripcion:
     if traza:
