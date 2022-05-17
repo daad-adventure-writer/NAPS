@@ -218,7 +218,7 @@ def borra_pantalla (desdeCursor = False, noRedibujar = False):
   subventana = subventanas[elegida]
   tope       = topes[elegida]
   if elegida == 0:
-    tope = topes_gfx
+    tope = topes_gfx  # Borrar únicamente ancho de la última imagen dibujada allí
   inicioX = (subventana[0] + cursor[0]) * 6  # Esquina superior izquierda X
   inicioY = (subventana[1] + cursor[1]) * 8  # Esquina superior izquierda Y
   if desdeCursor:
@@ -367,8 +367,8 @@ El parámetro parcial indica si es posible dibujar parte de la imagen"""
       prn ('Dibujo', numero, 'sobre subventana', elegida, 'en', subventana,
            'con topes', tope, 'y cursor en', cursor)
   if elegida == 0:
-    topes_gfx[0] = min (grafico.get_width()  // 8, limite[0])
-    topes_gfx[1] = min (grafico.get_height() // 8, limite[1])
+    topes_gfx[0] = min (grafico.get_width()  // 6, limite[0])
+    topes_gfx[1] = min (grafico.get_height() // 6, limite[1])
   if (descripcion or elegida == 0) and not parcial:
     ancho = tope[0] * 6
     if numero in graficos and 'flotante' not in recurso['banderas']:
@@ -376,7 +376,7 @@ El parámetro parcial indica si es posible dibujar parte de la imagen"""
     elif centrar_graficos and ancho > grafico.get_width():  # Centramos el gráfico
       # Se centran los gráficos en la Aventura Original, pero no en El Jabato, así está en la base de datos gráfica
       destino      = ((ancho - grafico.get_width()) // 2, 0)
-      topes_gfx[0] = min ((grafico.get_width() + (ancho - grafico.get_width()) // 2) // 8, limite[0])
+      topes_gfx[0] = min ((grafico.get_width() + (ancho - grafico.get_width()) // 2) // 6, limite[0])  # TODO: revisar si esto es correcto
     else:
       destino = (0, 0)
     ventana.blit (grafico, destino)
