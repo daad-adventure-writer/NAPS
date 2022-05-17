@@ -295,6 +295,7 @@ def inicializa ():
     banderas[46] = 255
     banderas[47] = 255
 
+  del frases[:]
   del gui.historial[:]
 
   if NOMBRE_SISTEMA == 'DAAD' or (NOMBRE_SISTEMA == 'PAWS' and extension == 'sna'):
