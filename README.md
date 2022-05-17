@@ -6,8 +6,8 @@ Intérprete PAW-like
 
 Requisitos:
 
-- Python versión 2.X ó 3.X
-- Recomendado para el intérprete: PyGame versión 1.X ó 2.X (necesario para que tenga interfaz gráfica)
+- Python versión 2.X, ó 3.X superior a 3.2
+- Recomendado: PyGame versión 1.X ó 2.X (necesario para que tenga interfaz gráfica)
 
 Uso:
 
@@ -39,8 +39,8 @@ Entorno de desarrollo integrado (IDE)
 
 Requisitos:
 
-- Python versión 2.X ó 3.X
-- Para el IDE: PyQt versión 4.X ó 5.X
+- Python versión 2.X, ó 3.X superior a 3.2
+- PyQt versión 4.X ó 5.X
 
 Uso:
 
