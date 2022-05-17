@@ -25,8 +25,8 @@
 
 from prn_func import prn
 
-import codecs
-import locale
+import codecs      # Para codificar bien la salida estándar
+import locale      # Para codificar bien la salida estándar
 import os          # Para curdir, listdir y path
 import subprocess  # Para ejecutar el intérprete
 import sys
@@ -1508,6 +1508,7 @@ def postCarga (nombre):
 
 if sys.version_info[0] < 3:
   reload (sys)  # Necesario para poder ejecutar sys.setdefaultencoding
+  sys.stderr = codecs.getwriter (locale.getpreferredencoding()) (sys.stderr)  # Locale del sistema para la salida de error
   sys.stdout = codecs.getwriter (locale.getpreferredencoding()) (sys.stdout)  # Locale del sistema para la salida estándar
   sys.setdefaultencoding ('iso-8859-15')  # Nuestras cadenas están en esta codificación, no en ASCII
 
