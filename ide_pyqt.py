@@ -1520,6 +1520,7 @@ selector.showMaximized()
 cargaInfoModulos()
 
 argsParser = argparse.ArgumentParser (sys.argv[0], description = 'Entorno de Desarrollo Integrado para Quill/PAWS/SWAN/DAAD en Python')
+argsParser.add_argument ('-r', '--run', action = 'store_true', help = 'ejecutar base_de_datos por pasos directamente')
 argsParser.add_argument ('bbdd',     metavar = 'base_de_datos',         nargs = '?', help = 'base de datos de Quill/PAWS/SWAN/DAAD a ejecutar')
 argsParser.add_argument ('graficos', metavar = 'base_de_datos_gráfica', nargs = '?', help = 'base de datos gráfica de la que tomar las imágenes')
 args = argsParser.parse_args()
@@ -1529,5 +1530,7 @@ if args.bbdd:
     importaBD (args.bbdd, nombreFicheroGfx = args.graficos)
   else:
     importaBD (args.bbdd)
+  if args.run:
+    ejecutaPorPasos()
 
 sys.exit (aplicacion.exec_())
