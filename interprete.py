@@ -194,7 +194,6 @@ def bucle_daad_nuevo ():
     inicializa()
     if traza:
       gui.imprime_banderas (banderas)
-    tecla_o_fin()
     valor = True
     while valor:
       valor = ejecuta_proceso (0)
@@ -210,7 +209,6 @@ def bucle_paws ():
   while True:
     if traza:
       gui.imprime_banderas (banderas)
-      tecla_o_fin()
 
     if estado == 0:  # Inicialización
       inicializa()
