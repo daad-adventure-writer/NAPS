@@ -25,6 +25,7 @@
 
 from prn_func import prn
 
+import argparse    # Para procesar argumentos de línea de comandos
 import codecs      # Para codificar bien la salida estándar
 import locale      # Para codificar bien la salida estándar
 import os          # Para curdir, listdir y path
@@ -1518,10 +1519,15 @@ creaSelector()
 selector.showMaximized()
 cargaInfoModulos()
 
-if len (sys.argv) > 1:
-  if len (sys.argv) > 2 and os.path.exists (sys.argv[2]):
-    importaBD (sys.argv[1], nombreFicheroGfx = sys.argv[2])
+argsParser = argparse.ArgumentParser (sys.argv[0], description = 'Entorno de Desarrollo Integrado para Quill/PAWS/SWAN/DAAD en Python')
+argsParser.add_argument ('bbdd',     metavar = 'base_de_datos',         nargs = '?', help = 'base de datos de Quill/PAWS/SWAN/DAAD a ejecutar')
+argsParser.add_argument ('graficos', metavar = 'base_de_datos_gráfica', nargs = '?', help = 'base de datos gráfica de la que tomar las imágenes')
+args = argsParser.parse_args()
+
+if args.bbdd:
+  if args.graficos and os.path.exists (args.graficos):
+    importaBD (args.bbdd, nombreFicheroGfx = args.graficos)
   else:
-    importaBD (sys.argv[1])
+    importaBD (args.bbdd)
 
 sys.exit (aplicacion.exec_())
