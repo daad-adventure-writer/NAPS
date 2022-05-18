@@ -22,7 +22,7 @@
 # *                                                                           *
 # *****************************************************************************
 
-from os       import path
+from os       import name, path
 from prn_func import *
 from sys      import version_info
 
@@ -66,6 +66,7 @@ pygame.init()  # Necesario para trabajar con la librería PyGame
 pygame.event.set_blocked (pygame.MOUSEMOTION)  # No atenderemos los movimientos del ratón
 escalada     = None
 factorEscala = 1  # Factor de escalado, de 1 a 3
+forzarEscala = name == 'nt' and pygame.version.vernum < (1, 9, 5)  # Que escale aun con factor de escalado 1
 ventana      = None
 
 fuente = pygame.image.load (path.dirname (path.realpath (__file__)) + path.sep + 'fuente.png')  # Fuente tipográfica
@@ -132,7 +133,7 @@ def abre_ventana (traza, escalar, bbdd):
   else:  # Ventana juego sólo
     if limite[0] < 53:
       resolucion = (limite[0] * 6, limite[1] * 8)
-  if factorEscala > 1:
+  if factorEscala > 1 or forzarEscala:
     escalada = pygame.display.set_mode ((resolucion[0] * factorEscala, resolucion[1] * factorEscala), pygame.RESIZABLE)
     ventana  = pygame.Surface (resolucion)
   else:
@@ -146,7 +147,7 @@ def abre_ventana (traza, escalar, bbdd):
     ventana = pygame.display.set_mode ((640, 400), ventana.get_flags() ^ pygame.FULLSCREEN)
 
 def actualizaVentana ():
-  if factorEscala > 1:
+  if factorEscala > 1 or forzarEscala:
     pygame.transform.scale (ventana, (resolucion[0] * factorEscala, resolucion[1] * factorEscala), escalada)
   pygame.display.flip()
 
