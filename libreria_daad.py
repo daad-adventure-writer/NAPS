@@ -98,6 +98,7 @@ plataforma     = None   # Número de plataforma en la base de datos
 # Si el valor está en una lista, será una cota inferior, y se auto-detectará este desplazamiento
 despl_ini_plat = {
   1: [33600],  # Spectrum 48K
+  2: 14464,    # Commodore 64
   7: 256,      # Amstrad PCW
 }
 # Longitud máxima de los ficheros de XMessages por plataforma
@@ -108,9 +109,9 @@ longitud_XMessages = {
   15:   13684,  # MSX2
   None: 65536,  # Demás plataformas
 }
-plats_detectarLE = (0,)            # Plataformas que podrían ser tanto BE como LE, en versión del formato 2 (PC)
-plats_LE         = (1, 7, 13, 15)  # Plataformas que son Little Endian (Spectrum 48K, Amstrad PCW, PC VGA 256 y MSX2)
-plats_word       = (0,)            # Plataformas que no pueden leer words en desplazamientos impares (PC)
+plats_detectarLE = (0,)               # Plataformas que podrían ser tanto BE como LE, en versión del formato 2 (PC)
+plats_LE         = (1, 2, 7, 13, 15)  # Plataformas que son Little Endian (Spectrum 48K, Commodore 64, Amstrad PCW, PC VGA 256 y MSX2)
+plats_word       = (0,)               # Plataformas que no pueden leer words en desplazamientos impares (PC)
 
 # Tabla de conversión de caracteres, posiciones 16-31 (inclusive)
 daad_a_chr = ('ª', '¡', '¿', '«', '»', 'á', 'é', 'í', 'ó', 'ú', 'ñ', 'Ñ', 'ç', 'Ç', 'ü', 'Ü')
