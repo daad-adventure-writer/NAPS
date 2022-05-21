@@ -193,7 +193,8 @@ def bucle_daad_nuevo ():
   while True:
     inicializa()
     if traza:
-      gui.imprime_banderas (banderas)
+      gui.imprime_banderas  (banderas)
+      gui.imprime_locs_objs (locs_objs)
     valor = True
     while valor:
       valor = ejecuta_proceso (0)
@@ -208,7 +209,8 @@ def bucle_paws ():
   estado = 0  # Estado del intérprete
   while True:
     if traza:
-      gui.imprime_banderas (banderas)
+      gui.imprime_banderas  (banderas)
+      gui.imprime_locs_objs (locs_objs)
 
     if estado == 0:  # Inicialización
       inicializa()
@@ -233,7 +235,8 @@ def bucle_paws ():
         estado = 1  # Saltamos a la descripción de la localidad
       else:
         if traza:
-          gui.imprime_banderas (banderas)
+          gui.imprime_banderas  (banderas)
+          gui.imprime_locs_objs (locs_objs)
         # Mientras no tengamos una orden válida, reiniciaremos este estado
         if obtener_orden() != True:
           estado = 3
@@ -261,7 +264,8 @@ def bucle_paws ():
         banderas[38] = destino
         estado = 1
         if traza:
-          gui.imprime_banderas (banderas)
+          gui.imprime_banderas  (banderas)
+          gui.imprime_locs_objs (locs_objs)
     elif estado == 5:  # Tablas de respuestas y de conexiones exhaustas, o se terminó con NOTDONE
       if not proceso_acc:  # No se ha ejecutado ninguna "acción"
         if banderas[33] >= 14:  # No es verbo de dirección
@@ -433,7 +437,8 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
       else:
         peticion += '>'  # Prompt de QUILL
       if traza:
-        gui.imprime_banderas (banderas)
+        gui.imprime_banderas  (banderas)
+        gui.imprime_locs_objs (locs_objs)
       timeout = [banderas[48]] if NUM_BANDERAS > 39 else [0]
       orden   = gui.lee_cadena (peticion, orden, timeout, espaciar)
 
@@ -730,7 +735,8 @@ Devuelve True si termina con DESC o equivalente. False si hay que reiniciar la a
   prepara_tabla_proceso (num_proceso)
   while True:
     if traza:
-      gui.imprime_banderas (banderas)
+      gui.imprime_banderas  (banderas)
+      gui.imprime_locs_objs (locs_objs)
       imprime_condacto()
       pasos = tecla_o_fin()  # Ejecutaremos 1, 10, 100 ó 1000 pasos a la vez, según qué se pulse
     else:
@@ -800,7 +806,8 @@ def imprime_condacto ():
     prn (str (parametro).rjust (3), end = ' ')
   prn()
   if condacto[0] == 'ANYKEY':  # Dejará las banderas actualizadas al momento de esta pausa
-    gui.imprime_banderas (banderas)
+    gui.imprime_banderas  (banderas)
+    gui.imprime_locs_objs (locs_objs)
 
 def incrementa_turno ():
   """Incrementa el número de turnos jugados"""
@@ -976,6 +983,7 @@ if __name__ == '__main__':
       correcto = False
     if correcto:
       libreria = modulo
+      gui.num_objetos  = libreria.num_objetos
       gui.NUM_BANDERAS = libreria.NUM_BANDERAS
       modulo.ruta_bbdd = args.bbdd
       break

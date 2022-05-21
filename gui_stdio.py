@@ -95,6 +95,10 @@ def guarda_cursor ():
   """Guarda la posición del cursor de la subventana elegida """
   pass
 
+def imprime_locs_objs (locs_objs):
+  """Imprime las localidades de los objetos"""
+  pass
+
 def pos_subventana (columna, fila):
   """Cambia la posición de origen de la subventana de impresión elegida"""
   pass
@@ -179,7 +183,7 @@ def imprime_banderas (banderas):
     advertencia_banderas
   except:
     advertencia_banderas = True
-    prn ('Impresión de banderas como texto (en stderr) no implementada', file = sys.stderr)
+    prn ('Impresión de banderas u objetos como texto (en stderr) no implementada', file = sys.stderr)
 
 def imprime_cadena (cadena, scroll = True, redibujar = True):
   """Imprime una cadena en la posición del cursor (dentro de la subventana)"""

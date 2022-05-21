@@ -26,7 +26,7 @@ from os       import name, path
 from prn_func import *
 from sys      import version_info
 
-import math    # Para ceil
+import math    # Para ceil y log10
 import string  # Para algunas constantes
 
 import graficos_daad
@@ -92,13 +92,15 @@ tabulador        = None      # Carácter que si se encuentra en una cadena, pondr
 todo_mayusculas  = False     # Si la entrada del jugador será incondicionalmente en mayúsculas
 txt_mas          = '(más)'   # Cadena a mostrar cuando no cabe más texto y se espera a que el jugador pulse una tecla
 
-banderas_antes  = None   # Valor anterior de las banderas
-banderas_viejas = None   # Banderas que antes cambiaron de valor
-graficos        = {}     # Gráficos ya cargados
-historial       = []     # Historial de órdenes del jugador
-historial_temp  = []     # Orden a medias, guardada al acceder al historial
-teclas_pulsadas = []     # Lista de teclas actualmente pulsadas
-tras_portada    = False  # Esperar pulsación de tecla antes de borrar la portada
+banderas_antes   = None   # Valor anterior de las banderas
+banderas_viejas  = None   # Banderas que antes cambiaron de valor
+graficos         = {}     # Gráficos ya cargados
+historial        = []     # Historial de órdenes del jugador
+historial_temp   = []     # Orden a medias, guardada al acceder al historial
+locs_objs_antes  = None   # Valor anterior de las localidades de los objetos
+locs_objs_viejas = None   # Localidades de los objetos que antes cambiaron de valor
+teclas_pulsadas  = []     # Lista de teclas actualmente pulsadas
+tras_portada     = False  # Esperar pulsación de tecla antes de borrar la portada
 
 # Todas las coordenadas son columna, fila
 num_subvens = 8                # DAAD tiene 8 subventanas
@@ -132,7 +134,7 @@ def abre_ventana (traza, escalar, bbdd):
     if NUM_BANDERAS > 50:  # Sistemas desde PAWS en adelante
       resolucion = (resolucion[0] + ((5 * 6) + 3) * 8 - 2, 32 * 8)
     else:  # Sistema Quill
-      resolucion = (resolucion[0] + ((5 * 6) + 3) * 2, resolucion[1])
+      resolucion = (resolucion[0] + ((5 * 6) + 3) * (2 + int (math.ceil (float (num_objetos[0]) / limite[1]))), resolucion[1])
   if factorEscala > 1 or forzarEscala:
     escalada = pygame.display.set_mode ((resolucion[0] * factorEscala, resolucion[1] * factorEscala), pygame.RESIZABLE)
     ventana  = pygame.Surface (resolucion)
@@ -751,6 +753,86 @@ def imprime_banderas (banderas):
       c = ord (cadena[pos])
       ventana.blit (fuente, (columna + (pos * 6), fila),
                     ((c % 63) * 10, (c // 63) * 10, 6, 8))
+  actualizaVentana()
+  fuente.set_palette (((255, 255, 255), (0, 0, 0)))
+
+def imprime_locs_objs (locs_objs):
+  """Imprime las localidades de los objetos (en la extensión de la ventana)"""
+  global locs_objs_antes, locs_objs_viejas
+  if locs_objs == locs_objs_antes and not locs_objs_viejas:
+    return  # No hacemos nada si no cambiaron ni habían cambiado justo antes
+  if locs_objs_antes == None:
+    locs_objs_antes  = [0,] * num_objetos[0]
+    locs_objs_viejas = set (range (num_objetos[0]))
+  alias = ({252: 'N', 253: 'W', 254: 'C'}, {252: 'NC', 253: 'WO', 254: 'CA'}, {252: 'NCR', 253: 'WOR', 254: 'CAR'})
+  if NUM_BANDERAS > 50:  # Posición bajo la ventana de juego banderas
+    colInicial  = 0
+    colFinal    = ancho_juego
+    filaInicial = limite[1] * 8
+    numFilas    = 32 - limite[1]
+    # coloresObjetos = ((0, 192, 192), (96, 192, 96),  (192, 192, 0))   # Colores cálidos
+    coloresObjetos = ((0, 192, 192), (64, 128, 192), (128, 64, 192))  # Colores fríos
+  else:  # Posición a la derecha de las banderas
+    colInicial  = ancho_juego + ((5 * 6) + 3) * 2
+    colFinal    = resolucion[0]
+    filaInicial = 0
+    numFilas    = limite[1]
+    # coloresObjetos = ((192, 192, 0), (96, 192, 96), (0, 192, 192))   # Colores cálidos
+    coloresObjetos = ((128, 64, 192), (64, 128, 192), (0, 192, 192))  # Colores fríos
+  # Borramos la sección de localidades de objeto
+  ventana.fill ((0, 0, 0), (colInicial, filaInicial, colFinal, numFilas * 8))
+  # Imprimimos columna por columna los índices y valores de cada localidad de objeto
+  colsCambio = (10 // numFilas, 100 // numFilas)  # Columnas donde cambia el número de cifras para números de objeto
+  colColumna = colInicial  # Columna en píxeles donde escribir índices en la columna actual
+  for c in range (int (math.ceil (num_objetos[0] / float (numFilas)))):  # Para cada columna de localidades de objeto
+    maxCol = 0  # Valor máximo en la columna, excluyendo valores con alias
+    maxNum = min (num_objetos[0], c * numFilas + numFilas)  # Mayor número de objeto en la columna + 1
+    for num in range (c * numFilas, maxNum):
+      if locs_objs[num] > maxCol and locs_objs[num] not in alias[0]:
+        maxCol = locs_objs[num]
+    cifrasValores = max (1, int (math.ceil (math.log10 (maxCol + 1))))  # Cifras necesarias para valores de esta columna
+    cifrasObjeto  = max (1, int (math.ceil (math.log10 (maxNum))))      # Cifras necesarias para números de objeto en esta columna
+    cifrasObjeto  = min (2, cifrasObjeto)  # Limitamos a dos cifras, igual que con las banderas
+    if colColumna + ((cifrasObjeto + cifrasValores) * 6) + 1 >= colFinal:
+      break  # No cabe nada más, paramos para evitar imprimir donde van las banderas, evitando llegar a colFinal
+    # Imprimimos los índices y valores de esta columna
+    fila = filaInicial  # Fila en píxeles donde escribir índice o valor
+    for num in range (c * numFilas, maxNum):
+      # Seleccionamos el color de impresión para el índice, que cambiará cuando se sobrepase cada centena
+      fuente.set_palette ((coloresObjetos[num // 100], (0, 0, 0)))
+      # Imprimimos el índice del objeto en esta fila y columna
+      cadena  = str (num % (10 ** cifrasObjeto)).zfill (cifrasObjeto).translate (iso8859_15_a_fuente)
+      columna = colColumna  # Columna en píxeles donde escribir índice o valor
+      for pos in range (cifrasObjeto):
+        c = ord (cadena[pos])
+        ventana.blit (fuente, (columna + (pos * 6), fila),
+                      ((c % 63) * 10, (c // 63) * 10, 6, 8))
+      # Imprimimos el valor de esta fila y columna
+      columna += cifrasObjeto * 6 + 1
+      if locs_objs[num] in alias[0]:
+        cadena = alias[cifrasValores - 1][locs_objs[num]]
+      else:
+        cadena = str (locs_objs[num]).zfill (cifrasValores)
+      cadena = cadena.translate (iso8859_15_a_fuente)
+      # Seleccionamos el color de impresión para el valor
+      if locs_objs_antes[num] != locs_objs[num]:  # Ha cambiado su valor
+        locs_objs_antes[num] = locs_objs[num]
+        locs_objs_viejas.add (num)
+        fuente.set_palette (((64, 255, 0), (0, 0, 0)))
+      else:  # No ha cambiado su valor
+        if num in locs_objs_viejas:  # El objeto estaba en locs_objs_viejas
+          locs_objs_viejas.remove (num)
+        if locs_objs[num] == 252:  # No creados
+          fuente.set_palette (((96, 96, 96), (0, 0, 0)))
+        else:
+          fuente.set_palette (((255, 255, 255), (0, 0, 0)))
+      # Imprimimos el valor de este objeto
+      for pos in range (cifrasValores):
+        c = ord (cadena[pos])
+        ventana.blit (fuente, (columna + (pos * 6), fila),
+                      ((c % 63) * 10, (c // 63) * 10, 6, 8))
+      fila += 8
+    colColumna += ((cifrasObjeto + cifrasValores) * 6) + 3
   actualizaVentana()
   fuente.set_palette (((255, 255, 255), (0, 0, 0)))
 
