@@ -113,26 +113,26 @@ pos_gfx_sub = [[0, 0]] * 8     # Posición guardada de dibujo de gráficos flotant
 subventanas = [[0, 0]] * 8     # Posición absoluta de cada subventana (de su esquina superior izquierda)
 topes       = [[53, 25]] * 8   # Topes relativos de cada subventana de impresión
 topes_gfx   = [53, 25]         # Ancho y alto del último gráfico dibujado en la subventana 0
+ancho_juego = 320              # Ancho de la ventana de juego
 resolucion  = (320, 200)       # Resolución gráfica de salida, sin escalar
 
 
 def abre_ventana (traza, escalar, bbdd):
   """Abre la ventana gráfica de la aplicación"""
-  global escalada, factorEscala, resolucion, ventana
+  global ancho_juego, escalada, factorEscala, resolucion, ventana
   copia = None
   if pygame.display.get_caption():  # Ya había sido inicializada antes
     copia = ventana.copy()
   else:
     factorEscala = escalar
   pygame.display.set_caption ('NAPS - ' + bbdd)
-  if traza and 'NUM_BANDERAS' in globals():
-    if NUM_BANDERAS > 50:
-      resolucion = (780, 200)  # Ventana juego + banderas
-    else:
-      resolucion = (400, 200)  # Ventana juego + banderas
-  else:  # Ventana juego sólo
-    if limite[0] < 53:
-      resolucion = (limite[0] * 6, limite[1] * 8)
+  ancho_juego = int (math.ceil ((limite[0] * 6) / 8.)) * 8
+  resolucion  = (ancho_juego, limite[1] * 8)  # Tamaño de la ventana de juego
+  if traza and 'NUM_BANDERAS' in globals():  # Añadiremos espacio para las banderas
+    if NUM_BANDERAS > 50:  # Sistemas desde PAWS en adelante
+      resolucion = (resolucion[0] + ((5 * 6) + 3) * 8 - 2, 32 * 8)
+    else:  # Sistema Quill
+      resolucion = (resolucion[0] + ((5 * 6) + 3) * 2, resolucion[1])
   if factorEscala > 1 or forzarEscala:
     escalada = pygame.display.set_mode ((resolucion[0] * factorEscala, resolucion[1] * factorEscala), pygame.RESIZABLE)
     ventana  = pygame.Surface (resolucion)
@@ -705,26 +705,35 @@ El parámetro espaciar permite elegir si se debe dejar una línea en blanco tras e
 def imprime_banderas (banderas):
   """Imprime el contenido de las banderas (en la extensión de la ventana)"""
   global banderas_antes, banderas_viejas
+  cifrasBandera = 2
+  if NUM_BANDERAS > 50:
+    numFilas = 32
+  else:
+    numFilas = limite[1]
   if banderas_antes == None:
     banderas_antes  = [0,] * NUM_BANDERAS
     banderas_viejas = set (range (NUM_BANDERAS))
-    # Seleccionamos el color de impresión
-    fuente.set_palette (((0, 192, 192), (0, 0, 0)))
+    # coloresBanderas = ((0, 192, 192), (96, 192, 96),  (192, 192, 0))   # Colores cálidos
+    coloresBanderas = ((0, 192, 192), (64, 128, 192), (128, 64, 192))  # Colores fríos
     # Imprimimos los índices de cada bandera
     for num in range (NUM_BANDERAS):
-      columna = 320 + ((num // 25) * 42)
-      fila    = (num % 25) * 8
-      cadena = str (num).zfill (3).translate (iso8859_15_a_fuente)
-      for pos in range (3):
+      # Cambiamos el color de impresión cuando se sobrepase cada centena
+      if num % 100 == 0:
+        fuente.set_palette ((coloresBanderas[num // 100], (0, 0, 0)))
+      columna = ancho_juego + ((num // numFilas) * (((cifrasBandera + 3) * 6) + 3))
+      fila    = (num % numFilas) * 8
+      cadena  = str (num % (10 ** cifrasBandera)).zfill (cifrasBandera).translate (iso8859_15_a_fuente)
+      for pos in range (cifrasBandera):
         c = ord (cadena[pos])
         ventana.blit (fuente, (columna + (pos * 6), fila),
                       ((c % 63) * 10, (c // 63) * 10, 6, 8))
+  # Imprimimos los valores de las banderas
   for num in range (NUM_BANDERAS):
     # Sólo imprimimos cada bandera la primera vez y cuando cambie de color
     if (banderas[num] == banderas_antes[num]) and (num not in banderas_viejas):
       continue
-    columna = 339 + ((num // 25) * 42)
-    fila    = (num % 25) * 8
+    columna = ancho_juego + (cifrasBandera * 6) + 1 + ((num // numFilas) * (((cifrasBandera + 3) * 6) + 3))
+    fila    = (num % numFilas) * 8
     cadena  = str (banderas[num]).zfill (3).translate (iso8859_15_a_fuente)
     # Seleccionamos el color de impresión
     if banderas_antes[num] != banderas[num]:
