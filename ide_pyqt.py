@@ -1125,9 +1125,7 @@ def imprimeCondacto (condacto, parametros, inalcanzable = False):
   elif condacto - (100 if mod_actual.NOMBRE_SISTEMA == 'QUILL' else 0) in mod_actual.acciones:
     if not inalcanzable:
       campo_txt.setTextColor (QColor (100, 200, 255))  # Color azul claro
-    if mod_actual.NOMBRE_SISTEMA == 'QUILL':
-      condacto -= 100
-    nombre, tiposParams = mod_actual.acciones[condacto][:2]
+    nombre, tiposParams = mod_actual.acciones[condacto - (100 if mod_actual.NOMBRE_SISTEMA == 'QUILL' else 0)][:2]
     if nombre == 'NEWTEXT' and indirecto == '@':
       indirecto = ' '
       nombre    = 'DEBUG'
