@@ -59,6 +59,12 @@ dlg_msg_sys     = None  # Diálogo para consultar y modificar los mensajes de sis
 dlg_msg_usr     = None  # Diálogo para consultar y modificar los mensajes de usuario
 dlg_procesos    = None  # Diálogo para consultar y modificar las tablas de proceso
 dlg_vocabulario = None  # Diálogo para consultar y modificar el vocabulario
+mdi_desc_locs   = None  # Subventana MDI para dlg_desc_locs
+mdi_desc_objs   = None  # Subventana MDI para dlg_desc_objs
+mdi_msg_sys     = None  # Subventana MDI para dlg_msg_sys
+mdi_msg_usr     = None  # Subventana MDI para dlg_msg_usr
+mdi_procesos    = None  # Subventana MDI para dlg_procesos
+mdi_vocabulario = None  # Subventana MDI para dlg_vocabulario
 
 campo_txt = None  # El campo de texto    del diálogo de procesos
 pestanyas = None  # La barra de pestañas del diálogo de procesos
@@ -1253,11 +1259,11 @@ def muestraContadores ():
 
 def muestraDescLocs ():
   """Muestra el diálogo para consultar las descripciones de localidades"""
-  muestraTextos (dlg_desc_locs, mod_actual.desc_locs, 'desc_localidades')
+  muestraTextos (dlg_desc_locs, mod_actual.desc_locs, 'desc_localidades', mdi_desc_locs)
 
 def muestraDescObjs ():
   """Muestra el diálogo para consultar las descripciones de objetos"""
-  muestraTextos (dlg_desc_objs, mod_actual.desc_objs, 'desc_objetos')
+  muestraTextos (dlg_desc_objs, mod_actual.desc_objs, 'desc_objetos', mdi_desc_objs)
 
 def muestraFallo (mensaje, detalle):
   """Muestra un diálogo de fallo leve"""
@@ -1273,18 +1279,18 @@ def muestraFallo (mensaje, detalle):
 
 def muestraMsgSys ():
   """Muestra el diálogo para consultar los mensajes de sistema"""
-  muestraTextos (dlg_msg_sys, mod_actual.msgs_sys, 'msgs_sistema')
+  muestraTextos (dlg_msg_sys, mod_actual.msgs_sys, 'msgs_sistema', mdi_msg_sys)
 
 def muestraMsgUsr ():
   """Muestra el diálogo para consultar los mensajes de usuario"""
-  muestraTextos (dlg_msg_usr, mod_actual.msgs_usr, 'msgs_usuario')
+  muestraTextos (dlg_msg_usr, mod_actual.msgs_usr, 'msgs_usuario', mdi_msg_usr)
 
 def muestraProcesos ():
   """Muestra el diálogo para las tablas de proceso"""
-  global campo_txt, dlg_procesos, pestanyas
+  global campo_txt, dlg_procesos, mdi_procesos, pestanyas
   if dlg_procesos:  # Diálogo ya creado
     try:
-      dlg_procesos.showMaximized()
+      selector.centralWidget().setActiveSubWindow (mdi_procesos)
       return
     except RuntimeError:  # Diálogo borrado por Qt
       pass  # Lo crearemos de nuevo
@@ -1316,15 +1322,15 @@ def muestraProcesos ():
   campo_txt.setUndoRedoEnabled (False)
   dlg_procesos.setLayout      (layout)
   dlg_procesos.setWindowTitle ('Tablas de proceso')
-  selector.centralWidget().addSubWindow (dlg_procesos)
+  mdi_procesos = selector.centralWidget().addSubWindow (dlg_procesos)
   dlg_procesos.showMaximized()
 
-def muestraTextos (dialogo, listaTextos, tipoTextos):
+def muestraTextos (dialogo, listaTextos, tipoTextos, subventanaMdi):
   """Muestra uno de los diálogos para consultar los textos"""
-  global dlg_desc_locs, dlg_desc_objs, dlg_msg_sys, dlg_msg_usr
+  global dlg_desc_locs, dlg_desc_objs, dlg_msg_sys, dlg_msg_usr, mdi_desc_locs, mdi_desc_objs, mdi_msg_sys, mdi_msg_usr
   if dialogo:  # Diálogo ya creado
     try:
-      dialogo.showMaximized()
+      selector.centralWidget().setActiveSubWindow (subventanaMdi)
       return
     except RuntimeError:  # Diálogo borrado por Qt
       pass  # Lo crearemos de nuevo
@@ -1335,28 +1341,32 @@ def muestraTextos (dialogo, listaTextos, tipoTextos):
   dialogo.setModel (ModeloTextos (dialogo, listaTextos))
   titulo = ('Mensaj' if tipoTextos[0] == 'm' else 'Descripcion') + 'es de ' + tipoTextos[5:]
   dialogo.setWindowTitle (titulo)
+  subventanaMdi = selector.centralWidget().addSubWindow (dialogo)
   if tipoTextos == 'desc_localidades':
     dialogo.doubleClicked.connect (editaDescLoc)
     dlg_desc_locs = dialogo
+    mdi_desc_locs = subventanaMdi
   elif tipoTextos == 'desc_objetos':
     dialogo.doubleClicked.connect (editaDescObj)
     dlg_desc_objs = dialogo
+    mdi_desc_objs = subventanaMdi
   elif tipoTextos == 'msgs_sistema':
     dialogo.doubleClicked.connect (editaMsgSys)
     dlg_msg_sys = dialogo
+    mdi_msg_sys = subventanaMdi
   else:
     dialogo.doubleClicked.connect (editaMsgUsr)
     dlg_msg_usr = dialogo
-  selector.centralWidget().addSubWindow (dialogo)
+    mdi_msg_usr = subventanaMdi
   dialogo.showMaximized()
   selector.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
 
 def muestraVistaVocab ():
   """Muestra el diálogo para consultar el vocabulario"""
-  global dlg_vocabulario
+  global dlg_vocabulario, mdi_vocabulario
   if dlg_vocabulario:  # Diálogo ya creado
     try:
-      dlg_vocabulario.showMaximized()
+      selector.centralWidget().setActiveSubWindow (mdi_vocabulario)
       return
     except RuntimeError:  # Diálogo borrado por Qt
       pass  # Lo crearemos de nuevo
@@ -1368,7 +1378,7 @@ def muestraVistaVocab ():
   dlg_vocabulario.setWindowTitle ('Vocabulario')
   dlg_vocabulario.activated.connect     (nuevaFilaVocabulario)
   dlg_vocabulario.doubleClicked.connect (editaVocabulario)
-  selector.centralWidget().addSubWindow (dlg_vocabulario)
+  mdi_vocabulario = selector.centralWidget().addSubWindow (dlg_vocabulario)
   dlg_vocabulario.showMaximized()
   selector.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
 
