@@ -69,8 +69,9 @@ mdi_vocabulario = None  # Subventana MDI para dlg_vocabulario
 campo_txt = None  # El campo de texto    del diálogo de procesos
 pestanyas = None  # La barra de pestañas del diálogo de procesos
 
-mod_actual   = None    # Módulo de librería activo
-pal_sinonimo = dict()  # Sinónimos preferidos para cada par código y tipo válido
+mod_actual      = None    # Módulo de librería activo
+pal_sinonimo    = dict()  # Sinónimos preferidos para cada par código y tipo válido
+pals_no_existen = []      # Códigos de palabra que no existen encontrados en tablas de proceso
 
 color_base      = QColor (10, 10, 10)   # Color de fondo gris oscuro
 color_pila      = QColor (60, 35, 110)  # Color de fondo azul brillante
@@ -624,11 +625,11 @@ def actualizaPosProcesos ():
 # FIXME: Diferencias entre PAWS estándar y DAAD
 def cambiaProceso (numero, numEntrada = None):
   """Llamada al cambiar de pestaña en el diálogo de procesos"""
+  global pals_no_existen
   selector.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
   proceso   = mod_actual.tablas_proceso[numero]  # El proceso seleccionado
   cabeceras = proceso[0]  # Las cabeceras del proceso seleccionado
   entradas  = proceso[1]  # Las entradas del proceso seleccionado
-  noExisten = []
   posicion  = None  # Posición donde ir al terminar de cargar el contenido del proceso
   if numEntrada == None and pila_procs and pila_procs[0] == numero and len (pila_procs[-1]) > 1:
     numEntrada = pila_procs[-1][1]
@@ -653,9 +654,9 @@ def cambiaProceso (numero, numEntrada = None):
       campo_txt.insertPlainText (pal_sinonimo[(verbo, tipo_nombre)].center (5))
     else:
       campo_txt.setTextColor (QColor (255, 0, 0))  # Color rojo
-      if (verbo, tipo_verbo) not in noExisten:
+      if (numero, verbo, tipo_verbo) not in pals_no_existen:
         muestraFallo ('Verbo no existente', 'Verbo de código ' + str (verbo) + ' no encontrado en el vocabulario')
-        noExisten.append ((verbo, tipo_verbo))
+        pals_no_existen.append ((numero, verbo, tipo_verbo))
       campo_txt.insertPlainText (str (verbo).center (5))
       campo_txt.setTextColor (QColor (200, 200, 200))  # Color gris claro
     campo_txt.insertPlainText ('  ')
@@ -668,9 +669,9 @@ def cambiaProceso (numero, numEntrada = None):
       campo_txt.insertPlainText (pal_sinonimo[(nombre, tipo_nombre)].center (5).rstrip())
     else:
       campo_txt.setTextColor (QColor (255, 0, 0))  # Color rojo
-      if (nombre, tipo_nombre) not in noExisten:
+      if (numero, nombre, tipo_nombre) not in pals_no_existen:
         muestraFallo ('Nombre no existente', 'Nombre de código ' + str (nombre) + ' no encontrado en el vocabulario')
-        noExisten.append ((nombre, 2))
+        pals_no_existen.append ((numero, nombre, tipo_nombre))
       campo_txt.insertPlainText (str (nombre).center (5).rstrip())
     campo_txt.setFontItalic (False)  # Cursiva desactivada
     campo_txt.setTextBackgroundColor (color_base)
