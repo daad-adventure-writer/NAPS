@@ -24,7 +24,7 @@
 
 from os       import name, path
 from prn_func import *
-from sys      import version_info
+from sys      import stdout, version_info
 
 import math    # Para ceil y log10
 import string  # Para algunas constantes
@@ -48,7 +48,8 @@ derecha = ''.join (der)
 iso8859_15_a_fuente = maketrans (izquierda, derecha)
 
 # Pares de códigos ASCII para teclas pulsadas
-teclas_ascii = {pygame.K_DOWN: (0, 80), pygame.K_LEFT: (0, 75), pygame.K_RIGHT: (0, 77), pygame.K_UP: (0, 72)}
+teclas_ascii     = {pygame.K_DOWN: (0, 80), pygame.K_LEFT: (0, 75), pygame.K_RIGHT: (0, 77), pygame.K_UP: (0, 72)}
+teclas_ascii_inv = {27: pygame.K_ESCAPE, 71: pygame.K_HOME, 72: pygame.K_UP, 75: pygame.K_LEFT, 77: pygame.K_RIGHT, 79: pygame.K_END, 80: pygame.K_DOWN}
 # Teclas imprimibles y de edición, con código < 256
 teclas_edicion = string.printable + string.punctuation + 'ñçº¡\b\x1b'
 # Teclas de edición con código >= 256
@@ -122,6 +123,12 @@ resolucion  = (320, 200)       # Resolución gráfica de salida, sin escalar
 def abre_ventana (traza, escalar, bbdd):
   """Abre la ventana gráfica de la aplicación"""
   global ancho_juego, escalada, factorEscala, resolucion, ventana
+  if ide:
+    if not ventana:
+      ancho_juego = int (math.ceil ((limite[0] * 6) / 8.)) * 8
+      resolucion  = (ancho_juego, limite[1] * 8)  # Tamaño de la ventana de juego
+      ventana     = pygame.Surface (resolucion)
+    return
   copia = None
   if pygame.display.get_caption():  # Ya había sido inicializada antes
     copia = ventana.copy()
@@ -149,6 +156,16 @@ def abre_ventana (traza, escalar, bbdd):
     ventana = pygame.display.set_mode ((640, 400), ventana.get_flags() ^ pygame.FULLSCREEN)
 
 def actualizaVentana ():
+  if ide:
+    global rutaImgPantalla
+    try:
+      rutaImgPantalla
+    except:
+      rutaImgPantalla = path.join (path.dirname (path.realpath (__file__)), 'ventanaJuegoActual.bmp')
+    pygame.image.save (ventana, rutaImgPantalla)
+    prn ('img')
+    stdout.flush()
+    return
   if factorEscala > 1 or forzarEscala:
     pygame.transform.scale (ventana, (resolucion[0] * factorEscala, resolucion[1] * factorEscala), escalada)
   pygame.display.flip()
@@ -489,6 +506,16 @@ def espera_tecla (tiempo = 0):
   """Espera hasta que se pulse una tecla (modificadores no), o hasta que pase tiempo segundos, si tiempo > 0"""
   global tras_portada
   tras_portada = False
+  if ide:
+    # TODO: tiempo muerto, teclas pulsadas, revisar teclas de edición, y que ninguna tecla indebida resulte en un Enter pulsado
+    actualizaVentana()
+    stdout.flush()
+    entrada = raw_input()
+    if not entrada:
+      return ord ('\r')
+    if ord (entrada[0]) == 0 and len (entrada) > 1 and ord (entrada[1]) in teclas_ascii_inv:
+      return teclas_ascii_inv[ord (entrada[1])]
+    return ord (entrada[0] if entrada else '\r')
   pygame.time.set_timer (pygame.USEREVENT, tiempo * 1000)  # Ponemos el timer
   copia = ventana.copy()  # Porque con PyGame 2 se pierde al menos al redimensionar
   while True:
