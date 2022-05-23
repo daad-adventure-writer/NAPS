@@ -1322,6 +1322,7 @@ def muestraProcesos ():
   dlg_procesos.setLayout      (layout)
   dlg_procesos.setWindowTitle ('Tablas de proceso')
   mdi_procesos = selector.centralWidget().addSubWindow (dlg_procesos)
+  mdi_procesos.setOption (QMdiSubWindow.RubberBandResize)
   dlg_procesos.showMaximized()
 
 def muestraTextos (dialogo, listaTextos, tipoTextos, subventanaMdi):

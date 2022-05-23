@@ -932,6 +932,7 @@ if __name__ == '__main__':
         args.gui = 'stdio'
   gui = __import__ ('gui_' + args.gui)
   gui.frase_guardada = frase_guardada
+  gui.ide            = args.ide
   gui.texto_nuevo    = texto_nuevo
 
   if not args.scale:
