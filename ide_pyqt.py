@@ -51,8 +51,8 @@ except:
 dlg_abrir       = None  # Diálogo de abrir fichero
 dlg_acerca_de   = None  # Diálogo "Acerca de"
 dlg_contadores  = None  # Diálogo de contadores
-dlg_guardar     = None  # Diálogo de guardar fichero
 dlg_fallo       = None  # Diálogo para mostrar fallos leves
+dlg_guardar     = None  # Diálogo de guardar fichero
 dlg_desc_locs   = None  # Diálogo para consultar y modificar las descripciones de localidades
 dlg_desc_objs   = None  # Diálogo para consultar y modificar las descripciones de objetos
 dlg_msg_sys     = None  # Diálogo para consultar y modificar los mensajes de sistema
@@ -65,6 +65,7 @@ mdi_msg_sys     = None  # Subventana MDI para dlg_msg_sys
 mdi_msg_usr     = None  # Subventana MDI para dlg_msg_usr
 mdi_procesos    = None  # Subventana MDI para dlg_procesos
 mdi_vocabulario = None  # Subventana MDI para dlg_vocabulario
+mdi_juego       = None  # Subventana MDI para la pantalla de juego del intérprete
 
 campo_txt = None  # El campo de texto    del diálogo de procesos
 pestanyas = None  # La barra de pestañas del diálogo de procesos
@@ -76,8 +77,12 @@ pals_no_existen = []      # Códigos de palabra que no existen encontrados en tab
 color_base      = QColor (10, 10, 10)   # Color de fondo gris oscuro
 color_pila      = QColor (60, 35, 110)  # Color de fondo azul brillante
 color_tope_pila = QColor (35, 40, 110)  # Color de fondo morado oscuro
-pila_procs      = []    # Pila con estado de los procesos en ejecución
-proc_interprete = None  # Proceso del intérprete
+inicio_debug    = False  # Para hacer la inicialización de subventanas MDI al lanzar depuración
+pila_procs      = []     # Pila con estado de los procesos en ejecución
+proc_interprete = None   # Proceso del intérprete
+
+# Conversión de teclas para manejo del intérprete
+conversion_teclas = {Qt.Key_Escape: 27, Qt.Key_Down: 80, Qt.Key_End: 79, Qt.Key_Home: 71, Qt.Key_Left: 75, Qt.Key_Right: 77, Qt.Key_Up: 72}
 
 
 # Funciones de exportación e importación, con sus módulos, extensiones y descripciones
@@ -450,7 +455,8 @@ class CampoTexto (QTextEdit):
 
 class ManejoInterprete (QThread):
   """Maneja la comunicación con el intérprete ejecutando la base de datos"""
-  cambiaPila = pyqtSignal()
+  cambiaImagen = pyqtSignal()
+  cambiaPila   = pyqtSignal()
 
   def __init__ (self, procInterprete, padre):
     QThread.__init__ (self, parent = padre)
@@ -460,11 +466,13 @@ class ManejoInterprete (QThread):
     """Lee del proceso del intérprete, obteniendo por dónde va la ejecución"""
     global proc_interprete
     if sys.version_info[0] < 3:
-      inicioLista = '['
-      finLista    = ']'
+      inicioLista    = '['
+      finLista       = ']'
+      imagenCambiada = 'img'
     else:
-      inicioLista = ord ('[')
-      finLista    = ord (']')
+      inicioLista    = ord ('[')
+      finLista       = ord (']')
+      imagenCambiada = b'img'
     pilaProcs = []
     while True:
       linea = self.procInterprete.stdout.readline()
@@ -475,8 +483,13 @@ class ManejoInterprete (QThread):
         pilaProcs = eval (linea)
         pilas_pendientes.append (pilaProcs)
         self.cambiaPila.emit()
+      elif linea[:3] == imagenCambiada:
+        self.cambiaImagen.emit()
+    # El proceso ha terminado
     accPasoAPaso.setEnabled (True)
     proc_interprete = None
+    if mdi_juego:
+      mdi_juego.close()
     if pilaProcs:
       ultimaEntrada = [pilaProcs[-1][0]]
       if len (pilaProcs[-1]) > 1:
@@ -596,6 +609,49 @@ class ModeloVocabulario (QAbstractTableModel):
   def rowCount (self, parent):
     return len (mod_actual.vocabulario)
 
+class PantallaJuego (QMdiSubWindow):
+  """Subventana MDI para la pantalla de juego del intérprete"""
+  def __init__ (self, parent):
+    QMdiSubWindow.__init__ (self, parent)
+    self.rutaImagen = os.path.join (os.path.dirname (os.path.realpath (__file__)), 'ventanaJuegoActual.bmp')
+    self.pixmap     = QPixmap (self.rutaImagen)
+    widget = QLabel (self)
+    widget.setPixmap (self.pixmap)
+    widget.setWindowTitle ('Ejecución ' + mod_actual.NOMBRE_SISTEMA)
+    self.setWidget (widget)
+    selector.centralWidget().addSubWindow (self)
+    widget.show()
+
+  def actualizaImagen (self):
+    QPixmapCache.clear()
+    self.pixmap.load (self.rutaImagen)
+    self.setMaximumSize (self.pixmap.size())  # XXX: hasta que sea redimensionable
+    self.widget().setPixmap (self.pixmap)
+
+  def closeEvent (self, evento):
+    global mdi_juego
+    if proc_interprete:
+      proc_interprete.kill()
+    evento.accept()
+    mdi_juego = None
+
+  def keyPressEvent (self, evento):
+    if evento.key() in (Qt.Key_Alt, Qt.Key_Control, Qt.Key_Meta, Qt.Key_Shift):
+      return  # Ignoramos teclas modificadoras
+    enviar = '\n' if sys.version_info[0] < 3 else b'\n'
+    if evento.key() in conversion_teclas:
+      if sys.version_info[0] < 3:
+        enviar = chr (0) + chr (conversion_teclas[evento.key()]) + enviar
+      else:
+        enviar = bytes ([0, conversion_teclas[evento.key()]]) + enviar
+    elif evento.key() not in (Qt.Key_Enter, Qt.Key_Return):
+      if sys.version_info[0] < 3:
+        enviar = str (evento.text()) + enviar
+      else:
+        enviar = bytes (str (evento.text()), locale.getpreferredencoding()) + enviar
+    proc_interprete.stdin.write (enviar)
+    proc_interprete.stdin.flush()
+
 
 def actualizaProceso ():
   """Redibuja el proceso actualmente mostrado, si hay alguno"""
@@ -607,7 +663,7 @@ def actualizaProceso ():
 
 def actualizaPosProcesos ():
   """Refleja la posición de ejecución paso a paso actual en el diálogo de tablas de proceso"""
-  global pila_procs
+  global inicio_debug, pila_procs
   if len (pilas_pendientes) > 4:
     # Se están acumulando, por lo que tomamos la última y descartamos las demás
     pila_procs = pilas_pendientes[-1]
@@ -621,6 +677,23 @@ def actualizaPosProcesos ():
     cambiaProceso (pila_procs[-1][0], pila_procs[-1][1] if len (pila_procs[-1]) > 1 else None)
   else:
     pestanyas.setCurrentIndex (pila_procs[-1][0])
+  if mdi_juego:
+    selector.centralWidget().setActiveSubWindow (mdi_juego)
+    if inicio_debug:
+      inicio_debug = False
+      selector.centralWidget().tileSubWindows()
+
+def actualizaVentanaJuego ():
+  """Muestra o actualiza la pantalla actual de juego del intérprete en el diálogo de ventana de juego"""
+  global mdi_juego
+  if mdi_juego:  # Subventana MDI ya creada
+    try:
+      mdi_juego.actualizaImagen()
+      return
+    except RuntimeError:  # Subventana borrada por Qt
+      pass  # La crearemos de nuevo
+  # Creamos la subventana
+  mdi_juego = PantallaJuego (selector)
 
 # FIXME: Diferencias entre PAWS estándar y DAAD
 def cambiaProceso (numero, numEntrada = None):
@@ -1001,17 +1074,19 @@ def editaVocabulario (indice):
 
 def ejecutaPorPasos ():
   """Ejecuta la base de datos para depuración paso a paso"""
-  global pilas_pendientes, proc_interprete
+  global pilas_pendientes, inicio_debug, proc_interprete
+  inicio_debug = True
   accPasoAPaso.setEnabled (False)
   rutaInterprete = os.path.join (os.path.dirname (os.path.realpath (__file__)), 'interprete.py')
   argumentos     = ['python', rutaInterprete, '--ide', nombre_fich_bd]
   if nombre_fich_gfx:
     argumentos.append (nombre_fich_gfx)
   devnull = open (os.devnull, 'w')
-  proc_interprete  = subprocess.Popen (argumentos, stdout = subprocess.PIPE, stderr = devnull)
+  proc_interprete  = subprocess.Popen (argumentos, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = devnull)
   pilas_pendientes = []
   hilo = ManejoInterprete (proc_interprete, aplicacion)
-  hilo.cambiaPila.connect (actualizaPosProcesos)
+  hilo.cambiaImagen.connect (actualizaVentanaJuego)
+  hilo.cambiaPila.connect   (actualizaPosProcesos)
   hilo.start()
 
 def exportaBD ():
