@@ -162,7 +162,14 @@ def actualizaVentana ():
       rutaImgPantalla
     except:
       rutaImgPantalla = path.join (path.dirname (path.realpath (__file__)), 'ventanaJuegoActual.bmp')
-    pygame.image.save (ventana, rutaImgPantalla)
+    # Esperamos hasta lograr guardar la imagen, dado que en Windows se bloquea el fichero al abrirlo el IDE
+    guardada = False
+    while not guardada:
+      try:
+        pygame.image.save (ventana, rutaImgPantalla)
+        guardada = True
+      except:
+        continue
     prn ('img')
     stdout.flush()
     return
