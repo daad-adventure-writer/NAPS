@@ -38,7 +38,8 @@ except:
 import graficos_daad
 
 
-dlg_abrir = None  # Diálogo de abrir fichero
+dlg_abrir   = None  # Diálogo de abrir fichero
+dlg_guardar = None  # Diálogo de guardar fichero
 
 
 class Recurso (QPushButton):
@@ -49,6 +50,53 @@ class Recurso (QPushButton):
       self.setIconSize (imagen.rect().size())
     else:
       super (Recurso, self).__init__ (str (numRecurso))
+    self.imagen     = imagen
+    self.numRecurso = numRecurso
+
+  def contextMenuEvent (self, evento):
+    if self.imagen:
+      contextual     = QMenu (self)
+      accImgExportar = QAction ('&Exportar imagen', contextual)
+      accImgExportar.triggered.connect (self.exportarImagen)
+      contextual.addAction (accImgExportar)
+      contextual.exec_ (evento.globalPos())
+
+  def exportarImagen (self):
+    global dlg_guardar
+    filtros = (('Imágenes BMP', ['bmp'])), ('Imágenes PNG', ['png'])
+    if not dlg_guardar:  # Diálogo no creado aún
+      filtro  = []
+      for descripcion, extensiones in filtros:
+        filtro.append (descripcion + ' (*.' + ' *.'.join (extensiones) + ')')
+      dlg_guardar = QFileDialog (ventana, 'Exportar imagen', os.curdir, ';;'.join (filtro))
+      dlg_guardar.setAcceptMode (QFileDialog.AcceptSave)
+      dlg_guardar.setLabelText  (QFileDialog.LookIn,   'Lugares')
+      dlg_guardar.setLabelText  (QFileDialog.FileName, '&Nombre:')
+      dlg_guardar.setLabelText  (QFileDialog.FileType, 'Filtro:')
+      dlg_guardar.setLabelText  (QFileDialog.Accept,   '&Guardar')
+      dlg_guardar.setLabelText  (QFileDialog.Reject,   '&Cancelar')
+      dlg_guardar.setOption     (QFileDialog.DontConfirmOverwrite)
+      dlg_guardar.setOption     (QFileDialog.DontUseNativeDialog)
+    dlg_guardar.selectNameFilter (filtro[1])  # Por defecto formato PNG
+    if dlg_guardar.exec_():  # No se ha cancelado
+      indiceFiltro  = list (dlg_guardar.nameFilters()).index (dlg_guardar.selectedNameFilter())
+      nombreFichero = str (dlg_guardar.selectedFiles()[0])
+      extension     = '.' + filtros[indiceFiltro][1][0]
+      if nombreFichero[- len (extension):].lower() != extension:
+        nombreFichero += extension
+      if os.path.isfile (nombreFichero):
+        dlgSiNo = QMessageBox (ventana)
+        dlgSiNo.addButton ('&Sí', QMessageBox.YesRole)
+        dlgSiNo.addButton ('&No', QMessageBox.NoRole)
+        dlgSiNo.setIcon (QMessageBox.Warning)
+        dlgSiNo.setWindowTitle ('Sobreescritura')
+        dlgSiNo.setText ('Ya existe un fichero con ruta y nombre:\n\n' + nombreFichero)
+        dlgSiNo.setInformativeText ('\n¿Quieres sobreescribirlo?')
+        if dlgSiNo.exec_() != 0:  # No se ha pulsado el botón Sí
+          return
+      ventana.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
+      self.imagen.save (nombreFichero)
+      ventana.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
 
 class Ventana (QMainWindow):
   """Ventana principal"""
