@@ -1149,7 +1149,7 @@ def exportaBD ():
     indiceFiltro  = list (dlg_guardar.nameFilters()).index (dlg_guardar.selectedNameFilter())
     nombreFichero = str (dlg_guardar.selectedFiles()[0])
     extension     = '.' + info_exportar[indiceFiltro][1][0]
-    if extension not in nombreFichero:
+    if nombreFichero[- len (extension):].lower() != extension:
       nombreFichero += extension
     if os.path.isfile (nombreFichero):
       dlgSiNo = QMessageBox (selector)
