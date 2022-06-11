@@ -613,12 +613,14 @@ class PantallaJuego (QMdiSubWindow):
   """Subventana MDI para la pantalla de juego del intérprete"""
   def __init__ (self, parent):
     QMdiSubWindow.__init__ (self, parent)
+    self.nivelZoom  = 1
     self.rutaImagen = os.path.join (os.path.dirname (os.path.realpath (__file__)), 'ventanaJuegoActual.bmp')
     self.pixmap     = QPixmap (self.rutaImagen)
     self.tamInicial = None
     widget = QLabel (self)
     widget.setPixmap (self.pixmap)
     widget.setWindowTitle ('Ejecución ' + mod_actual.NOMBRE_SISTEMA)
+    self.setOption (QMdiSubWindow.RubberBandResize)
     self.setWidget (widget)
     selector.centralWidget().addSubWindow (self)
     widget.show()
@@ -626,16 +628,20 @@ class PantallaJuego (QMdiSubWindow):
   def actualizaImagen (self):
     QPixmapCache.clear()
     self.pixmap.load (self.rutaImagen)
-    self.widget().setPixmap (self.pixmap)
+    if self.nivelZoom > 1:
+      self.widget().setPixmap (self.pixmap.scaled (self.pixmap.size().width() * self.nivelZoom, self.pixmap.size().height() * self.nivelZoom))
+    else:
+      self.widget().setPixmap (self.pixmap)
     # En cuanto tenga tamaño adecuado, ponemos ese tamaño como mínimo, para que muestre la pantalla de juego entera
     if not self.tamInicial and self.sizeHint().width() > self.pixmap.width():
-      anchoBorde = (self.sizeHint().width() - self.pixmap.width()) / 2
-      altoTitulo = QApplication.style().pixelMetric (QStyle.PM_TitleBarHeight)
-      if self.sizeHint().height() == self.pixmap.height() + anchoBorde + altoTitulo:
+      self.anchoBorde = (self.sizeHint().width() - self.pixmap.width()) / 2
+      self.altoTitulo = QApplication.style().pixelMetric (QStyle.PM_TitleBarHeight)
+      if self.sizeHint().height() == self.pixmap.height() + self.anchoBorde + self.altoTitulo:
         self.tamInicial = self.sizeHint()
         selector.centralWidget().tileSubWindows()
-        # self.setMaximumSize (QSize (self.pixmap.size().width() * 3, self.pixmap.size().height() * 3))
-        self.setMaximumSize (self.tamInicial)  # XXX: hasta que sea redimensionable
+        self.setMinimumSize (self.tamInicial)
+        self.setMaximumSize (QSize (self.anchoBorde * 2 + self.pixmap.size().width() * 3,
+                                    self.anchoBorde + self.altoTitulo + self.pixmap.size().height() * 3))
 
   def closeEvent (self, evento):
     global mdi_juego
@@ -661,6 +667,30 @@ class PantallaJuego (QMdiSubWindow):
     proc_interprete.stdin.write (enviar)
     proc_interprete.stdin.flush()
 
+  def resizeEvent (self, evento):
+    """Ajusta la redimensión de la pantalla de juego a los niveles de zoom permitidos"""
+    if not self.tamInicial:
+      super (PantallaJuego, self).resizeEvent (evento)
+      return
+    nivelZoomAntes = self.nivelZoom
+    if self.size().width() <= self.minimumSize().width() or self.size().height() <= self.minimumSize().height():
+      self.nivelZoom = 1
+    elif self.size().width() >= (self.anchoBorde * 2 + self.pixmap.size().width() * 3) or \
+         self.size().height() >= (self.anchoBorde + self.altoTitulo + self.pixmap.size().height() * 3):
+      self.nivelZoom = 3
+    elif self.size().width() > (self.anchoBorde * 2 + self.pixmap.size().width() * self.nivelZoom) or \
+         self.size().height() > (self.anchoBorde + self.altoTitulo + self.pixmap.size().height() * self.nivelZoom):
+      self.nivelZoom = min (3, self.nivelZoom + 1)
+    elif self.size().width() < (self.anchoBorde * 2 + self.pixmap.size().width() * self.nivelZoom) or \
+         self.size().height() < (self.anchoBorde + self.altoTitulo + self.pixmap.size().height() * self.nivelZoom):
+      self.nivelZoom = max (1, self.nivelZoom - 1)
+    if nivelZoomAntes != self.nivelZoom:
+      evento = QResizeEvent (QSize (self.anchoBorde * 2 + self.pixmap.size().width() * self.nivelZoom,
+                                    self.anchoBorde + self.altoTitulo + self.pixmap.size().height() * self.nivelZoom),
+                             evento.oldSize())
+      self.resize (evento.size())
+    super (PantallaJuego, self).resizeEvent (evento)
+    self.actualizaImagen()
 
 def actualizaProceso ():
   """Redibuja el proceso actualmente mostrado, si hay alguno"""
