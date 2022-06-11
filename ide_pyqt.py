@@ -615,6 +615,7 @@ class PantallaJuego (QMdiSubWindow):
     QMdiSubWindow.__init__ (self, parent)
     self.rutaImagen = os.path.join (os.path.dirname (os.path.realpath (__file__)), 'ventanaJuegoActual.bmp')
     self.pixmap     = QPixmap (self.rutaImagen)
+    self.tamInicial = None
     widget = QLabel (self)
     widget.setPixmap (self.pixmap)
     widget.setWindowTitle ('Ejecución ' + mod_actual.NOMBRE_SISTEMA)
@@ -625,8 +626,16 @@ class PantallaJuego (QMdiSubWindow):
   def actualizaImagen (self):
     QPixmapCache.clear()
     self.pixmap.load (self.rutaImagen)
-    self.setMaximumSize (self.pixmap.size())  # XXX: hasta que sea redimensionable
     self.widget().setPixmap (self.pixmap)
+    # En cuanto tenga tamaño adecuado, ponemos ese tamaño como mínimo, para que muestre la pantalla de juego entera
+    if not self.tamInicial and self.sizeHint().width() > self.pixmap.width():
+      anchoBorde = (self.sizeHint().width() - self.pixmap.width()) / 2
+      altoTitulo = QApplication.style().pixelMetric (QStyle.PM_TitleBarHeight)
+      if self.sizeHint().height() == self.pixmap.height() + anchoBorde + altoTitulo:
+        self.tamInicial = self.sizeHint()
+        selector.centralWidget().tileSubWindows()
+        # self.setMaximumSize (QSize (self.pixmap.size().width() * 3, self.pixmap.size().height() * 3))
+        self.setMaximumSize (self.tamInicial)  # XXX: hasta que sea redimensionable
 
   def closeEvent (self, evento):
     global mdi_juego
