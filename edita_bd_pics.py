@@ -38,8 +38,9 @@ except:
 import graficos_daad
 
 
+dlg_abrir    = None  # Diálogo de abrir imagen
 dlg_importar = None  # Diálogo de importar base de datos gráfica
-dlg_guardar  = None  # Diálogo de guardar fichero
+dlg_guardar  = None  # Diálogo de guardar imagen
 
 filtro_img_def = 1  # Índice en filtros_img del formato de imagen por defecto
 filtros_img    = (('Imágenes BMP', ['bmp'])), ('Imágenes PNG', ['png'])  # Filtros de formatos de imagen soportados para abrir y guardar
@@ -57,12 +58,19 @@ class Recurso (QPushButton):
     self.numRecurso = numRecurso
 
   def contextMenuEvent (self, evento):
+    contextual = QMenu (self)
     if self.imagen:
-      contextual     = QMenu (self)
-      accImgExportar = QAction ('&Exportar imagen', contextual)
+      accImgExportar  = QAction ('&Exportar imagen',  contextual)
+      accImgSustituir = QAction ('&Sustituir imagen', contextual)
       accImgExportar.triggered.connect (self.exportarImagen)
+      accImgSustituir.triggered.connect (self.importarImagen)
       contextual.addAction (accImgExportar)
-      contextual.exec_ (evento.globalPos())
+      contextual.addAction (accImgSustituir)
+    else:
+      accImgAnyadir = QAction ('&Añadir imagen', contextual)
+      accImgAnyadir.triggered.connect (self.importarImagen)
+      contextual.addAction (accImgAnyadir)
+    contextual.exec_ (evento.globalPos())
 
   def exportarImagen (self):
     global dlg_guardar
@@ -98,6 +106,131 @@ class Recurso (QPushButton):
           return
       ventana.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
       self.imagen.save (nombreFichero)
+      ventana.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
+
+  def importarImagen (self):
+    global dlg_abrir
+    extSoportadas = []  # Todas las extensiones de imágenes soportadas
+    filtro        = []
+    for descripcion, extensiones in filtros_img:
+      filtro.append (descripcion + ' (*.' + ' *.'.join (extensiones) + ')')
+      extSoportadas.extend (extensiones)
+    filtro.append ('Todas las imágenes soportadas (*.' + ' *.'.join (extSoportadas) + ')')
+    if not dlg_abrir:  # Diálogo no creado aún
+      dlg_abrir = QFileDialog (ventana, 'Abrir imagen', os.curdir, ';;'.join (filtro))
+      dlg_abrir.setFileMode  (QFileDialog.ExistingFile)
+      dlg_abrir.setLabelText (QFileDialog.LookIn,   'Lugares')
+      dlg_abrir.setLabelText (QFileDialog.FileName, '&Nombre:')
+      dlg_abrir.setLabelText (QFileDialog.FileType, 'Filtro:')
+      dlg_abrir.setLabelText (QFileDialog.Accept,   '&Abrir')
+      dlg_abrir.setLabelText (QFileDialog.Reject,   '&Cancelar')
+      dlg_abrir.setOption    (QFileDialog.DontUseNativeDialog)
+    dlg_abrir.selectNameFilter (filtro[len (filtro) - 1])  # Elegimos el filtro de todas las imágenes soportadas
+    if dlg_abrir.exec_():  # No se ha cancelado
+      ventana.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
+      nombreFichero = str (dlg_abrir.selectedFiles()[0])
+      imagen = QImage (nombreFichero)
+      ventana.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
+      if imagen.isNull():
+        muestraFallo ('No se puede abrir la imagen del fichero:\n' + nombreFichero)
+        return
+      if imagen.height() + imagen.width() < 1:
+        muestraFallo ('Dimensiones inválidas', 'La imagen elegida (' + nombreFichero + ') tiene dimensiones inválidas, tanto su ancho como su alto debería ser mayor que cero')
+        return
+      if imagen.height() > graficos_daad.resolucion_por_modo[graficos_daad.modo_gfx][1]:
+        muestraFallo ('Altura de imagen excesiva', 'La imagen elegida (' + nombreFichero + ') tiene ' + str (imagen.height()) + ' píxeles de alto, mientras que el modo ' + graficos_daad.modo_gfx + ' de la base de datos gráfica sólo soporta hasta ' + str (graficos_daad.resolucion_por_modo[graficos_daad.modo_gfx][1]))
+        return
+      if imagen.width() > graficos_daad.resolucion_por_modo[graficos_daad.modo_gfx][0]:
+        muestraFallo ('Anchura de imagen excesiva', 'La imagen elegida (' + nombreFichero + ') tiene ' + str (imagen.width()) + ' píxeles de ancho, mientras que el modo ' + graficos_daad.modo_gfx + ' de la base de datos gráfica sólo soporta hasta ' + str (graficos_daad.resolucion_por_modo[graficos_daad.modo_gfx][0]))
+        return
+      if imagen.height() % 8:
+        muestraFallo ('Altura de imagen incorrecta', 'La imagen elegida (' + nombreFichero + ') tiene ' + str (imagen.height()) + ' píxeles de alto, cuando debería ser múltiplo de 8')
+        return
+      if imagen.width() % 8:
+        muestraFallo ('Anchura de imagen incorrecta', 'La imagen elegida (' + nombreFichero + ') tiene ' + str (imagen.width()) + ' píxeles de ancho, cuando debería ser múltiplo de 8')
+        return
+      if imagen.depth() > 8:  # No usa paleta indexada
+        # Calculamos el número de colores que tiene
+        coloresUsados = set()
+        ventana.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
+        for fila in range (imagen.height()):
+          for columna in range (imagen.width()):
+            coloresUsados.add (imagen.pixel (columna, fila))
+        ventana.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
+        numColores    = len (coloresUsados)
+        coloresUsados = list (coloresUsados)
+      else:
+        coloresUsados = imagen.colorTable()
+        numColores    = imagen.colorCount()
+      if numColores > graficos_daad.colores_por_modo[graficos_daad.modo_gfx]:
+        muestraFallo ('Advertencia: número de colores elevado', 'La imagen elegida (' + nombreFichero + ') utiliza ' + str (numColores) + ' colores diferentes, mientras que el modo ' + graficos_daad.modo_gfx + ' de la base de datos gráfica sólo soporta ' + str (graficos_daad.colores_por_modo[graficos_daad.modo_gfx]))
+      if self.imagen and graficos_daad.recurso_es_unico (self.numRecurso):
+        dlgSiNo = QMessageBox (ventana)
+        dlgSiNo.addButton ('&Sí', QMessageBox.YesRole)
+        dlgSiNo.addButton ('&No', QMessageBox.NoRole)
+        dlgSiNo.setIcon (QMessageBox.Warning)
+        dlgSiNo.setWindowTitle ('Sustituir imagen')
+        dlgSiNo.setText ('Esta imagen no es utilizada por ningún otro recurso')
+        dlgSiNo.setInformativeText ('\n¿Seguro que quieres sustituirla por la imagen del fichero elegido?')
+        if dlgSiNo.exec_() != 0:  # No se ha pulsado el botón Sí
+          return
+      paletas = graficos_daad.da_paletas_del_formato()
+      if len (paletas) > 1:
+        muestraFallo ('No implementado', 'El formato de base de datos gráfica soporta más de un modo gráfico, y la selección de colores para cada modo todavía no está implementada')
+        return
+      paletas = paletas[list (paletas.keys())[0]]
+
+      # Buscamos los colores más cercanos de entre las paletas para los colores de la imagen
+      masCercanos = []  # Índice en paleta del color más cercano a los usados en la imagen, y su cercanía, para ambas paletas
+      for p in range (len (paletas)):
+        masCercanos.append ([])
+      for c in range (len (coloresUsados)):
+        color = QColor (coloresUsados[c])
+        for p in range (len (masCercanos)):
+          masCercano = [-1, 999999]  # Índice de color en paleta, y cercanía del color más cercano en la paleta a éste
+          paleta     = paletas[p]
+          for cp in range (len (paleta)):
+            rojoPaleta, verdePaleta, azulPaleta = paleta[cp]
+            if color.red() == rojoPaleta and color.green() == verdePaleta and color.blue() == azulPaleta:  # Coincidencia exacta
+              masCercanos[p].append ((cp, 0))
+              break
+            else:
+              cercania = abs (color.red() - rojoPaleta) + abs (color.green() - verdePaleta) + abs (color.blue() - azulPaleta)
+              if cercania < masCercano[1]:
+                masCercano = [cp, cercania]
+          else:
+            masCercanos[p].append (masCercano)
+
+      # Buscamos la paleta más adecuada para los colores de la imagen
+      if len (masCercanos) > 1:
+        mejorCercania = 999999
+        mejorPaleta   = None
+        for p in range (len (masCercanos)):
+          cercania = 0
+          for masCercano in masCercanos[p]:
+            cercania += masCercano[1]
+          if cercania < mejorCercania:
+            mejorCercania = cercania
+            mejorPaleta   = p
+      else:
+        mejorPaleta = 0
+
+      # Convertimos la imagen a los colores de la paleta más adecuada y la asignamos a este recurso
+      ventana.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
+      paleta = []
+      for rojo, verde, azul in paletas[mejorPaleta]:
+        paleta.append (qRgb (rojo, verde, azul))
+      imgConvertida = QImage (imagen.width(), imagen.height(), QImage.Format_Indexed8)
+      imgConvertida.setColorTable (paleta)
+      imgComoIndices = []  # Imagen como índices en la paleta
+      for fila in range (imagen.height()):
+        for columna in range (imagen.width()):
+          indiceEnPaleta = masCercanos[mejorPaleta][coloresUsados.index (imagen.pixel (columna, fila))][0]
+          imgConvertida.setPixel (columna, fila, indiceEnPaleta)
+          imgComoIndices.append (indiceEnPaleta)
+      self.imagen = imgConvertida
+      self.setIcon (QIcon (QPixmap (imgConvertida)))
+      self.setIconSize (imagen.rect().size())
       ventana.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
 
 class Ventana (QMainWindow):
