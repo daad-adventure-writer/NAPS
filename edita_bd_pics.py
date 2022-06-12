@@ -195,7 +195,10 @@ class Recurso (QPushButton):
               masCercanos[p].append ((cp, 0))
               break
             else:
-              cercania = abs (color.red() - rojoPaleta) + abs (color.green() - verdePaleta) + abs (color.blue() - azulPaleta)
+              if (color.red() + rojoPaleta) / 2 < 128:
+                cercania = math.sqrt (1 * ((color.red() - rojoPaleta) ** 2) + 1 * ((color.green() - verdePaleta) ** 2) + 2 * ((color.blue() - azulPaleta) ** 2))
+              else:
+                cercania = math.sqrt (2 * ((color.red() - rojoPaleta) ** 2) + 1 * ((color.green() - verdePaleta) ** 2) + 1 * ((color.blue() - azulPaleta) ** 2))
               if cercania < masCercano[1]:
                 masCercano = [cp, cercania]
           else:
