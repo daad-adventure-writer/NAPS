@@ -202,7 +202,7 @@ def importaBD (nombreFichero):
       col   = 0
       fila += 1
 
-def muestraFallo (mensaje, detalle, parent = None):
+def muestraFallo (mensaje, detalle = '', parent = None):
   """Muestra un diálogo de fallo leve"""
   # TODO: sacar a módulo común con el IDE
   global dlg_fallo, ventana_principal
@@ -216,7 +216,8 @@ def muestraFallo (mensaje, detalle, parent = None):
     dlg_fallo.setIcon (QMessageBox.Warning)
     dlg_fallo.setWindowTitle ('Fallo')
   dlg_fallo.setText (mensaje)
-  dlg_fallo.setInformativeText ('Causa:\n' + detalle)
+  if detalle:
+    dlg_fallo.setInformativeText ('Causa:\n' + detalle)
   dlg_fallo.exec_()
 
 
