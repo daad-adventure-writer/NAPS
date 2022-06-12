@@ -66,10 +66,10 @@ class Recurso (QPushButton):
 
   def exportarImagen (self):
     global dlg_guardar
+    filtro = []
+    for descripcion, extensiones in filtros_img:
+      filtro.append (descripcion + ' (*.' + ' *.'.join (extensiones) + ')')
     if not dlg_guardar:  # Diálogo no creado aún
-      filtro = []
-      for descripcion, extensiones in filtros_img:
-        filtro.append (descripcion + ' (*.' + ' *.'.join (extensiones) + ')')
       dlg_guardar = QFileDialog (ventana, 'Exportar imagen', os.curdir, ';;'.join (filtro))
       dlg_guardar.setAcceptMode (QFileDialog.AcceptSave)
       dlg_guardar.setLabelText  (QFileDialog.LookIn,   'Lugares')
