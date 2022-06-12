@@ -38,8 +38,8 @@ except:
 import graficos_daad
 
 
-dlg_abrir   = None  # Diálogo de abrir fichero
-dlg_guardar = None  # Diálogo de guardar fichero
+dlg_importar = None  # Diálogo de importar base de datos gráfica
+dlg_guardar  = None  # Diálogo de guardar fichero
 
 
 class Recurso (QPushButton):
@@ -122,19 +122,19 @@ class Ventana (QMainWindow):
 
 def dialogoImportaBD ():
   """Deja al usuario elegir un fichero de base datos gráfica, y lo intenta importar"""
-  global dlg_abrir
-  if not dlg_abrir:  # Diálogo no creado aún
-    dlg_abrir = QFileDialog (ventana, 'Importar base de datos gráfica', os.curdir, 'Bases de datos gráficas DAAD (*.cga *.dat *.ega *.pcw)')
-    dlg_abrir.setFileMode  (QFileDialog.ExistingFile)
-    dlg_abrir.setLabelText (QFileDialog.LookIn,   'Lugares')
-    dlg_abrir.setLabelText (QFileDialog.FileName, '&Nombre:')
-    dlg_abrir.setLabelText (QFileDialog.FileType, 'Filtro:')
-    dlg_abrir.setLabelText (QFileDialog.Accept,   '&Abrir')
-    dlg_abrir.setLabelText (QFileDialog.Reject,   '&Cancelar')
-    dlg_abrir.setOption    (QFileDialog.DontUseNativeDialog)
-  if dlg_abrir.exec_():  # No se ha cancelado
+  global dlg_importar
+  if not dlg_importar:  # Diálogo no creado aún
+    dlg_importar = QFileDialog (ventana, 'Importar base de datos gráfica', os.curdir, 'Bases de datos gráficas DAAD (*.cga *.dat *.ega *.pcw)')
+    dlg_importar.setFileMode  (QFileDialog.ExistingFile)
+    dlg_importar.setLabelText (QFileDialog.LookIn,   'Lugares')
+    dlg_importar.setLabelText (QFileDialog.FileName, '&Nombre:')
+    dlg_importar.setLabelText (QFileDialog.FileType, 'Filtro:')
+    dlg_importar.setLabelText (QFileDialog.Accept,   '&Abrir')
+    dlg_importar.setLabelText (QFileDialog.Reject,   '&Cancelar')
+    dlg_importar.setOption    (QFileDialog.DontUseNativeDialog)
+  if dlg_importar.exec_():  # No se ha cancelado
     ventana.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
-    nombreFichero = str (dlg_abrir.selectedFiles()[0])
+    nombreFichero = str (dlg_importar.selectedFiles()[0])
     importaBD (nombreFichero)
     ventana.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
 
