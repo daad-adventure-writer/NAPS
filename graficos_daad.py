@@ -93,6 +93,25 @@ def carga_bd_pics (nombreFichero):
       return excepcion.args[0]
   fichero.close()
 
+def carga_portada (fichero):
+  """Carga y devuelve una portada de DAAD junto con su paleta, como índices en la paleta de cada píxel, detectando su modo gráfico"""
+  fichero.seek (0, os.SEEK_END)
+  longFichero = fichero.tell()
+  fichero.seek (0)
+  if longFichero == 16384:
+    return cargaPortadaCGA (fichero)
+  if longFichero == 32001:
+    return cargaPortadaEGA (fichero)
+  if longFichero in (32034, 32127):
+    return cargaPortadaAmiga (fichero)
+  if longFichero == 32066:
+    return cargaPortadaAtari (fichero)
+  return None
+
+def recurso_es_unico (numRecurso):
+  """Devuelve si el contenido del recurso es único, o si por el contrario es usado por varios recursos"""
+  return len (pos_recursos[recursos[numRecurso]['desplazamiento']]) == 1
+
 
 # Funciones de apoyo de alto nivel
 
@@ -149,21 +168,6 @@ def cargaImagenCGA (ancho, repetir, tamImg):
       if repetir:  # Si la imagen usa compresión RLE
         izqAder = not izqAder
   return imagen
-
-def cargaPortada (fichero):
-  """Carga y devuelve una portada de DAAD junto con su paleta, como índices en la paleta de cada píxel, detectando su modo gráfico"""
-  fichero.seek (0, os.SEEK_END)
-  longFichero = fichero.tell()
-  fichero.seek (0)
-  if longFichero == 16384:
-    return cargaPortadaCGA (fichero)
-  if longFichero == 32001:
-    return cargaPortadaEGA (fichero)
-  if longFichero in (32034, 32127):
-    return cargaPortadaAmiga (fichero)
-  if longFichero == 32066:
-    return cargaPortadaAtari (fichero)
-  return None
 
 def cargaPortadaAmiga (fichero):
   """Carga y devuelve una portada de Amiga junto con su paleta, como índices en la paleta de cada píxel"""
@@ -514,10 +518,6 @@ def preparaPlataforma (extension):
   else:
     carga_int2 = carga_int2_be
   bajo_nivel_cambia_endian (le)
-
-def recursoEsUnico (numRecurso):
-  """Devuelve si el contenido del recurso es único, o si por el contrario es usado por varios recursos"""
-  return len (pos_recursos[recursos[numRecurso]['desplazamiento']]) == 1
 
 
 if __name__ == '__main__':
