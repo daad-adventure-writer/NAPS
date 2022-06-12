@@ -108,6 +108,17 @@ def carga_portada (fichero):
     return cargaPortadaAtari (fichero)
   return None
 
+def da_paletas_del_formato ():
+  """Devuelve un diccionario con las paletas del formato de base de datos gráfica, que será lista vacía para los modos que soportan paleta variable"""
+  if modo_gfx == 'CGA':
+    return {'CGA': [paleta1b, paleta2b]}
+  if modo_gfx == 'EGA':
+    return {'EGA': [paletaEGA]}
+  if modo_gfx == 'PCW':
+    return {'PCW': [paletaPCW]}
+  if modo_gfx in ('ST', 'VGA'):
+    return {'CGA': [paleta1b, paleta2b], 'EGA': [paletaEGA], 'ST/VGA': []}
+
 def recurso_es_unico (numRecurso):
   """Devuelve si el contenido del recurso es único, o si por el contrario es usado por varios recursos"""
   return len (pos_recursos[recursos[numRecurso]['desplazamiento']]) == 1
