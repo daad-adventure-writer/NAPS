@@ -61,6 +61,7 @@ paletaEGA = ((  0,  0,  0), (  0,  0, 170), (  0, 170,  0), (  0, 170, 170),
 paletaPCW = ((0, 0, 0), (0, 255, 0))
 
 
+indice_nuevos     = -1    # Índice para almacenar la posición de nuevos recursos
 le                = None  # Si el formato de la base de datos gráfica es Little Endian
 long_cabecera     = None  # Longitud de la cabecera de la base de datos
 long_cabecera_rec = None  # Longitud de la cabecera de recurso
@@ -70,6 +71,35 @@ recursos          = []    # Gráficos y sonidos de la base de datos gráfica
 
 
 # Funciones que utilizan el IDE, el editor de bases de datos gráficas, o el intérprete directamente
+
+def cambia_imagen (numRecurso, ancho, alto, imagen, paleta):
+  global indice_nuevos
+  if recursos[numRecurso]:
+    recurso = recursos[numRecurso]
+    pos_recursos[recurso['desplazamiento']].remove (numRecurso)
+  else:
+    recurso = {'banderas': set(), 'desplazamiento': None, 'posicion': (0, 0)}
+  # Vemos si ya había algún recurso con la misma imagen
+  for recursoExistente in recursos:
+    if not recursoExistente:
+      continue  # Saltamos los recursos inexistentes
+    if recursoExistente['dimensiones'] == (ancho, alto) and imagen == recursoExistente['imagen']:
+      recurso['desplazamiento'] = recursoExistente['desplazamiento']
+      pos_recursos[recurso['desplazamiento']].append (numRecurso)
+      break
+  else:  # No había ninguno con la misma imagen
+    recurso['desplazamiento']   = indice_nuevos
+    pos_recursos[indice_nuevos] = [numRecurso]
+    indice_nuevos -= 1
+  if modo_gfx == 'CGA':
+    if paleta == paleta1b:
+      recurso['banderas'].add ('cgaPaleta1')
+    elif 'cgaPaleta1' in recurso['banderas']:
+      recurso['banderas'].remove ('cgaPaleta1')
+  recurso['dimensiones'] = (ancho, alto)
+  recurso['imagen']      = imagen
+  recurso['paleta']      = paleta
+  recursos[numRecurso] = recurso
 
 def carga_bd_pics (nombreFichero):
   """Carga a memoria la base de datos gráfica desde el fichero de nombre dado. Devuelve un mensaje de error si falla"""

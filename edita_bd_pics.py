@@ -231,6 +231,7 @@ class Recurso (QPushButton):
       self.imagen = imgConvertida
       self.setIcon (QIcon (QPixmap (imgConvertida)))
       self.setIconSize (imagen.rect().size())
+      graficos_daad.cambia_imagen (self.numRecurso, imagen.width(), imagen.height(), imgComoIndices, paletas[mejorPaleta])
       ventana.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
 
 class Ventana (QMainWindow):
