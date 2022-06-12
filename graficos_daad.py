@@ -27,6 +27,24 @@ import os
 from bajo_nivel import *
 
 
+# Número de colores de cada modo gráfico
+colores_por_modo = {
+  'CGA': 4,
+  'EGA': 16,
+  'PCW': 2,
+  'ST':  16,
+  'VGA': 16,
+}
+
+# Resolución de cada modo gráfico
+resolucion_por_modo = {
+  'CGA': (320, 200),
+  'EGA': (320, 200),
+  'PCW': (720, 256),
+  'ST':  (320, 200),
+  'VGA': (320, 200),
+}
+
 # Paletas CGA 1 y 2 con y sin brillo, en el orden necesario
 paleta1b = ((0, 0, 0), (85, 255, 255), (255, 85, 255), (255, 255, 255))
 paleta2b = ((0, 0, 0), (85, 255,  85), (255, 85,  85), (255, 255,  85))
