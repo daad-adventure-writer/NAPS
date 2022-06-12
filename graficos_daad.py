@@ -47,7 +47,7 @@ le                = None  # Si el formato de la base de datos gráfica es Little 
 long_cabecera     = None  # Longitud de la cabecera de la base de datos
 long_cabecera_rec = None  # Longitud de la cabecera de recurso
 modo_gfx          = None  # Modo gráfico
-pos_recursos      = {}    # Asociación entre cada posición de recurso, y el primer número de recurso que la usa
+pos_recursos      = {}    # Asociación entre cada posición de recurso, y los números de recurso que la usan
 recursos          = []    # Gráficos y sonidos de la base de datos gráfica
 
 
@@ -346,12 +346,14 @@ def cargaRecursos ():
       continue  # TODO: manejo de recursos de sonido no implementado
 
     # Detectamos imágenes con el mismo desplazamiento para ahorrar memoria y reducir tiempo de carga
+    recurso['desplazamiento'] = posRecurso
     if posRecurso in pos_recursos:
-      recurso['dimensiones'] = recursos[pos_recursos[posRecurso]]['dimensiones']
-      recurso['imagen']      = recursos[pos_recursos[posRecurso]]['imagen']
+      recurso['dimensiones'] = recursos[pos_recursos[posRecurso][0]]['dimensiones']
+      recurso['imagen']      = recursos[pos_recursos[posRecurso][0]]['imagen']
       recursos.append (recurso)
+      pos_recursos[posRecurso].append (numRecurso)
       continue
-    pos_recursos[posRecurso] = numRecurso
+    pos_recursos[posRecurso] = [numRecurso]
 
     fichero.seek (posRecurso)  # Saltamos a donde está el recurso (en este caso, imagen)
     if le:
@@ -494,6 +496,10 @@ def preparaPlataforma (extension):
   else:
     carga_int2 = carga_int2_be
   bajo_nivel_cambia_endian (le)
+
+def recursoEsUnico (numRecurso):
+  """Devuelve si el contenido del recurso es único, o si por el contrario es usado por varios recursos"""
+  return len (pos_recursos[recursos[numRecurso]['desplazamiento']]) == 1
 
 
 if __name__ == '__main__':
