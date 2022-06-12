@@ -41,6 +41,9 @@ import graficos_daad
 dlg_importar = None  # Diálogo de importar base de datos gráfica
 dlg_guardar  = None  # Diálogo de guardar fichero
 
+filtro_img_def = 1  # Índice en filtros_img del formato de imagen por defecto
+filtros_img    = (('Imágenes BMP', ['bmp'])), ('Imágenes PNG', ['png'])  # Filtros de formatos de imagen soportados para abrir y guardar
+
 
 class Recurso (QPushButton):
   """Botón para cada recurso"""
@@ -63,10 +66,9 @@ class Recurso (QPushButton):
 
   def exportarImagen (self):
     global dlg_guardar
-    filtros = (('Imágenes BMP', ['bmp'])), ('Imágenes PNG', ['png'])
     if not dlg_guardar:  # Diálogo no creado aún
-      filtro  = []
-      for descripcion, extensiones in filtros:
+      filtro = []
+      for descripcion, extensiones in filtros_img:
         filtro.append (descripcion + ' (*.' + ' *.'.join (extensiones) + ')')
       dlg_guardar = QFileDialog (ventana, 'Exportar imagen', os.curdir, ';;'.join (filtro))
       dlg_guardar.setAcceptMode (QFileDialog.AcceptSave)
@@ -77,11 +79,11 @@ class Recurso (QPushButton):
       dlg_guardar.setLabelText  (QFileDialog.Reject,   '&Cancelar')
       dlg_guardar.setOption     (QFileDialog.DontConfirmOverwrite)
       dlg_guardar.setOption     (QFileDialog.DontUseNativeDialog)
-    dlg_guardar.selectNameFilter (filtro[1])  # Por defecto formato PNG
+    dlg_guardar.selectNameFilter (filtro[filtro_img_def])  # Elegimos el formato por defecto
     if dlg_guardar.exec_():  # No se ha cancelado
       indiceFiltro  = list (dlg_guardar.nameFilters()).index (dlg_guardar.selectedNameFilter())
       nombreFichero = str (dlg_guardar.selectedFiles()[0])
-      extension     = '.' + filtros[indiceFiltro][1][0]
+      extension     = '.' + filtros_img[indiceFiltro][1][0]
       if nombreFichero[- len (extension):].lower() != extension:
         nombreFichero += extension
       if os.path.isfile (nombreFichero):
