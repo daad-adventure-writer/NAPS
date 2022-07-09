@@ -22,6 +22,9 @@
 # *                                                                           *
 # *****************************************************************************
 
+from sys import version_info
+
+
 despl_ini = 0
 
 def bajo_nivel_cambia_despl (desplazamiento):
@@ -92,19 +95,32 @@ def guarda_desplazamiento (entero):
   """Guarda un desplazamiento (2 bytes) en relación con la memoria"""
   guarda_int2 (entero + despl_ini)
 
-def guarda_int1 (entero):
-  """Guarda un entero en un byte"""
-  fich_sal.write (chr (entero))
+if version_info[0] < 3:  # Para Python 2
+  def guarda_int1 (entero):
+    """Guarda un entero en un byte"""
+    fich_sal.write (chr (entero))
 
-def guarda_int2_be (entero):
-  """Guarda un entero en dos bytes, en formato Big Endian"""
-  fich_sal.write (chr (entero >> 8))
-  fich_sal.write (chr (entero & 255))
+  def guarda_int2_be (entero):
+    """Guarda un entero en dos bytes, en formato Big Endian"""
+    fich_sal.write (chr (entero >> 8))
+    fich_sal.write (chr (entero & 255))
 
-def guarda_int2_le (entero):
-  """Guarda un entero en dos bytes, en formato Little Endian"""
-  fich_sal.write (chr (entero & 255))
-  fich_sal.write (chr (entero >> 8))
+  def guarda_int2_le (entero):
+    """Guarda un entero en dos bytes, en formato Little Endian"""
+    fich_sal.write (chr (entero & 255))
+    fich_sal.write (chr (entero >> 8))
+else:  # Para Python 3
+  def guarda_int1 (entero):
+    """Guarda un entero en un byte"""
+    fich_sal.write (bytes ([entero]))
+
+  def guarda_int2_be (entero):
+    """Guarda un entero en dos bytes, en formato Big Endian"""
+    fich_sal.write (bytes ([entero >> 8, entero & 255]))
+
+  def guarda_int2_le (entero):
+    """Guarda un entero en dos bytes, en formato Little Endian"""
+    fich_sal.write (bytes ([entero & 255, entero >> 8]))
 
 
 # Funciones auxiliares que sólo se usan en este módulo
