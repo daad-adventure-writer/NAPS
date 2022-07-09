@@ -90,7 +90,7 @@ class Recurso (QPushButton):
     dlg_guardar.selectNameFilter (filtro[filtro_img_def])  # Elegimos el formato por defecto
     if dlg_guardar.exec_():  # No se ha cancelado
       indiceFiltro  = list (dlg_guardar.nameFilters()).index (dlg_guardar.selectedNameFilter())
-      nombreFichero = str (dlg_guardar.selectedFiles()[0])
+      nombreFichero = (str if sys.version_info[0] > 2 else unicode) (dlg_guardar.selectedFiles()[0])
       extension     = '.' + filtros_img[indiceFiltro][1][0]
       if nombreFichero[- len (extension):].lower() != extension:
         nombreFichero += extension
@@ -128,26 +128,26 @@ class Recurso (QPushButton):
     dlg_abrir.selectNameFilter (filtro[len (filtro) - 1])  # Elegimos el filtro de todas las imágenes soportadas
     if dlg_abrir.exec_():  # No se ha cancelado
       ventana.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
-      nombreFichero = str (dlg_abrir.selectedFiles()[0])
+      nombreFichero = (str if sys.version_info[0] > 2 else unicode) (dlg_abrir.selectedFiles()[0])
       imagen = QImage (nombreFichero)
       ventana.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
       if imagen.isNull():
         muestraFallo ('No se puede abrir la imagen del fichero:\n' + nombreFichero)
         return
       if imagen.height() + imagen.width() < 1:
-        muestraFallo ('Dimensiones inválidas', 'La imagen elegida (' + nombreFichero + ') tiene dimensiones inválidas, tanto su ancho como su alto debería ser mayor que cero')
+        muestraFallo ('Dimensiones inválidas', 'La imagen elegida (' + nombreFichero + u') tiene dimensiones inválidas, tanto su ancho como su alto debería ser mayor que cero')
         return
       if imagen.height() > graficos_daad.resolucion_por_modo[graficos_daad.modo_gfx][1]:
-        muestraFallo ('Altura de imagen excesiva', 'La imagen elegida (' + nombreFichero + ') tiene ' + str (imagen.height()) + ' píxeles de alto, mientras que el modo ' + graficos_daad.modo_gfx + ' de la base de datos gráfica sólo soporta hasta ' + str (graficos_daad.resolucion_por_modo[graficos_daad.modo_gfx][1]))
+        muestraFallo ('Altura de imagen excesiva', 'La imagen elegida (' + nombreFichero + ') tiene ' + str (imagen.height()) + u' píxeles de alto, mientras que el modo ' + graficos_daad.modo_gfx + u' de la base de datos gráfica sólo soporta hasta ' + str (graficos_daad.resolucion_por_modo[graficos_daad.modo_gfx][1]))
         return
       if imagen.width() > graficos_daad.resolucion_por_modo[graficos_daad.modo_gfx][0]:
-        muestraFallo ('Anchura de imagen excesiva', 'La imagen elegida (' + nombreFichero + ') tiene ' + str (imagen.width()) + ' píxeles de ancho, mientras que el modo ' + graficos_daad.modo_gfx + ' de la base de datos gráfica sólo soporta hasta ' + str (graficos_daad.resolucion_por_modo[graficos_daad.modo_gfx][0]))
+        muestraFallo ('Anchura de imagen excesiva', 'La imagen elegida (' + nombreFichero + ') tiene ' + str (imagen.width()) + u' píxeles de ancho, mientras que el modo ' + graficos_daad.modo_gfx + u' de la base de datos gráfica sólo soporta hasta ' + str (graficos_daad.resolucion_por_modo[graficos_daad.modo_gfx][0]))
         return
       if imagen.height() % 8:
-        muestraFallo ('Altura de imagen incorrecta', 'La imagen elegida (' + nombreFichero + ') tiene ' + str (imagen.height()) + ' píxeles de alto, cuando debería ser múltiplo de 8')
+        muestraFallo ('Altura de imagen incorrecta', 'La imagen elegida (' + nombreFichero + ') tiene ' + str (imagen.height()) + u' píxeles de alto, cuando debería ser múltiplo de 8')
         return
       if imagen.width() % 8:
-        muestraFallo ('Anchura de imagen incorrecta', 'La imagen elegida (' + nombreFichero + ') tiene ' + str (imagen.width()) + ' píxeles de ancho, cuando debería ser múltiplo de 8')
+        muestraFallo ('Anchura de imagen incorrecta', 'La imagen elegida (' + nombreFichero + ') tiene ' + str (imagen.width()) + u' píxeles de ancho, cuando debería ser múltiplo de 8')
         return
       if imagen.depth() > 8:  # No usa paleta indexada
         # Calculamos el número de colores que tiene
@@ -163,7 +163,7 @@ class Recurso (QPushButton):
         coloresUsados = imagen.colorTable()
         numColores    = imagen.colorCount()
       if numColores > graficos_daad.colores_por_modo[graficos_daad.modo_gfx]:
-        muestraFallo ('Advertencia: número de colores elevado', 'La imagen elegida (' + nombreFichero + ') utiliza ' + str (numColores) + ' colores diferentes, mientras que el modo ' + graficos_daad.modo_gfx + ' de la base de datos gráfica sólo soporta ' + str (graficos_daad.colores_por_modo[graficos_daad.modo_gfx]))
+        muestraFallo ('Advertencia: número de colores elevado', 'La imagen elegida (' + nombreFichero + ') utiliza ' + str (numColores) + ' colores diferentes, mientras que el modo ' + graficos_daad.modo_gfx + u' de la base de datos gráfica sólo soporta ' + str (graficos_daad.colores_por_modo[graficos_daad.modo_gfx]))
       if self.imagen and graficos_daad.recurso_es_unico (self.numRecurso):
         dlgSiNo = QMessageBox (ventana)
         dlgSiNo.addButton ('&Sí', QMessageBox.YesRole)
