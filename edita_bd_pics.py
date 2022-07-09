@@ -355,6 +355,8 @@ def muestraFallo (mensaje, detalle = '', parent = None):
   dlg_fallo.setText (mensaje)
   if detalle:
     dlg_fallo.setInformativeText ('Causa:\n' + detalle)
+  else:
+    dlg_fallo.setInformativeText ('')
   dlg_fallo.exec_()
 
 
