@@ -112,7 +112,7 @@ def carga_bd_pics (nombreFichero):
   if extension not in ('.cga', '.dat', '.ega', '.pcw'):
     return 'Extensión %s inválida para bases de datos gráficas de DAAD' % extension
   bajo_nivel_cambia_ent (fichero)
-  for funcion, parametros in ((preparaPlataforma, [extension]), (cargaRecursos, ())):
+  for funcion, parametros in ((preparaPlataforma, (extension, fichero)), (cargaRecursos, ())):
     try:
       msgError = funcion (*parametros)
       if msgError:
@@ -515,9 +515,17 @@ def generaPaletasCGA (destino = 'paletas'):
         fichero.write (linea + '\n')
       fichero.close()
 
-def preparaPlataforma (extension):
+def preparaPlataforma (extension, fichero):
   """Prepara la configuración dependiente de la versión, plataforma y modo gráfico. Devuelve un mensaje de error si falla"""
   global carga_int2, le, long_cabecera, long_cabecera_rec, long_paleta, modo_gfx, version
+  # Obtenemos y pre-comprobamos la longitud del fichero
+  fichero.seek (0, os.SEEK_END)
+  longFichero = fichero.tell()
+  if longFichero < 1:
+    return 'Fichero vacío'
+  elif longFichero < 4:
+    return 'Longitud de fichero insuficiente'
+  fichero.seek (0)
   le         = True
   plataforma = carga_int2_be()
   modo       = carga_int2_le()
@@ -554,6 +562,8 @@ def preparaPlataforma (extension):
     else:
       return 'Identificador de modo gráfico inválido'
     version = 1
+  if longFichero < (long_cabecera + long_cabecera_rec * 256):
+    return 'Longitud de fichero insuficiente'
   if le:
     carga_int2 = carga_int2_le
   else:
