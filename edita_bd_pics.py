@@ -278,8 +278,7 @@ def dialogoImportaBD ():
     ventana.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
 
 def importaBD (nombreFichero):
-  """Importa una base de datos desde el fichero de nombre dado"""
-  global le
+  """Importa una base de datos gráfica desde el fichero de nombre dado"""
   error = graficos_daad.carga_bd_pics (nombreFichero)
   if error:
     muestraFallo ('No se puede abrir el fichero:\n' + nombreFichero, error)
