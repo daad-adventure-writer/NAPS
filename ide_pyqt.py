@@ -1260,7 +1260,8 @@ def ejecutaPasos (indicePasos):
 
 def ejecutaPorPasos ():
   """Ejecuta la base de datos para depuración paso a paso"""
-  global pilas_pendientes, inicio_debug, proc_interprete
+  global banderas, pilas_pendientes, inicio_debug, proc_interprete
+  banderas     = [0] * mod_actual.NUM_BANDERAS  # Inicializamos las banderas
   inicio_debug = True
   accBanderas.setEnabled  (True)
   accPasoAPaso.setEnabled (False)
@@ -1758,7 +1759,7 @@ def postCarga (nombre):
   """Realiza las acciones convenientes tras la carga satisfactoria de una BD
 
   Recibe como parámetro el nombre de la base de datos"""
-  global banderas, tipo_nombre, tipo_verbo
+  global tipo_nombre, tipo_verbo
   # Apaño para que funcionen tal y como están las librerías con lista unificada de condactos
   # Lo hacemos aquí, porque la lista de condactos se puede extender tras cargar una BD
   if compruebaNombre (mod_actual, 'condactos', dict) and (not compruebaNombre (mod_actual, 'acciones', dict) or not mod_actual.acciones):
@@ -1784,8 +1785,6 @@ def postCarga (nombre):
   for entrada in mod_actual.funcs_exportar:
     if compruebaNombre (mod_actual, entrada[0], types.FunctionType):
       info_exportar.append ((entrada[0], entrada[1], entrada[2]))
-  # Inicializamos las banderas
-  banderas = [0] * mod_actual.NUM_BANDERAS
   # Habilitamos las acciones que requieran tener una base de datos cargada
   accContadores.setEnabled (True)
   accDescLocs.setEnabled   (True)
