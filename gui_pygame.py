@@ -518,12 +518,17 @@ def espera_tecla (tiempo = 0, numPasos = False):
     actualizaVentana()
     prn ('stp' if numPasos else 'key')  # Avisamos al IDE si estamos esperando una tecla para número de pasos de ejecución o no
     stdout.flush()
-    entrada = raw_input()
-    if not entrada:
-      return ord ('\r')
-    if ord (entrada[0]) == 0 and len (entrada) > 1 and ord (entrada[1]) in teclas_ascii_inv:
-      return teclas_ascii_inv[ord (entrada[1])]
-    return ord (entrada[0] if entrada else '\r')
+    while True:
+      entrada = raw_input()
+      if not entrada:
+        return ord ('\r')
+      if ord (entrada[0]) == 0 and len (entrada) > 1 and ord (entrada[1]) in teclas_ascii_inv:
+        return teclas_ascii_inv[ord (entrada[1])]
+      if entrada[0] == '#' and len (entrada) > 3:  # Cambio de valor de bandera
+        valores = entrada[1:].split (b'=' if version_info[0] > 2 else '=')
+        banderas_viejas[int (valores[0])] = int (valores[1])  # Actualizamos el valor de la bandera en su módulo
+        continue
+      return ord (entrada[0] if entrada else '\r')
   pygame.time.set_timer (pygame.USEREVENT, tiempo * 1000)  # Ponemos el timer
   copia = ventana.copy()  # Porque con PyGame 2 se pierde al menos al redimensionar
   while True:
@@ -744,7 +749,8 @@ def imprime_banderas (banderas):
   global banderas_antes, banderas_viejas
   if ide:
     if banderas_antes == None:
-      banderas_antes = [0,] * NUM_BANDERAS
+      banderas_antes  = [0,] * NUM_BANDERAS
+      banderas_viejas = banderas  # Guardamos aquí acceso a la lista original, por si el IDE pide modificar alguna
       return
     cambiosBanderas = {}
     for numBandera in range (NUM_BANDERAS):

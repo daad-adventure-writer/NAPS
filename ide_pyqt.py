@@ -1193,6 +1193,24 @@ def dialogoImportaBD ():
     importaBD (nombreFichero, indiceFiltro)
     selector.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
 
+def editaBandera (numBandera):
+  """Permite editar el valor de una bandera"""
+  dialogo = ModalEntrada (dlg_banderas, 'Valor de la bandera ' + str (numBandera) + ':', str (banderas[numBandera]))
+  dialogo.setInputMode   (QInputDialog.IntInput)
+  dialogo.setIntRange    (0, 255)
+  dialogo.setWindowTitle ('Editar')
+  if dialogo.exec_() == QDialog.Accepted:
+    if dialogo.intValue() != banderas[numBandera]:
+      banderas[numBandera] = dialogo.intValue()
+      botonBandera = dlg_banderas.layout().items[numBandera].widget()
+      botonBandera.setText (str (numBandera % 100) + ': ' + str (banderas[numBandera]))
+      botonBandera.setToolTip ('Valor de la bandera ' + str (numBandera) + ': ' + str (banderas[numBandera]))
+      dlg_banderas.layout().organizaLayout (dlg_banderas.layout().geometry())
+      if sys.version_info[0] < 3:
+        proc_interprete.stdin.write ('#' + str (numBandera) + '=' + str (banderas[numBandera]) + '\n')
+      else:  # Python 3+
+        proc_interprete.stdin.write (bytes ('#' + str (numBandera) + '=' + str (banderas[numBandera]) + '\n', locale.getpreferredencoding()))
+
 def editaDescLoc (indice):
   """Permite editar el texto de una descripción de localidad, tras hacer doble click en su tabla"""
   dialogo = ModalEntradaTexto (dlg_desc_locs, mod_actual.desc_locs[indice.row()])
@@ -1522,6 +1540,7 @@ def muestraBanderas ():
   layout       = VFlowLayout (dlg_banderas)
   for b in range (mod_actual.NUM_BANDERAS):
     botonBandera = QPushButton (str (b % 100) + ': ' + str (banderas[b]), dlg_banderas)
+    botonBandera.clicked.connect (lambda estado, numBandera = b: editaBandera (numBandera))
     botonBandera.setStyleSheet (estilo_fila_par)
     botonBandera.setToolTip ('Valor de la bandera ' + str (b) + ': ' + str (banderas[b]))
     layout.addWidget (botonBandera)
