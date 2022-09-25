@@ -509,13 +509,14 @@ def elige_subventana (numero):
          'con topes', topes[elegida], 'y cursor en', cursores[elegida])
   return anterior
 
-def espera_tecla (tiempo = 0):
+def espera_tecla (tiempo = 0, numPasos = False):
   """Espera hasta que se pulse una tecla (modificadores no), o hasta que pase tiempo segundos, si tiempo > 0"""
   global tras_portada
   tras_portada = False
   if ide:
     # TODO: tiempo muerto, teclas pulsadas, revisar teclas de edición, y que ninguna tecla indebida resulte en un Enter pulsado
     actualizaVentana()
+    prn ('stp' if numPasos else 'key')  # Avisamos al IDE si estamos esperando una tecla para número de pasos de ejecución o no
     stdout.flush()
     entrada = raw_input()
     if not entrada:

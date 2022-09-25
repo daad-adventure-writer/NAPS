@@ -745,6 +745,8 @@ Devuelve True si termina con DESC o equivalente. False si hay que reiniciar la a
     if valor != None:
       return valor
     if not pila_procs:
+      if ide:
+        prn (pila_procs)  # Avisamos al IDE que se ha vaciado la pila de procesos
       return  # Ha concluido la ejecución de la tabla
 
 def imprime_condacto ():
@@ -884,7 +886,7 @@ Si es Escape termina. Si es D entra en modo depuración de Python.
 
 Para depuración paso a paso, devuelve el número de pasos a ejecutar, que es: 10, 100, 1000 o 1; en función de si la tecla pulsada era Espacio, Tabulador, Enter o cualquier otra; respectivamente"""
   sys.stdout.flush()  # Que se imprima todo lo que quede
-  tecla = gui.espera_tecla()
+  tecla = gui.espera_tecla (numPasos = True)
   if tecla == None:
     return 1
   if tecla == gui.pygame.K_ESCAPE:

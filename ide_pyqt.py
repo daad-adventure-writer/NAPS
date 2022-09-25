@@ -477,18 +477,22 @@ class ManejoInterprete (QThread):
       finLista        = ']'
       imagenCambiada  = 'img'
       banderasCambian = 'flg'
+      esTeclaEntrada  = 'key'
+      esTeclaPasos    = 'stp'
     else:
       inicioLista     = ord ('[')
       finLista        = ord (']')
       imagenCambiada  = b'img'
       banderasCambian = b'flg'
+      esTeclaEntrada  = b'key'
+      esTeclaPasos    = b'stp'
     pilaProcs = []
     while True:
       linea = self.procInterprete.stdout.readline()
       if not linea:
         break  # Ocurre cuando el proceso ha terminado
-      # Si es actualización del estado de la pila, avisamos de ella
-      if linea[0] == inicioLista and finLista in linea:
+      tituloJuego = 'Ejecución ' + mod_actual.NOMBRE_SISTEMA  # Título para la ventana de juego
+      if linea[0] == inicioLista and finLista in linea:  # Si es actualización del estado de la pila, avisamos de ella
         pilaProcs = eval (linea)
         pilas_pendientes.append (pilaProcs)
         self.cambiaPila.emit()
@@ -497,7 +501,27 @@ class ManejoInterprete (QThread):
       elif linea[:3] == banderasCambian:
         cambiosBanderas = eval (linea[4:])
         self.cambiaBanderas.emit (cambiosBanderas)
+      elif linea[:3] == esTeclaEntrada:
+        acc1Paso.setEnabled     (False)
+        acc10Pasos.setEnabled   (False)
+        acc100Pasos.setEnabled  (False)
+        acc1000Pasos.setEnabled (False)
+        accBanderas.setEnabled  (False)
+        tituloJuego += ' - Esperando tecla'
+      elif linea[:3] == esTeclaPasos:
+        acc1Paso.setEnabled     (True)
+        acc10Pasos.setEnabled   (True)
+        acc100Pasos.setEnabled  (True)
+        acc1000Pasos.setEnabled (True)
+        accBanderas.setEnabled  (True)
+        tituloJuego += ' - Parada'
+      if mdi_juego:  # Porque puede no estar lista todavía
+        mdi_juego.widget().setWindowTitle (tituloJuego)
     # El proceso ha terminado
+    acc1Paso.setEnabled     (False)
+    acc10Pasos.setEnabled   (False)
+    acc100Pasos.setEnabled  (False)
+    acc1000Pasos.setEnabled (False)
     accBanderas.setEnabled  (False)
     accPasoAPaso.setEnabled (True)
     proc_interprete = None
@@ -632,7 +656,7 @@ class PantallaJuego (QMdiSubWindow):
     self.tamInicial = None
     widget = QLabel (self)
     widget.setPixmap (self.pixmap)
-    widget.setWindowTitle ('Ejecución ' + mod_actual.NOMBRE_SISTEMA)
+    widget.setWindowTitle ('Ejecución ' + mod_actual.NOMBRE_SISTEMA + ' - Parada')
     self.setOption (QMdiSubWindow.RubberBandResize)
     self.setWidget (widget)
     selector.centralWidget().addSubWindow (self)
@@ -792,7 +816,9 @@ def actualizaPosProcesos ():
   else:  # No queda nada más por actualizar
     return
   muestraProcesos()
-  if pestanyas.currentIndex() == pila_procs[-1][0]:
+  if not pila_procs:
+    cambiaProceso (pestanyas.currentIndex())
+  elif pestanyas.currentIndex() == pila_procs[-1][0]:
     cambiaProceso (pila_procs[-1][0], pila_procs[-1][1] if len (pila_procs[-1]) > 1 else None)
   else:
     pestanyas.setCurrentIndex (pila_procs[-1][0])
@@ -947,7 +973,11 @@ def compruebaNombre (modulo, nombre, tipo):
 
 def creaAcciones ():
   """Crea las acciones de menú y barra de botones"""
-  global accAcercaDe, accBanderas, accContadores, accDescLocs, accDescObjs, accDireccs, accExportar, accImportar, accMostrarLoc, accMostrarObj, accMostrarRec, accMostrarSys, accMostrarUsr, accMsgSys, accMsgUsr, accPasoAPaso, accSalir, accTblProcs, accTblVocab
+  global acc1Paso, acc10Pasos, acc100Pasos, acc1000Pasos, accAcercaDe, accBanderas, accContadores, accDescLocs, accDescObjs, accDireccs, accExportar, accImportar, accMostrarLoc, accMostrarObj, accMostrarRec, accMostrarSys, accMostrarUsr, accMsgSys, accMsgUsr, accPasoAPaso, accSalir, accTblProcs, accTblVocab
+  acc1Paso      = QAction (icono ('pasos_1'),    '1 paso',     selector)
+  acc10Pasos    = QAction (icono ('pasos_10'),   '10 pasos',   selector)
+  acc100Pasos   = QAction (icono ('pasos_100'),  '100 pasos',  selector)
+  acc1000Pasos  = QAction (icono ('pasos_1000'), '1000 pasos', selector)
   accAcercaDe   = QAction (icono_ide, '&Acerca de NAPS IDE', selector)
   accBanderas   = QAction (icono ('banderas'), '&Banderas', selector)
   accContadores = QAction (icono ('contadores'), '&Contadores', selector)
@@ -977,6 +1007,10 @@ def creaAcciones ():
   accMostrarRec.setChecked (True)
   accMostrarSys.setChecked (True)
   accMostrarUsr.setChecked (True)
+  acc1Paso.setEnabled      (False)
+  acc10Pasos.setEnabled    (False)
+  acc100Pasos.setEnabled   (False)
+  acc1000Pasos.setEnabled  (False)
   accBanderas.setEnabled   (False)
   accContadores.setEnabled (False)
   accDescLocs.setEnabled   (False)
@@ -992,7 +1026,15 @@ def creaAcciones ():
   accPasoAPaso.setEnabled  (False)
   accTblProcs.setEnabled   (False)
   accTblVocab.setEnabled   (False)
-  accSalir.setShortcut ('Ctrl+Q')
+  acc1Paso.setShortcut     ('F1')
+  acc10Pasos.setShortcut   ('F2')
+  acc100Pasos.setShortcut  ('F3')
+  acc1000Pasos.setShortcut ('F4')
+  accSalir.setShortcut     ('Ctrl+Q')
+  acc1Paso.setStatusTip      ('Ejecuta un paso de la base de datos y después para')
+  acc10Pasos.setStatusTip    ('Ejecuta hasta diez pasos de la base de datos y después para')
+  acc100Pasos.setStatusTip   ('Ejecuta hasta cien pasos de la base de datos y después para')
+  acc1000Pasos.setStatusTip  ('Ejecuta hasta mil pasos de la base de datos y después para')
   accAcercaDe.setStatusTip   ('Muestra información del programa')
   accBanderas.setStatusTip   ('Permite consultar y modificar las banderas')
   accContadores.setStatusTip ('Muestra el número de elementos de cada tipo')
@@ -1014,6 +1056,10 @@ def creaAcciones ():
   accTblVocab.setStatusTip   ('Permite consultar el vocabulario')
   accTblProcs.setToolTip ('Tablas de proceso')
   accTblVocab.setToolTip ('Tabla de vocabulario')
+  acc1Paso.triggered.connect      (lambda: ejecutaPasos (0))
+  acc10Pasos.triggered.connect    (lambda: ejecutaPasos (1))
+  acc100Pasos.triggered.connect   (lambda: ejecutaPasos (2))
+  acc1000Pasos.triggered.connect  (lambda: ejecutaPasos (3))
   accAcercaDe.triggered.connect   (muestraAcercaDe)
   accBanderas.triggered.connect   (muestraBanderas)
   accContadores.triggered.connect (muestraContadores)
@@ -1061,6 +1107,11 @@ def creaMenus ():
   menuBD.addAction (accSalir)
   menuEjecutar = selector.menuBar().addMenu ('&Ejecución')
   menuEjecutar.addAction (accPasoAPaso)
+  menuEjecutar.addSeparator()
+  menuEjecutar.addAction (acc1Paso)
+  menuEjecutar.addAction (acc10Pasos)
+  menuEjecutar.addAction (acc100Pasos)
+  menuEjecutar.addAction (acc1000Pasos)
   menuEjecutar.addSeparator()
   menuEjecutar.addAction (accBanderas)
   menuProcesos     = selector.menuBar().addMenu ('&Procesos')
@@ -1198,6 +1249,14 @@ def editaVocabulario (indice):
   if not nuevaPal or mod_actual.vocabulario[numFila] == nuevaPal:
     return  # No se ha modificado
   nuevaEntradaVocabulario (nuevaPal, numFila)
+
+def ejecutaPasos (indicePasos):
+  """Pide al intérprete ejecutar cierto número de pasos"""
+  teclasPasos = '1 \t\n'
+  proc_interprete.stdin.write (teclasPasos[indicePasos] if sys.version_info[0] < 3 else bytes ([ord (teclasPasos[indicePasos])]))
+  if indicePasos < 3:  # Nueva línea final
+    proc_interprete.stdin.write ('\n' if sys.version_info[0] < 3 else b'\n')
+  proc_interprete.stdin.flush()
 
 def ejecutaPorPasos ():
   """Ejecuta la base de datos para depuración paso a paso"""
