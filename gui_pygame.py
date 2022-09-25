@@ -53,7 +53,7 @@ teclas_ascii_inv = {27: pygame.K_ESCAPE, 71: pygame.K_HOME, 72: pygame.K_UP, 75:
 # Teclas imprimibles y de edición, con código < 256
 teclas_edicion = string.printable + string.punctuation + 'ñçº¡\b\x1b'
 # Teclas de edición con código >= 256
-# 314 es Alt Gr + ` (es decir, '[' en el teclado español)
+# 314 es Alt Gr + ` (es decir, '[' en el teclado español) FIXME: pero también es Alt Gt + ´, que debería ser '{' en el teclado español
 teclas_mas_256 = (314, pygame.K_DELETE, pygame.K_DOWN, pygame.K_END, pygame.K_HOME, pygame.K_KP_ENTER, pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP)
 # Teclas imprimibles del teclado numérico
 teclas_kp = {pygame.K_KP0: '0', pygame.K_KP1: '1', pygame.K_KP2: '2', pygame.K_KP3: '3', pygame.K_KP4: '4', pygame.K_KP5: '5', pygame.K_KP6: '6', pygame.K_KP7: '7', pygame.K_KP8: '8', pygame.K_KP9: '9', pygame.K_KP_DIVIDE: '/', pygame.K_KP_MULTIPLY: '*', pygame.K_KP_MINUS: '-', pygame.K_KP_PLUS: '+', pygame.K_KP_PERIOD: '.'}
@@ -715,7 +715,7 @@ El parámetro espaciar permite elegir si se debe dejar una línea en blanco tras e
         if altGr:  # Alt Gr pulsado
           if tecla in teclas_alt_gr:
             insertaHastaMax (entrada, posInput, teclas_alt_gr[tecla], longMax)
-        elif (tecla in string.digits) or (tecla in "º'¡ñç<,.-+"):
+        elif (tecla in string.digits) or (tecla in '"º\'¡ñç<,.-+'):
           insertaHastaMax (entrada, posInput, tecla, longMax)  # Es válida tal cual
       elif tecla in teclas_shift:  # Shift está pulsado
         insertaHastaMax (entrada, posInput, teclas_shift[tecla], longMax)
