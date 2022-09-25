@@ -657,7 +657,7 @@ class PantallaJuego (QMdiSubWindow):
                                     self.anchoBorde + self.altoTitulo + self.pixmap.size().height() * 3))
 
   def closeEvent (self, evento):
-    global mdi_juego
+    global mdi_banderas, mdi_juego
     if proc_interprete:
       proc_interprete.kill()
     evento.accept()
