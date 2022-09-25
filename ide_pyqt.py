@@ -784,6 +784,12 @@ class VFlowLayout (QLayout):
       y += item.sizeHint().height()
     return altoMax
 
+
+def abreBanderas ():
+  """Abre el diálogo de banderas, lanzado automáticamente tras empezar la depuración por pasos"""
+  muestraBanderas()
+  selector.centralWidget().setActiveSubWindow (mdi_juego)
+
 def actualizaBanderas (cambiosBanderas):
   """Actualiza el valor de las banderas"""
   global banderas
@@ -806,7 +812,7 @@ def actualizaProceso ():
 
 def actualizaPosProcesos ():
   """Refleja la posición de ejecución paso a paso actual en el diálogo de tablas de proceso"""
-  global inicio_debug, pila_procs
+  global inicio_debug, pila_procs, timer_banderas
   if len (pilas_pendientes) > 4:
     # Se están acumulando, por lo que tomamos la última y descartamos las demás
     pila_procs = pilas_pendientes[-1]
@@ -827,8 +833,10 @@ def actualizaPosProcesos ():
     if inicio_debug:
       inicio_debug = False
       selector.centralWidget().tileSubWindows()
-      muestraBanderas()
-      selector.centralWidget().setActiveSubWindow (mdi_juego)
+      timer_banderas = QTimer()
+      timer_banderas.setSingleShot (True)
+      timer_banderas.timeout.connect (abreBanderas)
+      timer_banderas.start (50)
 
 def actualizaVentanaJuego ():
   """Muestra o actualiza la pantalla actual de juego del intérprete en el diálogo de ventana de juego"""
