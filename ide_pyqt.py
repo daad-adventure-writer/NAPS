@@ -50,6 +50,7 @@ except:
 
 dlg_abrir       = None  # Diálogo de abrir fichero
 dlg_acerca_de   = None  # Diálogo "Acerca de"
+dlg_banderas    = None  # Diálogo para consultar y modificar las banderas
 dlg_contadores  = None  # Diálogo de contadores
 dlg_fallo       = None  # Diálogo para mostrar fallos leves
 dlg_guardar     = None  # Diálogo de guardar fichero
@@ -59,6 +60,7 @@ dlg_msg_sys     = None  # Diálogo para consultar y modificar los mensajes de sis
 dlg_msg_usr     = None  # Diálogo para consultar y modificar los mensajes de usuario
 dlg_procesos    = None  # Diálogo para consultar y modificar las tablas de proceso
 dlg_vocabulario = None  # Diálogo para consultar y modificar el vocabulario
+mdi_banderas    = None  # Subventana MDI para dlg_banderas
 mdi_desc_locs   = None  # Subventana MDI para dlg_desc_locs
 mdi_desc_objs   = None  # Subventana MDI para dlg_desc_objs
 mdi_msg_sys     = None  # Subventana MDI para dlg_msg_sys
@@ -83,6 +85,10 @@ proc_interprete = None   # Proceso del intérprete
 
 # Conversión de teclas para manejo del intérprete
 conversion_teclas = {Qt.Key_Escape: 27, Qt.Key_Down: 80, Qt.Key_End: 79, Qt.Key_Home: 71, Qt.Key_Left: 75, Qt.Key_Right: 77, Qt.Key_Up: 72}
+
+# Estilos CSS para el diálogo de banderas
+estilo_fila_impar = 'QToolTip {background: #000; color: #fff} QPushButton {border: 0; margin-right: 2px; padding: 0; background: #ddd}'
+estilo_fila_par   = 'QToolTip {background: #000; color: #fff} QPushButton {border: 0; margin-right: 2px; padding: 0}'
 
 
 # Funciones de exportación e importación, con sus módulos, extensiones y descripciones
@@ -455,8 +461,9 @@ class CampoTexto (QTextEdit):
 
 class ManejoInterprete (QThread):
   """Maneja la comunicación con el intérprete ejecutando la base de datos"""
-  cambiaImagen = pyqtSignal()
-  cambiaPila   = pyqtSignal()
+  cambiaBanderas = pyqtSignal (object)
+  cambiaImagen   = pyqtSignal()
+  cambiaPila     = pyqtSignal()
 
   def __init__ (self, procInterprete, padre):
     QThread.__init__ (self, parent = padre)
@@ -466,13 +473,15 @@ class ManejoInterprete (QThread):
     """Lee del proceso del intérprete, obteniendo por dónde va la ejecución"""
     global proc_interprete
     if sys.version_info[0] < 3:
-      inicioLista    = '['
-      finLista       = ']'
-      imagenCambiada = 'img'
+      inicioLista     = '['
+      finLista        = ']'
+      imagenCambiada  = 'img'
+      banderasCambian = 'flg'
     else:
-      inicioLista    = ord ('[')
-      finLista       = ord (']')
-      imagenCambiada = b'img'
+      inicioLista     = ord ('[')
+      finLista        = ord (']')
+      imagenCambiada  = b'img'
+      banderasCambian = b'flg'
     pilaProcs = []
     while True:
       linea = self.procInterprete.stdout.readline()
@@ -485,7 +494,11 @@ class ManejoInterprete (QThread):
         self.cambiaPila.emit()
       elif linea[:3] == imagenCambiada:
         self.cambiaImagen.emit()
+      elif linea[:3] == banderasCambian:
+        cambiosBanderas = eval (linea[4:])
+        self.cambiaBanderas.emit (cambiosBanderas)
     # El proceso ha terminado
+    accBanderas.setEnabled  (False)
     accPasoAPaso.setEnabled (True)
     proc_interprete = None
     if mdi_juego:
@@ -649,6 +662,9 @@ class PantallaJuego (QMdiSubWindow):
       proc_interprete.kill()
     evento.accept()
     mdi_juego = None
+    if mdi_banderas:
+      selector.centralWidget().removeSubWindow (mdi_banderas)
+      mdi_banderas = None
 
   def keyPressEvent (self, evento):
     if evento.key() in (Qt.Key_Alt, Qt.Key_Control, Qt.Key_Meta, Qt.Key_Shift):
@@ -692,6 +708,70 @@ class PantallaJuego (QMdiSubWindow):
     super (PantallaJuego, self).resizeEvent (evento)
     self.actualizaImagen()
 
+class VFlowLayout (QLayout):
+  """Como el QVBoxLayout pero pasando a la columna siguiente cuando no cabe verticalmente"""
+  def __init__ (self, parent):
+    QLayout.__init__ (self, parent)
+    self.items = []
+
+  def addItem (self, item):
+    self.items.append (item)
+
+  def count (self):
+    return len (self.items)
+
+  def hasHeightForWidth (self):
+    return False
+
+  def itemAt (self, indice):
+    try:
+      return self.items[indice]
+    except:
+      return None
+
+  def setGeometry (self, dimensiones):
+    super (VFlowLayout, self).setGeometry (dimensiones)
+    self.organizaLayout (dimensiones)
+
+  def sizeHint (self):
+    if mdi_juego:
+      if dlg_procesos and mdi_procesos in selector.centralWidget().subWindowList():
+        return QSize (mdi_juego.widget().width(), dlg_procesos.height() - mdi_juego.height())
+      return QSize (mdi_juego.widget().width(), 10 * (self.items[0].sizeHint().height()))
+    return self.parent().size()
+
+  def organizaLayout (self, dimensiones):
+    altoMax  = 0
+    anchoCol = 0
+    colEsPar = True
+    x        = 0
+    y        = 0
+    for item in self.items:
+      if y + item.sizeHint().height() > dimensiones.height():  # Sobrepasará por abajo
+        altoMax  = max (altoMax, y)
+        x       += anchoCol
+        y        = 0
+        anchoCol = item.sizeHint().width()
+        colEsPar = not colEsPar
+      else:
+        anchoCol = max (anchoCol, item.sizeHint().width())
+      item.setGeometry (QRect (QPoint (x, y), item.sizeHint()))
+      item.widget().setStyleSheet (estilo_fila_par if colEsPar else estilo_fila_impar)
+      y += item.sizeHint().height()
+    return altoMax
+
+def actualizaBanderas (cambiosBanderas):
+  """Actualiza el valor de las banderas"""
+  global banderas
+  for numBandera in cambiosBanderas:
+    banderas[numBandera] = cambiosBanderas[numBandera]
+    if dlg_banderas:
+      botonBandera = dlg_banderas.layout().items[numBandera].widget()
+      botonBandera.setText (str (numBandera % 100) + ': ' + str (banderas[numBandera]))
+      botonBandera.setToolTip ('Valor de la bandera ' + str (numBandera) + ': ' + str (banderas[numBandera]))
+  if dlg_banderas:
+    dlg_banderas.layout().organizaLayout (dlg_banderas.layout().geometry())
+
 def actualizaProceso ():
   """Redibuja el proceso actualmente mostrado, si hay alguno"""
   if dlg_procesos:
@@ -721,6 +801,8 @@ def actualizaPosProcesos ():
     if inicio_debug:
       inicio_debug = False
       selector.centralWidget().tileSubWindows()
+      muestraBanderas()
+      selector.centralWidget().setActiveSubWindow (mdi_juego)
 
 def actualizaVentanaJuego ():
   """Muestra o actualiza la pantalla actual de juego del intérprete en el diálogo de ventana de juego"""
@@ -865,8 +947,9 @@ def compruebaNombre (modulo, nombre, tipo):
 
 def creaAcciones ():
   """Crea las acciones de menú y barra de botones"""
-  global accAcercaDe, accContadores, accDescLocs, accDescObjs, accDireccs, accExportar, accImportar, accMostrarLoc, accMostrarObj, accMostrarRec, accMostrarSys, accMostrarUsr, accMsgSys, accMsgUsr, accPasoAPaso, accSalir, accTblProcs, accTblVocab
+  global accAcercaDe, accBanderas, accContadores, accDescLocs, accDescObjs, accDireccs, accExportar, accImportar, accMostrarLoc, accMostrarObj, accMostrarRec, accMostrarSys, accMostrarUsr, accMsgSys, accMsgUsr, accPasoAPaso, accSalir, accTblProcs, accTblVocab
   accAcercaDe   = QAction (icono_ide, '&Acerca de NAPS IDE', selector)
+  accBanderas   = QAction (icono ('banderas'), '&Banderas', selector)
   accContadores = QAction (icono ('contadores'), '&Contadores', selector)
   accDescLocs   = QAction (icono ('desc_localidad'), 'Descripciones de &localidades', selector)
   accDescObjs   = QAction (icono ('desc_objeto'),    'Descripciones de &objetos',     selector)
@@ -894,6 +977,7 @@ def creaAcciones ():
   accMostrarRec.setChecked (True)
   accMostrarSys.setChecked (True)
   accMostrarUsr.setChecked (True)
+  accBanderas.setEnabled   (False)
   accContadores.setEnabled (False)
   accDescLocs.setEnabled   (False)
   accDescObjs.setEnabled   (False)
@@ -910,6 +994,7 @@ def creaAcciones ():
   accTblVocab.setEnabled   (False)
   accSalir.setShortcut ('Ctrl+Q')
   accAcercaDe.setStatusTip   ('Muestra información del programa')
+  accBanderas.setStatusTip   ('Permite consultar y modificar las banderas')
   accContadores.setStatusTip ('Muestra el número de elementos de cada tipo')
   accDescLocs.setStatusTip   ('Permite consultar y modificar las descripciones de las localidades')
   accDescObjs.setStatusTip   ('Permite consultar y modificar las descripciones de los objetos')
@@ -930,6 +1015,7 @@ def creaAcciones ():
   accTblProcs.setToolTip ('Tablas de proceso')
   accTblVocab.setToolTip ('Tabla de vocabulario')
   accAcercaDe.triggered.connect   (muestraAcercaDe)
+  accBanderas.triggered.connect   (muestraBanderas)
   accContadores.triggered.connect (muestraContadores)
   accDescLocs.triggered.connect   (muestraDescLocs)
   accDescObjs.triggered.connect   (muestraDescObjs)
@@ -973,8 +1059,10 @@ def creaMenus ():
   menuBD.addAction (accContadores)
   menuBD.addSeparator()
   menuBD.addAction (accSalir)
-  menuEjecutar = selector.menuBar().addMenu ('&Ejecutar')
+  menuEjecutar = selector.menuBar().addMenu ('&Ejecución')
   menuEjecutar.addAction (accPasoAPaso)
+  menuEjecutar.addSeparator()
+  menuEjecutar.addAction (accBanderas)
   menuProcesos     = selector.menuBar().addMenu ('&Procesos')
   menuProcsMostrar = QMenu ('&Mostrar textos', menuProcesos)
   menuProcsMostrar.addAction (accMostrarLoc)
@@ -1115,6 +1203,7 @@ def ejecutaPorPasos ():
   """Ejecuta la base de datos para depuración paso a paso"""
   global pilas_pendientes, inicio_debug, proc_interprete
   inicio_debug = True
+  accBanderas.setEnabled  (True)
   accPasoAPaso.setEnabled (False)
   rutaInterprete = os.path.join (os.path.dirname (os.path.realpath (__file__)), 'interprete.py')
   argumentos     = ['python', rutaInterprete, '--ide', nombre_fich_bd]
@@ -1124,8 +1213,9 @@ def ejecutaPorPasos ():
   proc_interprete  = subprocess.Popen (argumentos, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = devnull)
   pilas_pendientes = []
   hilo = ManejoInterprete (proc_interprete, aplicacion)
-  hilo.cambiaImagen.connect (actualizaVentanaJuego)
-  hilo.cambiaPila.connect   (actualizaPosProcesos)
+  hilo.cambiaBanderas.connect (actualizaBanderas)
+  hilo.cambiaImagen.connect   (actualizaVentanaJuego)
+  hilo.cambiaPila.connect     (actualizaPosProcesos)
   hilo.start()
 
 def exportaBD ():
@@ -1357,6 +1447,30 @@ def muestraAcercaDe ():
     dlg_acerca_de.setWindowTitle ('Acerca de NAPS IDE')
   dlg_acerca_de.exec_()
 
+def muestraBanderas ():
+  """Muestra el diálogo de banderas"""
+  global dlg_banderas, mdi_banderas
+  if dlg_banderas and mdi_banderas in selector.centralWidget().subWindowList():
+    # Diálogo ya creado
+    try:
+      selector.centralWidget().setActiveSubWindow (mdi_banderas)
+      return
+    except RuntimeError:  # Diálogo borrado por Qt
+      pass  # Lo crearemos de nuevo
+  # Creamos el diálogo
+  dlg_banderas = QWidget (selector)
+  layout       = VFlowLayout (dlg_banderas)
+  for b in range (mod_actual.NUM_BANDERAS):
+    botonBandera = QPushButton (str (b % 100) + ': ' + str (banderas[b]), dlg_banderas)
+    botonBandera.setStyleSheet (estilo_fila_par)
+    botonBandera.setToolTip ('Valor de la bandera ' + str (b) + ': ' + str (banderas[b]))
+    layout.addWidget (botonBandera)
+  dlg_banderas.setLayout      (layout)
+  dlg_banderas.setWindowTitle ('Banderas')
+  mdi_banderas = selector.centralWidget().addSubWindow (dlg_banderas)
+  mdi_banderas.setOption (QMdiSubWindow.RubberBandResize)
+  dlg_banderas.show()
+
 def muestraContadores ():
   """Muestra el diálogo de contadores"""
   global dlg_contadores
@@ -1585,7 +1699,7 @@ def postCarga (nombre):
   """Realiza las acciones convenientes tras la carga satisfactoria de una BD
 
   Recibe como parámetro el nombre de la base de datos"""
-  global tipo_nombre, tipo_verbo
+  global banderas, tipo_nombre, tipo_verbo
   # Apaño para que funcionen tal y como están las librerías con lista unificada de condactos
   # Lo hacemos aquí, porque la lista de condactos se puede extender tras cargar una BD
   if compruebaNombre (mod_actual, 'condactos', dict) and (not compruebaNombre (mod_actual, 'acciones', dict) or not mod_actual.acciones):
@@ -1611,6 +1725,8 @@ def postCarga (nombre):
   for entrada in mod_actual.funcs_exportar:
     if compruebaNombre (mod_actual, entrada[0], types.FunctionType):
       info_exportar.append ((entrada[0], entrada[1], entrada[2]))
+  # Inicializamos las banderas
+  banderas = [0] * mod_actual.NUM_BANDERAS
   # Habilitamos las acciones que requieran tener una base de datos cargada
   accContadores.setEnabled (True)
   accDescLocs.setEnabled   (True)

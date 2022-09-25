@@ -741,6 +741,18 @@ El parámetro espaciar permite elegir si se debe dejar una línea en blanco tras e
 def imprime_banderas (banderas):
   """Imprime el contenido de las banderas (en la extensión de la ventana)"""
   global banderas_antes, banderas_viejas
+  if ide:
+    if banderas_antes == None:
+      banderas_antes = [0,] * NUM_BANDERAS
+      return
+    cambiosBanderas = {}
+    for numBandera in range (NUM_BANDERAS):
+      if banderas[numBandera] != banderas_antes[numBandera]:
+        cambiosBanderas[numBandera] = banderas[numBandera]
+        banderas_antes[numBandera]  = banderas[numBandera]
+    if cambiosBanderas:
+      prn ('flg', cambiosBanderas)
+    return
   cifrasBandera = 2
   if NUM_BANDERAS > 50:
     numFilas = 32
