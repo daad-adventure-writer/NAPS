@@ -788,11 +788,6 @@ class VFlowLayout (QLayout):
     self.tamAntes = None
 
 
-def abreBanderas ():
-  """Abre el diálogo de banderas, lanzado automáticamente tras empezar la depuración por pasos"""
-  muestraBanderas()
-  selector.centralWidget().setActiveSubWindow (mdi_juego)
-
 def actualizaBanderas (cambiosBanderas):
   """Actualiza el valor de las banderas"""
   global banderas
@@ -815,7 +810,7 @@ def actualizaProceso ():
 
 def actualizaPosProcesos ():
   """Refleja la posición de ejecución paso a paso actual en el diálogo de tablas de proceso"""
-  global inicio_debug, pila_procs, timer_banderas
+  global inicio_debug, pila_procs
   if len (pilas_pendientes) > 4:
     # Se están acumulando, por lo que tomamos la última y descartamos las demás
     pila_procs = pilas_pendientes[-1]
@@ -835,11 +830,16 @@ def actualizaPosProcesos ():
     selector.centralWidget().setActiveSubWindow (mdi_juego)
     if inicio_debug:
       inicio_debug = False
-      selector.centralWidget().tileSubWindows()
-      timer_banderas = QTimer()
-      timer_banderas.setSingleShot (True)
-      timer_banderas.timeout.connect (abreBanderas)
-      timer_banderas.start (50)
+      # Aseguramos que la ventana de juego tenga un ancho correcto y adecuado
+      mdi_juego.showNormal()
+      mdi_juego.resize (selector.centralWidget().width() / 2, mdi_juego.height() - 1)
+      actualizaVentanaJuego()
+      anchoJuego = mdi_juego.frameGeometry().width()
+      # Colocamos el diálogo de procesos a la derecha del de juego, tomando todo el alto disponible
+      mdi_procesos.resize (selector.centralWidget().width() - anchoJuego, selector.centralWidget().height())
+      mdi_procesos.move (anchoJuego, 0)
+      muestraBanderas()
+      selector.centralWidget().setActiveSubWindow (mdi_juego)
 
 def actualizaVentanaJuego ():
   """Muestra o actualiza la pantalla actual de juego del intérprete en el diálogo de ventana de juego"""
