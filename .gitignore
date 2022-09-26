@@ -1,8 +1,11 @@
 backups/
+paletas/
 tex/paws.pdf
-gui.py
 undaad
+ventanaJuegoActual.bmp
 *.agp
 *.ddb
+*.DDB
+*.pgp
 *.pyc
 naps.sublime-*
