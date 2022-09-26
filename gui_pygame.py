@@ -525,7 +525,7 @@ def espera_tecla (tiempo = 0, numPasos = False):
       if ord (entrada[0]) == 0 and len (entrada) > 1 and ord (entrada[1]) in teclas_ascii_inv:
         return teclas_ascii_inv[ord (entrada[1])]
       if entrada[0] == '#' and len (entrada) > 3:  # Cambio de valor de bandera
-        valores = entrada[1:].split (b'=' if version_info[0] > 2 else '=')
+        valores = entrada[1:].split ('=' if type (entrada) == str else b'=')
         banderas_viejas[int (valores[0])] = int (valores[1])  # Actualizamos el valor de la bandera en su módulo
         continue
       return ord (entrada[0] if entrada else '\r')
