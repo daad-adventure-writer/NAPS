@@ -765,14 +765,12 @@ class VFlowLayout (QLayout):
     return self.parent().size()
 
   def organizaLayout (self, dimensiones):
-    altoMax  = 0
     anchoCol = 0
     colEsPar = True
     x        = 0
     y        = 0
     for item in self.items:
       if y + item.sizeHint().height() > dimensiones.height():  # Sobrepasará por abajo
-        altoMax  = max (altoMax, y)
         x       += anchoCol
         y        = 0
         anchoCol = item.sizeHint().width()
@@ -782,7 +780,6 @@ class VFlowLayout (QLayout):
       item.setGeometry (QRect (QPoint (x, y), item.sizeHint()))
       item.widget().setStyleSheet (estilo_fila_par if colEsPar else estilo_fila_impar)
       y += item.sizeHint().height()
-    return altoMax
 
 
 def abreBanderas ():
