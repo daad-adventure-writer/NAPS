@@ -736,7 +736,8 @@ class VFlowLayout (QLayout):
   """Como el QVBoxLayout pero pasando a la columna siguiente cuando no cabe verticalmente"""
   def __init__ (self, parent):
     QLayout.__init__ (self, parent)
-    self.items = []
+    self.items    = []
+    self.tamAntes = None  # Tamaño anterior del layout
 
   def addItem (self, item):
     self.items.append (item)
@@ -754,8 +755,10 @@ class VFlowLayout (QLayout):
       return None
 
   def setGeometry (self, dimensiones):
-    super (VFlowLayout, self).setGeometry (dimensiones)
-    self.organizaLayout (dimensiones)
+    if dimensiones != self.tamAntes:
+      super (VFlowLayout, self).setGeometry (dimensiones)
+      self.organizaLayout (dimensiones)
+      self.tamAntes = dimensiones
 
   def sizeHint (self):
     if mdi_juego:
@@ -781,6 +784,9 @@ class VFlowLayout (QLayout):
       item.widget().setStyleSheet (estilo_fila_par if colEsPar else estilo_fila_impar)
       y += item.sizeHint().height()
 
+  def redibuja (self):
+    self.tamAntes = None
+
 
 def abreBanderas ():
   """Abre el diálogo de banderas, lanzado automáticamente tras empezar la depuración por pasos"""
@@ -797,7 +803,7 @@ def actualizaBanderas (cambiosBanderas):
       botonBandera.setText (str (numBandera % 100) + ': ' + str (banderas[numBandera]))
       botonBandera.setToolTip ('Valor de la bandera ' + str (numBandera) + ': ' + str (banderas[numBandera]))
   if dlg_banderas:
-    dlg_banderas.layout().organizaLayout (dlg_banderas.layout().geometry())
+    dlg_banderas.layout().redibuja()
 
 def actualizaProceso ():
   """Redibuja el proceso actualmente mostrado, si hay alguno"""
@@ -1210,7 +1216,7 @@ def editaBandera (numBandera):
       botonBandera = dlg_banderas.layout().items[numBandera].widget()
       botonBandera.setText (str (numBandera % 100) + ': ' + str (banderas[numBandera]))
       botonBandera.setToolTip ('Valor de la bandera ' + str (numBandera) + ': ' + str (banderas[numBandera]))
-      dlg_banderas.layout().organizaLayout (dlg_banderas.layout().geometry())
+      dlg_banderas.layout().redibuja()
       if sys.version_info[0] < 3:
         proc_interprete.stdin.write ('#' + str (numBandera) + '=' + str (banderas[numBandera]) + '\n')
       else:  # Python 3+
