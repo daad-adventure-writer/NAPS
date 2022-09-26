@@ -87,8 +87,8 @@ proc_interprete = None   # Proceso del intérprete
 conversion_teclas = {Qt.Key_Escape: 27, Qt.Key_Down: 80, Qt.Key_End: 79, Qt.Key_Home: 71, Qt.Key_Left: 75, Qt.Key_Right: 77, Qt.Key_Up: 72}
 
 # Estilos CSS para el diálogo de banderas
-estilo_fila_impar = 'QToolTip {background: #000; color: #fff} QPushButton {border: 0; margin-right: 2px; padding: 0; background: #ddd}'
-estilo_fila_par   = 'QToolTip {background: #000; color: #fff} QPushButton {border: 0; margin-right: 2px; padding: 0}'
+estilo_fila_impar = 'QPushButton {border: 0; margin-right: 2px; padding: 0; background: #ddd}'
+estilo_fila_par   = 'QPushButton {border: 0; margin-right: 2px; padding: 0}'
 
 
 # Funciones de exportación e importación, con sus módulos, extensiones y descripciones
