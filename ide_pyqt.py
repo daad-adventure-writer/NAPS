@@ -673,6 +673,8 @@ class PantallaJuego (QMdiSubWindow):
     if not self.tamInicial and self.sizeHint().width() > self.pixmap.width():
       self.anchoBorde = (self.sizeHint().width() - self.pixmap.width()) / 2
       self.altoTitulo = QApplication.style().pixelMetric (QStyle.PM_TitleBarHeight)
+      if self.sizeHint().height() == self.pixmap.height() + self.anchoBorde * 2 + self.altoTitulo:
+        self.altoTitulo += self.anchoBorde  # pixelMetric no incluía el borde al dar el alto de la barra de título
       if self.sizeHint().height() == self.pixmap.height() + self.anchoBorde + self.altoTitulo:
         self.tamInicial = self.sizeHint()
         selector.centralWidget().tileSubWindows()
