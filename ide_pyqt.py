@@ -1859,7 +1859,7 @@ args = argsParser.parse_args()
 if args.bbdd:
   if args.graficos and not os.path.exists (args.graficos):
     muestraFallo ('Ruta inexistente',
-                  'No existe ningún fichero ni carpeta con la ruta dada desde la línea de comandos para gráficos:\n\n' + args.graficos)
+                  'No existe ningún fichero ni carpeta con la ruta dada desde la línea de comandos para gráficos:\n\n' + (args.graficos.decode ('utf8') if sys.version_info[0] < 3 else args.graficos))
     args.graficos = None
   if args.graficos:
     importaBD (args.bbdd, nombreFicheroGfx = args.graficos)
