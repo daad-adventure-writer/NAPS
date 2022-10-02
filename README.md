@@ -44,12 +44,12 @@ Requisitos:
 
 Uso:
 
-``python ide_pyqt.py [base_de_datos] [base_de_datos_gráfica]``
+``python ide_pyqt.py [base_de_datos] [bd_o_carpeta_gráficos]``
 
 Parámetros:
 
 - ``base_de_datos`` (opcional) Base de datos de Quill/PAWS/SWAN/DAAD a cargar
-- ``base_de_datos_gráfica`` (opcional) Base de datos gráfica que usar al depurar
+- ``bd_o_carpeta_gráficos`` (opcional) Base de datos gráfica que usar para las imágenes al depurar, o carpeta de la que tomarlas (con nombre pic###.png)
 
 
 Instalación de los requisitos en Windows

@@ -1853,13 +1853,13 @@ cargaInfoModulos()
 argsParser = argparse.ArgumentParser (sys.argv[0], description = 'Entorno de Desarrollo Integrado para Quill/PAWS/SWAN/DAAD en Python')
 argsParser.add_argument ('-r', '--run', action = 'store_true', help = 'ejecutar base_de_datos por pasos directamente')
 argsParser.add_argument ('bbdd',     metavar = 'base_de_datos',         nargs = '?', help = 'base de datos de Quill/PAWS/SWAN/DAAD a ejecutar')
-argsParser.add_argument ('graficos', metavar = 'base_de_datos_gráfica', nargs = '?', help = 'base de datos gráfica de la que tomar las imágenes')
+argsParser.add_argument ('graficos', metavar = 'bd_o_carpeta_gráficos', nargs = '?', help = 'base de datos gráfica o carpeta de la que tomar las imágenes (con nombre pic###.png)')
 args = argsParser.parse_args()
 
 if args.bbdd:
   if args.graficos and not os.path.exists (args.graficos):
-    muestraFallo ('Fichero inexistente',
-                  'No existe el fichero de base de datos gráfica dado desde la línea de comandos:\n\n' + args.graficos)
+    muestraFallo ('Ruta inexistente',
+                  'No existe ningún fichero ni carpeta con la ruta dada desde la línea de comandos para gráficos:\n\n' + args.graficos)
     args.graficos = None
   if args.graficos:
     importaBD (args.bbdd, nombreFicheroGfx = args.graficos)
