@@ -1028,10 +1028,12 @@ if __name__ == '__main__':
   if args.ruta_graficos:
     if os.path.isfile (args.ruta_graficos):
       gui.carga_bd_pics (args.ruta_graficos)
-    else:
+    elif os.path.isdir (args.ruta_graficos):
       if args.ruta_graficos[-1] != os.sep:
         args.ruta_graficos += os.sep
       gui.ruta_graficos = args.ruta_graficos
+    else:
+      prn ('No hay ningún fichero ni carpeta con ese nombre:', args.ruta_graficos, file = sys.stderr)
 
   if NOMBRE_SISTEMA != 'DAAD':
     gui.todo_mayusculas = True

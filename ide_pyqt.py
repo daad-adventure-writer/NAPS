@@ -1857,7 +1857,11 @@ argsParser.add_argument ('graficos', metavar = 'base_de_datos_gráfica', nargs = 
 args = argsParser.parse_args()
 
 if args.bbdd:
-  if args.graficos and os.path.exists (args.graficos):
+  if args.graficos and not os.path.exists (args.graficos):
+    muestraFallo ('Fichero inexistente',
+                  'No existe el fichero de base de datos gráfica dado desde la línea de comandos:\n\n' + args.graficos)
+    args.graficos = None
+  if args.graficos:
     importaBD (args.bbdd, nombreFicheroGfx = args.graficos)
   else:
     importaBD (args.bbdd)
