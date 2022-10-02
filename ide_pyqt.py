@@ -1607,7 +1607,7 @@ def muestraMsgUsr ():
 def muestraProcesos ():
   """Muestra el diálogo para las tablas de proceso"""
   global campo_txt, dlg_procesos, mdi_procesos, pestanyas
-  if dlg_procesos:  # Diálogo ya creado
+  if dlg_procesos and mdi_procesos in selector.centralWidget().subWindowList():  # Diálogo ya creado
     try:
       selector.centralWidget().setActiveSubWindow (mdi_procesos)
       return
