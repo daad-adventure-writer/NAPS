@@ -333,9 +333,11 @@ def da_tecla_pulsada ():
   return (tecla, 0)
 
 def carga_bd_pics (rutaBDGfx):
-  """Carga la base de datos gráfica de ruta dada, y prepara la paleta y lo relacionado con ella"""
+  """Carga la base de datos gráfica de ruta dada, y prepara la paleta y lo relacionado con ella. Devuelve un mensaje de error si falla"""
   extension = rutaBDGfx[rutaBDGfx.rfind ('.') + 1:]
-  graficos_daad.carga_bd_pics (rutaBDGfx)
+  error     = graficos_daad.carga_bd_pics (rutaBDGfx)
+  if error:
+    return error
   if graficos_daad.modo_gfx == 'CGA':
     cambiaPaleta (graficos_daad.paleta1b)  # Dejamos cargada la paleta CGA 1 con brillo
     tinta = 3

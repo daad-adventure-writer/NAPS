@@ -1027,7 +1027,9 @@ if __name__ == '__main__':
 
   if args.ruta_graficos:
     if os.path.isfile (args.ruta_graficos):
-      gui.carga_bd_pics (args.ruta_graficos)
+      error = gui.carga_bd_pics (args.ruta_graficos)
+      if error:
+        prn ('Error al tratar de cargar la base datos gráfica:', error, file = sys.stderr)
     elif os.path.isdir (args.ruta_graficos):
       if args.ruta_graficos[-1] != os.sep:
         args.ruta_graficos += os.sep
