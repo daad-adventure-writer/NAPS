@@ -834,7 +834,8 @@ def actualizaPosProcesos ():
       inicio_debug = False
       # Aseguramos que la ventana de juego tenga un ancho correcto y adecuado
       mdi_juego.showNormal()
-      mdi_juego.resize (selector.centralWidget().width() / 2, mdi_juego.height() - 1)
+      if selector.centralWidget().width() * 0.65 < mdi_juego.width() or selector.centralWidget().height() - mdi_juego.height() < 180:
+        mdi_juego.resize (mdi_juego.width() - 1, mdi_juego.height() - 1)
       actualizaVentanaJuego()
       anchoJuego = mdi_juego.frameGeometry().width()
       # Colocamos el diálogo de procesos a la derecha del de juego, tomando todo el alto disponible
