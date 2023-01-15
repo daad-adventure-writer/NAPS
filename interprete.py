@@ -613,7 +613,7 @@ None: pasa al siguiente condacto"""
     parametros = [banderas[parametros[0]]] + parametros[1:]
   valor = funcion (*parametros)  # El * saca los parámetros de la lista
   if condacto[2] == False:  # El condacto es una condición
-    if codigo in (20, 106):  # QUIT, MOVE
+    if codigo in (20, 106) and valor == True:  # QUIT, MOVE
       proceso_acc = True
     if valor == False:  # No se cumple
       return 6
