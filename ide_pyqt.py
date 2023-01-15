@@ -4,7 +4,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Entorno de desarrollo integrado (IDE), hecho con PyQt4
-# Copyright (C) 2010, 2018-2022 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2018-2023 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -1629,7 +1629,7 @@ def muestraProcesos ():
       titulo = mod_actual.NOMBRES_PROCS[numero]
     else:
       titulo = 'Proceso ' + str_numero
-    if num_procesos < 5:  # Hay pocos procesos, espacio de sobra
+    if num_procesos < 6:  # Hay pocos procesos, espacio de sobra
       pestanyas.addTab (titulo)
     else:
       pestanyas.addTab (str_numero)
