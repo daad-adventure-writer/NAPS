@@ -4,7 +4,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Intérprete de sistemas PAW-like
-# Copyright (C) 2010, 2018-2022 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2018-2023 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -1125,4 +1125,4 @@ if __name__ == '__main__':
   else:
     bucle_paws()
 
-  tecla_o_fin()
+  gui.espera_tecla()
