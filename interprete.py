@@ -26,8 +26,6 @@
 from prn_func import prn
 
 import argparse  # Para procesar argumentos de línea de comandos
-import codecs    # Para codificar bien la salida estándar
-import locale    # Para codificar bien la salida estándar
 import os        # Para obtener la longitud del fichero de base de datos
 import random    # Para choice y seed
 import sys       # Para exit, salida estándar, y argumentos de línea de comandos
@@ -905,6 +903,8 @@ Para depuración paso a paso, devuelve el número de pasos a ejecutar, que es: 10,
 
 if __name__ == '__main__':
   if sys.version_info[0] < 3:
+    import codecs
+    import locale
     reload (sys)  # Necesario para poder ejecutar sys.setdefaultencoding
     sys.stderr = codecs.getwriter (locale.getpreferredencoding()) (sys.stderr)  # Locale del sistema para la salida de error
     sys.stdout = codecs.getwriter (locale.getpreferredencoding()) (sys.stdout)  # Locale del sistema para la salida estándar
