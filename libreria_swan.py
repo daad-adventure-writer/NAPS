@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Librería de SWAN (parte común a editor, compilador e intérprete)
-# Copyright (C) 2020-2022 José Manuel Ferrer Ortiz
+# Copyright (C) 2020-2023 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -57,6 +57,8 @@ LONGITUD_PAL     = 5        # Longitud máxima para las palabras de vocabulario
 NOMBRE_SISTEMA   = 'SWAN'   # Nombre de este sistema
 NUM_ATRIBUTOS    = [8]      # Número de atributos de objeto
 NUM_BANDERAS     = 256      # Número de banderas del parser
+# Nombres de las primeras tablas de proceso (para el IDE)
+NOMBRES_PROCS    = ('Tabla de respuestas', 'Tras la descripción', 'Cada turno')
 # Nombres de los tipos de palabra (para el IDE)
 TIPOS_PAL = ('Verbo', 'Adverbio', 'Nombre', 'Adjetivo', 'Preposicion', 'Conjuncion', 'Pronombre')
 

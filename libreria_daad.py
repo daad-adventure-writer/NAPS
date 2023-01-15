@@ -62,6 +62,7 @@ LONGITUD_PAL   = 5       # Longitud máxima para las palabras de vocabulario
 NOMBRE_SISTEMA = 'DAAD'  # Nombre de este sistema
 NUM_ATRIBUTOS  = [2]     # Número de atributos de objeto
 NUM_BANDERAS   = 256     # Número de banderas del parser
+NOMBRES_PROCS  = []      # Nombres de las primeras tablas de proceso (para el IDE)
 # Nombres de los tipos de palabra (para el IDE)
 TIPOS_PAL = ('Verbo', 'Adverbio', 'Nombre', 'Adjetivo', 'Preposicion', 'Conjuncion', 'Pronombre')
 
@@ -1380,6 +1381,8 @@ def preparaPlataforma ():
     CAB_LONG_FICH += 2
     condactos.update (condactos_nuevos)
     nueva_version.append (True)
+  else:
+    NOMBRES_PROCS.extend(['Tabla de respuestas', 'Tras la descripción', 'Cada turno'])
   tam_cabecera = CAB_LONG_FICH + 2  # Longitud de la cabecera
   # Cargamos el identificador de plataforma
   fich_ent.seek (CAB_PLATAFORMA)
