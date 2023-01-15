@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Librería de DAAD (parte común a editor, compilador e intérprete)
-# Copyright (C) 2010, 2013, 2018-2022 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2013, 2018-2023 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -565,6 +565,8 @@ def abreviaCadenas ():
   desc_objs_abrev = []
   msgs_sys_abrev  = []
   msgs_usr_abrev  = []
+  if not abreviaturas:
+    return
   for cadena in desc_locs:
     desc_locs_abrev.append (daCadenaAbreviada (cadena))
   if compatibilidad:
@@ -1101,10 +1103,14 @@ def guarda_bd (bbdd):
         abreviaturas = posibles
       longMin = longAbrev  # Reducción máxima de longitud total de textos lograda
       longMax = maxAbrev   # Longitud máxima en la búsqueda de abreviaturas
-  prn (longAntes - longMin, 'bytes ahorrados por abreviación de textos')
-  prn ('La mejor combinación de abreviaturas se encontró con longitud máxima de abreviatura', longMax)
-  prn (len (abreviaturas), 'abreviaturas en total, que son:')
-  prn (abreviaturas)
+  if longMin < longAntes:
+    prn (longAntes - longMin, 'bytes ahorrados por abreviación de textos')
+    prn ('La mejor combinación de abreviaturas se encontró con longitud máxima de abreviatura', longMax)
+    prn (len (abreviaturas), 'abreviaturas en total, que son:')
+    prn (abreviaturas)
+  else:
+    prn ('No se ahorra nada por abreviación de textos, abreviaturas desactivadas')
+    abreviaturas = []
   abreviaCadenas()
   fich_sal     = bbdd
   num_locs     = len (desc_locs)       # Número de localidades
