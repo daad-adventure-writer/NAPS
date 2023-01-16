@@ -1374,7 +1374,7 @@ def importaBD (nombreFicheroBD, indiceFuncion = None, nombreFicheroGfx = None):
                   'Causa:\nNo tiene extensión')
     return
   modulos = []  # Módulos que soportan la extensión, junto con su función de carga
-  if indiceFuncion:
+  if indiceFuncion != None:
     modulo, funcion, extensiones, descripcion = info_importar[indiceFuncion]
     modulos.append ((modulo, funcion))
   else:
