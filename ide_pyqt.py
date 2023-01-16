@@ -979,6 +979,18 @@ def cargaInfoModulos ():
   accImportar.setEnabled (len (info_importar) > 0)
   menuBDNueva.setEnabled (len (info_nueva) > 0)
 
+def cierraDialogos ():
+  """Cierra todos los diálogos no modales"""
+  global dlg_banderas, dlg_desc_locs, dlg_desc_objs, dlg_msg_sys, dlg_msg_usr, dlg_procesos, dlg_vocabulario
+  selector.centralWidget().closeAllSubWindows()
+  dlg_banderas    = None
+  dlg_desc_locs   = None
+  dlg_desc_objs   = None
+  dlg_msg_sys     = None
+  dlg_msg_usr     = None
+  dlg_procesos    = None
+  dlg_vocabulario = None
+
 def compruebaNombre (modulo, nombre, tipo):
   """Devuelve True si un nombre está en un módulo, y es del tipo correcto"""
   if (nombre in modulo.__dict__) and (type (modulo.__dict__[nombre]) == tipo):
@@ -1202,6 +1214,7 @@ def dialogoImportaBD ():
     dlg_abrir.setOption    (QFileDialog.DontUseNativeDialog)
   if dlg_abrir.exec_():  # No se ha cancelado
     selector.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
+    cierraDialogos()
     indiceFiltro  = filtro.index (dlg_abrir.selectedNameFilter())
     nombreFichero = (str if sys.version_info[0] > 2 else unicode) (dlg_abrir.selectedFiles()[0])
     importaBD (nombreFichero, indiceFiltro)
