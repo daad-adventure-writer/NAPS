@@ -1202,7 +1202,7 @@ def dialogoImportaBD ():
     dlg_abrir.setOption    (QFileDialog.DontUseNativeDialog)
   if dlg_abrir.exec_():  # No se ha cancelado
     selector.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
-    indiceFiltro  = list (dlg_abrir.nameFilters()).index (dlg_abrir.selectedNameFilter())
+    indiceFiltro  = filtro.index (dlg_abrir.selectedNameFilter())
     nombreFichero = (str if sys.version_info[0] > 2 else unicode) (dlg_abrir.selectedFiles()[0])
     importaBD (nombreFichero, indiceFiltro)
     selector.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
