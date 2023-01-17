@@ -26,7 +26,6 @@
 from prn_func import prn
 
 import argparse    # Para procesar argumentos de línea de comandos
-import codecs      # Para codificar bien la salida estándar
 import locale      # Para codificar bien la salida estándar
 import os          # Para curdir, listdir y path
 import subprocess  # Para ejecutar el intérprete
@@ -1852,6 +1851,7 @@ def postCarga (nombre):
 
 
 if sys.version_info[0] < 3:
+  import codecs
   reload (sys)  # Necesario para poder ejecutar sys.setdefaultencoding
   sys.stderr = codecs.getwriter (locale.getpreferredencoding()) (sys.stderr)  # Locale del sistema para la salida de error
   sys.stdout = codecs.getwriter (locale.getpreferredencoding()) (sys.stdout)  # Locale del sistema para la salida estándar
