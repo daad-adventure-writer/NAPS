@@ -319,8 +319,6 @@ def cargaAtributos ():
   num_objetos[0] = carga_int1()
   # Vamos a la posición de los atributos de los objetos
   fich_ent.seek (carga_desplazamiento (CAB_POS_ATRIBS_OBJS))
-  # Vaciamos la lista de atributos existente
-  del atributos[:]
   # Cargamos los atributos de cada objeto
   for i in range (num_objetos[0]):
     atributos.append (carga_int1())
@@ -339,8 +337,6 @@ def cargaCadenas (pos_num_cads, pos_lista_pos, cadenas):
   posiciones = []
   for i in range (num_cads):
     posiciones.append (carga_desplazamiento())
-  # Vaciamos la lista de cadenas existente
-  del cadenas[:]
   # Cargamos cada cadena
   for posicion in posiciones:
     fich_ent.seek (posicion)
@@ -375,8 +371,6 @@ def cargaConexiones ():
   posiciones = []
   for i in range (num_locs):
     posiciones.append (carga_desplazamiento())
-  # Vaciamos la lista de conexiones existente
-  del conexiones[:]
   # Cargamos las conexiones de cada localidad
   for posicion in posiciones:
     fich_ent.seek (posicion)
@@ -393,8 +387,6 @@ def cargaLocalidadesObjetos ():
   """Carga las localidades iniciales de los objetos (dónde está cada uno)"""
   # Vamos a la posición de las localidades de los objetos
   fich_ent.seek (carga_desplazamiento (CAB_POS_LOCS_OBJS))
-  # Vaciamos la lista de localidades iniciales existente
-  del locs_iniciales[:]
   # Cargamos la localidad de cada objeto
   for i in range (num_objetos[0]):
     locs_iniciales.append (carga_int1())
@@ -403,8 +395,6 @@ def cargaNombresObjetos ():
   """Carga los nombres y adjetivos de los objetos"""
   # Vamos a la posición de los nombres de los objetos
   fich_ent.seek (carga_desplazamiento (CAB_POS_NOMS_OBJS))
-  # Vaciamos la lista de nombres de los objetos existente
-  del nombres_objs[:]
   # Cargamos el nombre y adjetivo de cada objeto
   for i in range (num_objetos[0]):
     nombres_objs.append ((carga_int1(), carga_int1()))
@@ -423,8 +413,6 @@ def cargaTablasProcesos ():
   posiciones = []
   for i in range (num_procs):
     posiciones.append (carga_desplazamiento())
-  # Vaciamos las tablas de procesos existentes
-  del tablas_proceso[:]
   # Cargamos cada tabla de procesos
   for num_proceso in range (num_procs):
     posicion = posiciones[num_proceso]
@@ -471,8 +459,6 @@ def cargaTablasProcesos ():
 def cargaVocabulario ():
   # Vamos a la posición del vocabulario
   fich_ent.seek (carga_desplazamiento (CAB_POS_VOCAB))
-  # Vaciamos el vocabulario existente
-  del vocabulario[:]
   # Cargamos cada palabra de vocabulario
   while True:
     caracter = carga_int1()
@@ -504,21 +490,12 @@ def preparaPlataforma ():
     carga_int2 = carga_int2_be
     bajo_nivel_cambia_endian (le = False)
   # Detectamos si habrá paddings para mantener los desplazamientos en posiciones pares
-  incremento = 0
   if plataforma in plats_word:
     alinear = True
     # Habrá padding en la posición 9 de la cabecera
-    if CAB_POS_ABREVS == 9:
-      incremento = 1
-  else:
-    alinear = False
-    # No habrá padding en la posición 9 de la cabecera
-    if CAB_POS_ABREVS == 10:
-      incremento = -1
-  if incremento:
     for variable in globals():
       if variable[:8] == 'CAB_POS_':
-        globals()[variable] += incremento  # Corregimos las entradas de offsets en la cabecera
+        globals()[variable] += 1  # Incrementaremos en uno todas las entradas de offsets en la cabecera
   # Preparamos el desplazamiento inicial para carga desde memoria
   if plataforma in despl_ini_plat:
     despl_ini = despl_ini_plat[plataforma]
@@ -536,6 +513,4 @@ def preparaPlataforma ():
           continue
         break  # Ya encontrada
       despl_ini = difPosible
-  else:
-    despl_ini = 0
-  bajo_nivel_cambia_despl (despl_ini)
+    bajo_nivel_cambia_despl (despl_ini)
