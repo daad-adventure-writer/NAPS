@@ -1401,7 +1401,10 @@ def importaBD (nombreFicheroBD, indiceFuncion = None, nombreFicheroGfx = None):
   # Importamos la BD y damos acceso al módulo a funciones del IDE
   hayFallo = True
   for modulo, funcion in modulos:
+    recargar   = modulo in sys.modules
     mod_actual = __import__ (modulo)
+    if recargar:
+      mod_actual = reload (mod_actual)
     mod_actual.muestraFallo = muestraFallo
     # Solicitamos la importación
     if mod_actual.__dict__[funcion] (fichero, os.path.getsize (nombreFicheroBD)) != False:
@@ -1856,6 +1859,10 @@ if sys.version_info[0] < 3:
   sys.stderr = codecs.getwriter (locale.getpreferredencoding()) (sys.stderr)  # Locale del sistema para la salida de error
   sys.stdout = codecs.getwriter (locale.getpreferredencoding()) (sys.stdout)  # Locale del sistema para la salida estándar
   sys.setdefaultencoding ('iso-8859-15')  # Nuestras cadenas están en esta codificación, no en ASCII
+elif sys.version_info[1] < 4:  # Python 3.x < 3.4
+  from imp import reload
+else:  # Python > 3.3
+  from importlib import reload
 
 aplicacion = QApplication (sys.argv)
 
