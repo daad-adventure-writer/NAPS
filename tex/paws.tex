@@ -61,11 +61,11 @@ A continuación, detallaremos el propósito que tiene cada bandera, de qué modo se
 
 \subsection{Bandera 0}
 
-\sistemas{\quill, \paw y \daad}
+\sistemas{\quill, \paw, \swan y \daad}
 
 Indica al intérprete si el jugador está en un sitio iluminado o, por el contrario, está en un lugar a oscuras. Un valor de cero significa luz, y cualquier valor distinto de cero significa oscuridad.
 
-\sistemas{\quill, \paw y \daad versión 1}
+\sistemas{\quill, \paw, \swan y \daad versión 1}
 
 En el momento de describir la localidad, si esta bandera tiene un valor distinto de cero (oscuridad), se decrementará la bandera 3 en una unidad. Si, además, no está presente el objeto 0 (que el intérprete considera como una fuente de luz), entonces se decrementará también en una unidad la bandera 4 y, en lugar de mostrarse la descripción de la localidad, se imprimirá el mensaje de sistema 0,
 que avisa al jugador de que se encuentra a oscuras.
@@ -74,31 +74,31 @@ Cada vez que transcurre un turno de juego, el intérprete comprueba si esta bande
 
 \subsection{Bandera 1}\label{flag1}
 
-\sistemas{\quill, \paw y \daad}
+\sistemas{\quill, \paw, \swan y \daad}
 
 Contiene el número de objetos que el jugador lleva en su inventario. El intérprete inicializa esta bandera al valor correcto (el número de objetos que el jugador lleva al inicio de la aventura), y lo modificará automáticamente cada vez que el jugador coja o deje objetos.
 
 \subsection{Bandera 2}
 
-\sistemas{\quill, \paw y \daad versión 1}
+\sistemas{\quill, \paw, \swan y \daad versión 1}
 
 Esta bandera es decrementada en una unidad por el intérprete cada vez que describe alguna localidad.
 
 \subsection{Bandera 3}
 
-\sistemas{\quill, \paw y \daad versión 1}
+\sistemas{\quill, \paw, \swan y \daad versión 1}
 
 Esta bandera es decrementada en una unidad por el intérprete cada vez que describe alguna localidad en un sitio no iluminado (cuando la bandera 0 está a un valor distinto de cero).
 
 \subsection{Bandera 4}
 
-\sistemas{\quill, \paw y \daad versión 1}
+\sistemas{\quill, \paw, \swan y \daad versión 1}
 
 Esta bandera es decrementada en una unidad por el intérprete cada vez que describe alguna localidad en un sitio no iluminado (cuando la bandera 0 está a un valor distinto de cero), pero sólo si tampoco está presente el objeto 0 (fuente de luz).
 
 \subsection{Banderas 5 a 8}
 
-\sistemas{\quill, \paw y \daad versión 1}
+\sistemas{\quill, \paw, \swan y \daad versión 1}
 
 Estas banderas son decrementadas en una unidad por el intérprete cada vez que intenta obtener una frase para ejecutar.
 
@@ -106,13 +106,13 @@ La versión española de la guía técnica de \paw dice en el paso 5 - COGER LA FRAS
 
 \subsection{Bandera 9}
 
-\sistemas{\quill, \paw y \daad versión 1}
+\sistemas{\quill, \paw, \swan y \daad versión 1}
 
 Esta bandera es decrementada en una unidad por el intérprete cada vez que intenta obtener una frase para ejecutar, cuando el jugador está en un sitio no iluminado (cuando la bandera 0 está a un valor distinto de cero).
 
 \subsection{Bandera 10}
 
-\sistemas{\quill, \paw y \daad versión 1}
+\sistemas{\quill, \paw, \swan y \daad versión 1}
 
 Esta bandera es decrementada en una unidad por el intérprete cada vez que intenta obtener una frase para ejecutar, cuando el jugador está en un sitio no iluminado (cuando la bandera 0 está a un valor distinto de cero) y además el objeto 0 (fuente de luz) está ausente.
 
@@ -128,7 +128,7 @@ Estas banderas no tienen ningún propósito predefinido y, por tanto, pueden ser u
 
 Esta bandera no tiene ningún propósito predefinido y, por tanto, puede ser utilizada libremente por el programador.
 \\\ \\
-\sistema{\paw}
+\sistema{\paw y \swan}
 
 El intérprete comprueba el valor de esta bandera para saber cuándo debe dibujar
 los gráficos en pantalla. FIXME: Más detalle.
@@ -159,7 +159,7 @@ valor de la bandera 31.
 
 \subsection{Bandera 33}
 
-\sistemas{\paw y \daad}
+\sistemas{\paw, \swan y \daad}
 
 Contiene el primer verbo de la sentencia lógica actual.
 
@@ -169,7 +169,7 @@ sentencia lógica recién modificada.
 
 \subsection{Bandera 34}
 
-\sistemas{\paw y \daad}
+\sistemas{\paw, \swan y \daad}
 
 Contiene el primer nombre de la sentencia lógica actual.
 
@@ -179,19 +179,19 @@ sentencia lógica recién modificada.
 
 \subsection{Bandera 35}
 
-\sistemas{\paw y \daad}
+\sistemas{\paw, \swan y \daad}
 
 Contiene el adjetivo del primer nombre de la sentencia lógica actual.
 
 \subsection{Bandera 36}
 
-\sistemas{\paw y \daad}
+\sistemas{\paw, \swan y \daad}
 
 Contiene el adverbio de la sentencia lógica actual.
 
 \subsection{Bandera 37}
 
-\sistemas{\paw y \daad}
+\sistemas{\paw, \swan y \daad}
 
 Almacena el número máximo de objetos que el jugador es capaz de llevar (en su
 inventario) a la vez. Su valor inicial es 4, y puede ser modificado con el
@@ -253,19 +253,19 @@ de 3/10, 3/10, 3/10 y 1/10, respectivamente.
 
 \subsection{Bandera 43}
 
-\sistemas{\paw y \daad}
+\sistemas{\paw, \swan y \daad}
 
 Contiene la preposición de la sentencia lógica actual.
 
 \subsection{Bandera 44}
 
-\sistemas{\paw y \daad}
+\sistemas{\paw, \swan y \daad}
 
 Contiene el segundo nombre de la sentencia lógica actual.
 
 \subsection{Bandera 45}
 
-\sistemas{\paw y \daad}
+\sistemas{\paw, \swan y \daad}
 
 Contiene el adjetivo del segundo nombre de la sentencia lógica actual.
 
@@ -305,7 +305,7 @@ Es posible que este sea el objeto sobre el que se comprueban atributos con los c
 
 \subsection{Bandera 52}
 
-\sistemas{\paw y \daad}
+\sistemas{\paw, \swan y \daad}
 
 Almacena el peso máximo que el jugador es capaz de cargar en su inventario
 (contando solamente el peso los objetos que lleve ahí, no los que lleve puestos)
@@ -565,11 +565,11 @@ Esto es lo que realiza el intérprete al ejecutarse, en el siguiente orden secuen
 
 \subsection{Inicializar}
 
-\sistemas{\quill, \paw y \daad}
+\sistemas{\quill, \paw, \swan y \daad}
 
 \subsection{Describir localidad actual}
 
-\sistemas{\quill, \paw y \daad versión 1}
+\sistemas{\quill, \paw, \swan y \daad versión 1}
 
 \subsection{Iterar sobre tabla de estado}
 
@@ -577,29 +577,29 @@ Esto es lo que realiza el intérprete al ejecutarse, en el siguiente orden secuen
 
 \subsection{Iterar sobre tabla de procesos 1}
 
-\sistemas{\paw y \daad versión 1}
+\sistemas{\paw, \swan y \daad versión 1}
 
 Como se ejecuta justo después de describir la localidad actual, esta tabla de procesos es la que permite añadir textos circunstanciales, listar objetos presentes, etc.
 
 \subsection{Iterar sobre tabla de procesos 2}
 
-\sistemas{\paw y \daad versión 1}
+\sistemas{\paw, \swan y \daad versión 1}
 
 Esta tabla de procesos se utiliza para código que se ejecuta cada turno.
 
 \subsection{Obtener orden}
 
-\sistemas{\quill, \paw y \daad versión 1}
+\sistemas{\quill, \paw, \swan y \daad versión 1}
 
 \subsection{Iterar sobre tabla de procesos 0}
 
-\sistemas{\paw y \daad}
+\sistemas{\paw, \swan y \daad}
 
-Esta tabla de procesos es la tabla de respuestas en \paw y la versión 1 de \daad. En la versión 2 de \daad, esta tabla es el bucle principal de la aventura, el punto de inicio y fin del programa.
+Esta tabla de procesos es la tabla de respuestas en \paw, \swan y la versión 1 de \daad. En la versión 2 de \daad, esta tabla es el bucle principal de la aventura, el punto de inicio y fin del programa.
 
 \subsection{Buscar en tabla de conexiones}
 
-\sistemas{\quill y \paw}
+\sistemas{\quill, \paw y \swan}
 
 \subsection{Iterar sobre tabla de eventos}
 
