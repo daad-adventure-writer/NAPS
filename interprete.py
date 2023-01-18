@@ -549,9 +549,6 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
     if len (TIPOS_PAL) > 1 and frase['Nombre1'] and frase['Nombre1'] >= 50:  # Guardamos pronombres, sólo para nombres considerados no propios (código >= 50)
       banderas[46] = frase['Nombre1']
       banderas[47] = frase['Adjetivo1'] if frase['Adjetivo1'] else 255
-    elif NUM_BANDERAS > 39:
-      banderas[46] = 255
-      banderas[47] = 255
     # TODO: ver cuándo se cambia o vacía el último objeto referido
     # XXX: en el PARSE de nueva_version, lo vaciaba tras convertir nombre que actuaba como verbo
   else:
