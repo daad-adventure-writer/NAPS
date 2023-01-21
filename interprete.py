@@ -1058,7 +1058,6 @@ if __name__ == '__main__':
         gui.partir_espacio = False
   else:  # Es DAAD
     gui.nueva_version = nueva_version
-    gui.tam_cabecera  = libreria.tam_cabecera
     if not gui.paleta[0]:
       # Colores con brillo en este orden: negro, azul, rojo, magenta, verde, cyan, amarillo, blanco
       gui.paleta[0].extend (((0, 0, 0), (0, 0, 255), (255, 0, 0), (255, 0, 255),
