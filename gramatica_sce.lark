@@ -1,0 +1,71 @@
+// NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
+//
+// Gramática para código fuente SCE multi-sistema
+// Copyright (C) 2023 José Manuel Ferrer Ortiz
+
+start: _wsnl? (ctl _wsnl)? (tok _wsnl)? voc _wsnl stx _wsnl mtx _wsnl otx _wsnl ltx _wsnl con _wsnl obj _wsnl pros _wsnlc
+
+comment: ";" /[^\n]/*
+_ws: (" "|"\t")+              // Espacio en blanco
+_wsc: _ws? comment?           // Posible espacio en blanco y/o comentario
+_wsnl: (_ws? comment? "\n")+  // Posible espacio en blanco y/o comentarios, y después nueva línea
+_wsnlc: _wsnl? _wsc           // Posible espacio en blanco y/o comentarios
+int: /[+-]?[0-9]+/
+uint: /[0-9]+/
+vocword: /[^ \n\t\/]/+
+word: vocword | "_"
+
+ctl: _CTL _wsnl "_"
+_CTL: "/CTL"
+
+tok: _TOK _wsnlc (_wsnl token)*
+_TOK: "/TOK"
+token: /[^ \n\t]/ /[^ \n\t]/+
+
+voc: _VOC _wsnlc (_wsnl vocentry)*
+_VOC: "/VOC"
+vocentry: vocword _ws uint _ws voctype
+voctype: ADJECTIVE | ADVERB | CONJUGATION | NOUN | PREPOSITION | PRONOUN | VERB
+ADVERB: "adverb"
+ADJECTIVE: "adjective"
+CONJUGATION: "conjugation" | "conjunction"
+NOUN: "noun"
+PREPOSITION: "preposition"
+PRONOUN: "pronoun"
+VERB: "verb"
+
+textline: "\n" /[^\n\/][^\n]*/?
+textentry: "/" uint _wsnlc textline*
+
+stx: _STX _wsnlc ("\n" textentry)*
+_STX: "/STX"
+
+mtx: _MTX _wsnlc ("\n" textentry)*
+_MTX: "/MTX"
+
+otx: _OTX _wsnlc ("\n" textentry)*
+_OTX: "/OTX"
+
+ltx: _LTX _wsnlc ("\n" textentry)*
+_LTX: "/LTX"
+
+con: _CON _wsnlc (_wsnl conentry)*
+_CON: "/CON"
+conentry: "/" uint _wsnlc (_wsnl conitem)*
+conitem: /[^ \n\t]/+ _ws uint
+
+obj: _OBJ _wsnlc (_wsnl objentry)*
+_OBJ: "/OBJ"
+objentry: "/" uint _ws objinitial _ws objweight _ws attr _ws attr (_ws attr)* _ws word _ws word
+objinitial: uint | CARRIED | WORN
+objweight: uint
+attr: "Y" | "_"
+CARRIED: "CARRIED"
+WORN: "WORN"
+
+pro: _PRO _ws uint _wsnlc (_wsnl procentry)*
+pros: pro (_wsnl pro)*
+_PRO: "/PRO"
+procentry: word _ws word (_ws condact)? _wsnlc (_wsnl _ws condact)*
+condact: /[A-Z]/+ param*
+param: _ws ("CARRIED" | "HERE" | "WORN" | int)

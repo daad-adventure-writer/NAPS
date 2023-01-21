@@ -49,7 +49,8 @@ vocabulario     = []   # Vocabulario
 
 # Lista de funciones que importan bases de datos desde ficheros, con sus extensiones soportadas y descripción del tipo de fichero
 funcs_exportar = (('guarda_bd', ('ddb',), 'Bases de datos DAAD'), )
-funcs_importar = (('carga_bd',  ('ddb',), 'Bases de datos DAAD'), )
+funcs_importar = (('carga_bd',              ('ddb',), 'Bases de datos DAAD'),
+                  ('carga_sce',             ('sce',), 'Código fuente de DAAD tradicional'))
 # Función que crea una nueva base de datos (vacía)
 func_nueva = ''
 
@@ -371,6 +372,73 @@ def carga_bd (fichero, longitud):
     cargaVocabulario()
     cargaNombresObjetos()
     cargaTablasProcesos()
+  except:
+    return False
+
+def carga_sce (fichero, longitud):
+  """Carga la base de datos desde el código fuente SCE del fichero de entrada
+
+  Para compatibilidad con el IDE:
+  - Recibe como primer parámetro un fichero abierto
+  - Recibe como segundo parámetro la longitud del fichero abierto
+  - Devuelve False si ha ocurrido algún error"""
+  try:
+    import lark
+  except:
+    prn ('Para poder importar código fuente, se necesita la librería Lark', 'versión <1.0' if sys.version_info[0] < 3 else '', file = sys.stderr)
+    return False
+  try:
+    codigoSCE = fichero.read().replace(b'\r\n', b'\n').decode()
+    parserSCE = lark.Lark.open ('gramatica_sce.lark', __file__, propagate_positions = True)
+    arbolSCE  = parserSCE.parse (codigoSCE)
+    # Cargamos cada tipo de textos
+    for idSeccion, listaCadenas in (('stx', msgs_sys), ('mtx', msgs_usr), ('otx', desc_objs), ('ltx', desc_locs)):
+      for seccion in arbolSCE.find_data (idSeccion):
+        numEntrada = 0
+        for entrada in seccion.find_data ('textentry'):
+          for entero in entrada.find_data ('uint'):
+            numero = str (entero.children[0])
+            if numero != str (numEntrada):
+              prn ('Formato del código fuente inválido o no soportado:\nSe esperaba número de entrada', numEntrada, 'en lugar de', numero, 'en línea', entero.meta.line, 'col', entero.meta.column, file = sys.stderr)
+              return False
+          lineas = []
+          for lineaTexto in entrada.find_data ('textline'):
+            linea = str (lineaTexto.children[0]) if lineaTexto.children else ''
+            if not lineas and linea[:1] == ';':
+              continue  # Omitimos comentarios iniciales
+            lineas.append (linea)
+          # Evitamos tomar nueva línea antes de comentario final como línea de texto en blanco
+          if lineas and not linea and codigoSCE[lineaTexto.meta.start_pos + 1] == ';':
+            del lineas[-1]
+          for l in range (len (lineas) - 1, 0, -1):
+            if lineas[l][:1] == ';':
+              del lineas[l]  # Eliminamos comentarios finales
+            else:
+              break
+          # Unimos las cadenas como corresponde
+          cadena = ''
+          for linea in lineas:
+            if linea:
+              cadena += ('' if cadena[-1:] in ('\n', '') else ' ') + linea
+            else:
+              cadena += '\n'
+          listaCadenas.append (cadena)
+          numEntrada += 1
+    # Cargamos las tablas de proceso
+    numProceso = 0
+    for seccion in arbolSCE.find_data ('pro'):
+      for entero in seccion.find_data ('uint'):
+        numero = str (entero.children[0])
+        if numero != str (numProceso):
+          prn ('Formato del código fuente inválido o no soportado:\nSe esperaba número de proceso', numProceso, 'en lugar de', numero, 'en línea', entero.meta.line, 'col', entero.meta.column, file = sys.stderr)
+          return False
+      cabeceras = []
+      entradas  = []
+      tablas_proceso.append ((cabeceras, entradas))
+      numProceso += 1
+  except lark.UnexpectedInput as e:
+    prn ('Formato del código fuente inválido o no soportado:', e, file = sys.stderr, sep = '\n')
+    return False
   except:
     return False
 
