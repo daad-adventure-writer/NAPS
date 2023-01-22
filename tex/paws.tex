@@ -463,7 +463,7 @@ condition (condición) y action (acción).
 
 \subsection{Condiciones}
 
-Las condiciones son condactos que pueden interrumpir el flujo de ejecución,
+Las condiciones son condactos que cambian el flujo de ejecución
 impidiendo que se ejecute el siguiente condacto en su bloque, dependiendo de si
 se cumple o no alguna condición determinada.
 
@@ -484,7 +484,9 @@ veces, y saltará en las demás ocasiones (el 75\% de veces restante).
 
 \subsection{Acciones}
 
-Las acciones son condactos que no interrumpen el flujo de ejecución.
+Las acciones son condactos que normalmente no cambian el flujo de ejecución, y que afectan a la variable del intérprete que indica que se hizo algo (la que se consulta con las condiciones ISDONE e ISNDONE).
+
+Salvo que se indique lo contrario en esta sección (o no sea conocido todavía), las acciones que están aquí no cambian el flujo de ejecución, y dan valor verdadero a la variable que indica que se hizo algo.
 
 Las acciones de cada sistema y sus finalidades son:
 
