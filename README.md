@@ -8,10 +8,11 @@ Requisitos:
 
 - Python versión 2.X, ó 3.X superior a 3.2
 - Recomendado: PyGame versión 1.X ó 2.X (necesario para que tenga interfaz gráfica)
+- Opcional: Lark versión 0.X para Python 2.X, o cualquiera para Python 3.X (necesario para importar código fuente SCE)
 
 Uso:
 
-``python interprete.py [-c|--columns 32..42] [-h|--help] [-D|--debug] [-g|--gui pygame|stdio] [-s|--scale 1|2|3] bd_o_carpeta [bd_o_carpeta_gráficos]``
+``python interprete.py [-c|--columns 32..42] [-h|--help] [-D|--debug] [-g|--gui pygame|stdio] [-s|--scale 1|2|3] bd_cf_o_carpeta [bd_o_carpeta_gráficos]``
 
 Ejemplos bajo Windows:
 - ``python interprete.py -g stdio -c 42 ..\disappearance\disappearance.sna``
@@ -22,10 +23,11 @@ Ejemplos bajos Linux:
 - ``python interprete.py -D ../jabato/dos/``
 - ``python3 interprete.py --gui pygame ../original/PART2.DDB ../pngs_original_parte2/``
 - ``./interprete.py ~/Juegos/Cozumel/amiga ~/Juegos/Cozumel/st/PART1.DAT``
+- ``naps/interprete.py proyecto/misterioso.sce -s3``
 
 Parámetros:
 
-- ``bd_o_carpeta`` (obligatorio) Base de datos o carpeta de Quill/PAWS/SWAN/DAAD a ejecutar
+- ``bd_cf_o_carpeta`` (obligatorio) Base de datos, código fuente SCE o carpeta de Quill/PAWS/SWAN/DAAD a ejecutar
 - ``bd_o_carpeta_gráficos`` (opcional) Base de datos gráfica para las imágenes, o carpeta de la que tomarlas (con nombre pic###.png)
 - ``--columns`` (opcional) Cambia el número de columnas a usar cuando se imita la plataforma Spectrum, desde 32 hasta 42 (valor por defecto en interfaz pygame, en la stdio por defecto es sin límite)
 - ``--help`` (opcional) Muestra ayuda sobre los parámetros de línea de comandos
@@ -41,14 +43,15 @@ Requisitos:
 
 - Python versión 2.X, ó 3.X superior a 3.2
 - PyQt versión 4.X ó 5.X
+- Opcional: Lark versión 0.X para Python 2.X, o cualquiera para Python 3.X (necesario para importar código fuente SCE)
 
 Uso:
 
-``python ide_pyqt.py [-h|--help] [-r|--run] [base_de_datos] [bd_o_carpeta_gráficos]``
+``python ide_pyqt.py [-h|--help] [-r|--run] [bd_o_codigo] [bd_o_carpeta_gráficos]``
 
 Parámetros:
 
-- ``base_de_datos`` (opcional) Base de datos de Quill/PAWS/SWAN/DAAD a cargar
+- ``bd_o_codigo`` (opcional) Base de datos o código fuente SCE de Quill/PAWS/SWAN/DAAD a cargar
 - ``bd_o_carpeta_gráficos`` (opcional) Base de datos gráfica que usar para las imágenes al depurar, o carpeta de la que tomarlas (con nombre pic###.png)
 - ``--help`` (opcional) Muestra ayuda sobre los parámetros de línea de comandos
 - ``--run`` (opcional) Ejecuta la base de datos pasada como parámetro directamente, depurando por pasos
@@ -62,6 +65,7 @@ Instalación de los requisitos en Windows
 3. Ejecutar allí estos dos comandos:
    - pip install pygame
    - pip install pyqt5
+   - pip install lark
 
 
 Agradecimientos
