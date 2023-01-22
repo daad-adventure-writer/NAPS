@@ -260,7 +260,7 @@ condactos = {
   113 : ('BIGGER',  'ff', False, False),  # Del revés a como está en el manual
   114 : ('ISDONE',  '',   False, False),
   115 : ('ISNDONE', '',   False, False),
-  116 : ('SKIP',    'i',  True,  True),
+  116 : ('SKIP',    'i',  True,  True),   # Nuevo en DAAD v2
   117 : ('RESTART', '',   True,  True),
   118 : ('TAB',     'u',  True,  False),
   119 : ('COPYOF',  'of', True,  False),

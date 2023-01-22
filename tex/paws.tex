@@ -524,6 +524,18 @@ Inexistente en \daad.
 
 Comprobado con \daad, desde la tabla de proceso 1 no se permite llamar ni al proceso 0 ni al 2, ni a un número de proceso inexistente (en todos estos casos da error 6).
 
+\subsubsection{SKIP salto}
+
+\sistema{\daad versión 2}
+
+Cambia el flujo de ejecución saltando al inicio de la entrada de proceso (de la actual tabla de proceso) según el valor del parámetro, que indica el índice de la tabla a la que saltar en relación a la siguiente entrada a la actual (la entrada donde está la acción SKIP que se está ejecutando).
+
+Es decir, el valor que poner al parámetro debe ser la diferencia entre el índice (número de entrada en el proceso) de la entrada siguiente a la actual, y el de la entrada a la que se quiere saltar.
+
+De esta manera, un valor para \texttt{salto} 0 indica saltar al inicio de la siguiente entrada, un valor de -1 indica saltar al inicio de la entrada actual, -2 es saltar a la entrada anterior, y 1 es saltar a la entrada posterior a la siguiente de la actual (evitando así la ejecución del resto de la entrada actual, y la totalidad de la entrada siguiente).
+
+El parámetro de SKIP admite valores entre -128 y 127.
+
 \subsubsection{SWAP num\_objeto num\_objeto}
 
 \sistemas{\quill, \paw, \swan y \daad}
