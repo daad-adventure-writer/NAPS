@@ -524,7 +524,11 @@ Inexistente en \daad.
 
 \sistemas{\paw y \daad}
 
-Comprobado con \daad, desde la tabla de proceso 1 no se permite llamar ni al proceso 0 ni al 2, ni a un número de proceso inexistente (en todos estos casos da error 6).
+Comprobado con \daad (¿versión 1?), desde la tabla de proceso 1 no se permite llamar ni al proceso 0 ni al 2, ni a un número de proceso inexistente (en todos estos casos da error 6).
+
+\sistema{\daad}
+
+Esta acción quita la marca de que se hizo algo (en la variable del intérprete para este propósito), lo cual permitirá comprobar su valor (con las condiciones ISDONE e ISNDONE) cuando el flujo de ejecución regrese a la tabla desde donde se ejecutó PROCESS.
 
 \subsubsection{SKIP salto}
 
