@@ -71,5 +71,5 @@ pros: pro (_wsnl pro)*
 _PRO: "/PRO"
 procentry: word _ws word (_ws condact)? _wsnlc (_wsnl _ws condact)*
 condact: condactname param*
-condactname: /[A-Z]/+
+condactname: /[A-Z][A-Z0-9]*/
 param: _ws (CARRIED | HERE | WORN | int)
