@@ -68,6 +68,9 @@ NOMBRES_PROCS  = []      # Nombres de las primeras tablas de proceso (para el ID
 TIPOS_PAL = ('Verbo', 'Adverbio', 'Nombre', 'Adjetivo', 'Preposicion', 'Conjuncion', 'Pronombre')
 
 
+# Código de cada tipo de palabra por nombre
+tipos_pal_dict = {'verb': 0, 'adverb': 1, 'noun': 2, 'adjective': 3, 'preposition': 4, 'conjugation': 5, 'conjunction': 5, 'pronoun': 6}
+
 # Desplazamientos (offsets/posiciones) en la cabecera
 CAB_VERSION               =  0  # Versión del formato de base de datos
 CAB_PLATAFORMA            =  1  # Identificador de plataforma e idioma
@@ -388,7 +391,7 @@ def carga_sce (fichero, longitud):
     prn ('Para poder importar código fuente, se necesita la librería Lark', 'versión <1.0' if sys.version_info[0] < 3 else '', file = sys.stderr)
     return False
   try:
-    codigoSCE = fichero.read().replace(b'\r\n', b'\n').decode()
+    codigoSCE = fichero.read().replace (b'\r\n', b'\n').decode()
     parserSCE = lark.Lark.open ('gramatica_sce.lark', __file__, propagate_positions = True)
     arbolSCE  = parserSCE.parse (codigoSCE)
     # Cargamos cada tipo de textos
@@ -424,6 +427,26 @@ def carga_sce (fichero, longitud):
               cadena += '\n'
           listaCadenas.append (cadena)
           numEntrada += 1
+    # Cargamos el vocabulario
+    nombres = {'': 255}
+    verbos  = {'': 255}
+    for seccion in arbolSCE.find_data ('vocentry'):
+      palabra = ''
+      for vocword in seccion.find_data ('vocword'):
+        for letra in vocword.children:
+          palabra += str (letra).lower()
+      for entero in seccion.find_data ('uint'):
+        codigo = int (entero.children[0])
+      for voctype in seccion.find_data ('voctype'):
+        tipo = tipos_pal_dict[str (voctype.children[0])]
+      vocabulario.append ((palabra, codigo, tipo))
+      # Dejamos preparados diccionarios de códigos de palabra para verbos y nombres
+      if tipo == 0:
+        verbos[palabra] = codigo
+      elif tipo == 2:
+        nombres[palabra] = codigo
+        if codigo < 20:
+          verbos[palabra] = codigo
     # Cargamos las tablas de proceso
     numProceso = 0
     for seccion in arbolSCE.find_data ('pro'):
