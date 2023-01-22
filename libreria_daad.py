@@ -403,7 +403,34 @@ def carga_sce (fichero, longitud):
     prn ('Para poder importar código fuente, se necesita la librería Lark', 'versión <1.0' if sys.version_info[0] < 3 else '', file = sys.stderr)
     return False
   try:
+    import re
     codigoSCE = fichero.read().replace (b'\r\n', b'\n').decode()
+    # Procesamos carga de ficheros externos con directivas de preprocesador /LNK
+    # TODO: extraer el código común con abreFichXMessages, a función en bajo_nivel
+    # TODO: indicar nombre del fichero externo en errores ocurridos en él, con número de línea relativo a él
+    encaje = True
+    while encaje:
+      encaje = re.search ('\n/LNK[ \t]+([^ \n\t]+)', codigoSCE)
+      if not encaje:
+        break
+      nombreFich = encaje.group (1).lower()
+      if '.' not in nombreFich:
+        nombreFich += '.sce'
+      # Buscamos el fichero con independencia de mayúsculas y minúsculas
+      for nombreFichero in os.listdir (os.path.dirname (fichero.name)):
+        if nombreFichero.lower() == nombreFich:
+          nombreFich = nombreFichero
+          break
+      else:
+        prn ('No se encuentra el fichero "' + encaje.group (1) + '" requerido por una directiva de preprocesador /LNK', file = sys.stderr)
+        return False
+      try:
+        ficheroLnk = open (os.path.join (os.path.dirname (fichero.name), nombreFich), 'rb')
+      except:
+        prn ('No se puede abrir el fichero "' + nombreFich + '" requerido por una directiva de preprocesador /LNK', nombreFich, file = sys.stderr)
+        return None
+      codigoSCE = codigoSCE[:encaje.start (0)] + ficheroLnk.read().replace (b'\r\n', b'\n').decode()
+      ficheroLnk.close()
     parserSCE = lark.Lark.open ('gramatica_sce.lark', __file__, propagate_positions = True)
     arbolSCE  = parserSCE.parse (codigoSCE)
     # Cargamos cada tipo de textos
