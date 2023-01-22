@@ -438,17 +438,18 @@ def carga_sce (fichero, longitud):
       for seccion in arbolSCE.find_data (idSeccion):
         numEntrada = 0
         for entrada in seccion.find_data ('textentry'):
-          for entero in entrada.find_data ('uint'):
-            numero = str (entero.children[0])
-            if numero != str (numEntrada):
-              prn ('Formato del código fuente inválido o no soportado:\nSe esperaba número de entrada', numEntrada, 'en lugar de', numero, 'en línea', entero.meta.line, 'col', entero.meta.column, file = sys.stderr)
-              return False
+          numero = int (entrada.children[0])
+          if numero != numEntrada:
+            prn ('Formato del código fuente inválido o no soportado:\nSe esperaba número de entrada', numEntrada, 'en lugar de', numero, 'en línea', entrada.meta.line, 'col', entrada.meta.column, file = sys.stderr)
+            return False
           lineas = []
-          for lineaTexto in entrada.find_data ('textline'):
-            linea = str (lineaTexto.children[0]) if lineaTexto.children else ''
-            if not lineas and linea[:1] == ';':
+          for lineaTexto in entrada.children[1:]:
+            if lineaTexto.type == 'COMMENT':
+              continue  # Omitimos comentarios reconocidos por la gramática
+            linea = str (lineaTexto)
+            if not lineas and linea[:2] == '\n;':
               continue  # Omitimos comentarios iniciales
-            lineas.append (linea)
+            lineas.append (linea[1:])  # El primer carácter siempre será \n
           # Evitamos tomar nueva línea antes de comentario final como línea de texto en blanco
           if lineas and not linea and codigoSCE[lineaTexto.meta.start_pos + 1] == ';':
             del lineas[-1]
@@ -467,18 +468,13 @@ def carga_sce (fichero, longitud):
           listaCadenas.append (cadena)
           numEntrada += 1
     # Cargamos el vocabulario
-    adjetivos = {'': 255}
-    nombres   = {'': 255}
-    verbos    = {'': 255}
+    adjetivos = {'_': 255}
+    nombres   = {'_': 255}
+    verbos    = {'_': 255}
     for seccion in arbolSCE.find_data ('vocentry'):
-      palabra = ''
-      for vocword in seccion.find_data ('vocword'):
-        for letra in vocword.children:
-          palabra += str (letra).lower()
-      for entero in seccion.find_data ('uint'):
-        codigo = int (entero.children[0])
-      for voctype in seccion.find_data ('voctype'):
-        tipo = tipos_pal_dict[str (voctype.children[0])]
+      palabra = str (seccion.children[0]).lower()
+      codigo  = int (seccion.children[1])
+      tipo    = tipos_pal_dict[str (seccion.children[2].children[0])]
       vocabulario.append ((palabra, codigo, tipo))
       # Dejamos preparados diccionarios de códigos de palabra para verbos, nombres y adjetivos
       if tipo == 0:
@@ -492,24 +488,21 @@ def carga_sce (fichero, longitud):
     # Cargamos datos de los objetos
     numEntrada = 0
     for seccion in arbolSCE.find_data ('objentry'):
-      for entero in seccion.find_data ('uint'):
-        numero = str (entero.children[0])
-        if numero != str (numEntrada):
-          prn ('Formato del código fuente inválido o no soportado:\nSe esperaba número de objeto', numEntrada, 'en lugar de', numero, 'en línea', entero.meta.line, 'col', entero.meta.column, file = sys.stderr)
-          return False
+      numero = int (seccion.children[0])
+      if numero != numEntrada:
+        prn ('Formato del código fuente inválido o no soportado:\nSe esperaba número de objeto', numEntrada, 'en lugar de', numero, 'en línea', seccion.meta.line, 'col', seccion.meta.column, file = sys.stderr)
+        return False
       # Cargamos la localidad inicial del objeto
-      for objinitial in seccion.find_data ('objinitial'):
-        entero = None  # Quedará como None si era un valor no numérico
-        for entero in objinitial.find_data ('int'):
-          locs_iniciales.append (int (entero.children[0]))
-        if entero == None:  # Valor no numérico (p.ej. CARRIED)
-          locs_iniciales.append (IDS_LOCS[str (objinitial.children[0])])
+      localidad = seccion.children[1].children[0]
+      if localidad.type == 'INT':
+        locs_iniciales.append (int (localidad))
+      else:  # Valor no numérico (p.ej. CARRIED)
+        locs_iniciales.append (IDS_LOCS[str (localidad)])
       # Cargamos el peso del objeto
-      for objweight in seccion.find_data ('objweight'):
-        for entero in objweight.find_data ('int'):
-          peso = int (entero.children[0])
+      entero = seccion.children[2]
+      peso   = int (entero)
       if peso < 0 or peso > 63:
-        prn ('Formato del código fuente inválido o no soportado:\nSe esperaba valor de peso del objeto', numEntrada, 'entre 0 y 63, en línea', entero.meta.line, 'col', entero.meta.column, file = sys.stderr)
+        prn ('Formato del código fuente inválido o no soportado:\nSe esperaba valor de peso del objeto', numEntrada, 'entre 0 y 63, en línea', entero.line, 'col', entero.column, file = sys.stderr)
         return False
       # Cargamos los atributos del objeto
       valorAttrs = ''
@@ -522,20 +515,15 @@ def carga_sce (fichero, longitud):
         valorAttrs += '0' * (18 - len (valorAttrs))
       atributos.append (peso + ((valorAttrs[0] == '1') << 6) + ((valorAttrs[1] == '1') << 7))
       atributos_extra.append (int (valorAttrs[2:], 2))
-      for atributo in seccion.find_data ('attr'):
-        valorAttrs += '1' if atributo.children else '0'
       # Cargamos el vocabulario del objeto
       palabras = []
       for word in seccion.find_data ('word'):
-        palabra = ''
-        for vocword in word.find_data ('vocword'):
-          for letra in vocword.children:
-            palabra += str (letra).lower()
+        palabra = str (word.children[0]).lower()
         palabras.append (palabra)
         if len (palabras) == 1 and palabra not in nombres:
           break  # Para conservar la posición de la primera palabra inexistente
       if palabras[0] not in nombres or palabras[1] not in adjetivos:
-        prn ('Formato del código fuente inválido o no soportado:\nSe esperaba una palabra de vocabulario de tipo', 'adjetivo' if len (palabras) > 1 else 'nombre', 'en línea', vocword.meta.line, 'col', vocword.meta.column, file = sys.stderr)
+        prn ('Formato del código fuente inválido o no soportado:\nSe esperaba una palabra de vocabulario de tipo', 'adjetivo' if len (palabras) > 1 else 'nombre', 'en línea', word.meta.line, 'col', word.meta.column, file = sys.stderr)
         return False
       nombres_objs.append ((nombres[palabras[0]], adjetivos[palabras[1]]))
       numEntrada += 1
@@ -559,43 +547,38 @@ def carga_sce (fichero, longitud):
     numProceso = 0
     version    = 0  # Versión de DAAD necesaria, 0 significa compatibilidad con ambas
     for seccion in arbolSCE.find_data ('pro'):
-      for entero in seccion.find_data ('uint'):
-        numero = str (entero.children[0])
-        if numero != str (numProceso):
-          prn ('Formato del código fuente inválido o no soportado:\nSe esperaba número de proceso', numProceso, 'en lugar de', numero, 'en línea', entero.meta.line, 'col', entero.meta.column, file = sys.stderr)
-          return False
+      entero = seccion.children[0]
+      numero = int (entero)
+      if numero != numProceso:
+        prn ('Formato del código fuente inválido o no soportado:\nSe esperaba número de proceso', numProceso, 'en lugar de', numero, 'en línea', entero.line, 'col', entero.column, file = sys.stderr)
+        return False
       cabeceras = []
       entradas  = []
       for procentry in seccion.find_data ('procentry'):
         palabras = []
         for word in procentry.find_data ('word'):
-          palabra = ''
-          for vocword in word.find_data ('vocword'):
-            for letra in vocword.children:
-              palabra += str (letra).lower()
+          palabra = str (word.children[0]).lower()
           palabras.append (palabra)
           if len (palabras) == 1 and palabra not in verbos:
             break  # Para conservar la posición de la primera palabra inexistente
         if palabras[0] not in verbos or palabras[1] not in nombres:
-          prn ('Formato del código fuente inválido o no soportado:\nSe esperaba una palabra de vocabulario de tipo', 'nombre' if len (palabras) > 1 else 'verbo', 'en línea', vocword.meta.line, 'col', vocword.meta.column, file = sys.stderr)
+          prn ('Formato del código fuente inválido o no soportado:\nSe esperaba una palabra de vocabulario de tipo', 'nombre' if len (palabras) > 1 else 'verbo', 'en línea', word.meta.line, 'col', word.meta.column, file = sys.stderr)
           return False
         cabeceras.append ((verbos[palabras[0]], nombres[palabras[1]]))
         entrada = []
         for condacto in procentry.find_data ('condact'):
-          nombre = ''
           for condactname in condacto.find_data ('condactname'):
-            for letra in condactname.children:
-              nombre += str (letra)
-          parametros = []
-          for param in condacto.find_data ('param'):
-            entero = None  # Quedará como None si es parámetro no numérico
-            for entero in param.find_data ('int'):
-              parametros.append (int (entero.children[0]))
-            if entero == None:  # Parámetro no numérico
-              parametros.append (IDS_LOCS[str (param.children[0])])
+            nombre = str (condactname.children[0])
           if nombre not in datosCondactos:
             prn ('Formato del código fuente inválido o no soportado:\nCondacto de nombre', nombre, 'inexistente, en línea', condacto.meta.line, 'col', condacto.meta.column, file = sys.stderr)
             return False
+          parametros = []
+          for param in condacto.find_data ('param'):
+            parametro = param.children[0]
+            if parametro.type == 'INT':
+              parametros.append (int (parametro))
+            else:  # Valor no numérico (p.ej. CARRIED)
+              parametros.append (IDS_LOCS[str (parametro)])
           # Detectamos incompatibilidades por requerirse versiones de DAAD diferentes
           versionAntes = version
           if version:

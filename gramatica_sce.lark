@@ -5,26 +5,26 @@
 
 start: _wsnl? (ctl _wsnl)? (tok _wsnl)? voc _wsnl stx _wsnl mtx _wsnl otx _wsnl ltx _wsnl con _wsnl obj _wsnl pros _wsnlc
 
-comment: ";" /[^\n]/*
-_ws: (" "|"\t")+              // Espacio en blanco
-_wsc: _ws? comment?           // Posible espacio en blanco y/o comentario
-_wsnl: (_ws? comment? "\n")+  // Posible espacio en blanco y/o comentarios, y después nueva línea
+COMMENT: ";" /[^\n]/*
+_WS: (" " | "\t")+            // Espacio en blanco
+_wsc: _WS? COMMENT?           // Posible espacio en blanco y/o comentario
+_wsnl: (_WS? COMMENT? "\n")+  // Posible espacio en blanco y/o comentarios, y después nueva línea
 _wsnlc: _wsnl? _wsc           // Posible espacio en blanco y/o comentarios
-int: /[+-]?[0-9]+/
-uint: /[0-9]+/
-vocword: /[^ \n\t\/]/+
-word: vocword | "_"
+INT: /[+-]?[0-9]+/
+UINT: /[0-9]+/
+VOCWORD: /[^ \n\t\/]/+
+word: VOCWORD | "_"
 
 ctl: _CTL _wsnl "_"
 _CTL: "/CTL"
 
-tok: _TOK _wsnlc (_wsnl token)*
+tok: _TOK _wsnlc (_wsnl TOKEN)*
 _TOK: "/TOK"
-token: /[^ \n\t]/ /[^ \n\t]/+
+TOKEN: /[^ \n\t]/ /[^ \n\t]/+
 
 voc: _VOC _wsnlc (_wsnl vocentry)*
 _VOC: "/VOC"
-vocentry: vocword _ws uint _ws voctype
+vocentry: VOCWORD _WS UINT _WS voctype
 voctype: ADJECTIVE | ADVERB | CONJUGATION | NOUN | PREPOSITION | PRONOUN | VERB
 ADVERB: /adverb/i
 ADJECTIVE: /adjective/i
@@ -34,8 +34,8 @@ PREPOSITION: /preposition/i
 PRONOUN: /pronoun/i
 VERB: /verb/i
 
-textline: "\n" /[^\n\/][^\n]*/?
-textentry: "/" uint _wsnlc textline*
+TEXTLINE: "\n" /[^\n\/][^\n]*/?
+textentry: "/" UINT _wsnlc TEXTLINE*
 
 stx: _STX _wsnlc ("\n" textentry)*
 _STX: "/STX"
@@ -51,14 +51,14 @@ _LTX: "/LTX"
 
 con: _CON _wsnlc (_wsnl conentry)*
 _CON: "/CON"
-conentry: "/" uint _wsnlc (_wsnl conitem)*
-conitem: _ws /[^ \n\t]/+ _ws uint
+conentry: "/" UINT _wsnlc (_wsnl conitem)*
+conitem: _WS /[^ \n\t]/+ _WS UINT
 
 obj: _OBJ _wsnlc (_wsnl objentry)*
 _OBJ: "/OBJ"
-objentry: "/" uint _ws objinitial _ws objweight _ws attr _ws attr (_ws attr)* _ws word _ws word
-objinitial: int | CARRIED | WORN | "_"
-objweight: int
+objentry: "/" UINT _WS objinitial _WS OBJWEIGHT _WS attr _WS attr (_WS attr)* _WS word _WS word
+objinitial: INT | CARRIED | WORN | "_"
+OBJWEIGHT: INT
 attr: Y | "_"
 Y: "Y"
 
@@ -66,10 +66,10 @@ CARRIED: "CARRIED"
 HERE: "HERE"
 WORN: "WORN"
 
-pro: _PRO _ws uint _wsnlc (_wsnl procentry)*
+pro: _PRO _WS UINT _wsnlc (_wsnl procentry)*
 pros: pro (_wsnl pro)*
 _PRO: "/PRO"
-procentry: word _ws word (_ws condact)? _wsnlc (_wsnl _ws condact)*
+procentry: word _WS word (_WS condact)? _wsnlc (_wsnl _WS condact)*
 condact: condactname param*
 condactname: /[A-Z][A-Z0-9]*/
-param: _ws (CARRIED | HERE | WORN | int)
+param: _WS (CARRIED | HERE | WORN | INT)
