@@ -60,12 +60,15 @@ objentry: "/" uint _ws objinitial _ws objweight _ws attr _ws attr (_ws attr)* _w
 objinitial: uint | CARRIED | WORN
 objweight: uint
 attr: "Y" | "_"
+
 CARRIED: "CARRIED"
+HERE: "HERE"
 WORN: "WORN"
 
 pro: _PRO _ws uint _wsnlc (_wsnl procentry)*
 pros: pro (_wsnl pro)*
 _PRO: "/PRO"
 procentry: word _ws word (_ws condact)? _wsnlc (_wsnl _ws condact)*
-condact: /[A-Z]/+ param*
-param: _ws ("CARRIED" | "HERE" | "WORN" | int)
+condact: condactname param*
+condactname: /[A-Z]/+
+param: _ws (CARRIED | HERE | WORN | int)

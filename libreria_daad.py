@@ -66,6 +66,16 @@ NUM_BANDERAS   = 256     # Número de banderas del parser
 NOMBRES_PROCS  = []      # Nombres de las primeras tablas de proceso (para el IDE)
 # Nombres de los tipos de palabra (para el IDE)
 TIPOS_PAL = ('Verbo', 'Adverbio', 'Nombre', 'Adjetivo', 'Preposicion', 'Conjuncion', 'Pronombre')
+# Identificadores (para hacer el código más legible) predefinidos
+IDS_LOCS = {
+  252: 'NOTCREATED',
+       '_': 252,
+  253: 'WORN',
+       'WORN': 253,
+  254: 'CARRIED',
+       'CARRIED': 254,
+  255: 'HERE',
+       'HERE': 255}
 
 
 # Código de cada tipo de palabra por nombre
@@ -126,10 +136,11 @@ daad_a_chr = ('ª', '¡', '¿', '«', '»', 'á', 'é', 'í', 'ó', 'ú', 'ñ', 'Ñ', 'ç', '
 
 condactos = {
   # El formato es el siguiente:
-  # código : (nombre, parámetros, es_acción, flujo)
+  # código : (nombre, parámetros, es_acción, flujo, versiones)
   # Donde:
   #   parámetros es una cadena con el tipo de cada parámetro
   #   flujo indica si el condacto cambia el flujo de ejecución incondicionalmente, por lo que todo código posterior en su entrada será inalcanzable
+  #   versiones números de versión de DAAD en las que existe condacto con ese nombre, código y número de parámetros. El valor 3 significa que existe en ambas versiones
   # Y los tipos de los parámetros se definen así:
   # % : Porcentaje (percent), de 1 a 99 (TODO: comprobar si sirven 0 y 100)
   # f : Número de bandera (flagno), de 0 a NUM_BANDERAS - 1
@@ -147,152 +158,152 @@ condactos = {
   # v : Número de palabra de tipo adverbio (adverb), ó 255
   # V : Número de palabra de tipo verbo (verb), ó 255
   # w : Número de subventana (stream), de 0 a 7
-    0 : ('AT',      'l',  False, False),
-    1 : ('NOTAT',   'l',  False, False),
-    2 : ('ATGT',    'l',  False, False),
-    3 : ('ATLT',    'l',  False, False),
-    4 : ('PRESENT', 'o',  False, False),
-    5 : ('ABSENT',  'o',  False, False),
-    6 : ('WORN',    'o',  False, False),
-    7 : ('NOTWORN', 'o',  False, False),
-    8 : ('CARRIED', 'o',  False, False),
-    9 : ('NOTCARR', 'o',  False, False),
-   10 : ('CHANCE',  '%',  False, False),
-   11 : ('ZERO',    'f',  False, False),
-   12 : ('NOTZERO', 'f',  False, False),
-   13 : ('EQ',      'fu', False, False),
-   14 : ('GT',      'fu', False, False),
-   15 : ('LT',      'fu', False, False),
-   16 : ('ADJECT1', 'j',  False, False),
-   17 : ('ADVERB',  'v',  False, False),
-   18 : ('INVEN',   '',   True,  True),   # Implementado en intérprete de Jabato EGA
-   19 : ('DESC',    '',   True,  True),
-   20 : ('QUIT',    '',   False, False),  # Se comporta como condición, no satisfecha si no termina
-   21 : ('END',     '',   True,  True),
-   22 : ('DONE',    '',   True,  True),
-   23 : ('OK',      '',   True,  True),
-   24 : ('ANYKEY',  '',   True,  False),
-   25 : ('SAVE',    '',   True,  False),
-   26 : ('LOAD',    '',   False, False),  # Se comporta como condición, satisfecha si carga bien
-   27 : ('TURNS',   '',   True,  False),
-   28 : ('DISPLAY', 'u',  True,  False),  # Era SCORE
-   29 : ('CLS',     '',   True,  False),
-   30 : ('DROPALL', '',   True,  False),
-   31 : ('AUTOG',   '',   True,  False),
-   32 : ('AUTOD',   '',   True,  False),
-   33 : ('AUTOW',   '',   True,  False),
-   34 : ('AUTOR',   '',   True,  False),
-   35 : ('PAUSE',   'u',  True,  False),
-   36 : ('TIMEOUT', '',   False, False),
-   37 : ('GOTO',    'l',  True,  False),
-   38 : ('MESSAGE', 'm',  True,  False),
-   39 : ('REMOVE',  'o',  True,  False),
-   40 : ('GET',     'o',  True,  False),
-   41 : ('DROP',    'o',  True,  False),
-   42 : ('WEAR',    'o',  True,  False),
-   43 : ('DESTROY', 'o',  True,  False),
-   44 : ('CREATE',  'o',  True,  False),
-   45 : ('SWAP',    'oo', True,  False),
-   46 : ('PLACE',   'oL', True,  False),  # TODO: investigar más si en algún caso se comporta como condición
-   47 : ('SET',     'f',  True,  False),
-   48 : ('CLEAR',   'f',  True,  False),
-   49 : ('PLUS',    'fu', True,  False),
-   50 : ('MINUS',   'fu', True,  False),
-   51 : ('LET',     'fu', True,  False),
-   52 : ('NEWLINE', '',   True,  False),
-   53 : ('PRINT',   'f',  True,  False),
-   54 : ('SYSMESS', 's',  True,  False),
-   55 : ('ISAT',    'oL', False, False),
-   56 : ('COPYOF',  'of', True,  False),
-   57 : ('COPYOO',  'oo', True,  False),
-   58 : ('COPYFO',  'fo', True,  False),
-   59 : ('COPYFF',  'ff', True,  False),
-   60 : ('LISTOBJ', '',   True,  False),
-   61 : ('EXTERN',  'uu', True,  False),
-   62 : ('RAMSAVE', '',   True,  False),
-   63 : ('RAMLOAD', 'f',  False, False),  # Se comporta como condición, satisfecha si carga bien
-   64 : ('BEEP',    'uu', True,  False),
-   65 : ('PAPER',   'u',  True,  False),
-   66 : ('INK',     'u',  True,  False),
-   67 : ('BORDER',  'u',  True,  False),
-   68 : ('PREP',    'r',  False, False),
-   69 : ('NOUN2',   'n',  False, False),
-   70 : ('ADJECT2', 'j',  False, False),
-   71 : ('ADD',     'ff', True,  False),
-   72 : ('SUB',     'ff', True,  False),
-   73 : ('PARSE',   '',   False, False),  # Se comporta como condición, satisfecha si no hay frase válida
-   74 : ('LISTAT',  'L',  True,  False),
-   75 : ('PROCESS', 'p',  True,  False),
-   76 : ('SAME',    'ff', False, False),
-   77 : ('MES',     'm',  True,  False),
-   78 : ('WINDOW',  'w',  True,  False),  # Era CHARSET
-   79 : ('NOTEQ',   'fu', False, False),
-   80 : ('NOTSAME', 'ff', False, False),
-   81 : ('MODE',    'u',  True,  False),
-   82 : ('WINAT',   'uu', True,  False),  # Era LINE
-   83 : ('TIME',    'uu', True,  False),
-   84 : ('PICTURE', 'u',  True,  False),
-   85 : ('DOALL',   'L',  True,  False),
-   86 : ('PROMPT',  's',  True,  False),
-   87 : ('GFX',     'uu', True,  False),  # Era GRAPHIC
-   88 : ('ISNOTAT', 'oL', False, False),
-   89 : ('WEIGH',   'of', True,  False),
-   90 : ('PUTIN',   'ol', True,  False),
-   91 : ('TAKEOUT', 'ol', True,  False),
-   92 : ('NEWTEXT', '',   True,  False),
-   93 : ('ABILITY', 'uu', True,  False),
-   94 : ('WEIGHT',  'f',  True,  False),
-   95 : ('RANDOM',  'f',  True,  False),
-   96 : ('INPUT',   'wu', True,  False),
-   97 : ('SAVEAT',  '',   True,  False),
-   98 : ('BACKAT',  '',   True,  False),
-   99 : ('PRINTAT', 'uu', True,  False),
-  100 : ('WHATO',   '',   True,  False),
-  101 : ('CALL',    'u',  True,  False),  # Era RESET. Tal vez tome dos bytes para un desplazamiento
-  102 : ('PUTO',    'L',  True,  False),
-  103 : ('NOTDONE', '',   True,  True),
-  104 : ('AUTOP',   'l',  True,  False),
-  105 : ('AUTOT',   'l',  True,  False),
-  106 : ('MOVE',    'f',  False, False),  # Se comporta como condición
-  107 : ('WINSIZE', 'uu', True,  False),  # Era PROTECT
-  108 : ('REDO',    '',   True,  False),
-  109 : ('CENTRE',  '',   True,  False),
-  110 : ('EXIT',    'u',  True,  True),
-  111 : ('INKEY',   '',   False, False),
-  112 : ('SMALLER', 'ff', False, False),  # Del revés a como está en el manual
-  113 : ('BIGGER',  'ff', False, False),  # Del revés a como está en el manual
-  114 : ('ISDONE',  '',   False, False),
-  115 : ('ISNDONE', '',   False, False),
-  116 : ('SKIP',    'i',  True,  True),   # Nuevo en DAAD v2
-  117 : ('RESTART', '',   True,  True),
-  118 : ('TAB',     'u',  True,  False),
-  119 : ('COPYOF',  'of', True,  False),
-  121 : ('COPYOO',  'oo', True,  False),
-  123 : ('COPYFO',  'fo', True,  False),
-  125 : ('COPYFF',  'ff', True,  False),
-  126 : ('COPYBF',  'ff', True,  False),
-  127 : ('RESET',   '',   True,  False),
+    0 : ('AT',      'l',  False, False, 3),
+    1 : ('NOTAT',   'l',  False, False, 3),
+    2 : ('ATGT',    'l',  False, False, 3),
+    3 : ('ATLT',    'l',  False, False, 3),
+    4 : ('PRESENT', 'o',  False, False, 3),
+    5 : ('ABSENT',  'o',  False, False, 3),
+    6 : ('WORN',    'o',  False, False, 3),
+    7 : ('NOTWORN', 'o',  False, False, 3),
+    8 : ('CARRIED', 'o',  False, False, 3),
+    9 : ('NOTCARR', 'o',  False, False, 3),
+   10 : ('CHANCE',  '%',  False, False, 3),
+   11 : ('ZERO',    'f',  False, False, 3),
+   12 : ('NOTZERO', 'f',  False, False, 3),
+   13 : ('EQ',      'fu', False, False, 3),
+   14 : ('GT',      'fu', False, False, 3),
+   15 : ('LT',      'fu', False, False, 3),
+   16 : ('ADJECT1', 'j',  False, False, 3),
+   17 : ('ADVERB',  'v',  False, False, 3),
+   18 : ('INVEN',   '',   True,  True,  1),  # Implementado en intérprete de Jabato EGA
+   19 : ('DESC',    '',   True,  True,  1),
+   20 : ('QUIT',    '',   False, False, 3),  # Se comporta como condición, no satisfecha si no termina
+   21 : ('END',     '',   True,  True,  3),
+   22 : ('DONE',    '',   True,  True,  3),
+   23 : ('OK',      '',   True,  True,  3),
+   24 : ('ANYKEY',  '',   True,  False, 3),
+   25 : ('SAVE',    '',   True,  False, 1),
+   26 : ('LOAD',    '',   False, False, 1),  # Se comporta como condición, satisfecha si carga bien
+   27 : ('TURNS',   '',   True,  False, 1),
+   28 : ('DISPLAY', 'u',  True,  False, 3),  # Era SCORE
+   29 : ('CLS',     '',   True,  False, 3),
+   30 : ('DROPALL', '',   True,  False, 3),
+   31 : ('AUTOG',   '',   True,  False, 3),
+   32 : ('AUTOD',   '',   True,  False, 3),
+   33 : ('AUTOW',   '',   True,  False, 3),
+   34 : ('AUTOR',   '',   True,  False, 3),
+   35 : ('PAUSE',   'u',  True,  False, 3),
+   36 : ('TIMEOUT', '',   False, False, 1),
+   37 : ('GOTO',    'l',  True,  False, 3),
+   38 : ('MESSAGE', 'm',  True,  False, 3),
+   39 : ('REMOVE',  'o',  True,  False, 3),
+   40 : ('GET',     'o',  True,  False, 3),
+   41 : ('DROP',    'o',  True,  False, 3),
+   42 : ('WEAR',    'o',  True,  False, 3),
+   43 : ('DESTROY', 'o',  True,  False, 3),
+   44 : ('CREATE',  'o',  True,  False, 3),
+   45 : ('SWAP',    'oo', True,  False, 3),
+   46 : ('PLACE',   'oL', True,  False, 3),  # TODO: investigar más si en algún caso se comporta como condición
+   47 : ('SET',     'f',  True,  False, 3),
+   48 : ('CLEAR',   'f',  True,  False, 3),
+   49 : ('PLUS',    'fu', True,  False, 3),
+   50 : ('MINUS',   'fu', True,  False, 3),
+   51 : ('LET',     'fu', True,  False, 3),
+   52 : ('NEWLINE', '',   True,  False, 3),
+   53 : ('PRINT',   'f',  True,  False, 3),
+   54 : ('SYSMESS', 's',  True,  False, 3),
+   55 : ('ISAT',    'oL', False, False, 3),
+   56 : ('COPYOF',  'of', True,  False, 1),
+   57 : ('COPYOO',  'oo', True,  False, 1),
+   58 : ('COPYFO',  'fo', True,  False, 1),
+   59 : ('COPYFF',  'ff', True,  False, 1),
+   60 : ('LISTOBJ', '',   True,  False, 3),
+   61 : ('EXTERN',  'uu', True,  False, 3),
+   62 : ('RAMSAVE', '',   True,  False, 3),
+   63 : ('RAMLOAD', 'f',  False, False, 3),  # Se comporta como condición, satisfecha si carga bien
+   64 : ('BEEP',    'uu', True,  False, 3),
+   65 : ('PAPER',   'u',  True,  False, 3),
+   66 : ('INK',     'u',  True,  False, 3),
+   67 : ('BORDER',  'u',  True,  False, 3),
+   68 : ('PREP',    'r',  False, False, 3),
+   69 : ('NOUN2',   'n',  False, False, 3),
+   70 : ('ADJECT2', 'j',  False, False, 3),
+   71 : ('ADD',     'ff', True,  False, 3),
+   72 : ('SUB',     'ff', True,  False, 3),
+   73 : ('PARSE',   '',   False, False, 1),  # Se comporta como condición, satisfecha si no hay frase válida
+   74 : ('LISTAT',  'L',  True,  False, 3),
+   75 : ('PROCESS', 'p',  True,  False, 3),
+   76 : ('SAME',    'ff', False, False, 3),
+   77 : ('MES',     'm',  True,  False, 3),
+   78 : ('WINDOW',  'w',  True,  False, 3),  # Era CHARSET
+   79 : ('NOTEQ',   'fu', False, False, 3),
+   80 : ('NOTSAME', 'ff', False, False, 3),
+   81 : ('MODE',    'u',  True,  False, 3),
+   82 : ('WINAT',   'uu', True,  False, 3),  # Era LINE
+   83 : ('TIME',    'uu', True,  False, 3),
+   84 : ('PICTURE', 'u',  True,  False, 3),
+   85 : ('DOALL',   'L',  True,  False, 3),
+   86 : ('PROMPT',  's',  True,  False, 1),
+   87 : ('GFX',     'uu', True,  False, 3),  # Era GRAPHIC
+   88 : ('ISNOTAT', 'oL', False, False, 3),
+   89 : ('WEIGH',   'of', True,  False, 3),
+   90 : ('PUTIN',   'ol', True,  False, 3),
+   91 : ('TAKEOUT', 'ol', True,  False, 3),
+   92 : ('NEWTEXT', '',   True,  False, 3),
+   93 : ('ABILITY', 'uu', True,  False, 3),
+   94 : ('WEIGHT',  'f',  True,  False, 3),
+   95 : ('RANDOM',  'f',  True,  False, 3),
+   96 : ('INPUT',   'wu', True,  False, 3),
+   97 : ('SAVEAT',  '',   True,  False, 3),
+   98 : ('BACKAT',  '',   True,  False, 3),
+   99 : ('PRINTAT', 'uu', True,  False, 3),
+  100 : ('WHATO',   '',   True,  False, 3),
+  101 : ('CALL',    'u',  True,  False, 3),  # Era RESET. Tal vez tome dos bytes para un desplazamiento
+  102 : ('PUTO',    'L',  True,  False, 3),
+  103 : ('NOTDONE', '',   True,  True,  3),
+  104 : ('AUTOP',   'l',  True,  False, 3),
+  105 : ('AUTOT',   'l',  True,  False, 3),
+  106 : ('MOVE',    'f',  False, False, 3),  # Se comporta como condición
+  107 : ('WINSIZE', 'uu', True,  False, 3),  # Era PROTECT
+  108 : ('REDO',    '',   True,  False, 3),
+  109 : ('CENTRE',  '',   True,  False, 3),
+  110 : ('EXIT',    'u',  True,  True,  3),
+  111 : ('INKEY',   '',   False, False, 3),
+  112 : ('SMALLER', 'ff', False, False, 1),  # Del revés a como está en el manual
+  113 : ('BIGGER',  'ff', False, False, 1),  # Del revés a como está en el manual
+  114 : ('ISDONE',  '',   False, False, 3),
+  115 : ('ISNDONE', '',   False, False, 3),
+  116 : ('SKIP',    'i',  True,  True,  2),  # Nuevo en DAAD v2
+  117 : ('RESTART', '',   True,  True,  3),
+  118 : ('TAB',     'u',  True,  False, 3),
+  119 : ('COPYOF',  'of', True,  False, 2),
+  121 : ('COPYOO',  'oo', True,  False, 2),
+  123 : ('COPYFO',  'fo', True,  False, 2),
+  125 : ('COPYFF',  'ff', True,  False, 2),
+  126 : ('COPYBF',  'ff', True,  False, 3),
+  127 : ('RESET',   '',   True,  False, 3),
 }
 
 # Reemplazo de condactos en nuevas versiones de DAAD
 condactos_nuevos = {
   # El formato es el siguiente:
-  # código : (nombre, número_parámetros, es_acción)
-   18 : ('SFX',     'uu', True,  False),  # Era INVEN
-   19 : ('DESC',    'l',  True,  False),
-   25 : ('SAVE',    'u',  True,  False),
-   26 : ('LOAD',    'u',  False, False),  # Se comporta como condición, satisfecha si carga bien
-   27 : ('DPRINT',  'f',  True,  False),  # Era TURNS
-   36 : ('SYNONYM', 'Vn', True,  False),  # Era TIMEOUT
-   56 : ('SETCO',   'o',  True,  False),  # Era COPYOF
-   57 : ('SPACE',   '',   True,  False),  # Era COPYOO
-   58 : ('HASAT',   'u',  False, False),  # Era COPYFO
-   59 : ('HASNAT',  'u',  False, False),  # Era COPYFF
-   73 : ('PARSE',   'u',  False, False),  # Se comporta como condición
-   84 : ('PICTURE', 'u',  False, False),  # Se comporta como condición, en función si esa imagen existe
-   86 : ('MOUSE',   'u',  True,  False),  # Era PROMPT
-  112 : ('BIGGER',  'ff', False, False),  # Mismo orden que en el manual
-  113 : ('SMALLER', 'ff', False, False),  # Mismo orden que en el manual
+  # código : (nombre, parámetros, es_acción, flujo, versión)
+   18 : ('SFX',     'uu', True,  False, 2),  # Era INVEN
+   19 : ('DESC',    'l',  True,  False, 2),
+   25 : ('SAVE',    'u',  True,  False, 2),
+   26 : ('LOAD',    'u',  False, False, 2),  # Se comporta como condición, satisfecha si carga bien
+   27 : ('DPRINT',  'f',  True,  False, 2),  # Era TURNS
+   36 : ('SYNONYM', 'Vn', True,  False, 2),  # Era TIMEOUT
+   56 : ('SETCO',   'o',  True,  False, 2),  # Era COPYOF
+   57 : ('SPACE',   '',   True,  False, 2),  # Era COPYOO
+   58 : ('HASAT',   'u',  False, False, 2),  # Era COPYFO
+   59 : ('HASNAT',  'u',  False, False, 2),  # Era COPYFF
+   73 : ('PARSE',   'u',  False, False, 2),  # Se comporta como condición
+   84 : ('PICTURE', 'u',  False, False, 3),  # Se comporta como condición, en función si esa imagen existe
+   86 : ('MOUSE',   'u',  True,  False, 2),  # Era PROMPT
+  112 : ('BIGGER',  'ff', False, False, 2),  # Mismo orden que en el manual
+  113 : ('SMALLER', 'ff', False, False, 2),  # Mismo orden que en el manual
 }
 
 
@@ -385,6 +396,7 @@ def carga_sce (fichero, longitud):
   - Recibe como primer parámetro un fichero abierto
   - Recibe como segundo parámetro la longitud del fichero abierto
   - Devuelve False si ha ocurrido algún error"""
+  global nueva_version
   try:
     import lark
   except:
@@ -447,8 +459,21 @@ def carga_sce (fichero, longitud):
         nombres[palabra] = codigo
         if codigo < 20:
           verbos[palabra] = codigo
+    # Preparamos código y parámetros en cada versión, de los condactos, indexando por nombre
+    datosCondactos = {}
+    for listaCondactos in (condactos, condactos_nuevos):
+      for codigo in listaCondactos:
+        condacto = listaCondactos[codigo]
+        if condacto[0] not in datosCondactos:
+          datosCondactos[condacto[0]] = [None, None]
+        datosCondacto = (codigo, condacto[1])
+        if condacto[4] == 3:  # El condacto es igual en ambas versiones
+          datosCondactos[condacto[0]] = (datosCondacto, datosCondacto)
+        else:
+          datosCondactos[condacto[0]][condacto[4] - 1] = datosCondacto
     # Cargamos las tablas de proceso
     numProceso = 0
+    version    = 0  # Versión de DAAD necesaria, 0 significa compatibilidad con ambas
     for seccion in arbolSCE.find_data ('pro'):
       for entero in seccion.find_data ('uint'):
         numero = str (entero.children[0])
@@ -457,6 +482,71 @@ def carga_sce (fichero, longitud):
           return False
       cabeceras = []
       entradas  = []
+      for procentry in seccion.find_data ('procentry'):
+        palabras = []
+        for word in procentry.find_data ('word'):
+          palabra = ''
+          for vocword in word.find_data ('vocword'):
+            for letra in vocword.children:
+              palabra += str (letra).lower()
+          palabras.append (palabra)
+          if len (palabras) == 1 and palabra not in verbos:
+            break  # Para conservar la posición de la primera palabra inexistente
+        if palabras[0] not in verbos or palabras[1] not in nombres:
+          prn ('Formato del código fuente inválido o no soportado:\nSe esperaba una palabra de vocabulario de tipo', 'nombre' if len (palabras) > 1 else 'verbo', 'en línea', vocword.meta.line, 'col', vocword.meta.column, file = sys.stderr)
+          return False
+        cabeceras.append ((verbos[palabras[0]], nombres[palabras[1]]))
+        entrada = []
+        for condacto in procentry.find_data ('condact'):
+          nombre = ''
+          for condactname in condacto.find_data ('condactname'):
+            for letra in condactname.children:
+              nombre += str (letra)
+          parametros = []
+          for param in condacto.find_data ('param'):
+            entero = None  # Quedará como None si es parámetro no numérico
+            for entero in param.find_data ('int'):
+              parametros.append (int (entero.children[0]))
+            if entero == None:  # Parámetro no numérico
+              parametros.append (IDS_LOCS[str (param.children[0])])
+          if nombre not in datosCondactos:
+            prn ('Formato del código fuente inválido o no soportado:\nCondacto de nombre', nombre, 'inexistente, en línea', condacto.meta.line, 'col', condacto.meta.column, file = sys.stderr)
+            return False
+          # Detectamos incompatibilidades por requerirse versiones de DAAD diferentes
+          versionAntes = version
+          if version:
+            if not datosCondactos[nombre][version - 1]:
+              prn ('Formato del código fuente inválido o no soportado:\nCondacto de nombre', nombre, 'inexistente en DAAD versión', version, '(asumida por condactos anteriores), en línea', condacto.meta.line, 'col', condacto.meta.column, file = sys.stderr)
+              return False
+            # La comprobación del número de parámetros se hace abajo
+            entrada.append ((datosCondactos[nombre][version - 1][0], parametros))
+          else:
+            # Fijamos versión de DAAD si el condacto con ese nombre sólo está en una
+            if not datosCondactos[nombre][0] or not datosCondactos[nombre][1]:
+              version = 1 if datosCondactos[nombre][0] else 2
+              if version == 2:
+                nueva_version.append (True)
+            elif len (parametros) != len (datosCondactos[nombre][0][1]) and len (parametros) != len (datosCondactos[nombre][1][1]):
+              if len (datosCondactos[nombre][0][1]) == len (datosCondactos[nombre][1][1]):
+                requerido = len (datosCondactos[nombre][0][1])
+              else:
+                requerido = ' o '.join (sorted ((len (datosCondactos[nombre][0][1]), len (datosCondactos[nombre][1][1]))))
+              prn ('Formato del código fuente inválido o no soportado:\nEl condacto', nombre, 'requiere', requerido, 'parámetro' + ('' if requerido == 1 else 's'), file = sys.stderr)
+            # Fijamos versión de DAAD si el condacto con ese número de parámetros sólo está en una
+            elif len (datosCondactos[nombre][0][1]) != len (datosCondactos[nombre][1][1]):
+              version = 1 if len (parametros) == len (datosCondactos[nombre][0][1]) else 2
+              if version == 2:
+                nueva_version.append (True)
+            entrada.append ((datosCondactos[nombre][0][0], parametros))
+            # TODO: poner a condactos anteriores con código diferente entre versiones, el de la versión 2
+            if version == 2:
+              pass
+          # Comprobamos el número de parámetros
+          if version and len (parametros) != len (datosCondactos[nombre][version - 1][1]):
+            requerido = len (datosCondactos[nombre][version - 1][1])
+            prn ('Formato del código fuente inválido o no soportado:\nEl condacto', nombre, 'requiere', requerido, 'parámetro' + ('' if requerido == 1 else 's'), 'en DAAD versión', version, '(asumida por', ('condactos anteriores' if version == versionAntes else ('este mismo condacto, que sólo existe en la versión ' + str (version))) + '),', 'en línea', condacto.meta.line, 'col', condacto.meta.column, file = sys.stderr)
+            return False
+        entradas.append (entrada)
       tablas_proceso.append ((cabeceras, entradas))
       numProceso += 1
   except lark.UnexpectedInput as e:
