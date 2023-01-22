@@ -149,7 +149,7 @@ def obj_referido (objeto):
   """Asigna el objeto dado como nuevo objeto referido actual. Usar el valor 255 para limpiar las banderas de objeto referido"""
   if objeto == 255:
     banderas[51] = 255
-    for numBandera in range (54, 60 if NOMBRE_SISTEMA == 'DAAD' and atributos_extra else 58):
+    for numBandera in range (54, 60 if NOMBRE_SISTEMA == 'DAAD' and nueva_version else 58):
       banderas[numBandera] = 0
     return
   banderas[51] = objeto
@@ -158,7 +158,7 @@ def obj_referido (objeto):
   banderas[56] = 128 if atributos[objeto] &  64 else 0  # Si es contenedor
   banderas[57] = 128 if atributos[objeto] & 128 else 0  # Si es prenda
   # FIXME: ¿se pondría en la bandera 58 los atributos normales en versión de formato 1?
-  if NOMBRE_SISTEMA == 'DAAD' and atributos_extra:
+  if NOMBRE_SISTEMA == 'DAAD' and nueva_version:
     banderas[58] = atributos_extra[objeto] // 256
     banderas[59] = atributos_extra[objeto]  % 256
 
