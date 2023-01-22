@@ -632,7 +632,7 @@ class ModeloVocabulario (QAbstractTableModel):
         return 'Reservado'
       if tipo > len (self.tipos):
         return 'Desconocido (' + str (tipo) + ')'
-      return self.tipos[tipo]
+      return self.tipos[tipo].replace ('cion', 'ción')
 
   def flags (self, index):
     return Qt.ItemIsSelectable | Qt.ItemIsEnabled
@@ -1282,7 +1282,7 @@ def editaVocabulario (indice):
   else:  # indice.column() == 2:  # Tipo
     tiposPalabra = {255: 'Reservado'}
     for i in range (len (mod_actual.TIPOS_PAL)):
-      tiposPalabra[i] = mod_actual.TIPOS_PAL[i]
+      tiposPalabra[i] = mod_actual.TIPOS_PAL[i].replace ('cion', 'ción')
     dialogo = ModalEntrada (dlg_vocabulario, 'Tipo de palabra:', tiposPalabra[palVocab[2]])
     dialogo.setComboBoxEditable (True)
     dialogo.setComboBoxItems    (sorted (tiposPalabra.values()))
