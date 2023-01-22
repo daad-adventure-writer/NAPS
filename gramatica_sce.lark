@@ -57,9 +57,10 @@ conitem: /[^ \n\t]/+ _ws uint
 obj: _OBJ _wsnlc (_wsnl objentry)*
 _OBJ: "/OBJ"
 objentry: "/" uint _ws objinitial _ws objweight _ws attr _ws attr (_ws attr)* _ws word _ws word
-objinitial: uint | CARRIED | WORN
-objweight: uint
-attr: "Y" | "_"
+objinitial: int | CARRIED | WORN | "_"
+objweight: int
+attr: Y | "_"
+Y: "Y"
 
 CARRIED: "CARRIED"
 HERE: "HERE"

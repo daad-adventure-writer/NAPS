@@ -396,7 +396,7 @@ def carga_sce (fichero, longitud):
   - Recibe como primer parámetro un fichero abierto
   - Recibe como segundo parámetro la longitud del fichero abierto
   - Devuelve False si ha ocurrido algún error"""
-  global nueva_version
+  global num_objetos, nueva_version
   try:
     import lark
   except:
@@ -440,8 +440,9 @@ def carga_sce (fichero, longitud):
           listaCadenas.append (cadena)
           numEntrada += 1
     # Cargamos el vocabulario
-    nombres = {'': 255}
-    verbos  = {'': 255}
+    adjetivos = {'': 255}
+    nombres   = {'': 255}
+    verbos    = {'': 255}
     for seccion in arbolSCE.find_data ('vocentry'):
       palabra = ''
       for vocword in seccion.find_data ('vocword'):
@@ -452,13 +453,69 @@ def carga_sce (fichero, longitud):
       for voctype in seccion.find_data ('voctype'):
         tipo = tipos_pal_dict[str (voctype.children[0])]
       vocabulario.append ((palabra, codigo, tipo))
-      # Dejamos preparados diccionarios de códigos de palabra para verbos y nombres
+      # Dejamos preparados diccionarios de códigos de palabra para verbos, nombres y adjetivos
       if tipo == 0:
         verbos[palabra] = codigo
       elif tipo == 2:
         nombres[palabra] = codigo
         if codigo < 20:
           verbos[palabra] = codigo
+      elif tipo == 3:
+        adjetivos[palabra] = codigo
+    # Cargamos datos de los objetos
+    numEntrada = 0
+    for seccion in arbolSCE.find_data ('objentry'):
+      for entero in seccion.find_data ('uint'):
+        numero = str (entero.children[0])
+        if numero != str (numEntrada):
+          prn ('Formato del código fuente inválido o no soportado:\nSe esperaba número de objeto', numEntrada, 'en lugar de', numero, 'en línea', entero.meta.line, 'col', entero.meta.column, file = sys.stderr)
+          return False
+      # Cargamos la localidad inicial del objeto
+      for objinitial in seccion.find_data ('objinitial'):
+        entero = None  # Quedará como None si era un valor no numérico
+        for entero in objinitial.find_data ('int'):
+          locs_iniciales.append (int (entero.children[0]))
+        if entero == None:  # Valor no numérico (p.ej. CARRIED)
+          locs_iniciales.append (IDS_LOCS[str (objinitial.children[0])])
+      # Cargamos el peso del objeto
+      for objweight in seccion.find_data ('objweight'):
+        for entero in objweight.find_data ('int'):
+          peso = int (entero.children[0])
+      if peso < 0 or peso > 63:
+        prn ('Formato del código fuente inválido o no soportado:\nSe esperaba valor de peso del objeto', numEntrada, 'entre 0 y 63, en línea', entero.meta.line, 'col', entero.meta.column, file = sys.stderr)
+        return False
+      # Cargamos los atributos del objeto
+      valorAttrs = ''
+      for atributo in seccion.find_data ('attr'):
+        valorAttrs += '1' if atributo.children else '0'
+      if len (valorAttrs) > 18:
+        prn ('Formato del código fuente inválido o no soportado:\nNúmero de atributos para el objeto', numEntrada, ' excesivo, NAPS sólo soporta hasta 18, en línea', entero.meta.line, file = sys.stderr)
+        return False
+      else:  # Soportamos entre 2 y 18 atributos dejando a cero los que no se indiquen
+        valorAttrs += '0' * (18 - len (valorAttrs))
+      atributos.append (peso + ((valorAttrs[0] == '1') << 6) + ((valorAttrs[1] == '1') << 7))
+      atributos_extra.append (int (valorAttrs[2:], 2))
+      for atributo in seccion.find_data ('attr'):
+        valorAttrs += '1' if atributo.children else '0'
+      # Cargamos el vocabulario del objeto
+      palabras = []
+      for word in seccion.find_data ('word'):
+        palabra = ''
+        for vocword in word.find_data ('vocword'):
+          for letra in vocword.children:
+            palabra += str (letra).lower()
+        palabras.append (palabra)
+        if len (palabras) == 1 and palabra not in nombres:
+          break  # Para conservar la posición de la primera palabra inexistente
+      if palabras[0] not in nombres or palabras[1] not in adjetivos:
+        prn ('Formato del código fuente inválido o no soportado:\nSe esperaba una palabra de vocabulario de tipo', 'adjetivo' if len (palabras) > 1 else 'nombre', 'en línea', vocword.meta.line, 'col', vocword.meta.column, file = sys.stderr)
+        return False
+      nombres_objs.append ((nombres[palabras[0]], adjetivos[palabras[1]]))
+      numEntrada += 1
+    if numEntrada != len (desc_objs):
+      prn ('Formato del código fuente inválido o no soportado:\nSe esperaba el mismo número de objetos (' + str (numEntrada) + ') que de descripciones de objetos (' + str (len (desc_objs)), file = sys.stderr)
+      return False
+    num_objetos[0] = numEntrada
     # Preparamos código y parámetros en cada versión, de los condactos, indexando por nombre
     datosCondactos = {}
     for listaCondactos in (condactos, condactos_nuevos):
