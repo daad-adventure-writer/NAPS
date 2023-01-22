@@ -26,13 +26,13 @@ voc: _VOC _wsnlc (_wsnl vocentry)*
 _VOC: "/VOC"
 vocentry: vocword _ws uint _ws voctype
 voctype: ADJECTIVE | ADVERB | CONJUGATION | NOUN | PREPOSITION | PRONOUN | VERB
-ADVERB: "adverb"
-ADJECTIVE: "adjective"
-CONJUGATION: "conjugation" | "conjunction"
-NOUN: "noun"
-PREPOSITION: "preposition"
-PRONOUN: "pronoun"
-VERB: "verb"
+ADVERB: /adverb/i
+ADJECTIVE: /adjective/i
+CONJUGATION: /conjugation/i | /conjunction/i
+NOUN: /noun/i
+PREPOSITION: /preposition/i
+PRONOUN: /pronoun/i
+VERB: /verb/i
 
 textline: "\n" /[^\n\/][^\n]*/?
 textentry: "/" uint _wsnlc textline*
@@ -52,7 +52,7 @@ _LTX: "/LTX"
 con: _CON _wsnlc (_wsnl conentry)*
 _CON: "/CON"
 conentry: "/" uint _wsnlc (_wsnl conitem)*
-conitem: /[^ \n\t]/+ _ws uint
+conitem: _ws /[^ \n\t]/+ _ws uint
 
 obj: _OBJ _wsnlc (_wsnl objentry)*
 _OBJ: "/OBJ"
