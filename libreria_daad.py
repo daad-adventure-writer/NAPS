@@ -474,7 +474,7 @@ def carga_sce (fichero, longitud):
     for seccion in arbolSCE.find_data ('vocentry'):
       palabra = str (seccion.children[0]).lower()
       codigo  = int (seccion.children[1])
-      tipo    = tipos_pal_dict[str (seccion.children[2].children[0])]
+      tipo    = tipos_pal_dict[str (seccion.children[2].children[0]).lower()]
       vocabulario.append ((palabra, codigo, tipo))
       # Dejamos preparados diccionarios de códigos de palabra para verbos, nombres y adjetivos
       if tipo == 0:
