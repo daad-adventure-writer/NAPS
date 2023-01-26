@@ -518,7 +518,7 @@ def carga_sce (fichero, longitud):
       # Cargamos el vocabulario del objeto
       palabras = []
       for word in seccion.find_data ('word'):
-        palabra = str (word.children[0]).lower()
+        palabra = str (word.children[0]).lower() if word.children else '_'
         palabras.append (palabra)
         if len (palabras) == 1 and palabra not in nombres:
           break  # Para conservar la posición de la primera palabra inexistente
@@ -557,7 +557,7 @@ def carga_sce (fichero, longitud):
       for procentry in seccion.find_data ('procentry'):
         palabras = []
         for word in procentry.find_data ('word'):
-          palabra = str (word.children[0]).lower()
+          palabra = str (word.children[0]).lower() if word.children else '_'
           palabras.append (palabra)
           if len (palabras) == 1 and palabra not in verbos:
             break  # Para conservar la posición de la primera palabra inexistente

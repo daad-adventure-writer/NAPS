@@ -12,7 +12,7 @@ _wsnl: (_WS? COMMENT? "\n")+  // Posible espacio en blanco y/o comentarios, y de
 _wsnlc: _wsnl? _wsc           // Posible espacio en blanco y/o comentarios
 INT: /[+-]?[0-9]+/
 UINT: /[0-9]+/
-VOCWORD: /[^ \n\t\/]/+
+VOCWORD: /[^ _;\n\t\/]/+
 word: VOCWORD | "_"
 
 ctl: _CTL _wsnl "_"
