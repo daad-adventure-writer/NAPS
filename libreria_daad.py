@@ -440,8 +440,7 @@ def carga_sce (fichero, longitud):
         for entrada in seccion.find_data ('textentry'):
           numero = int (entrada.children[0])
           if numero != numEntrada:
-            prn ('Formato del código fuente inválido o no soportado:\nSe esperaba número de entrada', numEntrada, 'en lugar de', numero, 'en línea', entrada.meta.line, 'col', entrada.meta.column, file = sys.stderr)
-            return False
+            raise TabError ('número de entrada %d en lugar de %d', (numEntrada, numero), entrada.meta)
           lineas = []
           for lineaTexto in entrada.children[1:]:
             if lineaTexto.type == 'COMMENT':
@@ -490,8 +489,7 @@ def carga_sce (fichero, longitud):
     for seccion in arbolSCE.find_data ('objentry'):
       numero = int (seccion.children[0])
       if numero != numEntrada:
-        prn ('Formato del código fuente inválido o no soportado:\nSe esperaba número de objeto', numEntrada, 'en lugar de', numero, 'en línea', seccion.meta.line, 'col', seccion.meta.column, file = sys.stderr)
-        return False
+        raise TabError ('número de objeto %d en lugar de %d', (numEntrada, numero), seccion.meta)
       # Cargamos la localidad inicial del objeto
       localidad = seccion.children[1].children[0]
       if localidad.type == 'INT':
@@ -502,17 +500,15 @@ def carga_sce (fichero, longitud):
       entero = seccion.children[2]
       peso   = int (entero)
       if peso < 0 or peso > 63:
-        prn ('Formato del código fuente inválido o no soportado:\nSe esperaba valor de peso del objeto', numEntrada, 'entre 0 y 63, en línea', entero.line, 'col', entero.column, file = sys.stderr)
-        return False
+        raise TabError ('valor de peso del objeto %d entre 0 y 63', numEntrada, entero)
       # Cargamos los atributos del objeto
       valorAttrs = ''
       for atributo in seccion.find_data ('attr'):
         valorAttrs += '1' if atributo.children else '0'
       if len (valorAttrs) > 18:
-        prn ('Formato del código fuente inválido o no soportado:\nNúmero de atributos para el objeto', numEntrada, ' excesivo, NAPS sólo soporta hasta 18, en línea', entero.meta.line, file = sys.stderr)
-        return False
-      else:  # Soportamos entre 2 y 18 atributos dejando a cero los que no se indiquen
-        valorAttrs += '0' * (18 - len (valorAttrs))
+        raise TabError ('Número de atributos para el objeto %d excesivo, NAPS sólo soporta hasta 18', numEntrada, entero, 1)
+      # Soportamos entre 2 y 18 atributos dejando a cero los que no se indiquen
+      valorAttrs += '0' * (18 - len (valorAttrs))
       atributos.append (peso + ((valorAttrs[0] == '1') << 6) + ((valorAttrs[1] == '1') << 7))
       atributos_extra.append (int (valorAttrs[2:], 2))
       # Cargamos el vocabulario del objeto
@@ -523,13 +519,11 @@ def carga_sce (fichero, longitud):
         if len (palabras) == 1 and palabra not in nombres:
           break  # Para conservar la posición de la primera palabra inexistente
       if palabras[0] not in nombres or palabras[1] not in adjetivos:
-        prn ('Formato del código fuente inválido o no soportado:\nSe esperaba una palabra de vocabulario de tipo', 'adjetivo' if len (palabras) > 1 else 'nombre', 'en línea', word.meta.line, 'col', word.meta.column, file = sys.stderr)
-        return False
+        raise TabError ('una palabra de vocabulario de tipo %s', 'adjetivo' if len (palabras) > 1 else 'nombre', word.meta)
       nombres_objs.append ((nombres[palabras[0]], adjetivos[palabras[1]]))
       numEntrada += 1
     if numEntrada != len (desc_objs):
-      prn ('Formato del código fuente inválido o no soportado:\nSe esperaba el mismo número de objetos (' + str (numEntrada) + ') que de descripciones de objetos (' + str (len (desc_objs)), file = sys.stderr)
-      return False
+      raise TabError ('el mismo número de objetos (%d) que de descripciones de objetos (%d)', (numEntrada, len (desc_objs)))
     num_objetos[0] = numEntrada
     # Preparamos código y parámetros en cada versión, de los condactos, indexando por nombre
     datosCondactos = {}
@@ -550,8 +544,7 @@ def carga_sce (fichero, longitud):
       entero = seccion.children[0]
       numero = int (entero)
       if numero != numProceso:
-        prn ('Formato del código fuente inválido o no soportado:\nSe esperaba número de proceso', numProceso, 'en lugar de', numero, 'en línea', entero.line, 'col', entero.column, file = sys.stderr)
-        return False
+        raise TabError ('número de proceso %d en lugar de %d', (numProceso, numero), entero)
       cabeceras = []
       entradas  = []
       for procentry in seccion.find_data ('procentry'):
@@ -562,16 +555,14 @@ def carga_sce (fichero, longitud):
           if len (palabras) == 1 and palabra not in verbos:
             break  # Para conservar la posición de la primera palabra inexistente
         if palabras[0] not in verbos or palabras[1] not in nombres:
-          prn ('Formato del código fuente inválido o no soportado:\nSe esperaba una palabra de vocabulario de tipo', 'nombre' if len (palabras) > 1 else 'verbo', 'en línea', word.meta.line, 'col', word.meta.column, file = sys.stderr)
-          return False
+          raise TabError ('una palabra de vocabulario de tipo %s', 'nombre' if len (palabras) > 1 else 'verbo', word.meta)
         cabeceras.append ((verbos[palabras[0]], nombres[palabras[1]]))
         entrada = []
         for condacto in procentry.find_data ('condact'):
           for condactname in condacto.find_data ('condactname'):
             nombre = str (condactname.children[0])
           if nombre not in datosCondactos:
-            prn ('Formato del código fuente inválido o no soportado:\nCondacto de nombre', nombre, 'inexistente, en línea', condacto.meta.line, 'col', condacto.meta.column, file = sys.stderr)
-            return False
+            raise TabError ('Condacto de nombre %s inexistente', nombre, condacto.meta)
           parametros = []
           for param in condacto.find_data ('param'):
             parametro = param.children[0]
@@ -583,8 +574,7 @@ def carga_sce (fichero, longitud):
           versionAntes = version
           if version:
             if not datosCondactos[nombre][version - 1]:
-              prn ('Formato del código fuente inválido o no soportado:\nCondacto de nombre', nombre, 'inexistente en DAAD versión', version, '(asumida por condactos anteriores), en línea', condacto.meta.line, 'col', condacto.meta.column, file = sys.stderr)
-              return False
+              raise TabError ('Condacto de nombre %s inexistente en DAAD versión %d (asumida por condactos anteriores)', (nombre, version), condacto.meta)
             # La comprobación del número de parámetros se hace abajo
             entrada.append ((datosCondactos[nombre][version - 1][0], parametros))
           else:
@@ -598,7 +588,7 @@ def carga_sce (fichero, longitud):
                 requerido = len (datosCondactos[nombre][0][1])
               else:
                 requerido = ' o '.join (sorted ((len (datosCondactos[nombre][0][1]), len (datosCondactos[nombre][1][1]))))
-              prn ('Formato del código fuente inválido o no soportado:\nEl condacto', nombre, 'requiere', requerido, 'parámetro' + ('' if requerido == 1 else 's'), file = sys.stderr)
+              raise TabError ('El condacto %s requiere %d parámetro%s', (nombre, requerido, '' if requerido == 1 else 's'), condacto.meta)
             # Fijamos versión de DAAD si el condacto con ese número de parámetros sólo está en una
             elif len (datosCondactos[nombre][0][1]) != len (datosCondactos[nombre][1][1]):
               version = 1 if len (parametros) == len (datosCondactos[nombre][0][1]) else 2
@@ -611,16 +601,34 @@ def carga_sce (fichero, longitud):
           # Comprobamos el número de parámetros
           if version and len (parametros) != len (datosCondactos[nombre][version - 1][1]):
             requerido = len (datosCondactos[nombre][version - 1][1])
-            prn ('Formato del código fuente inválido o no soportado:\nEl condacto', nombre, 'requiere', requerido, 'parámetro' + ('' if requerido == 1 else 's'), 'en DAAD versión', version, '(asumida por', ('condactos anteriores' if version == versionAntes else ('este mismo condacto, que sólo existe en la versión ' + str (version))) + '),', 'en línea', condacto.meta.line, 'col', condacto.meta.column, file = sys.stderr)
-            return False
+            raise TabError ('El condacto %s requiere %d parámetro%s en DAAD versión %d (asumida por %s)', (nombre, requerido, '' if requerido == 1 else 's', version, 'condactos anteriores' if version == versionAntes else ('este mismo condacto, que sólo existe en la versión ' + str (version))), condacto.meta)
         entradas.append (entrada)
       tablas_proceso.append ((cabeceras, entradas))
       numProceso += 1
-  except lark.UnexpectedInput as e:
-    prn ('Formato del código fuente inválido o no soportado:', e, file = sys.stderr, sep = '\n')
-    return False
+    return
+  except (TabError, lark.UnexpectedInput) as e:
+    if type (e) == TabError:
+      descripcion   = e.args[0]
+      paramsFormato = e.args[1]
+      if descripcion[0].islower():
+        descripcion = 'Se esperaba ' + descripcion
+      if len (e.args) > 2:
+        posicion     = e.args[2]
+        descripcion += ', en línea %d'
+        if type (paramsFormato) == tuple:
+          paramsFormato += (posicion.line, )
+        else:
+          paramsFormato = (paramsFormato, posicion.line)
+        if len (e.args) == 3:
+          descripcion   += ' columna %d'
+          paramsFormato += (posicion.column, )
+      texto = descripcion % paramsFormato
+    else:
+      texto = e
+    prn ('Formato del código fuente inválido o no soportado:', texto, file = sys.stderr, sep = '\n')
   except:
-    return False
+    pass
+  return False
 
 def carga_xmessage (desplazamiento):
   """Carga desde los ficheros de XMessages el mensaje que inicia en el desplazamiento dado, devolviendo None en caso de no lograrlo"""
