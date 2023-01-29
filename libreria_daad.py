@@ -472,7 +472,7 @@ def carga_sce (fichero, longitud):
     nombres   = {'_': 255}
     verbos    = {'_': 255}
     for seccion in arbolSCE.find_data ('vocentry'):
-      palabra = str (seccion.children[0]).lower()
+      palabra = str (seccion.children[0])[:LONGITUD_PAL].lower()
       codigo  = int (seccion.children[1])
       tipo    = tipos_pal_dict[str (seccion.children[2].children[0]).lower()]
       vocabulario.append ((palabra, codigo, tipo))
@@ -518,7 +518,7 @@ def carga_sce (fichero, longitud):
       # Cargamos el vocabulario del objeto
       palabras = []
       for word in seccion.find_data ('word'):
-        palabra = str (word.children[0]).lower() if word.children else '_'
+        palabra = str (word.children[0])[:LONGITUD_PAL].lower() if word.children else '_'
         palabras.append (palabra)
         if len (palabras) == 1 and palabra not in nombres:
           break  # Para conservar la posición de la primera palabra inexistente
