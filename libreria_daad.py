@@ -467,9 +467,12 @@ def carga_sce (fichero, longitud):
           listaCadenas.append (cadena)
           numEntrada += 1
     # Cargamos el vocabulario
-    adjetivos = {'_': 255}
-    nombres   = {'_': 255}
-    verbos    = {'_': 255}
+    adjetivos     = {'_': 255}
+    adverbios     = {}
+    nombres       = {'_': 255}
+    preposiciones = {}
+    verbos        = {'_': 255}
+    tipoParametro = {'j': (adjetivos, 'adjetivo'), 'n': (nombres, 'nombre'), 'r': (preposiciones, 'preposición'), 'v': (adverbios, 'adverbio'), 'V': (verbos, 'verbo')}
     for seccion in arbolSCE.find_data ('vocentry'):
       palabra = str (seccion.children[0])[:LONGITUD_PAL].lower()
       codigo  = int (seccion.children[1])
@@ -478,12 +481,16 @@ def carga_sce (fichero, longitud):
       # Dejamos preparados diccionarios de códigos de palabra para verbos, nombres y adjetivos
       if tipo == 0:
         verbos[palabra] = codigo
+      elif tipo == 1:
+        adverbios[palabra] = codigo
       elif tipo == 2:
         nombres[palabra] = codigo
         if codigo < 20:
           verbos[palabra] = codigo
       elif tipo == 3:
         adjetivos[palabra] = codigo
+      elif tipo == 4:
+        preposiciones[palabra] = codigo
     # Cargamos datos de los objetos
     numEntrada = 0
     for seccion in arbolSCE.find_data ('objentry'):
@@ -565,11 +572,22 @@ def carga_sce (fichero, longitud):
             raise TabError ('Condacto de nombre %s inexistente', nombre, condacto.meta)
           parametros = []
           for param in condacto.find_data ('param'):
-            parametro = param.children[0]
-            if parametro.type == 'INT':
-              parametros.append (int (parametro))
-            else:  # Valor no numérico (p.ej. CARRIED)
-              parametros.append (IDS_LOCS[str (parametro)])
+            if param.children:
+              parametro = param.children[0]
+              if parametro.type == 'INT':
+                parametros.append (int (parametro))
+              elif parametro.type == 'VOCWORD':
+                # Los condactos con este tipo de parámetro sólo tienen un parámetro
+                palabra      = str (parametro)[:LONGITUD_PAL].lower()
+                letraTipoPal = datosCondactos[nombre][version - 1][1][0]
+                listaVocab, tipoPalabra = tipoParametro[letraTipoPal]
+                if palabra not in listaVocab:
+                  raise TabError ('una palabra de vocabulario de tipo %s', tipoPalabra, parametro)
+                parametros.append (listaVocab[palabra])
+              else:  # Valores preestablecidos (p.ej. CARRIED)
+                parametros.append (IDS_LOCS[str (parametro)])
+            else:
+              parametros.append (255)  # Es _
           # Detectamos incompatibilidades por requerirse versiones de DAAD diferentes
           versionAntes = version
           if version:
