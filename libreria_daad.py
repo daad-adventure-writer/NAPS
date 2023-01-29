@@ -422,13 +422,13 @@ def carga_sce (fichero, longitud):
           nombreFich = nombreFichero
           break
       else:
-        prn ('No se encuentra el fichero "' + encaje.group (1) + '" requerido por una directiva de preprocesador /LNK', file = sys.stderr)
+        prn ('No se encuentra el fichero "' + nombreFich + '" requerido por una directiva de preprocesador /LNK', encaje.group (1), file = sys.stderr)
         return False
       try:
         ficheroLnk = open (os.path.join (os.path.dirname (fichero.name), nombreFich), 'rb')
       except:
-        prn ('No se puede abrir el fichero "' + nombreFich + '" requerido por una directiva de preprocesador /LNK', nombreFich, file = sys.stderr)
-        return None
+        prn ('No se puede abrir el fichero "' + nombreFich + '" requerido por una directiva de preprocesador /LNK', encaje.group (1), file = sys.stderr)
+        return False
       codigoSCE = codigoSCE[:encaje.start (0)] + ficheroLnk.read().replace (b'\r\n', b'\n').decode()
       ficheroLnk.close()
     parserSCE = lark.Lark.open ('gramatica_sce.lark', __file__, propagate_positions = True)
