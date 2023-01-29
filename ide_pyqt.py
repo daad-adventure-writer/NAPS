@@ -1652,7 +1652,9 @@ def muestraProcesos ():
   paleta = QPalette (campo_txt.palette())
   paleta.setColor (QPalette.Base, color_base)              # Color de fondo gris oscuro
   paleta.setColor (QPalette.Text, QColor (255, 255, 255))  # Color de frente (para el cursor) blanco
-  campo_txt.setFont            (QFont ('Courier'))  # Fuente que usaremos
+  fuente = QFont ('Courier')  # Fuente que usaremos
+  fuente.setStyleHint (QFont.TypeWriter)  # Como alternativa, usar una fuente monoespaciada
+  campo_txt.setFont            (fuente)
   campo_txt.setPalette         (paleta)
   campo_txt.setUndoRedoEnabled (False)
   dlg_procesos.setLayout      (layout)
