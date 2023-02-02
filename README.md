@@ -62,7 +62,7 @@ Instalación de los requisitos en Windows
 
 1. Instalar Python 3.X descargando un instalador desde esta web: https://www.python.org/downloads/windows/
 2. Abrir el Símbolo del sistema
-3. Ejecutar allí estos dos comandos:
+3. Ejecutar allí estos comandos:
    - pip install pygame
    - pip install pyqt5
    - pip install lark
