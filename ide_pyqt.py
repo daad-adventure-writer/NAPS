@@ -1372,7 +1372,7 @@ def icono (nombre):
   return QIcon (os.path.join (os.path.dirname (os.path.realpath (__file__)), 'iconos_ide', nombre + '.png'))
 
 def importaBD (nombreFicheroBD, indiceFuncion = None, nombreFicheroGfx = None):
-  """Importa una base de datos desde el fichero de nombre dado"""
+  """Importa una base de datos desde el fichero de nombre dado, devolviendo verdadero si todo ha ido bien"""
   global mod_actual, nombre_fich_bd, nombre_fich_gfx
   nombre_fich_bd = None
   try:
@@ -1419,6 +1419,7 @@ def importaBD (nombreFicheroBD, indiceFuncion = None, nombreFicheroGfx = None):
   nombre_fich_bd  = nombreFicheroBD
   nombre_fich_gfx = nombreFicheroGfx
   postCarga (os.path.basename (nombreFicheroBD))
+  return True
 
 def imprimeCondacto (condacto, parametros, inalcanzable = False):
   """Imprime el condacto de código y parámetros dados en campo_txt en la posición del cursor actual, opcionalmente indicando si era código inalcanzable. Devuelve True si el parámetro inalcanzable era True o el condacto cambia el flujo incondicionalmente"""
@@ -1884,10 +1885,10 @@ if args.bbdd:
                   'No existe ningún fichero ni carpeta con la ruta dada desde la línea de comandos para gráficos:\n\n' + (args.graficos.decode ('utf8') if sys.version_info[0] < 3 else args.graficos))
     args.graficos = None
   if args.graficos:
-    importaBD (args.bbdd, nombreFicheroGfx = args.graficos)
+    todoBien = importaBD (args.bbdd, nombreFicheroGfx = args.graficos)
   else:
-    importaBD (args.bbdd)
-  if args.run:
+    todoBien = importaBD (args.bbdd)
+  if todoBien and args.run:
     ejecutaPorPasos()
 
 sys.exit (aplicacion.exec_())
