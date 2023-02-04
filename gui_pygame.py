@@ -1017,6 +1017,10 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
   # Hacemos scrolling antes de nada, en caso de que vaya a ser necesario
   lineasAsubir = cursor[1] + len (lineas) - tope[1]
   if lineasAsubir > 0:  # Hay que desplazar el texto ese número de líneas
+    if lineas_mas[elegida] == (tope[1] - 2) and (not subv_input or elegida != subv_input):
+      if 0 in colores:
+        fuente.set_palette (colores[0])  # Cargamos el color inicial de la cadena
+      esperaMas (tiempo)  # Paginación
     scrollLineas (lineasAsubir, subventana, tope)
     cursor[1] -= min (cursor[1], lineasAsubir)  # Actualizamos el cursor antes de imprimir
   if abajo:
