@@ -1067,6 +1067,10 @@ if __name__ == '__main__':
       gui.centrar_graficos.append (True)
       gui.juego_alto = 14  # ü
       gui.juego_bajo = 15  # Ü
+    elif len (msgs_usr) > 151 and msgs_usr[124][1:20] == 'ABBBBBBBBBBBBBBBBBC' and msgs_usr[151][-12:] == 'Cozumelanos.':
+      # XXX: apaño para detectar la primera parte de Cozumel
+      gui.juego_alto = 14  # ü
+      gui.juego_bajo = 15  # Ü
     else:
       # XXX: apaño para detectar Chichén Itzá, al menos las versiones de 16 bits
       import hashlib
