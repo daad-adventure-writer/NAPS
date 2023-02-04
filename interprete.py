@@ -439,7 +439,7 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
       if traza:
         gui.imprime_banderas  (banderas)
         gui.imprime_locs_objs (locs_objs)
-      timeout = [banderas[48]] if NUM_BANDERAS > 39 else [0]
+      timeout = [banderas[48]] if NUM_BANDERAS > 39 and banderas[49] & 1 else [0]
       orden   = gui.lee_cadena (peticion, orden, timeout, espaciar)
 
       # FIXME: esto es posible que no se haga automáticamente (¿cuando es desde PARSE en nueva_version?)
