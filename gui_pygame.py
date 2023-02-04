@@ -112,6 +112,7 @@ limite      = [53, 25]         # Ancho y alto máximos absolutos de cada subventa
 color_subv  = [[7, 0, 0]] * 8  # Color de tinta, papel y borde de cada subventana
 cursores    = [[0, 0]] * 8     # Posición relativa del cursor de cada subventana
 cursores_at = [(0, 0)] * 8     # Posición relativa del cursor guardado mediante SAVEAT de cada subventana
+lineas_mas  = [0] * 8          # Líneas impresas desde que se esperó tecla para cada subventana
 pos_gfx_sub = [[0, 0]] * 8     # Posición guardada de dibujo de gráficos flotantes en cada subventana
 subventanas = [[0, 0]] * 8     # Posición absoluta de cada subventana (de su esquina superior izquierda)
 topes       = [[53, 25]] * 8   # Topes relativos de cada subventana de impresión
@@ -245,7 +246,8 @@ def borra_pantalla (desdeCursor = False, noRedibujar = False):
     tras_portada = False
     del texto_nuevo[:]
   if not desdeCursor:
-    cursores[elegida] = [0, 0]
+    cursores[elegida]   = [0, 0]
+    lineas_mas[elegida] = 0
   colorBorde = daColorBorde()
   cursor     = cursores[elegida]
   subventana = subventanas[elegida]
@@ -519,7 +521,8 @@ def elige_subventana (numero):
 
 def espera_tecla (tiempo = 0, numPasos = False):
   """Espera hasta que se pulse una tecla (modificadores no), o hasta que pase tiempo segundos, si tiempo > 0"""
-  global tras_portada
+  global lineas_mas, tras_portada
+  lineas_mas   = [0] * 8
   tras_portada = False
   if ide:
     # TODO: tiempo muerto, teclas pulsadas, revisar teclas de edición, y que ninguna tecla indebida resulte en un Enter pulsado
@@ -914,9 +917,12 @@ Si abajo es True, imprimirá abajo del todo de la subventana sin hacer scroll mie
   subventana = subventanas[elegida]
   tope       = topes[elegida]
   if cadena == '\n':  # TODO: sacar a función nueva_linea
+    lineas_mas[elegida] += 1
     if cursor[1] >= tope[1] - 1:
       scrollLineas (1, subventana, tope)
     cursores[elegida] = [0, min (tope[1] - 1, cursor[1] + 1)]
+    if lineas_mas[elegida] == (tope[1] - 1) and (not subv_input or elegida != subv_input):
+      esperaMas()  # Paginación
     if traza:
       prn ('Nueva línea, cursor en', cursores[elegida])
     return
@@ -1019,13 +1025,9 @@ Si abajo es True, imprimirá abajo del todo de la subventana sin hacer scroll mie
     if i > 0:  # Nueva línea antes de cada una, salvo la primera
       cursor = [0, min (cursor[1] + 1, tope[1] - 1)]
       cursores[elegida] = cursor  # Actualizamos el cursor de la subventana
-      # Paginación
-      # FIXME: reimplementar para textos acumulados desde la última orden
-      if i % (tope[1] - 1) == 0 and (not subv_input or elegida != subv_input):
-        imprime_linea (txt_mas.translate (iso8859_15_a_fuente))
-        espera_tecla()
-        imprime_linea (' '.translate (iso8859_15_a_fuente) * tope[0])
-        # TODO: Hacer scroll de golpe, del número de líneas necesario
+      if lineas_mas[elegida] == (tope[1] - 1) and (not subv_input or elegida != subv_input):
+        esperaMas()  # Paginación
+      # TODO: Hacer scroll de golpe, del número de líneas necesario
       elif i >= tope[1]:  # Tras sobrepasar el tope de líneas, hay que hacer scroll con cada una
         scrollLineas (1, subventana, tope)
     elif 0 in colores and not lineas[i]:  # La primera línea es sólo \n
@@ -1034,6 +1036,8 @@ Si abajo es True, imprimirá abajo del todo de la subventana sin hacer scroll mie
       imprime_linea (lineas[i], redibujar = redibujar, colores = colores, inicioLinea = iniLineas[i])
     else:
       imprime_linea (lineas[i], redibujar = redibujar, colores = colores)
+    if i < len (lineas) - 1:  # Sólo si la línea se ha completado
+      lineas_mas[elegida] += 1
   if lineas:  # Había alguna línea
     if cadena[-1] == '\n':  # La cadena terminaba en nueva línea
       if cursor[1] == tope[1] - 1:
@@ -1041,6 +1045,7 @@ Si abajo es True, imprimirá abajo del todo de la subventana sin hacer scroll mie
         cursor = [0, cursor[1]]
       else:
         cursor = [0, cursor[1] + 1]
+      lineas_mas[elegida] += 1
     else:
       cursor = [cursor[0] + len (lineas[-1]), cursor[1]]
     cursores[elegida] = cursor  # Actualizamos el cursor de la subventana
@@ -1113,7 +1118,8 @@ def mueve_cursor (columna, fila = None):
   """Cambia de posición el cursor de la subventana elegida"""
   if fila == None:
     fila = cursores[elegida][1]
-  cursores[elegida] = [columna, fila]
+  cursores[elegida]   = [columna, fila]
+  lineas_mas[elegida] = fila
   if traza:
     prn ('Subventana', elegida, 'en', subventanas[elegida], 'con topes', topes[elegida],
          'y cursor movido a', cursores[elegida])
@@ -1182,6 +1188,12 @@ def daColorBorde ():
   if paleta[1]:  # Si hay dos paletas, debe ser Spectrum
     return paleta[0][color_subv[elegida][2]] if paleta[0] else (0, 0, 0)  # Color del borde
   return paleta[0][color_subv[elegida][1]] if paleta[0] else (0, 0, 0)  # Color del papel
+
+def esperaMas ():
+  """Muestra el texto de paginación, espera una tecla, y luego lo borra"""
+  imprime_linea (txt_mas.translate (iso8859_15_a_fuente))
+  espera_tecla()
+  imprime_linea (' '.translate (iso8859_15_a_fuente) * len (txt_mas))
 
 def factorEscalaMaximo ():
   """Devuelve el factor máximo de escalado sin alcanzar la resolución de pantalla"""
