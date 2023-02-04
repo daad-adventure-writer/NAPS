@@ -1031,7 +1031,7 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
     if i > 0:  # Nueva línea antes de cada una, salvo la primera
       cursor = [0, min (cursor[1] + 1, tope[1] - 1)]
       cursores[elegida] = cursor  # Actualizamos el cursor de la subventana
-      if lineas_mas[elegida] == (tope[1] - 1) and (not subv_input or elegida != subv_input):
+      if lineas_mas[elegida] == (tope[1] - 1) and i < len (lineas) - 1 and (not subv_input or elegida != subv_input):
         esperaMas (tiempo)  # Paginación
       # TODO: Hacer scroll de golpe, del número de líneas necesario
       elif i >= tope[1]:  # Tras sobrepasar el tope de líneas, hay que hacer scroll con cada una
