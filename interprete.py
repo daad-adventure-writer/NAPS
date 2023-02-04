@@ -449,11 +449,10 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
         # TODO: comentado hasta que se pueda elegir modo de compatibilidad no estricto, porque no veo bien borrar la orden ya escrita
         # if compatibilidad and gui.centrar_graficos:  # En la Aventura Original, la orden se borra cuando hay timeout
         #   orden = ''
-        if msgs_sys[35]:  # Así evitamos añadir una línea en blanco sin necesidad
+        if not nueva_version and msgs_sys[35]:  # Evitamos imprimir una línea en blanco sin necesidad
           gui.imprime_cadena (msgs_sys[35])
           gui.imprime_cadena ('\n')
-        if NUM_BANDERAS > 39:
-          banderas[49] |= 128  # Indicador de tiempo muerto vencido
+        banderas[49] |= 128  # Indicador de tiempo muerto vencido
         return False
 
       # Activamos o desactivamos la depuración paso a paso
