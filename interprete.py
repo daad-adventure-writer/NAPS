@@ -164,8 +164,8 @@ def obj_referido (objeto):
     banderas[59] = atributos_extra[objeto]  % 256
 
 def parsea_orden (psi):
-  """Obtiene e interpreta la orden del jugador para rellenar la sentencia lógica actual, o la del PSI entrecomillada. Devuelve verdadero en caso de fallo"""
-  return prepara_orden (True, psi) == True
+  """Obtiene e interpreta la orden del jugador para rellenar la sentencia lógica actual, o la del PSI entrecomillada. Devuelve verdadero si la frase no es válida o ha ocurrido tiempo muerto"""
+  return prepara_orden (True, psi) != None
 
 def restaura_objetos ():
   """Restaura las localidades iniciales de los objetos, ajusta el número de objetos llevados (bandera 1) y calcula el peso total (llevado + puesto)"""
