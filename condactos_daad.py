@@ -186,7 +186,7 @@ def c1_HASAT (attribute):
     prn ('FIXME: bandera del atributo', attribute, 'desconocida')
     return False
   mascara = 2 ** bitAtributo
-  return banderas[numBandera] & mascara
+  return banderas[numBandera] & mascara == mascara
 
 def c1_HASNAT (attribute):
   """Satisfactorio si el atributo dado tiene valor falso"""
