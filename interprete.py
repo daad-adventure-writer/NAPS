@@ -133,17 +133,18 @@ def imprime_mensaje (texto):
       partes.append (texto[iniParte:])
   else:
     partes = [texto]
+  tiempoTimeout = banderas[48] if NOMBRE_SISTEMA != 'QUILL' and banderas[49] & 2 else 0
   for parte in partes:
     if parte == '\x0b':  # Equivale a \b
       busca_condacto ('a0_CLS') ()
     elif parte == '\x0c':  # Equivale a \k
       gui.espera_tecla()
     elif '_' in parte:
-      gui.imprime_cadena (parte.replace ('_', cambia_articulo (objetoReferido)))
+      gui.imprime_cadena (parte.replace ('_', cambia_articulo (objetoReferido)), tiempo = tiempoTimeout)
     elif '@' in parte and NOMBRE_SISTEMA == 'DAAD':
-      gui.imprime_cadena (parte.replace ('@', cambia_articulo (objetoReferido, True)))
+      gui.imprime_cadena (parte.replace ('@', cambia_articulo (objetoReferido, True)), tiempo = tiempoTimeout)
     else:
-      gui.imprime_cadena (parte)
+      gui.imprime_cadena (parte, tiempo = tiempoTimeout)
 
 def obj_referido (objeto):
   """Asigna el objeto dado como nuevo objeto referido actual. Usar el valor 255 para limpiar las banderas de objeto referido"""
@@ -265,11 +266,12 @@ def bucle_paws ():
           gui.imprime_banderas  (banderas)
           gui.imprime_locs_objs (locs_objs)
     elif estado == 5:  # Tablas de respuestas y de conexiones exhaustas, o se terminó con NOTDONE
+      tiempoTimeout = banderas[48] if NOMBRE_SISTEMA != 'QUILL' and banderas[49] & 2 else 0
       if not proceso_acc:  # No se ha ejecutado ninguna "acción"
         if banderas[33] >= 14:  # No es verbo de dirección
-          gui.imprime_cadena (msgs_sys[8])  # No puedes hacer eso
+          gui.imprime_cadena (msgs_sys[8], tiempo = tiempoTimeout)  # No puedes hacer eso
         elif NOMBRE_SISTEMA in ('QUILL', 'PAWS'):  # Ni SWAN ni DAAD imprimen este mensaje por sí mismos
-          gui.imprime_cadena (msgs_sys[7])  # No puedes ir por ahí
+          gui.imprime_cadena (msgs_sys[7], tiempo = tiempoTimeout)  # No puedes ir por ahí
       estado = 2
 
 def inicializa ():
@@ -361,8 +363,8 @@ def describe_localidad ():
         gui.mueve_cursor (0, 0)
     else:
       gui.dibuja_grafico (banderas[38], True)
-    if desc_locs[banderas[38]]:
-      gui.imprime_cadena (desc_locs[banderas[38]])  # la bandera 38 contiene la localidad actual
+    if desc_locs[banderas[38]]:  # la bandera 38 contiene la localidad actual
+      gui.imprime_cadena (desc_locs[banderas[38]], tiempo = banderas[48] if NOMBRE_SISTEMA != 'QUILL' and banderas[49] & 2 else 0)
 
     # Lista objetos presentes en QUILL
     if NOMBRE_SISTEMA == 'QUILL':
@@ -554,6 +556,7 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
     # XXX: en el PARSE de nueva_version, lo vaciaba tras convertir nombre que actuaba como verbo
   else:
     # Si no se encuentra una frase válida, entonces se muestra el mensaje de sistema 6, y vuelve a buscar al proceso 2
+    tiempoTimeout = banderas[48] if NOMBRE_SISTEMA != 'QUILL' and banderas[49] & 2 else 0
     valida = False
     if frase['Nombre1']:
       if NOMBRE_SISTEMA == 'DAAD':
@@ -561,9 +564,9 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
           banderas[flagno] = frase[tipo] if frase[tipo] else 255
         valida = True
       else:
-        gui.imprime_cadena (msgs_sys[8])  # No puedes hacer eso
+        gui.imprime_cadena (msgs_sys[8], tiempo = tiempoTimeout)  # No puedes hacer eso
     elif NOMBRE_SISTEMA != 'DAAD' or not nueva_version:
-      gui.imprime_cadena (msgs_sys[6])  # No entendí nada
+      gui.imprime_cadena (msgs_sys[6], tiempo = tiempoTimeout)  # No entendí nada
 
   if psi:
     orden_psi = ''  # Vaciamos ya la orden

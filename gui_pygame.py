@@ -900,14 +900,16 @@ def imprime_locs_objs (locs_objs):
   actualizaVentana()
   fuente.set_palette (((255, 255, 255), (0, 0, 0)))
 
-def imprime_cadena (cadena, scroll = True, redibujar = True, abajo = False):
+def imprime_cadena (cadena, scroll = True, redibujar = True, abajo = False, tiempo = 0):
   """Imprime una cadena en la posición del cursor (dentro de la subventana), y devuelve la cadena partida en líneas
 
 El cursor deberá quedar actualizado.
 
 Si scroll es True, se desplazará el texto del buffer hacia arriba (scrolling) cuando se vaya a sobrepasar la última línea
 
-Si abajo es True, imprimirá abajo del todo de la subventana sin hacer scroll mientras no alcance el cursor"""
+Si abajo es True, imprimirá abajo del todo de la subventana sin hacer scroll mientras no alcance el cursor
+
+Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla al paginar"""
   # TODO: revisar por qué hacía falta el parámetro scroll, dado que se está omitiendo
   if not cadena:
     return
@@ -922,7 +924,7 @@ Si abajo es True, imprimirá abajo del todo de la subventana sin hacer scroll mie
       scrollLineas (1, subventana, tope)
     cursores[elegida] = [0, min (tope[1] - 1, cursor[1] + 1)]
     if lineas_mas[elegida] == (tope[1] - 1) and (not subv_input or elegida != subv_input):
-      esperaMas()  # Paginación
+      esperaMas (tiempo)  # Paginación
     if traza:
       prn ('Nueva línea, cursor en', cursores[elegida])
     return
@@ -1026,7 +1028,7 @@ Si abajo es True, imprimirá abajo del todo de la subventana sin hacer scroll mie
       cursor = [0, min (cursor[1] + 1, tope[1] - 1)]
       cursores[elegida] = cursor  # Actualizamos el cursor de la subventana
       if lineas_mas[elegida] == (tope[1] - 1) and (not subv_input or elegida != subv_input):
-        esperaMas()  # Paginación
+        esperaMas (tiempo)  # Paginación
       # TODO: Hacer scroll de golpe, del número de líneas necesario
       elif i >= tope[1]:  # Tras sobrepasar el tope de líneas, hay que hacer scroll con cada una
         scrollLineas (1, subventana, tope)
@@ -1189,10 +1191,12 @@ def daColorBorde ():
     return paleta[0][color_subv[elegida][2]] if paleta[0] else (0, 0, 0)  # Color del borde
   return paleta[0][color_subv[elegida][1]] if paleta[0] else (0, 0, 0)  # Color del papel
 
-def esperaMas ():
-  """Muestra el texto de paginación, espera una tecla, y luego lo borra"""
+def esperaMas (tiempo):
+  """Muestra el texto de paginación, espera una tecla, y luego lo borra
+
+Si tiempo no es 0, esperará hasta ese tiempo en segundos"""
   imprime_linea (txt_mas.translate (iso8859_15_a_fuente))
-  espera_tecla()
+  espera_tecla (tiempo)
   imprime_linea (' '.translate (iso8859_15_a_fuente) * len (txt_mas))
 
 def factorEscalaMaximo ():

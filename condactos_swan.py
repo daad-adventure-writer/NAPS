@@ -56,7 +56,7 @@ def a0_ANYKEY ():
 
 def a0_DESC ():
   """Termina todo lo que estuviese en ejecución (tablas, bucles DOALL, etc.) y salta a describir la localidad actual"""
-  gui.imprime_cadena ('\n')
+  gui.imprime_cadena ('\n', tiempo = banderas[48] if banderas[49] & 2 else 0)
   return 1
 
 def a0_OOPSAVE ():
