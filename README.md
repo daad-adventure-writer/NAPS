@@ -33,7 +33,7 @@ Parámetros:
 - ``--help`` (opcional) Muestra ayuda sobre los parámetros de línea de comandos
 - ``--debug`` (opcional) Ejecuta la base de datos en modo depuración: ejecutando los condactos paso a paso, mientras muestra el valor de las banderas
 - ``--gui`` (opcional) Elige la interfaz gráfica a utilizar. Opciones posibles: pygame (interfaz gráfica con PyGame) y stdio (interfaz sólo texto, usando la entrada y salida estándar)
-- ``--scale`` (opcional) Elige el factor de escalado de la ventana, desde 1 (valor por defecto en modo depuración, sin modo depuración el valor por defecto es 2) hasta 9, con lo que ampliará todo hasta ese número de veces sin superar la resolución de pantalla
+- ``--scale`` (opcional) Elige el factor de escalado de la ventana, desde 1 hasta 9, con lo que ampliará todo hasta ese número de veces sin superar la resolución de pantalla. El valor por defecto será el factor máximo dentro de la resolución de pantalla
 
 
 Entorno de desarrollo integrado (IDE)

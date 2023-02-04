@@ -129,11 +129,11 @@ def abre_ventana (traza, escalar, bbdd):
       resolucion  = (ancho_juego, limite[1] * 8)  # Tamaño de la ventana de juego
       ventana     = pygame.Surface (resolucion)
     return
-  copia = None
+  copia    = None
+  iniAntes = False  # Si ya había sido inicializada antes
   if pygame.display.get_caption():  # Ya había sido inicializada antes
-    copia = ventana.copy()
-  else:
-    factor_escala = min (escalar, factorEscalaMaximo())
+    copia    = ventana.copy()
+    iniAntes = True
   pygame.display.set_caption ('NAPS - ' + bbdd)
   ancho_juego = int (math.ceil ((limite[0] * 6) / 8.)) * 8
   resolucion  = (ancho_juego, limite[1] * 8)  # Tamaño de la ventana de juego
@@ -142,6 +142,12 @@ def abre_ventana (traza, escalar, bbdd):
       resolucion = (resolucion[0] + ((5 * 6) + 3) * 8 - 2, 32 * 8)
     else:  # Sistema Quill
       resolucion = (resolucion[0] + ((5 * 6) + 3) * (2 + int (math.ceil (float (num_objetos[0]) / limite[1]))), resolucion[1])
+  if iniAntes:
+    factor_escala = min (factor_escala, factorEscalaMaximo())
+  elif escalar:
+    factor_escala = min (escalar, factorEscalaMaximo())
+  else:
+    factor_escala = factorEscalaMaximo()
   if factor_escala > 1 or forzar_escala:
     escalada = pygame.display.set_mode ((resolucion[0] * factor_escala, resolucion[1] * factor_escala), pygame.RESIZABLE)
     ventana  = pygame.Surface (resolucion)

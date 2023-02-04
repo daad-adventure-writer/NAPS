@@ -934,12 +934,6 @@ if __name__ == '__main__':
   gui.ide            = args.ide
   gui.texto_nuevo    = texto_nuevo
 
-  if not args.scale:
-    if traza:
-      args.scale = 1
-    else:
-      args.scale = 2
-
   if os.path.isdir (args.bbdd):
     libreria    = __import__ ('libreria_daad')
     partes, gfx = libreria.busca_partes (args.bbdd)
