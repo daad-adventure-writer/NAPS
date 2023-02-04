@@ -1180,7 +1180,10 @@ def cambiaPaleta (nuevaPaleta, convertir = True):
     if convertir and nuevaPaleta != paleta[0]:
       for x in range (320):
         for y in range (200):
-          indicePaleta = paleta[0].index (ventana.get_at ((x, y))[:3])
+          try:
+            indicePaleta = paleta[0].index (ventana.get_at ((x, y))[:3])
+          except:
+            continue
           ventana.set_at ((x, y), nuevaPaleta[indicePaleta])
     del paleta[0][:]
   paleta[0].extend (nuevaPaleta)
