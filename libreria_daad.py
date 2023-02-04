@@ -310,10 +310,10 @@ condactos_nuevos = {
 # Funciones que utiliza el IDE o el intérprete directamente
 
 def busca_partes (rutaCarpeta):
-  """Analiza los ficheros en la carpeta dada, identificando por extensión y devuelviendo una lista con las bases de datos de las diferentes partes, y las bases de datos de gráficos correspondientes, para los diferentes modos gráficos encontrados"""
+  """Analiza los ficheros en la carpeta dada, identificando por extensión y devolviendo una lista con las bases de datos de las diferentes partes, y las bases de datos de gráficos correspondientes, para los diferentes modos gráficos encontrados"""
   # TODO: en PCW es parte???.*, y en SWAN es mindf???.*
   rutaCarpeta += '' if (rutaCarpeta[-1] == os.sep) else os.sep  # Asegura que termine con separador de directorio
-  bd_gfx = {'cga': {}, 'ega': {}, 'dat': {}}
+  bd_gfx = {'chr': {}, 'cga': {}, 'ega': {}, 'dat': {}}
   partes = {}
   for nombreFichero in os.listdir (rutaCarpeta):
     nombreFicheroMin = nombreFichero.lower()
@@ -339,7 +339,7 @@ def busca_partes (rutaCarpeta):
         bd_gfx['cga'][0] = rutaCarpeta + nombreFichero
       else:  # extension == 'egs'
         bd_gfx['ega'][0] = rutaCarpeta + nombreFichero
-    elif extension in ('cga', 'dat', 'ega'):
+    elif extension in ('cga', 'chr', 'dat', 'ega'):
       bd_gfx[extension][numParte] = rutaCarpeta + nombreFichero
   # Quitamos modos gráficos sin bases de datos gráficas para ellos
   for modo in tuple (bd_gfx.keys()):

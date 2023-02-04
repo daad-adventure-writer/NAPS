@@ -2,8 +2,8 @@
 
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
-# Librería para operar con bases de datos gráficas de DAAD
-# Copyright (C) 2008, 2018-2022 José Manuel Ferrer Ortiz
+# Librería para operar con bases de datos gráficas y otros gráficos de DAAD
+# Copyright (C) 2008, 2018-2023 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -50,6 +50,9 @@ paleta1b = ((0, 0, 0), (85, 255, 255), (255, 85, 255), (255, 255, 255))
 paleta2b = ((0, 0, 0), (85, 255,  85), (255, 85,  85), (255, 255,  85))
 paleta1s = ((0, 0, 0), ( 0, 170, 170), (170,  0, 170), (170, 170, 170))
 paleta2s = ((0, 0, 0), ( 0, 170,   0), (170,  0,   0), (170,  85,   0))
+
+# Paleta blanco y negro, en el orden necesario
+paletaBN = ((255, 255, 255), (0, 0, 0))
 
 # Paleta EGA en el orden necesario
 paletaEGA = ((  0,  0,  0), (  0,  0, 170), (  0, 170,  0), (  0, 170, 170),
@@ -122,6 +125,25 @@ def carga_bd_pics (nombreFichero):
       fichero.close()
       return excepcion.args[0]
   fichero.close()
+
+def carga_fuente (fichero):
+  """Carga y devuelve una fuente tipográfica de DAAD junto con su paleta, como índices en la paleta de cada píxel, organizados como en fuente.png"""
+  bajo_nivel_cambia_ent (fichero)
+  fichero.seek (0, os.SEEK_END)
+  longFichero = fichero.tell()
+  fichero.seek ((128 if longFichero > 2048 else 0) + 16 * 8)
+  ancho  = 628
+  alto   = 38
+  imagen = [0] * ancho * alto  # Índices en la paleta de cada píxel en la imagen
+  for caracter in range (256 - 16):
+    posPorCol  = (caracter % 63) * 10
+    posPorFila = (caracter // 63) * 10 * ancho
+    for fila in range (8):
+      b = carga_int1()  # Byte actual
+      for indiceBit in range (8):  # Cada bit del byte actual
+        imagen[posPorFila + posPorCol + indiceBit] = 0 if b & (2 ** (7 - indiceBit)) else 1
+      posPorFila += ancho
+  return imagen, paletaBN
 
 def carga_portada (fichero):
   """Carga y devuelve una portada de DAAD junto con su paleta, como índices en la paleta de cada píxel, detectando su modo gráfico"""

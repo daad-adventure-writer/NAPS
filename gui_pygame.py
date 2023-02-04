@@ -452,7 +452,7 @@ El parámetro parcial indica si es posible dibujar parte de la imagen"""
 
 def elige_parte (partes, graficos):
   """Obtiene del jugador el modo gráfico a usar y a qué parte jugar, y devuelve el nombre de la base de datos elegida"""
-  global tras_portada
+  global fuente, tras_portada
   if len (partes) == 1:
     return partes.popitem()[1]
   portada = None
@@ -511,6 +511,13 @@ def elige_parte (partes, graficos):
         carga_bd_pics (graficos[modo][entrada])
         if graficos_daad.recursos:
           break
+  if 'chr' in graficos and entrada in graficos['chr']:  # Hay fuente tipográfica para esta parte
+    fichero = open (graficos['chr'][entrada], 'rb')
+    imagen, palImg = graficos_daad.carga_fuente (fichero)
+    fichero.close()
+    bufferImg = bytes (bytearray (imagen))
+    fuente = pygame.image.frombuffer (bufferImg, (628, 38), 'P')
+    fuente.set_palette (palImg)
   return partes[entrada]
 
 def elige_subventana (numero):
