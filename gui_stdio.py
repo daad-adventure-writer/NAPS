@@ -83,6 +83,10 @@ def cambia_topes (columna, fila):
   """Cambia los topes de la subventana de impresión elegida"""
   pass
 
+def centra_subventana ():
+  """Centra horizontalmente en la ventana la subventana elegida"""
+  pass
+
 def dibuja_grafico (numero, descripcion = False, parcial = False):
   """Dibuja un gráfico en la posición del cursor"""
   pass

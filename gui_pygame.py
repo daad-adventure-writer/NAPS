@@ -357,6 +357,10 @@ def carga_bd_pics (rutaBDGfx):
   if graficos_daad.recursos:
     precargaGraficos()
 
+def centra_subventana ():
+  """Centra horizontalmente en la ventana la subventana elegida"""
+  subventanas[elegida][0] = (limite[0] - topes[elegida][0]) // 2
+
 # FIXME: Hay que dibujar sólo la región que no sale de los topes
 def dibuja_grafico (numero, descripcion = False, parcial = False):
   """Dibuja un gráfico en la posición del cursor

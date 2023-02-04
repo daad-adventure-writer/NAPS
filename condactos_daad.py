@@ -238,7 +238,8 @@ def a0_ANYKEY ():
   gui.espera_tecla (banderas[48] if banderas[49] & 4 else 0)
 
 def a0_CENTRE ():
-  prn ('TODO: a0_CENTRE no implementado', file = sys.stderr)  # TODO
+  """Centra horizontalmente la subventana actual en la pantalla de juego"""
+  gui.centra_subventana()
 
 def a0_LISTOBJ ():
   """Lista los objetos presentes, si los hay, anteponiendo el mensaje de sistema 1"""
