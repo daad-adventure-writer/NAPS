@@ -65,10 +65,10 @@ teclas_shift = {'º': 'ª', '1': '!', '2': '"', '4': '$', '5': '%', '6': '&', '7':
 
 pygame.init()  # Necesario para trabajar con la librería PyGame
 pygame.event.set_blocked (pygame.MOUSEMOTION)  # No atenderemos los movimientos del ratón
-escalada     = None
-factorEscala = 1  # Factor de escalado, de 1 a 3
-forzarEscala = name == 'nt' and pygame.version.vernum < (1, 9, 5)  # Que escale aun con factor de escalado 1
-ventana      = None
+escalada      = None
+factor_escala = 1  # Factor de escalado, de 1 a 3
+forzar_escala = name == 'nt' and pygame.version.vernum < (1, 9, 5)  # Que escale aun con factor de escalado 1
+ventana       = None
 
 fuente = pygame.image.load (path.dirname (path.realpath (__file__)) + path.sep + 'fuente.png')  # Fuente tipográfica
 fuente.set_palette (((255, 255, 255), (0, 0, 0)))
@@ -122,7 +122,7 @@ resolucion  = (320, 200)       # Resolución gráfica de salida, sin escalar
 
 def abre_ventana (traza, escalar, bbdd):
   """Abre la ventana gráfica de la aplicación"""
-  global ancho_juego, escalada, factorEscala, resolucion, ventana
+  global ancho_juego, escalada, factor_escala, resolucion, ventana
   if ide:
     if not ventana:
       ancho_juego = int (math.ceil ((limite[0] * 6) / 8.)) * 8
@@ -133,7 +133,7 @@ def abre_ventana (traza, escalar, bbdd):
   if pygame.display.get_caption():  # Ya había sido inicializada antes
     copia = ventana.copy()
   else:
-    factorEscala = escalar
+    factor_escala = escalar
   pygame.display.set_caption ('NAPS - ' + bbdd)
   ancho_juego = int (math.ceil ((limite[0] * 6) / 8.)) * 8
   resolucion  = (ancho_juego, limite[1] * 8)  # Tamaño de la ventana de juego
@@ -142,8 +142,8 @@ def abre_ventana (traza, escalar, bbdd):
       resolucion = (resolucion[0] + ((5 * 6) + 3) * 8 - 2, 32 * 8)
     else:  # Sistema Quill
       resolucion = (resolucion[0] + ((5 * 6) + 3) * (2 + int (math.ceil (float (num_objetos[0]) / limite[1]))), resolucion[1])
-  if factorEscala > 1 or forzarEscala:
-    escalada = pygame.display.set_mode ((resolucion[0] * factorEscala, resolucion[1] * factorEscala), pygame.RESIZABLE)
+  if factor_escala > 1 or forzar_escala:
+    escalada = pygame.display.set_mode ((resolucion[0] * factor_escala, resolucion[1] * factor_escala), pygame.RESIZABLE)
     ventana  = pygame.Surface (resolucion)
   else:
     ventana = pygame.display.set_mode (resolucion, pygame.RESIZABLE)
@@ -173,13 +173,13 @@ def actualizaVentana ():
     prn ('img')
     stdout.flush()
     return
-  if factorEscala > 1 or forzarEscala:
-    pygame.transform.scale (ventana, (resolucion[0] * factorEscala, resolucion[1] * factorEscala), escalada)
+  if factor_escala > 1 or forzar_escala:
+    pygame.transform.scale (ventana, (resolucion[0] * factor_escala, resolucion[1] * factor_escala), escalada)
   pygame.display.flip()
 
 def redimensiona_ventana (evento = None, copiaVentana = None):
   """Maneja eventos en relación a la ventana, como si se ha redimensionado o se le ha dado al aspa de cerrar"""
-  global escalada, factorEscala, ventana
+  global escalada, factor_escala, ventana
   if not evento:
     if pygame.event.peek (pygame.VIDEORESIZE):  # Si ha ocurrido un evento de redimensión de ventana
       evento = pygame.event.get (pygame.VIDEORESIZE)[0]
@@ -192,11 +192,11 @@ def redimensiona_ventana (evento = None, copiaVentana = None):
     sys.exit()
   if evento.type != pygame.VIDEORESIZE:
     return
-  if evento.w < (resolucion[0] * factorEscala) or evento.h < (resolucion[1] * factorEscala):
-    factorEscala = max (1, factorEscala - 1)
-  elif evento.w > (resolucion[0] * factorEscala) or evento.h > (resolucion[1] * factorEscala):
-    factorEscala = min (3, factorEscala + 1)
-  if factorEscala == 1:
+  if evento.w < (resolucion[0] * factor_escala) or evento.h < (resolucion[1] * factor_escala):
+    factor_escala = max (1, factor_escala - 1)
+  elif evento.w > (resolucion[0] * factor_escala) or evento.h > (resolucion[1] * factor_escala):
+    factor_escala = min (3, factor_escala + 1)
+  if factor_escala == 1:
     superficie = ventana.copy()
     ventana    = pygame.display.set_mode (resolucion, pygame.RESIZABLE)
     while ventana.get_size() != resolucion:
@@ -208,7 +208,7 @@ def redimensiona_ventana (evento = None, copiaVentana = None):
     else:
       superficie = ventana.copy()
     ventana    = superficie
-    resVentana = (resolucion[0] * factorEscala, resolucion[1] * factorEscala)
+    resVentana = (resolucion[0] * factor_escala, resolucion[1] * factor_escala)
     escalada   = pygame.display.set_mode (resVentana, pygame.RESIZABLE)
     while escalada.get_size() != resVentana:
       escalada = pygame.display.set_mode (resVentana, pygame.RESIZABLE)
