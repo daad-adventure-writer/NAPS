@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Condactos de The Quill
-# Copyright (C) 2010, 2019-2022 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2019-2023 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -121,7 +121,7 @@ def c2_LT (flagno, value):
 # ACCIONES
 
 def a0_ANYKEY ():
-  """Imprime el mensaje del sistema 16 al final de la pantalla, y se espera hasta que se pulse una tecla, o hasta que haya pasado el tiempo muerto, si se ha usado tiempo muerto"""
+  """Imprime el mensaje del sistema 16 al final de la pantalla, y espera hasta que se pulse una tecla"""
   subvActual = gui.elige_subventana (3)
   gui.mueve_cursor (0, gui.limite[1] - 2)  # Es en las dos últimas líneas donde se imprime
   gui.imprime_cadena (msgs_sys[16])
@@ -129,7 +129,6 @@ def a0_ANYKEY ():
   gui.mueve_cursor (0, gui.limite[1] - 2)
   gui.borra_pantalla (True)          # Borra el texto escrito
   gui.elige_subventana (subvActual)  # Vuelve a la subventana inicial
-  # TODO: Tiempo muerto
 
 def a0_AUTOG ():
   """Busca en la tabla de palabras de los objetos, la segunda palabra de la orden introducida por el jugador. Si se encuentra, ejecuta GET sobre ese objeto. Si no se encuentra ahí, imprime el mensaje de sistema 8 y luego ejecuta DONE"""

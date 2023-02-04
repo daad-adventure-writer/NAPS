@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Condactos específicos de DAAD
-# Copyright (C) 2010, 2019-2022 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2019-2023 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -166,7 +166,7 @@ def c0_LOAD ():
       bien = False
   if not bien:
     imprime_mensaje (msgs_sys[57])  # Error E/S
-    busca_condacto ('a0_ANYKEY')()
+    a0_ANYKEY()
   return bien
 
 def c0_QUIT ():
@@ -233,8 +233,7 @@ def c2_SMALLER (flagno1, flagno2):
 def a0_ANYKEY ():
   """Imprime el mensaje del sistema 16 y se espera hasta que se pulse una tecla, o hasta que haya pasado el tiempo muerto, si se ha usado tiempo muerto"""
   gui.imprime_cadena (msgs_sys[16])
-  gui.espera_tecla()
-  # TODO: Tiempo muerto
+  gui.espera_tecla (banderas[48] if banderas[49] & 4 else 0)
 
 def a0_CENTRE ():
   prn ('TODO: a0_CENTRE no implementado', file = sys.stderr)  # TODO
@@ -297,7 +296,7 @@ def a0_SAVE ():
         break
   if invalido:
     imprime_mensaje (msgs_sys[59])  # Nombre de fichero inválido
-    busca_condacto ('a0_ANYKEY')()
+    a0_ANYKEY()
   else:
     try:
       fichero = open (nombreFich + '.' + EXT_SAVEGAME, 'wb')
@@ -310,7 +309,7 @@ def a0_SAVE ():
       gui.borra_orden()
     except:
       imprime_mensaje (msgs_sys[57])  # Error I/O
-      busca_condacto ('a0_ANYKEY')()
+      a0_ANYKEY()
 
 def a0_SPACE ():
   """Imprime un espacio en blanco"""

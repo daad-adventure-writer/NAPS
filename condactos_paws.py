@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Condactos PAWS estándar
-# Copyright (C) 2010, 2018-2022 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2018-2023 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -195,6 +195,16 @@ def c2_SAME (flagno1, flagno2):
 
 # ACCIONES
 
+def a0_ANYKEY ():
+  """Imprime el mensaje del sistema 16 al final de la pantalla, y se espera hasta que se pulse una tecla, o hasta que haya pasado el tiempo muerto, si se ha usado tiempo muerto"""
+  subvActual = gui.elige_subventana (3)
+  gui.mueve_cursor (0, gui.limite[1] - 2)  # Es en las dos últimas líneas donde se imprime
+  gui.imprime_cadena (msgs_sys[16])
+  gui.espera_tecla (banderas[48] if banderas[49] & 4 else 0)
+  gui.mueve_cursor (0, gui.limite[1] - 2)
+  gui.borra_pantalla (True)          # Borra el texto escrito
+  gui.elige_subventana (subvActual)  # Vuelve a la subventana inicial
+
 def a0_AUTOD ():
   """Busca un objeto con el primer nombre/adjetivo de la SL actual, en este orden de prioridad: en la lista de objetos llevados, en la de objetos puestos, y en la localidad actual. Si se encuentra, ejecuta DROP sobre ese objeto. Si no se encuentra ahí, imprime MS28 si el nombre de la SL no está en el vocabulario o existe un objeto con ese nombre en el juego (FIXME: ¿creado?), o MS8 si no hay ningún objeto con ese nombre. Al final, hace NEWTEXT en caso de error, y luego DONE incondicionalmente"""
   return busca_condacto ('accionAUTO') (a1_DROP, (254, 253, banderas[38]), 28)
@@ -287,7 +297,7 @@ def a0_LOAD ():
         jkhsdjkfh  # Para que falle
     except:
       imprime_mensaje (msgs_sys[55])  # Fichero corrupto
-  busca_condacto ('a0_ANYKEY')()
+  a0_ANYKEY()
   return 1  # Lo mismo que DESC
 
 def a0_NEWLINE ():
@@ -343,7 +353,7 @@ def a0_SAVE ():
         fichero.write (struct.pack ('B', 0))
     except:
       imprime_mensaje (msgs_sys[56])  # Error I/O
-  busca_condacto ('a0_ANYKEY')()
+  a0_ANYKEY()
   return 1  # Lo mismo que DESC
 
 def a0_SAVEAT ():
@@ -626,7 +636,7 @@ def a1_SET (flagno):
   """Pone el valor de la bandera flagno a 255"""
   if flagno == 38:
     gui.imprime_cadena ('Error en tiempo de ejecución 1. Se intentó hacer SET 38')
-    busca_condacto ('a0_ANYKEY')()
+    a0_ANYKEY()
     return 7
   banderas[flagno] = 255
 
