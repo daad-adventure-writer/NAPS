@@ -250,7 +250,14 @@ class CampoTexto (QTextEdit):
         self.setCursorWidth   (self.font().pointSize() * 0.8)
         self.setOverwriteMode (True)
     elif evento.modifiers() & Qt.ControlModifier:  # Teclas de acción
-      if evento.key() == Qt.Key_G:
+      if evento.key() in (Qt.Key_Minus, Qt.Key_Plus):
+        if evento.key() == Qt.Key_Minus:
+          self.zoomOut (2)
+        else:
+          self.zoomIn (2)
+        if accMostrarRec.isChecked():  # Recortar al ancho de línea disponible
+          self.actualizandoProceso.start (100)
+      elif evento.key() == Qt.Key_G:
         irAEntradaProceso()
       else:
         super (CampoTexto, self).keyPressEvent (evento)
