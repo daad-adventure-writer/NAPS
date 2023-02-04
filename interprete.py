@@ -458,6 +458,7 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
       if orden.strip().lower() == '*debug*':
         orden = ''
         traza = not traza
+        gui.abre_ventana (traza, args.scale, args.bbdd)
         gui.borra_orden()
         return True
 
