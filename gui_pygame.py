@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Interfaz gráfica de usuario (GUI) con PyGame para el intérprete PAW-like
-# Copyright (C) 2010, 2018-2022 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2018-2023 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -192,21 +192,17 @@ def redimensiona_ventana (evento = None, copiaVentana = None):
     sys.exit()
   if evento.type != pygame.VIDEORESIZE:
     return
-  if evento.w < resolucion[0] or evento.h < resolucion[1] or \
-      (factorEscala == 2 and (evento.w < (resolucion[0] * 2) or evento.h < (resolucion[1] * 2))):
-    factorEscala = 1
-    superficie   = ventana.copy()
-    ventana      = pygame.display.set_mode (resolucion, pygame.RESIZABLE)
+  if evento.w < (resolucion[0] * factorEscala) or evento.h < (resolucion[1] * factorEscala):
+    factorEscala = max (1, factorEscala - 1)
+  elif evento.w > (resolucion[0] * factorEscala) or evento.h > (resolucion[1] * factorEscala):
+    factorEscala = min (3, factorEscala + 1)
+  if factorEscala == 1:
+    superficie = ventana.copy()
+    ventana    = pygame.display.set_mode (resolucion, pygame.RESIZABLE)
     while ventana.get_size() != resolucion:
       ventana = pygame.display.set_mode (resolucion, pygame.RESIZABLE)
     ventana.blit (superficie, (0, 0) + resolucion)
   else:
-    if evento.w >= (resolucion[0] * 3) or evento.h >= (resolucion[1] * 3) or \
-        (factorEscala == 2 and (evento.w > (resolucion[0] * 2) or evento.h > (resolucion[1] * 2))):
-      factorEscala = 3
-    elif evento.w > resolucion[0] or evento.h > resolucion[1] or \
-        (factorEscala == 3 and (evento.w < (resolucion[0] * 3) or evento.h < (resolucion[1] * 3))):
-      factorEscala = 2
     if copiaVentana:
       superficie = copiaVentana.copy()
     else:
