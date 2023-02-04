@@ -249,9 +249,15 @@ class CampoTexto (QTextEdit):
       else:
         self.setCursorWidth   (self.font().pointSize() * 0.8)
         self.setOverwriteMode (True)
+    elif evento.modifiers() & Qt.ControlModifier:  # Teclas de acción
+      if evento.key() == Qt.Key_G:
+        irAEntradaProceso()
+      else:
+        super (CampoTexto, self).keyPressEvent (evento)
     elif proc_interprete:
       return  # No se puede modificar nada cuando la BD está en ejecución
-    elif str (evento.text()).isalpha():  # Letras
+    # Teclas que pueden causar modificación de la tabla de procesos
+    if str (evento.text()).isalpha():  # Letras
       cursor  = self.textCursor()
       columna = cursor.positionInBlock()
       linea   = cursor.block()
@@ -385,11 +391,6 @@ class CampoTexto (QTextEdit):
           cursor.movePosition (QTextCursor.StartOfBlock)
           cursor.movePosition (QTextCursor.WordRight, n = 4)  # Vamos al segundo parámetro
           self.setTextCursor (cursor)
-    elif evento.modifiers() & Qt.ControlModifier:  # Teclas de acción
-      if evento.key() == Qt.Key_G:
-        irAEntradaProceso()
-      else:
-        super (CampoTexto, self).keyPressEvent (evento)
 
   def mousePressEvent (self, evento):
     if evento.button() & Qt.LeftButton or evento.button() & Qt.RightButton:
