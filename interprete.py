@@ -913,7 +913,7 @@ if __name__ == '__main__':
   argsParser.add_argument ('-D', '--debug', action = 'store_true', help = 'ejecutar los condactos paso a paso')
   argsParser.add_argument ('-g', '--gui', choices = ('pygame', 'stdio'), help = 'interfaz gráfica a utilizar')
   argsParser.add_argument ('--ide', action = 'store_true', help = argparse.SUPPRESS)
-  argsParser.add_argument ('-s', '--scale', type = int, choices = (1, 2, 3), help = 'factor de escalado para la ventana')
+  argsParser.add_argument ('-s', '--scale', type = int, choices = range (1, 10), help = 'factor de escalado para la ventana')
   argsParser.add_argument ('bbdd', metavar = 'bd_cf_o_carpeta', help = 'base de datos, código fuente o carpeta de Quill/PAWS/SWAN/DAAD a ejecutar')
   argsParser.add_argument ('ruta_graficos', metavar = 'bd_o_carpeta_gráficos', nargs = '?', help = 'base de datos gráfica o carpeta de la que tomar las imágenes (con nombre pic###.png)')
   args  = argsParser.parse_args()

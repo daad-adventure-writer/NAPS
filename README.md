@@ -12,7 +12,7 @@ Requisitos:
 
 Uso:
 
-``python interprete.py [-c|--columns 32..42] [-h|--help] [-D|--debug] [-g|--gui pygame|stdio] [-s|--scale 1|2|3] bd_cf_o_carpeta [bd_o_carpeta_gráficos]``
+``python interprete.py [-c|--columns 32..42] [-h|--help] [-D|--debug] [-g|--gui pygame|stdio] [-s|--scale 1..9] bd_cf_o_carpeta [bd_o_carpeta_gráficos]``
 
 Ejemplos bajo Windows:
 - ``python interprete.py -g stdio -c 42 ..\disappearance\disappearance.sna``
@@ -33,7 +33,7 @@ Parámetros:
 - ``--help`` (opcional) Muestra ayuda sobre los parámetros de línea de comandos
 - ``--debug`` (opcional) Ejecuta la base de datos en modo depuración: ejecutando los condactos paso a paso, mientras muestra el valor de las banderas
 - ``--gui`` (opcional) Elige la interfaz gráfica a utilizar. Opciones posibles: pygame (interfaz gráfica con PyGame) y stdio (interfaz sólo texto, usando la entrada y salida estándar)
-- ``--scale`` (opcional) Elige el factor de escalado de la ventana, de 1 (valor por defecto en modo depuración, sin modo depuración el valor por defecto es 2) a 3, con lo que ampliará todo ese número de veces
+- ``--scale`` (opcional) Elige el factor de escalado de la ventana, desde 1 (valor por defecto en modo depuración, sin modo depuración el valor por defecto es 2) hasta 9, con lo que ampliará todo hasta ese número de veces sin superar la resolución de pantalla
 
 
 Entorno de desarrollo integrado (IDE)

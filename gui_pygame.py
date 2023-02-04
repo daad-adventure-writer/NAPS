@@ -66,7 +66,7 @@ teclas_shift = {'º': 'ª', '1': '!', '2': '"', '4': '$', '5': '%', '6': '&', '7':
 pygame.init()  # Necesario para trabajar con la librería PyGame
 pygame.event.set_blocked (pygame.MOUSEMOTION)  # No atenderemos los movimientos del ratón
 escalada      = None
-factor_escala = 1  # Factor de escalado, de 1 a 3
+factor_escala = 1  # Factor de escalado, de 1 a 9
 forzar_escala = name == 'nt' and pygame.version.vernum < (1, 9, 5)  # Que escale aun con factor de escalado 1
 ventana       = None
 
@@ -133,7 +133,7 @@ def abre_ventana (traza, escalar, bbdd):
   if pygame.display.get_caption():  # Ya había sido inicializada antes
     copia = ventana.copy()
   else:
-    factor_escala = escalar
+    factor_escala = min (escalar, factorEscalaMaximo())
   pygame.display.set_caption ('NAPS - ' + bbdd)
   ancho_juego = int (math.ceil ((limite[0] * 6) / 8.)) * 8
   resolucion  = (ancho_juego, limite[1] * 8)  # Tamaño de la ventana de juego
@@ -195,7 +195,7 @@ def redimensiona_ventana (evento = None, copiaVentana = None):
   if evento.w < (resolucion[0] * factor_escala) or evento.h < (resolucion[1] * factor_escala):
     factor_escala = max (1, factor_escala - 1)
   elif evento.w > (resolucion[0] * factor_escala) or evento.h > (resolucion[1] * factor_escala):
-    factor_escala = min (3, factor_escala + 1)
+    factor_escala = min (factorEscalaMaximo(), factor_escala + 1)
   if factor_escala == 1:
     superficie = ventana.copy()
     ventana    = pygame.display.set_mode (resolucion, pygame.RESIZABLE)
@@ -1172,6 +1172,18 @@ def daColorBorde ():
   if paleta[1]:  # Si hay dos paletas, debe ser Spectrum
     return paleta[0][color_subv[elegida][2]] if paleta[0] else (0, 0, 0)  # Color del borde
   return paleta[0][color_subv[elegida][1]] if paleta[0] else (0, 0, 0)  # Color del papel
+
+def factorEscalaMaximo ():
+  """Devuelve el factor máximo de escalado sin alcanzar la resolución de pantalla"""
+  global infoPantalla
+  try:
+    infoPantalla
+  except:
+    infoPantalla = pygame.display.Info()
+  factorMaximo = 1
+  while resolucion[0] * (factorMaximo + 1) < infoPantalla.current_w and resolucion[1] * (factorMaximo + 1) < infoPantalla.current_h:
+    factorMaximo += 1
+  return factorMaximo
 
 def parseaColores (cadena):
   """Procesa los códigos de control de colores, devolviendo la cadena sin ellos, y un diccionario posición: colores a aplicar"""
