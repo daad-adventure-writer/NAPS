@@ -1105,14 +1105,14 @@ Los caracteres de linea deben estar convertidos a posiciones en la tipografía"""
     lineas.append (texto[:maxPrimera])
     inicio = maxPrimera
     fin    = maxPrimera + topes[elegida][0]
-    if posInput >= inicio:
+    if posInput != None and posInput >= inicio:
       posInputEn += 1
       posInput   -= maxPrimera
     while fin <= len (texto):
       lineas.append (texto[inicio:fin])
       inicio += topes[elegida][0]
       fin    += topes[elegida][0]
-      if posInput >= inicio:
+      if posInput != None and posInput >= inicio:
         posInputEn += 1
         posInput   -= topes[elegida][0]
     lineas.append (texto[inicio:fin])
