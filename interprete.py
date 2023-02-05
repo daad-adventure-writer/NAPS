@@ -440,7 +440,22 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
         gui.imprime_banderas  (banderas)
         gui.imprime_locs_objs (locs_objs)
       timeout = [banderas[48]] if NUM_BANDERAS > 39 and banderas[49] & 1 else [0]
-      orden   = gui.lee_cadena (peticion, orden, timeout, espaciar)
+
+      ordenObtenida = False
+      while not ordenObtenida:
+        orden = gui.lee_cadena (peticion, orden, timeout, espaciar)
+        # Activamos o desactivamos la depuración paso a paso
+        if timeout[0] != True and orden.strip().lower() == '*debug*':
+          orden = ''
+          traza = not traza
+          gui.abre_ventana (traza, args.scale, args.bbdd)
+          gui.borra_orden()
+          if traza:
+            gui.banderas_antes = None  # Que siempre dibuje los números de bandera
+            gui.imprime_banderas  (banderas)
+            gui.imprime_locs_objs (locs_objs)
+        else:
+          ordenObtenida = True
 
       # FIXME: esto es posible que no se haga automáticamente (¿cuando es desde PARSE en nueva_version?)
       # Si ha vencido el tiempo muerto, el mensaje de sistema 35 aparece, y se
@@ -454,14 +469,6 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
           gui.imprime_cadena ('\n')
         banderas[49] |= 128  # Indicador de tiempo muerto vencido
         return False
-
-      # Activamos o desactivamos la depuración paso a paso
-      if orden.strip().lower() == '*debug*':
-        orden = ''
-        traza = not traza
-        gui.abre_ventana (traza, args.scale, args.bbdd)
-        gui.borra_orden()
-        return True
 
     # Una frase es sacada y convertida en una sentencia lógica, por medio de la
     # conversión de cualquier palabra en ella presente, que esté en el
