@@ -1144,10 +1144,10 @@ Los caracteres de linea deben estar convertidos a posiciones en la tipografía"""
     linea = lineas[l]
     if l:  # No es la primera línea
       cursores[elegida][0] = 0
-      if posInput != None and subv_input:
-      	scrollLineas (1, subventanas[elegida], topes[elegida], False)
+      if subv_input:
+        scrollLineas (1, subventanas[elegida], topes[elegida], False)
       else:
-      	cursores[elegida][1] += 1
+        cursores[elegida][1] += 1
     if posInputEn == l:
       imprime_linea (linea, posInput, False)
     else:
