@@ -154,6 +154,11 @@ def abre_ventana (traza, escalar, bbdd):
     ventana  = pygame.Surface (resolucion)
   else:
     ventana = pygame.display.set_mode (resolucion, pygame.RESIZABLE)
+  if not iniAntes:
+    try:
+      pygame.scrap.init()
+    except:
+      pass
   if copia:  # Recuperamos contenido anterior
     ventana.blit (copia, (0, 0) + resolucion)
     actualizaVentana()
@@ -725,10 +730,28 @@ El parámetro espaciar permite elegir si se debe dejar una línea en blanco tras e
     else:  # Código inferior a 256
       tecla = chr (tecla)
       if (tecla.isalpha() or tecla == ' ') and tecla != 'º':  # Una tecla de letra
-        # Vemos si tenemos que añadirla en mayúscula o minúscula
-        if todo_mayusculas or mayuscula ^ shift:
-          tecla = tecla.upper()
-        insertaHastaMax (entrada, posInput, tecla, longMax)
+        # Vemos si es texto que pegar desde el portapapeles
+        texto = None
+        if tecla == 'v' and control:
+          try:
+            if name == 'nt':
+              texto = pygame.scrap.get (pygame.SCRAP_TEXT)[:-1].decode()
+            else:
+              texto = pygame.scrap.get ('text/plain;charset=utf-8').decode ('utf8')
+            if type (texto) != str:
+              texto = texto.encode ('iso-8859-15')
+          except:
+            texto = None
+        if texto == None:  # Era (o considerar como) una tecla pulsada
+          # Vemos si tenemos que añadirla en mayúscula o minúscula
+          if todo_mayusculas or mayuscula ^ shift:
+            tecla = tecla.upper()
+          insertaHastaMax (entrada, posInput, tecla, longMax)
+        else:  # Añadimos el texto del portapapeles carácter a carácter
+          if todo_mayusculas:
+            texto = texto.upper()
+          for tecla in texto:
+            insertaHastaMax (entrada, posInput, tecla, longMax)
       elif tecla == '\b':  # La tecla Backspace, arriba del Enter
         if posInput[0]:
           entrada = entrada[:posInput[0] - 1] + entrada[posInput[0]:]
