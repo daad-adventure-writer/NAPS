@@ -559,6 +559,7 @@ def espera_tecla (tiempo = 0, numPasos = False):
   pygame.time.set_timer (pygame.USEREVENT, tiempo * 1000)  # Ponemos el timer
   copia = ventana.copy()  # Porque con PyGame 2 se pierde al menos al redimensionar
   while True:
+    pygame.event.pump()
     evento = pygame.event.wait (500) if pygame.vernum[0] > 1 else pygame.event.wait()
     if evento.type == pygame.KEYDOWN:
       if evento.key not in teclas_pulsadas:
