@@ -457,7 +457,6 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
         else:
           ordenObtenida = True
 
-      # FIXME: esto es posible que no se haga automáticamente (¿cuando es desde PARSE en nueva_version?)
       # Si ha vencido el tiempo muerto, el mensaje de sistema 35 aparece, y se
       # vuelve a la búsqueda en la tabla de proceso 2
       if timeout[0] == True:
