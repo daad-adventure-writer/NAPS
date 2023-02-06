@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Funciones de apoyo de bajo nivel
-# Copyright (C) 2010, 2013, 2018-2022 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2013, 2018-2023 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -109,6 +109,20 @@ if version_info[0] < 3:  # Para Python 2
     """Guarda un entero en dos bytes, en formato Little Endian"""
     fich_sal.write (chr (entero & 255))
     fich_sal.write (chr (entero >> 8))
+
+  def guarda_int4_be (entero):
+    """Guarda un entero en cuatro bytes, en formato Big Endian"""
+    fich_sal.write (chr (entero >> 24))
+    fich_sal.write (chr ((entero >> 16) & 255))
+    fich_sal.write (chr ((entero >> 8) & 255))
+    fich_sal.write (chr (entero & 255))
+
+  def guarda_int4_le (entero):
+    """Guarda un entero en cuatro bytes, en formato Little Endian"""
+    fich_sal.write (chr (entero & 255))
+    fich_sal.write (chr ((entero >> 8) & 255))
+    fich_sal.write (chr ((entero >> 16) & 255))
+    fich_sal.write (chr (entero >> 24))
 else:  # Para Python 3
   def guarda_int1 (entero):
     """Guarda un entero en un byte"""
@@ -121,6 +135,14 @@ else:  # Para Python 3
   def guarda_int2_le (entero):
     """Guarda un entero en dos bytes, en formato Little Endian"""
     fich_sal.write (bytes ([entero & 255, entero >> 8]))
+
+  def guarda_int4_be (entero):
+    """Guarda un entero en cuatro bytes, en formato Big Endian"""
+    fich_sal.write (bytes ([entero >> 24, (entero >> 16) & 255, (entero >> 8) & 255, entero & 255]))
+
+  def guarda_int4_le (entero):
+    """Guarda un entero en cuatro bytes, en formato Little Endian"""
+    fich_sal.write (bytes ([entero & 255, (entero >> 8) & 255, (entero >> 16) & 255, entero >> 24]))
 
 
 # Funciones auxiliares que sólo se usan en este módulo
