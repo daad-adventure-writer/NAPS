@@ -80,8 +80,10 @@ def cambia_imagen (numRecurso, ancho, alto, imagen, paleta):
   if recursos[numRecurso]:
     recurso = recursos[numRecurso]
     pos_recursos[recurso['desplazamiento']].remove (numRecurso)
+    limpiarPosicion = recurso['desplazamiento']
   else:
-    recurso = {'banderas': set(), 'desplazamiento': None, 'posicion': (0, 0)}
+    limpiarPosicion = None
+    recurso         = {'banderas': set(), 'desplazamiento': None, 'posicion': (0, 0)}
   # Vemos si ya había algún recurso con la misma imagen
   for recursoExistente in recursos:
     if not recursoExistente:
@@ -94,6 +96,9 @@ def cambia_imagen (numRecurso, ancho, alto, imagen, paleta):
     recurso['desplazamiento']   = indice_nuevos
     pos_recursos[indice_nuevos] = [numRecurso]
     indice_nuevos -= 1
+  # Quitamos la entrada de pos_recursos si ya no queda ninguna imagen con el desplazamiento que tenía la imagen anterior
+  if limpiarPosicion != None and not len (pos_recursos[limpiarPosicion]):
+    del pos_recursos[limpiarPosicion]
   if modo_gfx == 'CGA':
     if paleta == paleta1b:
       recurso['banderas'].add ('cgaPaleta1')
