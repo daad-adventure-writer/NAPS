@@ -498,11 +498,14 @@ def carga_sce (fichero, longitud):
       if numero != numEntrada:
         raise TabError ('número de objeto %d en lugar de %d', (numEntrada, numero), seccion.meta)
       # Cargamos la localidad inicial del objeto
-      localidad = seccion.children[1].children[0]
-      if localidad.type == 'INT':
-        locs_iniciales.append (int (localidad))
-      else:  # Valor no numérico (p.ej. CARRIED)
-        locs_iniciales.append (IDS_LOCS[str (localidad)])
+      if seccion.children[1].children:
+        localidad = seccion.children[1].children[0]
+        if localidad.type == 'INT':
+          locs_iniciales.append (int (localidad))
+        else:  # Valor no numérico (p.ej. CARRIED)
+          locs_iniciales.append (IDS_LOCS[str (localidad)])
+      else:
+        locs_iniciales.append (252)
       # Cargamos el peso del objeto
       entero = seccion.children[2]
       peso   = int (entero)
