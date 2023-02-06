@@ -417,7 +417,8 @@ def carga_sce (fichero, longitud):
       if '.' not in nombreFich:
         nombreFich += '.sce'
       # Buscamos el fichero con independencia de mayúsculas y minúsculas
-      for nombreFichero in os.listdir (os.path.dirname (fichero.name)):
+      rutaCarpeta = os.path.dirname (fichero.name)
+      for nombreFichero in os.listdir (rutaCarpeta if rutaCarpeta else '.'):
         if nombreFichero.lower() == nombreFich:
           nombreFich = nombreFichero
           break
