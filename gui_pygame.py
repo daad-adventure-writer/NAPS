@@ -1247,6 +1247,12 @@ def factorEscalaMaximo ():
   try:
     infoPantalla
   except:
+    if name == 'nt':  # Intentamos tener en cuenta el factor de escala de Windows
+      try:
+        import ctypes
+        ctypes.windll.user32.SetProcessDPIAware()
+      except:
+        pass
     infoPantalla = pygame.display.Info()
   factorMaximo = 1
   while resolucion[0] * (factorMaximo + 1) < infoPantalla.current_w and resolucion[1] * (factorMaximo + 1) < infoPantalla.current_h:
