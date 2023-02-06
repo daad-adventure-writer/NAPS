@@ -4,7 +4,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Editor de bases de datos gráficas de DAAD
-# Copyright (C) 2022 José Manuel Ferrer Ortiz
+# Copyright (C) 2022-2023 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -38,7 +38,9 @@ except:
 import graficos_daad
 
 
+acc_exportar = None  # Acción de exportar base de datos gráfica
 dlg_abrir    = None  # Diálogo de abrir imagen
+dlg_exportar = None  # Diálogo de exportar base de datos gráfica
 dlg_importar = None  # Diálogo de importar base de datos gráfica
 dlg_guardar  = None  # Diálogo de guardar imagen
 
@@ -240,13 +242,18 @@ class Recurso (QPushButton):
 class Ventana (QMainWindow):
   """Ventana principal"""
   def __init__ (self):
+    global acc_exportar
     super (Ventana, self).__init__()
-    accImportar = QAction ('&Importar', self)
-    accSalir    = QAction ('&Salir',    self)
+    acc_exportar = QAction ('&Exportar', self)
+    accImportar  = QAction ('&Importar', self)
+    accSalir     = QAction ('&Salir',    self)
+    acc_exportar.setEnabled (False)
+    acc_exportar.triggered.connect (dialogoExportaBD)
     accImportar.triggered.connect (dialogoImportaBD)
     accSalir.setShortcut ('Ctrl+Q')
     menuArchivo = self.menuBar().addMenu ('&Archivo')
     menuArchivo.addAction (accImportar)
+    menuArchivo.addAction (acc_exportar)
     menuArchivo.addSeparator()
     menuArchivo.addAction (accSalir)
     scroll = QScrollArea (self)
@@ -258,6 +265,57 @@ class Ventana (QMainWindow):
     self.setWindowTitle ('Editor de bases de datos gráficas')
     self.showMaximized()
 
+
+def dialogoExportaBD ():
+  """Exporta la base de datos gráfica al fichero elegido por el usuario"""
+  global dlg_exportar
+  if graficos_daad.modo_gfx == 'CGA':
+    extensiones   = ('.cga',)
+    formatoFiltro = 'Bases de datos gráficas DAAD para CGA (*.cga)'
+  if graficos_daad.modo_gfx == 'EGA':
+    extensiones   = ('.ega',)
+    formatoFiltro = 'Bases de datos gráficas DAAD para EGA (*.ega)'
+  elif graficos_daad.modo_gfx == 'PCW':
+    extensiones   = ('.pcw', '.dat')
+    formatoFiltro = 'Bases de datos gráficas DAAD para PCW (*.dat *.pcw)'
+  if not dlg_exportar:  # Diálogo no creado aún
+    dlg_exportar = QFileDialog (ventana, 'Exportar base de datos gráfica', os.curdir, formatoFiltro)
+    dlg_exportar.setAcceptMode (QFileDialog.AcceptSave)
+    dlg_exportar.setLabelText  (QFileDialog.LookIn,   'Lugares')
+    dlg_exportar.setLabelText  (QFileDialog.FileName, '&Nombre:')
+    dlg_exportar.setLabelText  (QFileDialog.FileType, 'Filtro:')
+    dlg_exportar.setLabelText  (QFileDialog.Accept,   '&Guardar')
+    dlg_exportar.setLabelText  (QFileDialog.Reject,   '&Cancelar')
+    dlg_exportar.setOption     (QFileDialog.DontConfirmOverwrite)
+    dlg_exportar.setOption     (QFileDialog.DontUseNativeDialog)
+  if dlg_exportar.exec_():  # No se ha cancelado
+    nombreFichero = (str if sys.version_info[0] > 2 else unicode) (dlg_exportar.selectedFiles()[0])
+    for extension in extensiones:
+      if nombreFichero[-4:].lower() == extension:
+        break
+    else:  # No tenía extensión de las permitidas, se la añadimos
+      nombreFichero += extensiones[0]
+    if os.path.isfile (nombreFichero):
+      dlgSiNo = QMessageBox (ventana)
+      dlgSiNo.addButton ('&Sí', QMessageBox.YesRole)
+      dlgSiNo.addButton ('&No', QMessageBox.NoRole)
+      dlgSiNo.setIcon (QMessageBox.Warning)
+      dlgSiNo.setWindowTitle ('Sobreescritura')
+      dlgSiNo.setText ('Ya existe un fichero con ruta y nombre:\n\n' + nombreFichero)
+      dlgSiNo.setInformativeText ('\n¿Quieres sobreescribirlo?')
+      if dlgSiNo.exec_() != 0:  # No se ha pulsado el botón Sí
+        return
+    ventana.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
+    try:
+      fichero = open (nombreFichero, 'wb')
+    except IOError as excepcion:
+      muestraFallo ('No se puede abrir el fichero:\n' + nombreFichero,
+                    'Causa:\n' + excepcion.args[1])
+      ventana.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
+      return
+    graficos_daad.guarda_bd_pics (fichero)
+    fichero.close()
+    ventana.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
 
 def dialogoImportaBD ():
   """Deja al usuario elegir un fichero de base datos gráfica, y lo intenta importar"""
@@ -283,6 +341,12 @@ def importaBD (nombreFichero):
   if error:
     muestraFallo ('No se puede abrir el fichero:\n' + nombreFichero, error)
     return
+
+  global acc_exportar
+  if graficos_daad.modo_gfx in ('CGA', 'EGA', 'PCW'):  # Modos gráficos de la versión 1 de DMG
+    acc_exportar.setEnabled (True)
+  else:
+    acc_exportar.setEnabled (False)
 
   altoMax  = 0  # Alto  de imagen máximo
   anchoMax = 0  # Ancho de imagen máximo

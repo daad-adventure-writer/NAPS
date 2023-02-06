@@ -83,7 +83,7 @@ def cambia_imagen (numRecurso, ancho, alto, imagen, paleta):
     limpiarPosicion = recurso['desplazamiento']
   else:
     limpiarPosicion = None
-    recurso         = {'banderas': set(), 'desplazamiento': None, 'posicion': (0, 0)}
+    recurso         = {'banderas': set(), 'banderasInt': 0, 'desplazamiento': None, 'posicion': (0, 0)}
   # Vemos si ya había algún recurso con la misma imagen
   for recursoExistente in recursos:
     if not recursoExistente:
@@ -102,8 +102,11 @@ def cambia_imagen (numRecurso, ancho, alto, imagen, paleta):
   if modo_gfx == 'CGA':
     if paleta == paleta1b:
       recurso['banderas'].add ('cgaPaleta1')
+      recurso['banderasInt'] |= 4 if version > 1 else 128
     elif 'cgaPaleta1' in recurso['banderas']:
       recurso['banderas'].remove ('cgaPaleta1')
+      if recurso['banderasInt'] & (4 if version > 1 else 128):
+        recurso['banderasInt'] -= 4 if version > 1 else 128
   recurso['dimensiones'] = (ancho, alto)
   recurso['imagen']      = imagen
   recurso['paleta']      = paleta
@@ -175,6 +178,100 @@ def da_paletas_del_formato ():
     return {'PCW': [paletaPCW]}
   if modo_gfx in ('ST', 'VGA'):
     return {'CGA': [paleta1b, paleta2b], 'EGA': [paletaEGA], 'ST/VGA': []}
+
+def guarda_bd_pics (fichero):
+  """Exporta la base de datos gráfica en memoria sobre el fichero dado"""
+  # TODO: completar para el formato de DMG versión 3+
+  bajo_nivel_cambia_endian (le)
+  bajo_nivel_cambia_sal    (fichero)
+  if le:
+    guarda_int2 = guarda_int2_le
+    guarda_int4 = guarda_int4_le
+  else:
+    guarda_int2 = guarda_int2_be
+    guarda_int4 = guarda_int4_be
+  # Guardamos la plataforma y el modo gráfico
+  if modo_gfx == 'ST':
+    guarda_int2 (4)  # Plataforma Amiga/Atari ST
+    guarda_int2 (0)  # No tiene modo gráfico
+  else:
+    guarda_int2 (0)  # Plataforma DOS/PCW
+    if modo_gfx == 'EGA':
+      guarda_int2 (13)  # Modo gráfico EGA
+    else:
+      guarda_int2 (4)  # Modo gráfico CGA/PCW
+  # Guardamos el número de imágenes únicas
+  guarda_int2 (len (pos_recursos))
+  if version > 1:  # Dejamos espacio para la longitud de la base de datos gráfica
+    guarda_int4 (0)
+  # Dejamos espacio para las cabeceras de los recursos
+  if sys.version_info [0] < 3:
+    fichero.write (chr (0) * long_cabecera_rec * 256)
+  else:
+    fichero.write (bytes ([0] * long_cabecera_rec * 256))
+  # Guardamos la posición actual para empezar a guardar los datos de los recursos desde aquí
+  desplActual = fichero.tell()
+  # Ordenamos los recursos de menor a mayor desplazamiento dentro de la base de datos gráfica
+  desplazamientos = sorted (pos_recursos.keys())
+  if desplazamientos:  # Ponemos los números negativos (los de nuevos recursos) al final
+    ultimoNegativo = -1
+    while desplazamientos[ultimoNegativo + 1] < 0:
+      ultimoNegativo += 1
+    desplNegativos = desplazamientos[:ultimoNegativo + 1]
+    desplNegativos.reverse()
+    desplazamientos = desplazamientos[ultimoNegativo + 1:] + desplNegativos
+  # Guardamos cada recurso y su cabecera en orden
+  for desplazamiento in desplazamientos:
+    fichero.seek (desplActual)
+    numRecursos = pos_recursos[desplazamiento]
+    recurso     = recursos[numRecursos[0]]
+    # TODO: resto de formatos aparte de PCW
+    # TODO: no forzar compresión de imágenes
+    imagen, repetir = comprimeRLEporBytes (recurso['imagen'], recurso['dimensiones'][0], True, forzarRLE = True)
+    # Guardamos el contenido del recurso
+    # Guardamos el ancho de la imagen y la bandera de compresión RLE
+    rle            = 128 if len (imagen) else 0                      # 0 no comprimir, 128 comprimir
+    lsbAncho       = recurso['dimensiones'][0] & 255                 # LSB de la anchura de la imagen
+    msbAnchoMasRLE = ((recurso['dimensiones'][0] >> 8) & 127) + rle  # MSB de la anchura de la imagen + bit de compresión RLE
+    if le:
+      guarda_int1 (lsbAncho)
+      guarda_int1 (msbAnchoMasRLE)
+    else:
+      guarda_int1 (msbAnchoMasRLE)
+      guarda_int1 (lsbAncho)
+    guarda_int2 (recurso['dimensiones'][1])  # Altura de la imagen
+    # TODO: no compresión de imágenes
+    guarda_int2 (len (imagen) + (5 if rle else 0))  # Longitud de la imagen codificada
+    # Guardamos la información para compresión RLE
+    if rle:
+      guarda_int1 (len (repetir))
+      for i in range (4):
+        if i < len (repetir):
+          guarda_int1 (repetir[i])
+        else:
+          guarda_int1 (0)
+    # Guardamos datos de la imagen en sí
+    fichero.write (bytes (imagen))
+    # Guardamos la posición actual para guardar el contenido del siguiente recurso aquí
+    desplSiguiente = fichero.tell()
+    # Guardamos la cabecera de cada uno de los recursos con este mismo desplazamiento
+    for numRecurso in numRecursos:
+      cabRecurso = long_cabecera + (long_cabecera_rec * numRecurso)
+      fichero.seek (cabRecurso)  # Vamos al desplazamiento de la cabecera del recurso
+      guarda_int4 (desplActual)
+      recurso = recursos[numRecurso]
+      guarda_int2 (recurso['banderasInt'])
+      guarda_int2 (recurso['posicion'][0])  # Coordenada X donde dibujar la imagen
+      guarda_int2 (recurso['posicion'][1])  # Coordenada Y donde dibujar la imagen
+      if 'cambioPaleta' in recurso:
+        guarda_int1 (recurso['cambioPaleta'][0])
+        guarda_int1 (recurso['cambioPaleta'][1])
+      # TODO: guardar la paleta
+    desplActual = desplSiguiente
+  # Guardamos la longitud de la base de datos gráfica
+  if version > 1:
+    fichero.seek (6)
+    guarda_int4 (desplActual)
 
 def recurso_es_unico (numRecurso):
   """Devuelve si el contenido del recurso es único, o si por el contrario es usado por varios recursos"""
@@ -419,7 +516,7 @@ def cargaRecursos ():
       banderas.add ('cgaPaleta1')
     if flags & 256 and version > 1:
       banderas.add ('sonido')
-    recurso = {'banderas': banderas, 'posicion': (carga_int2(), carga_int2())}
+    recurso = {'banderas': banderas, 'banderasInt': flags, 'posicion': (carga_int2(), carga_int2())}
     if modo_gfx == 'ST' or version > 1:
       recurso['cambioPaleta'] = (carga_int1(), carga_int1())
     if long_paleta:
@@ -497,6 +594,95 @@ def cargaRecursos ():
 
     recurso['imagen'] = imagen
     recursos.append (recurso)
+
+def comprimeRLEporBytes (imagen, anchoFilaEnBits, invertirBits, forzarRLE = False):
+  """Devuelve una lista de bytes como enteros con la compresión RLE óptima, y una lista de bytes como enteros con las combinaciones que se repiten.
+
+    Si forzarRLE es falso y comprimir la imagen no ahorrará espacio, devuelve las dos listas vacías"""
+  # TODO: soporte de mayor profundidad de color, como será necesario en los demás formatos aparte de PCW
+  # Primero calculamos cuánto se ahorra con cada secuencia de bits
+  ahorros        = {}    # Cuánto ahorrará cada secuencia
+  izqAder        = True  # Sentido de procesado de píxeles de la fila actual
+  numFila        = 0     # Número de fila que se está procesando
+  ocurrencias    = 1     # Número de veces seguidas que se ha encontrado el último valor
+  valorAnterior  = imagen[:8]
+  for primerBit in range (8, len (imagen) + 8, 8):
+    if primerBit % anchoFilaEnBits == 0:
+      izqAder  = not izqAder
+      numFila += 1
+    if primerBit == len (imagen):  # Para procesar también el último valor
+      valor = []
+    else:
+      if izqAder:
+        valor = imagen[primerBit : primerBit + 8]
+      else:
+        ultimoBit = ((numFila + 1) * anchoFilaEnBits) - (primerBit % anchoFilaEnBits)
+        valor     = imagen[ultimoBit - 8 : ultimoBit]
+      if invertirBits:
+        valor = valor[::-1]
+      if valor == valorAnterior:
+        ocurrencias += 1
+        continue
+    valorComoByte = 0  # Valor anterior como byte
+    for indiceBit in range (8):
+      valorComoByte += 2 ** indiceBit if valorAnterior[indiceBit] else 0
+    if valorComoByte not in ahorros:
+      ahorros[valorComoByte] = 0
+    while ocurrencias:
+      cuantos = min (255, ocurrencias)
+      ahorros[valorComoByte] += cuantos - 2
+      ocurrencias -= cuantos
+    ocurrencias   = 1
+    valorAnterior = valor
+  ahorroTotal = 0
+  mejores     = []
+  while ahorros and len (mejores) < 4:
+    mejor = max (ahorros, key = ahorros.get)
+    if ahorros[mejor] < 1:
+      break
+    mejores.append (mejor)
+    ahorroTotal += ahorros[mejor]
+    del ahorros[mejor]
+  if not forzarRLE and ahorroTotal < 5:
+    return [], []  # La compresión RLE en esta imagen no ahorra nada
+  # Realizamos la compresión RLE
+  comprimida    = []
+  izqAder       = True
+  numFila       = 0
+  ocurrencias   = 1  # Número de veces seguidas que se ha encontrado el último valor
+  valorAnterior = imagen[:8]
+  for primerBit in range (8, len (imagen) + 8, 8):
+    if primerBit % anchoFilaEnBits == 0:
+      izqAder  = not izqAder
+      numFila += 1
+    if primerBit == len (imagen):  # Para procesar también el último valor
+      valor = []
+    else:
+      if izqAder:
+        valor = imagen[primerBit:primerBit + 8]
+      else:
+        ultimoBit = ((numFila + 1) * anchoFilaEnBits) - (primerBit % anchoFilaEnBits)
+        valor = imagen[ultimoBit - 8 : ultimoBit]
+      if invertirBits:
+        valor = valor[::-1]
+    valorComoByte = 0  # Valor anterior como byte
+    for indiceBit in range (8):
+      valorComoByte += 2 ** indiceBit if valorAnterior[indiceBit] else 0
+    if valorComoByte not in mejores:
+      comprimida.append (valorComoByte)
+      valorAnterior = valor
+      continue
+    if valor == valorAnterior:
+      ocurrencias += 1
+      continue
+    while ocurrencias:
+      cuantos = min (255, ocurrencias)
+      comprimida.append (valorComoByte)
+      comprimida.append (cuantos)
+      ocurrencias -= cuantos
+    ocurrencias   = 1
+    valorAnterior = valor
+  return comprimida, mejores
 
 def generaPaletaEGA (destino = 'paletas'):
   try:
