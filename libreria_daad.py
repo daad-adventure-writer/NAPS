@@ -842,7 +842,8 @@ def abreFichXMessages (numFichero):
   """Abre el fichero de XMessages de número dado buscándolo en la ruta de la base de datos actual, devolviendo None en caso de no lograrlo"""
   nombreFich = str (numFichero) + '.xmb'
   # Buscamos el fichero con independencia de mayúsculas y minúsculas
-  for nombreFichero in os.listdir (os.path.dirname (ruta_bbdd)):
+  rutaCarpeta = os.path.dirname (ruta_bbdd)
+  for nombreFichero in os.listdir (rutaCarpeta if rutaCarpeta else '.'):
     if nombreFichero.lower() == nombreFich:
       nombreFich = nombreFichero
       break
