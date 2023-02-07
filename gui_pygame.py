@@ -63,6 +63,8 @@ teclas_alt_gr = {'º': '\\', '1': '|', '2': '@', '4': '~', '7': '{', '8': '[', '9
 teclas_shift = {'º': 'ª', '1': '!', '2': '"', '4': '$', '5': '%', '6': '&', '7': '/', '8': '(', '9': ')', '0': '=', "'": '?', '¡': '¿', '+': '*', 'ñ': 'Ñ', 'ç': 'Ç', '<': '>', ',': ';', '.': ':', '-': '_'}
 
 
+if name == 'nt':
+  environ['SDL_VIDEO_CENTERED'] = '1'
 pygame.init()  # Necesario para trabajar con la librería PyGame
 pygame.event.set_blocked (pygame.MOUSEMOTION)  # No atenderemos los movimientos del ratón
 escalada      = None
@@ -149,7 +151,8 @@ def abre_ventana (traza, escalar, bbdd):
     factor_escala = min (escalar, factorEscalaMaximo())
   else:
     factor_escala = factorEscalaMaximo()
-  environ['SDL_VIDEO_WINDOW_POS'] = str ((infoPantalla.current_w - (resolucion[0] * factor_escala)) // 2) + ',0'
+  if name != 'nt':
+    environ['SDL_VIDEO_WINDOW_POS'] = str ((infoPantalla.current_w - (resolucion[0] * factor_escala)) // 2) + ',0'
   if factor_escala > 1 or forzar_escala:
     escalada = pygame.display.set_mode ((resolucion[0] * factor_escala, resolucion[1] * factor_escala), pygame.RESIZABLE)
     ventana  = pygame.Surface (resolucion)
