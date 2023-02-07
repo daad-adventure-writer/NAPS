@@ -647,7 +647,7 @@ def carga_sce (fichero, longitud):
       tablas_proceso.append ((cabeceras, entradas))
       numProceso += 1
     return
-  except (TabError, lark.UnexpectedInput) as e:
+  except (TabError, lark.UnexpectedCharacters, lark.UnexpectedInput) as e:
     if type (e) == TabError:
       descripcion   = e.args[0]
       paramsFormato = e.args[1]
