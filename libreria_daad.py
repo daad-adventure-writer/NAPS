@@ -492,6 +492,25 @@ def carga_sce (fichero, longitud):
         adjetivos[palabra] = codigo
       elif tipo == 4:
         preposiciones[palabra] = codigo
+    # Cargamos las conexiones entre localidades
+    numEntrada = 0
+    for seccion in arbolSCE.find_data ('conentry'):
+      numero = int (seccion.children[0])
+      if numero != numEntrada:
+        raise TabError ('número de localidad %d en lugar de %d', (numEntrada, numero), seccion.meta)
+      salidas = []
+      for conexion in seccion.find_data ('conitem'):
+        verbo = str (conexion.children[0].children[0])[:LONGITUD_PAL].lower()
+        if verbo not in verbos:
+          raise TabError ('una palabra de vocabulario de tipo verbo', (), conexion.children[0])
+        destino = int (conexion.children[1])
+        if destino >= len (desc_locs):
+          raise TabError ('número de localidad entre %d y %d', (0, len (desc_locs) - 1), conexion.children[1])
+        salidas.append ((verbo, destino))
+      conexiones.append (salidas)
+      numEntrada += 1
+    if numEntrada != len (desc_locs):
+      raise TabError ('el mismo número de entradas de conexión (%d) que de descripciones de localidades (%d)', (numEntrada, len (desc_locs)))
     # Cargamos datos de los objetos
     numEntrada = 0
     for seccion in arbolSCE.find_data ('objentry'):

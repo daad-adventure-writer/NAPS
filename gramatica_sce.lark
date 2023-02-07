@@ -52,7 +52,7 @@ _LTX: "/LTX"
 con: _CON _wsnlc (_wsnl conentry)*
 _CON: "/CON"
 conentry: "/" UINT _wsnlc (_wsnl conitem)*
-conitem: _WS /[^ \n\t]/+ _WS UINT
+conitem: _WS word _WS UINT
 
 obj: _OBJ _wsnlc (_wsnl objentry)*
 _OBJ: "/OBJ"
