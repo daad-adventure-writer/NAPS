@@ -22,7 +22,7 @@
 # *                                                                           *
 # *****************************************************************************
 
-from os       import name, path
+from os       import environ, name, path
 from prn_func import *
 from sys      import stdout, version_info
 
@@ -149,6 +149,7 @@ def abre_ventana (traza, escalar, bbdd):
     factor_escala = min (escalar, factorEscalaMaximo())
   else:
     factor_escala = factorEscalaMaximo()
+  environ['SDL_VIDEO_WINDOW_POS'] = str ((infoPantalla.current_w - (resolucion[0] * factor_escala)) // 2) + ',0'
   if factor_escala > 1 or forzar_escala:
     escalada = pygame.display.set_mode ((resolucion[0] * factor_escala, resolucion[1] * factor_escala), pygame.RESIZABLE)
     ventana  = pygame.Surface (resolucion)
