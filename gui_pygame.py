@@ -644,7 +644,7 @@ El parámetro espaciar permite elegir si se debe dejar una línea en blanco tras e
     prompt = '\n' + prompt  # Dejaremos una línea en blanco entre el último texto y el prompt
   # El prompt se imprimirá
   if opcs_input & 8:  # Pedir la entrada debajo del todo
-    lineas    = imprime_cadena (prompt, abajo = True)
+    lineas    = imprime_cadena (prompt, False, abajo = True)
     finPrompt = lineas[-1]  # Última línea del prompt
     if cursorMovido[1] + len (lineas) >= topes[elegida][1]:  # Había hecho scroll
       cursorMovido[1] = topes[elegida][1] - len (lineas)
@@ -936,17 +936,16 @@ def imprime_locs_objs (locs_objs):
   actualizaVentana()
   fuente.set_palette (((255, 255, 255), (0, 0, 0)))
 
-def imprime_cadena (cadena, scroll = True, redibujar = True, abajo = False, tiempo = 0):
+def imprime_cadena (cadena, textoNormal = True, redibujar = True, abajo = False, tiempo = 0):
   """Imprime una cadena en la posición del cursor (dentro de la subventana), y devuelve la cadena partida en líneas
 
 El cursor deberá quedar actualizado.
 
-Si scroll es True, se desplazará el texto del buffer hacia arriba (scrolling) cuando se vaya a sobrepasar la última línea
+Si textoNormal es True, la cadena no es un prompt, por lo que antes de imprimir textos nuevos en cada línea de la subventana incluyendo la última, paginará antes de imprimir la última. Cuando el texto era de prompt, textoNormal será False y no paginará al imprimir la última línea del texto en la última línea de la subventana
 
 Si abajo es True, imprimirá abajo del todo de la subventana sin hacer scroll mientras no alcance el cursor
 
 Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla al paginar"""
-  # TODO: revisar por qué hacía falta el parámetro scroll, dado que se está omitiendo
   if not cadena:
     return
   if not texto_nuevo:
@@ -1067,7 +1066,7 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
     if i > 0:  # Nueva línea antes de cada una, salvo la primera
       cursor = [0, min (cursor[1] + 1, tope[1] - 1)]
       cursores[elegida] = cursor  # Actualizamos el cursor de la subventana
-      if lineas_mas[elegida] == (tope[1] - 1) and i < len (lineas) - 1 and (not subv_input or elegida != subv_input):
+      if lineas_mas[elegida] == (tope[1] - 1) and (textoNormal or i < len (lineas) - 1) and (not subv_input or elegida != subv_input):
         esperaMas (tiempo)  # Paginación
       # TODO: Hacer scroll de golpe, del número de líneas necesario
       elif i >= tope[1]:  # Tras sobrepasar el tope de líneas, hay que hacer scroll con cada una
