@@ -570,7 +570,7 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
         valida = True
       else:
         gui.imprime_cadena (msgs_sys[8], tiempo = tiempoTimeout)  # No puedes hacer eso
-    elif NOMBRE_SISTEMA != 'DAAD' or not nueva_version:
+    elif not psi and (NOMBRE_SISTEMA != 'DAAD' or not nueva_version):
       gui.imprime_cadena (msgs_sys[6], tiempo = tiempoTimeout)  # No entendí nada
 
   if psi:
