@@ -151,7 +151,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
         destino = int (conexion.children[1])
         if destino >= len (desc_locs):
           raise TabError ('número de localidad entre %d y %d', (0, len (desc_locs) - 1), conexion.children[1])
-        salidas.append ((verbo, destino))
+        salidas.append ((verbos[verbo], destino))
       conexiones.append (salidas)
       numEntrada += 1
     if numEntrada != len (desc_locs):
