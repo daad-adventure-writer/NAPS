@@ -242,9 +242,9 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
               if parametro.type == 'INT':
                 parametros.append (int (parametro))
               elif parametro.type == 'VOCWORD':
-                # Los condactos con este tipo de parámetro sólo tienen un parámetro
+                # Los condactos con este tipo de parámetro sólo tienen un parámetro de igual tipo en ambas versiones de DAAD
                 palabra      = str (parametro)[:LONGITUD_PAL].lower()
-                letraTipoPal = datosCondactos[nombre][version - 1][1][0]
+                letraTipoPal = datosCondactos[nombre][0][1][0]
                 listaVocab, tipoPalabra = tipoParametro[letraTipoPal]
                 if palabra not in listaVocab:
                   raise TabError ('una palabra de vocabulario de tipo %s', tipoPalabra, parametro)
