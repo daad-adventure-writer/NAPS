@@ -31,6 +31,9 @@ import sys
 # Código de cada tipo de palabra por nombre en el código fuente
 tipos_pal_dict = {'verb': 0, 'adverb': 1, 'noun': 2, 'adjective': 3, 'preposition': 4, 'conjugation': 5, 'conjunction': 5, 'pronoun': 6}
 
+# Identificadores (para hacer el código más legible) predefinidos
+IDS_LOCS = {'WORN': 253, 'CARRIED': 254, 'HERE': 255}
+
 
 def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, condactos, condactos_nuevos, conexiones, desc_locs, desc_objs, locs_iniciales, msgs_usr, msgs_sys, nombres_objs, nueva_version, num_objetos, tablas_proceso, vocabulario):
   """Carga la base de datos desde el código fuente SCE del fichero de entrada, con y sobre las variables pasadas como parámetro

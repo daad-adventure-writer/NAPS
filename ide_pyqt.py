@@ -82,6 +82,17 @@ inicio_debug    = False  # Para hacer la inicialización de subventanas MDI al la
 pila_procs      = []     # Pila con estado de los procesos en ejecución
 proc_interprete = None   # Proceso del intérprete
 
+# Identificadores (para hacer el código más legible) predefinidos
+IDS_LOCS = {
+  252: 'NOTCREATED',
+       '_': 252,
+  253: 'WORN',
+       'WORN': 253,
+  254: 'CARRIED',
+       'CARRIED': 254,
+  255: 'HERE',
+       'HERE': 255}
+
 # Conversión de teclas para manejo del intérprete
 conversion_teclas = {Qt.Key_Escape: 27, Qt.Key_Down: 80, Qt.Key_End: 79, Qt.Key_Home: 71, Qt.Key_Left: 75, Qt.Key_Right: 77, Qt.Key_Up: 72}
 

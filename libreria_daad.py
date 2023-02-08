@@ -68,16 +68,6 @@ NUM_BANDERAS   = 256     # Número de banderas del parser
 NOMBRES_PROCS  = []      # Nombres de las primeras tablas de proceso (para el IDE)
 # Nombres de los tipos de palabra (para el IDE)
 TIPOS_PAL = ('Verbo', 'Adverbio', 'Nombre', 'Adjetivo', 'Preposicion', 'Conjuncion', 'Pronombre')
-# Identificadores (para hacer el código más legible) predefinidos
-IDS_LOCS = {
-  252: 'NOTCREATED',
-       '_': 252,
-  253: 'WORN',
-       'WORN': 253,
-  254: 'CARRIED',
-       'CARRIED': 254,
-  255: 'HERE',
-       'HERE': 255}
 
 
 # Desplazamientos (offsets/posiciones) en la cabecera
