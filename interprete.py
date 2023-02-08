@@ -463,7 +463,7 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
         # TODO: comentado hasta que se pueda elegir modo de compatibilidad no estricto, porque no veo bien borrar la orden ya escrita
         # if compatibilidad and gui.centrar_graficos:  # En la Aventura Original, la orden se borra cuando hay timeout
         #   orden = ''
-        if not nueva_version and msgs_sys[35]:  # Evitamos imprimir una línea en blanco sin necesidad
+        if (NOMBRE_SISTEMA != 'DAAD' or not nueva_version) and msgs_sys[35]:  # Evitamos imprimir una línea en blanco sin necesidad
           gui.imprime_cadena (msgs_sys[35])
           gui.imprime_cadena ('\n')
         banderas[49] |= 128  # Indicador de tiempo muerto vencido
