@@ -564,7 +564,7 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
     tiempoTimeout = banderas[48] if NOMBRE_SISTEMA != 'QUILL' and banderas[49] & 2 else 0
     valida = False
     if frase['Nombre1']:
-      if NOMBRE_SISTEMA == 'DAAD':
+      if psi or NOMBRE_SISTEMA == 'DAAD':
         for flagno, tipo in {34: 'Nombre1', 44: 'Nombre2'}.items():
           banderas[flagno] = frase[tipo] if frase[tipo] else 255
         valida = True
