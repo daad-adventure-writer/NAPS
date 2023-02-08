@@ -208,7 +208,9 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
         if condacto[0] not in datosCondactos:
           datosCondactos[condacto[0]] = [None, None]
         datosCondacto = (codigo, condacto[1])
-        if condacto[4] == 3:  # El condacto es igual en ambas versiones
+        if not condactos_nuevos:  # Para sistemas distintos a DAAD
+          datosCondactos[condacto[0]][0] = datosCondacto
+        elif condacto[4] == 3:  # El condacto es igual en ambas versiones
           datosCondactos[condacto[0]] = (datosCondacto, datosCondacto)
         else:
           datosCondactos[condacto[0]][condacto[4] - 1] = datosCondacto
@@ -245,6 +247,20 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
               if parametro.type == 'INT':
                 parametros.append (int (parametro))
               elif parametro.type == 'VOCWORD':
+                # TODO: tolerar esto en caso que la palabra del parámetro sea única en el vocabulario
+                if version:
+                  if not datosCondactos[nombre][version - 1]:
+                    break  # Se comprueba esto de nuevo más adelante
+                  tipoParam       = datosCondactos[nombre][version - 1][1][len (parametros) : len (parametros) + 1]
+                  palabraAdmitida = tipoParam in tipoParametro
+                else:
+                  palabraAdmitida = False
+                  for datoCondacto in datosCondactos[nombre]:
+                    if datosCondacto and datoCondacto[1][len (parametros) : len (parametros) + 1] in tipoParametro:
+                      palabraAdmitida = True
+                      break
+                if not palabraAdmitida:
+                  raise TabError ('El condacto %s no admite una palabra de vocabulario como parámetro aquí', nombre, parametro)
                 # Los condactos con este tipo de parámetro sólo tienen un parámetro de igual tipo en ambas versiones de DAAD
                 palabra      = str (parametro)[:LONGITUD_PAL].lower()
                 letraTipoPal = datosCondactos[nombre][0][1][0]

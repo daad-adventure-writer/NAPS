@@ -25,6 +25,8 @@
 from bajo_nivel import *
 from prn_func   import prn
 
+import alto_nivel
+
 
 # Variables que se exportan (fuera del paquete)
 
@@ -48,6 +50,7 @@ funcs_exportar = ()  # Ninguna, de momento
 funcs_importar = (
   ('carga_bd',     ('pdb',), 'Bases de datos PAWS'),
   ('carga_bd_sna', ('sna',), 'Imagen de memoria de ZX 48K con PAWS'),
+  ('carga_sce',    ('sce',), 'Código fuente de PAWS'),
 )
 # Función que crea una nueva base de datos (vacía)
 func_nueva = ''
@@ -257,6 +260,19 @@ def carga_bd_sna (fichero, longitud):
     return False  # Cabecera de la base de datos no encontrada
   preparaPosCabecera ('sna48k', posicion)
   return cargaBD (fichero, longitud)
+
+def carga_sce (fichero, longitud):
+  """Carga la base de datos desde el código fuente SCE del fichero de entrada
+
+  Para compatibilidad con el IDE:
+  - Recibe como primer parámetro un fichero abierto
+  - Recibe como segundo parámetro la longitud del fichero abierto
+  - Devuelve False si ha ocurrido algún error"""
+  global plataforma, version
+  # Los dos valores siguientes son necesarios para el intérprete y esta librería, pondremos valores de PAWS PC
+  plataforma = 2
+  version    = 1
+  return alto_nivel.carga_sce (fichero, longitud, LONGITUD_PAL, atributos, [], condactos, {}, conexiones, desc_locs, desc_objs, locs_iniciales, msgs_usr, msgs_sys, nombres_objs, [], num_objetos, tablas_proceso, vocabulario)
 
 def escribe_secs_ctrl (cadena):
   """Devuelve la cadena dada convirtiendo la representación de secuencias de control en sus códigos"""
