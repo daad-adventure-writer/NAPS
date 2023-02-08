@@ -990,6 +990,7 @@ if __name__ == '__main__':
       gui.NUM_BANDERAS = libreria.NUM_BANDERAS
       modulo.ruta_bbdd = args.bbdd
       break
+    bbdd.seek (0)
   bbdd.close()
   if not correcto:
     prn ('Error al tratar de cargar la base de datos: formato incompatible o fichero corrupto', file = sys.stderr)

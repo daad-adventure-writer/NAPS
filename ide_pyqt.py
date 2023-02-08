@@ -1418,6 +1418,7 @@ def importaBD (nombreFicheroBD, indiceFuncion = None, nombreFicheroGfx = None):
     if mod_actual.__dict__[funcion] (fichero, os.path.getsize (nombreFicheroBD)) != False:
       hayFallo = False
       break
+    fichero.seek (0)
   fichero.close()
   if hayFallo:
     muestraFallo ('No se puede importar una base datos de:\n' +
