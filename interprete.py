@@ -23,12 +23,14 @@
 # *                                                                           *
 # *****************************************************************************
 
-from prn_func import prn
+from alto_nivel import *
+from prn_func   import prn
 
 import argparse  # Para procesar argumentos de línea de comandos
 import os        # Para obtener la longitud del fichero de base de datos
 import random    # Para choice y seed
 import sys       # Para exit, salida estándar, y argumentos de línea de comandos
+import types     # Para poder comprobar si algo es una función
 
 
 # Variables de estado del intérprete
@@ -917,17 +919,57 @@ if __name__ == '__main__':
     sys.setdefaultencoding ('iso-8859-15')  # Nuestras cadenas están en esta codificación, no en ASCII
   random.seed()  # Inicializamos el generador de números aleatorios
 
+  # Vemos si está disponible la librería PyQt para diálogo de selección de fichero o carpeta
+  try:
+    from PyQt4.QtGui import QApplication, QDialog, QFileDialog
+  except:
+    try:
+      from PyQt5.QtWidgets import QApplication, QDialog, QFileDialog
+    except:
+      QDialog = None
+
   argsParser = argparse.ArgumentParser (sys.argv[0], description = 'Intérprete de Quill/PAWS/SWAN/DAAD en Python')
   argsParser.add_argument ('-c', '--columns', type = int, choices = range (32, 43), help = 'número de columnas a usar al imitar Spectrum')
   argsParser.add_argument ('-D', '--debug', action = 'store_true', help = 'ejecutar los condactos paso a paso')
   argsParser.add_argument ('-g', '--gui', choices = ('pygame', 'stdio'), help = 'interfaz gráfica a utilizar')
   argsParser.add_argument ('--ide', action = 'store_true', help = argparse.SUPPRESS)
   argsParser.add_argument ('-s', '--scale', type = int, choices = range (1, 10), help = 'factor de escalado para la ventana')
-  argsParser.add_argument ('bbdd', metavar = 'bd_cf_o_carpeta', help = 'base de datos, código fuente o carpeta de Quill/PAWS/SWAN/DAAD a ejecutar')
+  argsParser.add_argument ('bbdd', metavar = 'bd_cf_o_carpeta', nargs = '?' if QDialog else 1, help = 'base de datos, código fuente o carpeta de Quill/PAWS/SWAN/DAAD a ejecutar')
   argsParser.add_argument ('ruta_graficos', metavar = 'bd_o_carpeta_gráficos', nargs = '?', help = 'base de datos gráfica o carpeta de la que tomar las imágenes (con nombre pic###.png)')
   args  = argsParser.parse_args()
   ide   = args.ide
   traza = args.debug or args.ide
+
+  librerias = (f[:-3] for f in os.listdir (os.path.dirname (os.path.realpath (__file__)))
+               if (f[:9] == 'libreria_' and f[-3:] == '.py'))
+
+  if not args.bbdd or not args.bbdd.strip():
+    rutaFichero = None
+    if QDialog:
+      filtro     = []
+      soportadas = set()  # Extensiones soportadas
+      for nombreModulo in librerias:
+        try:
+          modulo = __import__ (nombreModulo)
+        except SyntaxError as excepcion:
+          prn ('Error al importar el módulo:', excepcion, file = sys.stderr)
+          continue
+        for funcion, extensiones, descripcion in modulo.funcs_importar:
+          if comprueba_nombre (modulo, funcion, types.FunctionType):
+            filtro.append (descripcion + ' (*.' + ' *.'.join (extensiones) + ')')
+            for extension in extensiones:
+              soportadas.add (extension)
+      aplicacion = QApplication (sys.argv)
+      dialogo = QFileDialog (None, 'Elige carpeta o fichero a ejecutar', os.curdir, 'Todos los formatos soportados (*.' + ' *.'.join (sorted (soportadas)) + ');;' + ';;'.join (sorted (filtro)))
+      dialogo.accept = lambda: QDialog.accept (dialogo)
+      dialogo.setFileMode (QFileDialog.AnyFile)
+      dialogo.setOption   (QFileDialog.DontUseNativeDialog)
+      if dialogo.exec_():  # No se ha cancelado
+        rutaFichero = (str if sys.version_info[0] > 2 else unicode) (dialogo.selectedFiles()[0])
+    if not rutaFichero or not rutaFichero.strip():
+      argsParser.print_help()
+      sys.exit()
+    args.bbdd = rutaFichero
 
   if not args.gui:
     if args.ruta_graficos:
