@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Funciones de apoyo de alto nivel
-# Copyright (C) 2023 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2021, 2023 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -330,4 +330,10 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
     prn ('Formato del código fuente inválido o no soportado:', texto, file = sys.stderr, sep = '\n')
   except:
     pass
+  return False
+
+def comprueba_nombre (modulo, nombre, tipo):
+  """Devuelve True si un nombre está en un módulo, y es del tipo correcto"""
+  if (nombre in modulo.__dict__) and (type (modulo.__dict__[nombre]) == tipo):
+    return True
   return False
