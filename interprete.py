@@ -943,6 +943,8 @@ if __name__ == '__main__':
   librerias = (f[:-3] for f in os.listdir (os.path.dirname (os.path.realpath (__file__)))
                if (f[:9] == 'libreria_' and f[-3:] == '.py'))
 
+  if type (args.bbdd) == list:
+    args.bbdd = args.bbdd[0]
   if not args.bbdd or not args.bbdd.strip():
     rutaFichero = None
     if QDialog:
