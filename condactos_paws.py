@@ -153,6 +153,14 @@ def c1_ABSENT (objno):
   aqui = (254, 253, banderas[38])  # Llevado, puesto y localidad actual, respec.
   return locs_objs[objno] not in aqui
 
+def c1_ADJECT1 (word):
+  """Satisfactorio si el adjetivo del primer nombre de la SL actual es igual a word"""
+  return banderas[35] == word
+
+def c1_ADJECT2 (word):
+  """Satisfactorio si el adjetivo del segundo nombre de la SL actual es igual a word"""
+  return banderas[45] == word
+
 def c1_ADVERB (word):
   """Satisfactorio si el adverbio de la SL actual es igual a word"""
   return banderas[36] == word
