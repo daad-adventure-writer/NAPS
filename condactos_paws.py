@@ -532,7 +532,6 @@ def a1_LISTAT (locno):
         gui.imprime_cadena (descripcion, tiempo = tiempoTimeout)
         if i == len (presentes) - 1:  # Último objeto presente
           gui.imprime_cadena (msgs_sys[48], tiempo = tiempoTimeout)  # '.'
-          gui.imprime_cadena ('\n', tiempo = tiempoTimeout)
         elif i == len (presentes) - 2:
           gui.imprime_cadena (msgs_sys[47], tiempo = tiempoTimeout)  # ' y '
         else:
