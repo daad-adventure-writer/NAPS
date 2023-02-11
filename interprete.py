@@ -484,6 +484,7 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
     rango_vocabulario = range (len (vocabulario))
     for f in range (len (ordenes)):
       frase = {'Verbo': None, 'Nombre1': None, 'Nombre2': None, 'Adjetivo1': None, 'Adjetivo2': None, 'Adverbio': None, 'Preposicion': None, 'Pronombre': None}
+      preposicionSinNombre = False  # Si se encuentra una preposición antes que ningún nombre
       for palabra in ordenes[f]:
         if palabra == 'Pronombre':
           frase['Pronombre'] = palabra
@@ -501,11 +502,16 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
               continue
             tipo = TIPOS_PAL[vocabulario[i][2]]
             if tipo in ('Verbo', 'Adverbio', 'Preposicion', 'Pronombre'):
+              if tipo == 'Preposicion' and not frase['Nombre1'] and not frase['Adjetivo1']:
+                preposicionSinNombre = True
               if not frase[tipo]:
                 frase[tipo] = codigo
             elif tipo in ('Nombre', 'Adjetivo'):
               if frase['Pronombre']:
                 if not frase['Nombre1'] and not frase['Adjetivo1']:  # Hubo Pronombre antes que Nombre o Adjetivo
+                  frase[tipo + '2'] = codigo
+              elif frase['Preposicion'] and not preposicionSinNombre:
+                if not frase[tipo + '2']:
                   frase[tipo + '2'] = codigo
               elif frase[tipo + '1']:
                 frase[tipo + '2'] = codigo
