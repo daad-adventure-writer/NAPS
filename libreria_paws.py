@@ -171,9 +171,9 @@ condactos = {
    62 : ('RAMSAVE', '',   True,  False),
    63 : ('RAMLOAD', 'f',  True,  False),
    64 : ('BELL',    '',   True,  False),   # O BEEP, según la plataforma que sea
-   65 : ('PAPER',   '',   True,  False),
-   66 : ('INK',     '',   True,  False),
-   67 : ('BORDER',  '',   True,  False),
+   65 : ('PAPER',   'u',  True,  False),
+   66 : ('INK',     'u',  True,  False),
+   67 : ('BORDER',  'u',  True,  False),
    68 : ('PREP',    'r',  False, False),
    69 : ('NOUN2',   'n',  False, False),
    70 : ('ADJECT2', 'j',  False, False),
@@ -184,7 +184,7 @@ condactos = {
    75 : ('PROCESS', 'p',  True,  False),
    76 : ('SAME',    'ff', False, False),
    77 : ('MES',     'm',  True,  False),
-   78 : ('CHARSET', '',   True,  False),
+   78 : ('CHARSET', 'u',  True,  False),
    79 : ('NOTEQ',   'fu', False, False),
    80 : ('NOTSAME', 'ff', False, False),
    81 : ('MODE',    'u',  True,  False),
@@ -539,6 +539,7 @@ def preparaPlataforma ():
     fin_cadena       = 31
     nueva_linea      = 7
     num_abreviaturas = 91
+    condactos[64]    = ('BEEP', 'uu', True, False)
     condactos[81]    = ('MODE', 'uu', True, False)
   elif plataforma in despl_ini_plat:
     despl_ini = despl_ini_plat[plataforma]
