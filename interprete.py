@@ -447,7 +447,7 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
       while not ordenObtenida:
         orden = gui.lee_cadena (peticion, orden, timeout, espaciar)
         # Activamos o desactivamos la depuración paso a paso
-        if timeout[0] != True and args.gui != 'telegram' and orden.strip().lower() == '*debug*':
+        if type (timeout[0]) == int and args.gui != 'telegram' and orden.strip().lower() == '*debug*':
           orden = ''
           traza = not traza
           gui.abre_ventana (traza, args.scale, args.bbdd)
@@ -461,7 +461,7 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
 
       # Si ha vencido el tiempo muerto, el mensaje de sistema 35 aparece, y se
       # vuelve a la búsqueda en la tabla de proceso 2
-      if timeout[0] == True:
+      if type (timeout[0]) != int:
         # TODO: comentado hasta que se pueda elegir modo de compatibilidad no estricto, porque no veo bien borrar la orden ya escrita
         # if compatibilidad and gui.centrar_graficos:  # En la Aventura Original, la orden se borra cuando hay timeout
         #   orden = ''
