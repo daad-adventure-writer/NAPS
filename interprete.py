@@ -436,7 +436,7 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
       # Aunque no lo vea en la Guía Técnica, se imprime el mensaje 33 justo antes de esperar la orden
       if len (msgs_sys) > 32:
         peticion += msgs_sys[33]
-      else:
+      elif args.gui != 'telegram':
         peticion += '>'  # Prompt de QUILL
       if traza:
         gui.imprime_banderas  (banderas)
@@ -447,7 +447,7 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
       while not ordenObtenida:
         orden = gui.lee_cadena (peticion, orden, timeout, espaciar)
         # Activamos o desactivamos la depuración paso a paso
-        if timeout[0] != True and orden.strip().lower() == '*debug*':
+        if timeout[0] != True and args.gui != 'telegram' and orden.strip().lower() == '*debug*':
           orden = ''
           traza = not traza
           gui.abre_ventana (traza, args.scale, args.bbdd)
@@ -937,7 +937,7 @@ if __name__ == '__main__':
   argsParser = argparse.ArgumentParser (sys.argv[0], description = 'Intérprete de Quill/PAWS/SWAN/DAAD en Python')
   argsParser.add_argument ('-c', '--columns', type = int, choices = range (32, 43), help = 'número de columnas a usar al imitar Spectrum')
   argsParser.add_argument ('-D', '--debug', action = 'store_true', help = 'ejecutar los condactos paso a paso')
-  argsParser.add_argument ('-g', '--gui', choices = ('pygame', 'stdio'), help = 'interfaz gráfica a utilizar')
+  argsParser.add_argument ('-g', '--gui', choices = ('pygame', 'stdio', 'telegram'), help = 'interfaz gráfica a utilizar')
   argsParser.add_argument ('--ide', action = 'store_true', help = argparse.SUPPRESS)
   argsParser.add_argument ('-s', '--scale', type = int, choices = range (1, 10), help = 'factor de escalado para la ventana')
   argsParser.add_argument ('bbdd', metavar = 'bd_cf_o_carpeta', nargs = '?' if QDialog else 1, help = 'base de datos, código fuente o carpeta de Quill/PAWS/SWAN/DAAD a ejecutar')
@@ -1032,6 +1032,10 @@ if __name__ == '__main__':
     # Solicitamos la importación
     try:
       correcto = modulo.__dict__[funcion] (bbdd, os.path.getsize (args.bbdd)) != False
+      if args.gui == 'telegram':
+        modulo.msgs_sys[16] = ''  # Mensaje de espera una tecla
+        if len (modulo.msgs_sys) > 32:
+          modulo.msgs_sys[33] = ''  # Prompt
     except:
       correcto = False
     if correcto:
@@ -1047,9 +1051,9 @@ if __name__ == '__main__':
     sys.exit()
 
   if extension == 'sna' or libreria.plataforma == 1:  # Plataforma ZX Spectrum
-    if args.columns or args.gui != 'stdio':
+    if args.columns or args.gui not in ('stdio', 'telegram'):
       gui.prepara_topes (args.columns if args.columns else 42, 24)
-  elif args.gui != 'stdio':
+  elif args.gui not in ('stdio', 'telegram'):
     gui.prepara_topes (53, 25)
 
   constantes = ('EXT_SAVEGAME', 'LONGITUD_PAL', 'NOMBRE_SISTEMA', 'NUM_BANDERAS', 'TIPOS_PAL')
@@ -1180,3 +1184,5 @@ if __name__ == '__main__':
     bucle_paws()
 
   gui.espera_tecla()
+  if args.gui == 'telegram':
+    gui.escribe_buffer()
