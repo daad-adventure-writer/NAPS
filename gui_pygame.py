@@ -462,8 +462,6 @@ El parámetro parcial indica si es posible dibujar parte de la imagen"""
 def elige_parte (partes, graficos):
   """Obtiene del jugador el modo gráfico a usar y a qué parte jugar, y devuelve el nombre de la base de datos elegida"""
   global fuente, tras_portada
-  if len (partes) == 1:
-    return partes.popitem()[1]
   portada = None
   for modoPortada, tinta in (('dat', 15), ('ega', 15), ('cga', 3)):
     if modoPortada in graficos and 0 in graficos[modoPortada]:
@@ -494,7 +492,7 @@ def elige_parte (partes, graficos):
   numerosPartes = tuple (partes.keys())
   numParteMenor = min (numerosPartes)
   numParteMayor = max (numerosPartes)
-  entrada = None
+  entrada = list (partes.keys())[0] if len (partes) == 1 else None
   while entrada not in numerosPartes:
     borra_todo()
     if portada:
