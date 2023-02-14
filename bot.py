@@ -80,7 +80,7 @@ class ManejoInterprete (QThread):
 
   def run (self):
     """Lee del proceso del intérprete"""
-    parrafo = b''
+    parrafo = ''
     while True:
       linea = self.procInterprete.stdout.readline()
       # prn (str (linea))
@@ -92,11 +92,11 @@ class ManejoInterprete (QThread):
         break  # Ocurre cuando el proceso ha terminado
       linea = linea.rstrip()
       if linea:  # Añadimos la línea al párrafo
-        parrafo += (b'\n' if parrafo else b'') + linea
+        parrafo += ('\n' if parrafo else '') + linea
       elif parrafo:
         if self.usuario:
-          bot.send_message (self.usuario, str (parrafo, encoding = cod_interprete))
-        parrafo = b''
+          bot.send_message (self.usuario, parrafo)
+        parrafo = ''
     # El proceso ha terminado
     imprimeLog ('Proceso terminado del jugador ' + str (self.usuario))
     limpiaRecursos (self.usuario)
@@ -160,7 +160,7 @@ def comandoJugar (message):
   imprimeLog ('El jugador ' + str (usuario) + ' intenta cargar ' + nombre_fich_bd)
   # devnull        = open (os.devnull, 'w')
   # procInterprete = subprocess.Popen (argumentos, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = devnull)
-  procInterprete = subprocess.Popen (argumentos, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+  procInterprete = subprocess.Popen (argumentos, encoding = cod_interprete, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
   interpretes[usuario]  = procInterprete
   ultima_orden[usuario] = int (time.time())
   for i in range (MAX_JUGADORES):
@@ -176,8 +176,8 @@ def ordenRecibida (message):
   if usuario not in interpretes:
     return  # Ese usuario no está jugando ahora mismo
   ultima_orden[usuario] = int (time.time())
-  enviar = bytes (message.text, cod_interprete)
-  interpretes[usuario].stdin.write (enviar + b'\n')
+  enviar = message.text
+  interpretes[usuario].stdin.write (enviar + '\n')
   interpretes[usuario].stdin.flush()
   if os.path.isfile ('recargar/juegos'):
     try:
