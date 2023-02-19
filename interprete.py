@@ -1070,7 +1070,8 @@ if __name__ == '__main__':
   for modulo in libreria.mods_condactos:
     modulo = __import__ (modulo)
     # Propagamos las constantes y estructuras básicas del intérprete y la librería entre los módulos de condactos
-    modulo.gui = gui
+    modulo.gui       = gui
+    modulo.ruta_bbdd = args.bbdd
     for lista in (constantes, funcsLib, variables):
       for variable in lista:
         if variable in globals():

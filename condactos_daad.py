@@ -141,9 +141,9 @@ def c0_LOAD ():
   """Carga el contenido de las banderas y de las localidades de los objetos desde un fichero"""
   nombreFich = (gui.lee_cadena (msgs_sys[60] + msgs_sys[33], '', [0]) + '.' + EXT_SAVEGAME).lower()
   # Buscamos el fichero con independencia de mayúsculas y minúsculas
-  for nombreFichero in os.listdir (os.curdir):
+  for nombreFichero in os.listdir (os.path.dirname (ruta_bbdd)):
     if nombreFichero.lower() == nombreFich:
-      nombreFich = nombreFichero
+      nombreFich = os.path.join (os.path.dirname (ruta_bbdd), nombreFichero)
       break
   bien = True
   try:
@@ -303,7 +303,7 @@ def a0_SAVE ():
     a0_ANYKEY()
   else:
     try:
-      fichero = open (nombreFich + '.' + EXT_SAVEGAME, 'wb')
+      fichero = open (os.path.join (os.path.dirname (ruta_bbdd), nombreFich + '.' + EXT_SAVEGAME), 'wb')
       for bandera in banderas:
         fichero.write (struct.pack ('B', bandera))
       for loc_obj in locs_objs:
