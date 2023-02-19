@@ -139,7 +139,7 @@ def c0_ISNDONE ():
 
 def c0_LOAD ():
   """Carga el contenido de las banderas y de las localidades de los objetos desde un fichero"""
-  nombreFich = gui.lee_cadena (msgs_sys[60] + msgs_sys[33], '', [0]) + '.' + EXT_SAVEGAME
+  nombreFich = (gui.lee_cadena (msgs_sys[60] + msgs_sys[33], '', [0]) + '.' + EXT_SAVEGAME).lower()
   # Buscamos el fichero con independencia de mayúsculas y minúsculas
   for nombreFichero in os.listdir (os.curdir):
     if nombreFichero.lower() == nombreFich:
