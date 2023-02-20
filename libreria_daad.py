@@ -316,18 +316,22 @@ def busca_partes (rutaCarpeta):
     modo      = None  # Modo gráfico
     if extension == 'ddb':
       partes[numParte] = rutaCarpeta + nombreFichero
-    elif extension in ('cgs', 'egs', 'scr'):  # Imágenes de portada
+    elif extension in ('cgs', 'egs', 'scr', 'vgs'):  # Imágenes de portada
       if numParte != 1:
         continue
+      modoPortada = None
       if extension == 'scr':
         if os.path.getsize (rutaCarpeta + nombreFichero) == 16384:
-          bd_gfx['cga'][0] = rutaCarpeta + nombreFichero
+          modoPortada = 'cga'
         else:
-          bd_gfx['dat'][0] = rutaCarpeta + nombreFichero
+          modoPortada = 'dat'
       elif extension == 'cgs':
-        bd_gfx['cga'][0] = rutaCarpeta + nombreFichero
-      else:  # extension == 'egs'
-        bd_gfx['ega'][0] = rutaCarpeta + nombreFichero
+        modoPortada = 'cga'
+      elif extension == 'egs':
+        modoPortada = 'ega'
+      else:  # extension == 'vgs'
+        modoPortada = 'dat'
+      bd_gfx[modoPortada][0] = rutaCarpeta + nombreFichero
     elif extension in ('cga', 'chr', 'dat', 'ega'):
       bd_gfx[extension][numParte] = rutaCarpeta + nombreFichero
   # Quitamos modos gráficos sin bases de datos gráficas para ellos

@@ -162,6 +162,8 @@ def carga_portada (fichero):
     return cargaPortadaCGA (fichero)
   if longFichero == 32001:
     return cargaPortadaEGA (fichero)
+  if longFichero == 32049:
+    return cargaPortadaVGA (fichero)
   if longFichero in (32034, 32127):
     return cargaPortadaAmiga (fichero)
   if longFichero == 32066:
@@ -398,6 +400,15 @@ def cargaPortadaEGA (fichero):
   alto  = 200
   return cargaImagenPlanar (ancho, alto, 4, 0, [], ancho * alto), paletaEGA
 
+def cargaPortadaVGA (fichero):
+  """Carga y devuelve una portada VGA junto con su paleta, como índices en la paleta de cada píxel"""
+  bajo_nivel_cambia_ent (fichero)
+  fichero.seek (1)  # El primer byte es otra cosa (¿tal vez el modo gráfico?)
+  paleta = cargaPaleta16_6bpc()
+  ancho  = 320
+  alto   = 200
+  return cargaImagenPlanar (ancho, alto, 4, 0, [], ancho * alto), paleta
+
 def cargaImagenDMG3DOS (le, numImagen, repetir, tamImg):
   """Carga una imagen en formato de DMG 3+ para DOS, que también se usa para imágenes de Amiga/Atari ST comprimidas, y la devuelve como lista de índices en la paleta. Devuelve un mensaje de error si falla"""
   cargar  = 1 if le else 4  # Cuántos bytes de valores cargar cada vez, tomando primero el último cargado
@@ -493,6 +504,18 @@ def cargaPaleta16 (bpc):
     veaz  = carga_int1()
     verde = ((veaz >> 4) & valorMax) * distancia
     azul  = (veaz & valorMax) * distancia
+    paleta.append ((int (round (rojo)), int (round (verde)), int (round (azul))))
+  return paleta
+
+def cargaPaleta16_6bpc ():
+  """Carga y devuelve una paleta de 16 colores, con 6 bits por componente de color, y cada componente en un byte aparte"""
+  valorMax  = (2 ** 6) - 1     # Valor máximo en componentes de color
+  distancia = 255. / valorMax  # Distancia para equiespaciar de 0 a 255
+  paleta = []
+  for color in range (16):
+    rojo  = carga_int1() * distancia
+    verde = carga_int1() * distancia
+    azul  = carga_int1() * distancia
     paleta.append ((int (round (rojo)), int (round (verde)), int (round (azul))))
   return paleta
 
