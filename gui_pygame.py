@@ -960,6 +960,13 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
   tope       = topes[elegida]
   if cadena == '\n':  # TODO: sacar a función nueva_linea
     lineas_mas[elegida] += 1
+    restante = tope[0] - cursor[0]  # Columnas restantes que quedan en la línea
+    if cursor[0] + restante == 53:
+      restante += 1  # Para que vacíe también los dos píxeles finales de la resolución con ancho 320
+    papel   = color_subv[elegida][1]  # Color de papel/fondo
+    tinta   = color_subv[elegida][0]  # Color de tinta
+    colores = {0: (paleta[brillo][tinta], paleta[brillo][papel])}
+    imprime_linea ([chr (16)] * restante, redibujar = redibujar, colores = colores)
     if cursor[1] >= tope[1] - 1:
       scrollLineas (1, subventana, tope)
     cursores[elegida] = [0, min (tope[1] - 1, cursor[1] + 1)]
