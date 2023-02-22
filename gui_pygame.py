@@ -1113,14 +1113,18 @@ Los caracteres de linea deben estar convertidos a posiciones en la tipografía"""
   # Coordenadas de destino
   destinoX = (subventanas[elegida][0] + cursores[elegida][0]) * 6
   destinoY = (subventanas[elegida][1] + cursores[elegida][1]) * 8
-  for i in range (len (linea)):
+  for i in range (len (linea)):  # Dibujamos cada caracter en la línea
+    destinoXchr = destinoX + (i * 6)         # Posición X donde toca dibujar el caracter
+    restantes   = ancho_juego - destinoXchr  # Píxeles restantes desde esta posición en la ventana de juego
+    if restantes < 1:
+      break  # No dibujar más allá del ancho de la ventana de juego
     c = ord (linea[i])
     if i + inicioLinea in colores:
       fuente.set_palette (colores[i + inicioLinea])
     # Curioso, aquí fuente tiene dos significados correctos :)
     # (SPOILER: Como sinónimo de origen y como sinónimo de tipografía)
-    ventana.blit (fuente, (destinoX + (i * 6), destinoY),
-                  ((c % 63) * 10, (c // 63) * 10, 6, 8))
+    ventana.blit (fuente, (destinoXchr, destinoY),
+                  ((c % 63) * 10, (c // 63) * 10, min (6, restantes), 8))
   if posInput != None:
     preparaCursor()
     ventana.blit (chr_cursor, (destinoX + (posInput * 6), destinoY), (0, 0, 6, 8))
