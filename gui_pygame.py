@@ -253,7 +253,6 @@ def borra_pantalla (desdeCursor = False, noRedibujar = False):
   if tras_portada or (frase_guardada and texto_nuevo):
     espera_tecla()  # Esperamos pulsación de tecla si se habían entrado varias frases y se había mostrado texto nuevo
     tras_portada = False
-    del texto_nuevo[:]
   if not desdeCursor:
     cursores[elegida]   = [0, 0]
     lineas_mas[elegida] = 0
@@ -546,6 +545,7 @@ def espera_tecla (tiempo = 0, numPasos = False):
 
   numPasos indica si se espera tecla para el número de pasos a ejecutar, al depurar"""
   global lineas_mas, tras_portada
+  del texto_nuevo[:]
   if not numPasos:  # Si no es para el número de pasos a ejecutar cuando se depura
     lineas_mas   = [0] * 8
     tras_portada = False

@@ -54,7 +54,7 @@ traza   = False  # Si queremos una traza de la ejecución
 
 frase_guardada = []     # Tendrá valor verdadero cuando se está ejecutando la segunda frase introducida o posterior
 hay_asterisco  = False  # Si está la palabra '*', 1, 255 en el vocabulario, en sistema PAWS no compilado (con editor)
-texto_nuevo    = []     # Tendrá valor verdadero cuando se haya escrito texto nuevo tras el último borrado de pantalla
+texto_nuevo    = []     # Tendrá valor verdadero cuando se haya escrito texto nuevo tras el último borrado de pantalla o espera de tecla
 
 
 # Funciones auxiliares para los módulos de condactos
