@@ -360,10 +360,11 @@ def carga_bd_pics (rutaBDGfx):
     tinta = 3
   else:
     tinta = 15
-    if graficos_daad.modo_gfx in graficos_daad.colores_por_defecto:
-      cambiaPaleta (graficos_daad.colores_por_defecto[graficos_daad.modo_gfx], False)
-    else:
-      cambiaPaleta (graficos_daad.paletaEGA, False)  # Dejamos cargada la paleta EGA
+    if len (paleta[0]) == 8:  # Dejamos paleta de la portada si la había
+      if graficos_daad.modo_gfx in graficos_daad.colores_por_defecto:
+        cambiaPaleta (graficos_daad.colores_por_defecto[graficos_daad.modo_gfx], False)
+      else:
+        cambiaPaleta (graficos_daad.paletaEGA, False)  # Dejamos cargada la paleta EGA
   for subventana in range (num_subvens):
     color_subv[subventana][0] = tinta  # Color de tinta
   if graficos_daad.recursos:
