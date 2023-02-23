@@ -542,11 +542,13 @@ def elige_subventana (numero):
   return anterior
 
 def espera_tecla (tiempo = 0, numPasos = False):
-  """Espera hasta que se pulse una tecla (modificadores no), o hasta que pase tiempo segundos, si tiempo > 0"""
+  """Espera hasta que se pulse una tecla (modificadores no), o hasta que pase tiempo segundos, si tiempo > 0
+
+  numPasos indica si se espera tecla para el número de pasos a ejecutar, al depurar"""
   global lineas_mas, tras_portada
-  tras_portada = False
-  if not numPasos:
-    lineas_mas = [0] * 8
+  if not numPasos:  # Si no es para el número de pasos a ejecutar cuando se depura
+    lineas_mas   = [0] * 8
+    tras_portada = False
   if ide:
     # TODO: tiempo muerto, teclas pulsadas, revisar teclas de edición, y que ninguna tecla indebida resulte en un Enter pulsado
     actualizaVentana()
