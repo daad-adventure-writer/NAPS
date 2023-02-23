@@ -407,8 +407,7 @@ El parámetro parcial indica si es posible dibujar parte de la imagen"""
     return  # No dibujamos nada
   global tras_portada
   if tras_portada:
-    espera_tecla()
-    tras_portada = False
+    borra_pantalla()
   tope = topes[elegida]
   if descripcion:
     if traza:
