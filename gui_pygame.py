@@ -292,19 +292,19 @@ def borra_todo ():
 def cambia_color_borde (color):
   """Cambia el color de fondo al borrar de la subventana actual por el de código dado"""
   if traza:
-    prn ('Color de borde cambiado a', color)
+    prn ('Color de borde cambiado a', color, 'en subventana', elegida)
   color_subv[elegida][2] = color % len (paleta[0])
 
 def cambia_color_papel (color):
   """Cambia el color de papel/fondo al escribir la subventana actual por el dado"""
   if traza:
-    prn ('Color de papel cambiado a', color)
+    prn ('Color de papel cambiado a', color, 'en subventana', elegida)
   color_subv[elegida][1] = color % len (paleta[0])
 
 def cambia_color_tinta (color):
   """Cambia el color de tinta al escribir la subventana actual por el dado"""
   if traza:
-    prn ('Color de tinta cambiado a', color)
+    prn ('Color de tinta cambiado a', color, 'en subventana', elegida)
   color_subv[elegida][0] = color % len (paleta[0])
 
 def cambia_cursor (cadenaCursor):
