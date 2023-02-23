@@ -1184,6 +1184,7 @@ if __name__ == '__main__':
   else:
     bucle_paws()
 
-  gui.espera_tecla()
+  if texto_nuevo:
+    gui.espera_tecla()
   if args.gui == 'telegram':
     gui.escribe_buffer()
