@@ -956,6 +956,8 @@ Si abajo es True, imprimirá abajo del todo de la subventana sin hacer scroll mie
 Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla al paginar"""
   if not cadena:
     return
+  if tras_portada:
+    borra_pantalla()
   if not texto_nuevo:
     texto_nuevo.append (True)
   cursor     = cursores[elegida]
