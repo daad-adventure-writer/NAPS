@@ -88,7 +88,8 @@ cambia_tinta     = None      # Carácter que si se encuentra en una cadena, cambi
 centrar_graficos = []        # Si se deben centrar los gráficos al dibujarlos
 juego_alto       = None      # Carácter que si se encuentra en una cadena, pasará al juego de caracteres alto
 juego_bajo       = None      # Carácter que si se encuentra en una cadena, pasará al juego de caracteres bajo
-paleta           = ([], [])  # Paleta de colores sin y con brillo, para los cambios con cambia_*
+paleta           = ([], [])  # Paleta de colores sin y con brillo para los textos, que cambia con cambia_*
+paleta_gfx       = []        # Paleta de colores para los gráficos
 partir_espacio   = True      # Si se deben partir las líneas en el último espacio
 ruta_graficos    = ''        # Carpeta de donde cargar los gráficos a dibujar
 tabulador        = None      # Carácter que si se encuentra en una cadena, pondrá espacios hasta mitad o final de línea
@@ -121,6 +122,7 @@ topes       = [[53, 25]] * 8   # Topes relativos de cada subventana de impresión
 topes_gfx   = [53, 25]         # Ancho y alto del último gráfico dibujado en la subventana 0
 ancho_juego = 320              # Ancho de la ventana de juego
 resolucion  = (320, 200)       # Resolución gráfica de salida, sin escalar
+color_tinta = None             # Color de tinta por defecto
 
 
 def abre_ventana (traza, escalar, bbdd):
@@ -350,22 +352,22 @@ def da_tecla_pulsada ():
 
 def carga_bd_pics (rutaBDGfx):
   """Carga la base de datos gráfica de ruta dada, y prepara la paleta y lo relacionado con ella. Devuelve un mensaje de error si falla"""
+  global color_tinta
   extension = rutaBDGfx[rutaBDGfx.rfind ('.') + 1:]
   error     = graficos_daad.carga_bd_pics (rutaBDGfx)
   if error:
     return error
   if graficos_daad.modo_gfx == 'CGA':
     cambiaPaleta (graficos_daad.paleta1b)  # Dejamos cargada la paleta CGA 1 con brillo
-    tinta = 3
+  elif graficos_daad.modo_gfx == 'EGA':
+    cambiaPaleta (graficos_daad.paletaEGA, False)  # Dejamos cargada la paleta EGA
   else:
-    tinta = 15
-    if len (paleta[0]) == 8:  # Dejamos paleta de la portada si la había
+    if len (paleta[0]) in (0, 8):  # Dejamos paleta de la portada si la había
       if graficos_daad.modo_gfx in graficos_daad.colores_por_defecto:
         cambiaPaleta (graficos_daad.colores_por_defecto[graficos_daad.modo_gfx], False)
       else:
         cambiaPaleta (graficos_daad.paletaEGA, False)  # Dejamos cargada la paleta EGA
-  for subventana in range (num_subvens):
-    color_subv[subventana][0] = tinta  # Color de tinta
+    color_tinta = 1  # Ponemos este color de tinta por defecto
   if graficos_daad.recursos:
     precargaGraficos()
 
@@ -402,7 +404,7 @@ El parámetro parcial indica si es posible dibujar parte de la imagen"""
     grafico = recurso['grafico']
     if 'flotante' not in recurso['banderas']:
       cambiaPaleta (recurso['paleta'])
-    grafico.set_palette (paleta[0])
+    grafico.set_palette (paleta_gfx)
   else:
     return  # No dibujamos nada
   global tras_portada
@@ -479,18 +481,22 @@ def elige_parte (partes, graficos):
             for pixel in fila:
               strImg += chr (pixel)
         portada = pygame.image.frombuffer (strImg, (320, 200), 'P')
-        portada.set_palette (palImg)
-        paleta[0].extend (palImg)
+        cambiaPaleta (palImg, False, True)
+        portada.set_palette (paleta_gfx)
         break
       except Exception:
         portada = None  # No dibujaremos nada
       if 'fichero' in locals():
         fichero.close()
-  if not paleta[0]:
-    paleta[0].extend (graficos_daad.paletaEGA)
-    tinta = 15
-  for subventana in range (num_subvens):
-    color_subv[subventana][0] = tinta  # Color de tinta
+  if paleta[0]:
+    if len (paleta[0]) == 8:
+      tinta = 7
+    else:
+      tinta = 1  # Paleta cargada desde portada
+  else:  # Cargamos una paleta mínima para poder pedir qué parte cargar
+    cambiaPaleta (graficos_daad.paleta1b, False)
+    tinta = 3
+  color_subv[elegida][0] = tinta  # Color de tinta
   numerosPartes = tuple (partes.keys())
   numParteMenor = min (numerosPartes)
   numParteMayor = max (numerosPartes)
@@ -515,6 +521,8 @@ def elige_parte (partes, graficos):
     elif 'dat' in graficos and entrada in graficos['dat']:
       carga_bd_pics (graficos['dat'][entrada])
   else:
+    if tuple (paleta[0]) == graficos_daad.paleta1b:  # Es la paleta mínima cargada para poder pedir qué parte cargar
+      del paleta[0][:]  # La quitamos para que se cargue la paleta correspondiente a los gráficos
     for modo in ('dat', 'ega', 'cga'):
       if modo in graficos and entrada in graficos[modo]:
         carga_bd_pics (graficos[modo][entrada])
@@ -1210,8 +1218,9 @@ def pos_subventana (columna, fila):
 
 def reinicia_subventanas ():
   """Ajusta todas las subventanas de impresión a sus valores por defecto"""
+  colorTinta = len (paleta[0]) - 1 if color_tinta == None else color_tinta
   for i in range (num_subvens):
-    color_subv[i]  = [len (paleta[0]) - 1, 0, 0]
+    color_subv[i]  = [colorTinta, 0, 0]
     cursores[i]    = [0, 0]
     subventanas[i] = [0, 0]
     topes[i]       = list (limite)
@@ -1223,19 +1232,48 @@ def reinicia_subventanas ():
 
 # Funciones auxiliares que sólo se usan en este módulo
 
-def cambiaPaleta (nuevaPaleta, convertir = True):
-  """Cambia la paleta de la ventana de juego por la dada, opcionalmente convirtiendo los colores dibujados por los nuevos"""
+def cambiaPaleta (nuevaPaleta, convertir = True, paraPortada = False):
+  """Cambia la paleta de la ventana de juego por la dada, la reordena para textos, y opcionalmente convierte los colores dibujados por los nuevos"""
   if paleta[0]:
-    if convertir and nuevaPaleta != paleta[0]:
+    if convertir and nuevaPaleta != paleta_gfx:
       for x in range (320):
         for y in range (200):
           try:
-            indicePaleta = paleta[0].index (ventana.get_at ((x, y))[:3])
+            indicePaleta = paleta_gfx.index (ventana.get_at ((x, y))[:3])
           except:
             continue
           ventana.set_at ((x, y), nuevaPaleta[indicePaleta])
+    del paleta_gfx[:]
     del paleta[0][:]
-  paleta[0].extend (nuevaPaleta)
+  paleta_gfx.extend (nuevaPaleta)
+  # Dejamos la paleta tal cual en modos gráficos que no soportan cambio de paleta
+  if not paraPortada and graficos_daad.modo_gfx not in ('ST', 'VGA'):
+    paleta[0].extend (nuevaPaleta)
+    return
+  # Asignamos la paleta en el orden para textos
+  copiaPaleta = list (nuevaPaleta)
+  if paraPortada:
+    # Buscamos los colores más cercanos al negro y al blanco
+    masCercanos = [[None, 999999], [None, 999999]]  # Índice en paleta de colores más cercanos al negro y al blanco, y su cercanía a éstos
+    for cp in range (len (nuevaPaleta)):
+      rojoPaleta, verdePaleta, azulPaleta = nuevaPaleta[cp]
+      # Cercanía al color negro
+      cercania = rojoPaleta + verdePaleta + azulPaleta
+      if cercania < masCercanos[0][1]:
+        masCercanos[0] = [cp, cercania]
+      # Cercanía al color blanco
+      cercania = (255 - rojoPaleta) + (255 - verdePaleta) + (255 - azulPaleta)
+      if cercania < masCercanos[1][1]:
+        masCercanos[1] = [cp, cercania]
+    # Ponemos el negro primero y el blanco después
+    paleta[0].append (copiaPaleta.pop (masCercanos[0][0]))
+    paleta[0].append (copiaPaleta.pop (masCercanos[1][0] - 1))
+  else:  # No es para la portada
+    for i in (0, 15, 4, 2, 1, 3):  # Orden que aplican los intérpretes originales sobre las primeras posiciones
+      paleta[0].append (copiaPaleta[i])
+    copiaPaleta = copiaPaleta[5:15]
+  # Añadimos los colores restantes en el mismo orden
+  paleta[0].extend (copiaPaleta)
 
 def cargaGrafico (numero):
   """Carga un gráfico del recurso de base de datos gráfica de número dado, dejando su información y la imagen PyGame preparada en graficos"""
