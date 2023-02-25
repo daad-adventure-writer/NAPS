@@ -503,23 +503,28 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
                 preposicionSinNombre = True
               if not frase[tipo]:
                 frase[tipo] = codigo
+                break  # Palabra ya procesada
             elif tipo in ('Nombre', 'Adjetivo'):
               if frase['Pronombre']:
                 if not frase['Nombre1'] and not frase['Adjetivo1']:  # Hubo Pronombre antes que Nombre o Adjetivo
                   frase[tipo + '2'] = codigo
+                  break  # Palabra ya procesada
               elif frase['Preposicion'] and not preposicionSinNombre:
                 if not frase[tipo + '2']:
                   frase[tipo + '2'] = codigo
+                  break  # Palabra ya procesada
               elif frase[tipo + '1']:
                 frase[tipo + '2'] = codigo
+                break  # Palabra ya procesada
               else:
                 frase[tipo + '1'] = codigo
+                break  # Palabra ya procesada
             else:
               import pdb
               pdb.set_trace()
               pass  # Tipo de palabra inesperado
-            # TODO: permitir palabras iguales de más de un tipo, para modo sin compatibilidad
-            break  # No hay palabras iguales de más de un tipo, pasamos a la siguiente palabra
+            if compatibilidad:
+              break  # No hay palabras iguales de más de un tipo, pasamos a la siguiente palabra
       if not frase['Verbo']:
         if frase['Nombre1']:
           if frase['Nombre1'] < 20 and not frase['Preposicion']:  # Sin verbo, pero con nombre que actúa como verbo
