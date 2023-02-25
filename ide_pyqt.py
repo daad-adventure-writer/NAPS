@@ -182,6 +182,18 @@ class CampoTexto (QTextEdit):
     numEntrada = cabecera.userState()
     return numEntrada, posicion
 
+  def centraLineaCursor (self):
+    """Centra verticalmente la línea del cursor actual"""
+    lineasVisibles = self.size().height() / float (self.cursorRect().height())
+    cursor   = self.textCursor()
+    posicion = cursor.position()
+    self.moveCursor (QTextCursor.End)  # Vamos al final, para que al ir a la línea que toca, esa quede arriba
+    cursor.movePosition (QTextCursor.Up, n = int (lineasVisibles // 2) - 1)
+    self.setTextCursor  (cursor)
+    cursor.setPosition  (posicion)
+    cursor.movePosition (QTextCursor.Right, n = 2)
+    self.setTextCursor  (cursor)
+
   def contextMenuEvent (self, evento):
     linea      = self.cursorForPosition (evento.pos()).block()
     numEntrada = self._daNumEntradaYLinea (linea)[0]
@@ -944,16 +956,11 @@ def cambiaProceso (numero, numEntrada = None):
     campo_txt.insertPlainText ('\n     ')
     if i < (len (cabeceras) - 1):
       campo_txt.insertPlainText ('\n\n')
-  if posicion != None:
-    lineasVisibles = campo_txt.size().height() / float (campo_txt.cursorRect().height())
-    campo_txt.moveCursor (QTextCursor.End)  # Vamos al final, para que al ir a la línea que toca, esa quede arriba
+  if posicion:
     cursor = campo_txt.textCursor()
-    cursor.setPosition  (posicion)
-    cursor.movePosition (QTextCursor.Up, n = int (lineasVisibles // 2) - 1)
+    cursor.setPosition (posicion)
     campo_txt.setTextCursor (cursor)
-    cursor.setPosition  (posicion)
-    cursor.movePosition (QTextCursor.Right, n = 2)
-    campo_txt.setTextCursor (cursor)
+    campo_txt.centraLineaCursor()
   else:
     campo_txt.moveCursor (QTextCursor.Start)  # Movemos el cursor al principio
   selector.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
@@ -1563,7 +1570,7 @@ def muestraAcercaDe ():
     dlg_acerca_de.setIconPixmap (icono_ide.pixmap (96))
     dlg_acerca_de.setText ('NAPS: The New Age PAW-like System\n' +
         'Entorno de desarrollo integrado (IDE)\n' +
-        'Copyright © 2010, 2018-2022 José Manuel Ferrer Ortiz')
+        'Copyright © 2010, 2018-2023 José Manuel Ferrer Ortiz')
     dlg_acerca_de.setInformativeText ('Versión de PyQt: ' +
         PYQT_VERSION_STR + '\nVersión de Qt: ' + QT_VERSION_STR +
         '\nVersión de Python: ' + sys.version[:fin])
