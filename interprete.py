@@ -37,6 +37,7 @@ import types     # Para poder comprobar si algo es una función
 
 banderas     = []     # Banderas del sistema
 conjunciones = []     # Palabras que son conjunciones
+dicc_vocab   = {}     # Vocabulario como diccionario, con el texto de las palabras como claves
 doall_activo = []     # Si hay bucle DOALL activo, guarda puntero al condacto DOALL activo
 frases       = []     # Buffer de órdenes parseadas por ejecutar, cuando el jugador tecleó más de una
 locs_objs    = []     # Localidades de los objetos
@@ -481,7 +482,6 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
       ordenes = separa_orden (orden)
     if traza:
       prn ('Orden' + (' de PSI ' if psi else ' ') + 'partida en estas frases:', ordenes)
-    rango_vocabulario = range (len (vocabulario))
     for f in range (len (ordenes)):
       frase = {'Verbo': None, 'Nombre1': None, 'Nombre2': None, 'Adjetivo1': None, 'Adjetivo2': None, 'Adverbio': None, 'Preposicion': None, 'Pronombre': None}
       preposicionSinNombre = False  # Si se encuentra una preposición antes que ningún nombre
@@ -489,39 +489,37 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
         if palabra == pronombre:
           frase['Pronombre'] = palabra
           continue
-        for i in rango_vocabulario:
-          if vocabulario[i][0] == palabra:  # Hay encaje con esta palabra
-            codigo = vocabulario[i][1]
-            if len (TIPOS_PAL) == 1:  # Como en Quill
-              if not frase['Verbo']:
-                frase['Verbo'] = codigo
-              elif not frase['Nombre1']:
-                frase['Nombre1'] = codigo
-              continue
-            if vocabulario[i][2] > len (TIPOS_PAL):
-              continue
-            tipo = TIPOS_PAL[vocabulario[i][2]]
-            if tipo in ('Verbo', 'Adverbio', 'Preposicion', 'Pronombre'):
-              if tipo == 'Preposicion' and not frase['Nombre1'] and not frase['Adjetivo1']:
-                preposicionSinNombre = True
-              if not frase[tipo]:
-                frase[tipo] = codigo
-            elif tipo in ('Nombre', 'Adjetivo'):
-              if frase['Pronombre']:
-                if not frase['Nombre1'] and not frase['Adjetivo1']:  # Hubo Pronombre antes que Nombre o Adjetivo
-                  frase[tipo + '2'] = codigo
-              elif frase['Preposicion'] and not preposicionSinNombre:
-                if not frase[tipo + '2']:
-                  frase[tipo + '2'] = codigo
-              elif frase[tipo + '1']:
+        for codigo, tipo in dicc_vocab.get (palabra, ()):
+          # TODO: optimizar sacando fuera el caso de Quill
+          if len (TIPOS_PAL) == 1:  # Como en Quill
+            if not frase['Verbo']:
+              frase['Verbo'] = codigo
+            elif not frase['Nombre1']:
+              frase['Nombre1'] = codigo
+            continue
+          tipo = TIPOS_PAL[tipo]
+          if tipo in ('Verbo', 'Adverbio', 'Preposicion', 'Pronombre'):
+            if tipo == 'Preposicion' and not frase['Nombre1'] and not frase['Adjetivo1']:
+              preposicionSinNombre = True
+            if not frase[tipo]:
+              frase[tipo] = codigo
+          elif tipo in ('Nombre', 'Adjetivo'):
+            if frase['Pronombre']:
+              if not frase['Nombre1'] and not frase['Adjetivo1']:  # Hubo Pronombre antes que Nombre o Adjetivo
                 frase[tipo + '2'] = codigo
-              else:
-                frase[tipo + '1'] = codigo
+            elif frase['Preposicion'] and not preposicionSinNombre:
+              if not frase[tipo + '2']:
+                frase[tipo + '2'] = codigo
+            elif frase[tipo + '1']:
+              frase[tipo + '2'] = codigo
             else:
-              import pdb
-              pdb.set_trace()
-              pass  # Tipo de palabra inesperado
-            break  # No hay palabras de más de un tipo, pasamos a la siguiente palabra
+              frase[tipo + '1'] = codigo
+          else:
+            import pdb
+            pdb.set_trace()
+            pass  # Tipo de palabra inesperado
+          # TODO: permitir palabras iguales de más de un tipo, para modo sin compatibilidad
+          break  # No hay palabras iguales de más de un tipo, pasamos a la siguiente palabra
       if not frase['Verbo']:
         if frase['Nombre1']:
           if frase['Nombre1'] < 20 and not frase['Preposicion']:  # Sin verbo, pero con nombre que actúa como verbo
@@ -1170,20 +1168,24 @@ if __name__ == '__main__':
 
   gui.abre_ventana (traza, args.scale, args.bbdd)
 
-  # Preparamos las listas banderas, locs_objs y conjunciones
+  # Preparamos las listas banderas y locs_objs
   banderas.extend  ([0,] * NUM_BANDERAS)    # Banderas del sistema
   locs_objs.extend ([0,] * num_objetos[0])  # Localidades de los objetos
+
+  # Preparamos el diccionario con el vocabulario, y la lista conjunciones
   pronombre = 'Pronombre'
-  if len (TIPOS_PAL) > 1:
-    for palabraVoc in vocabulario:
-      if palabraVoc[2] < len (TIPOS_PAL):
-        tipo = TIPOS_PAL[palabraVoc[2]]
-        if tipo == 'Conjuncion':
-          conjunciones.append (palabraVoc[0])
-        elif tipo == 'Pronombre':
-          pronombre = palabraVoc[0]
-      elif NOMBRE_SISTEMA == 'PAWS' and palabraVoc[0] == '*' and palabraVoc[1] == 1 and palabraVoc[2] == 255:
-        hay_asterisco = True
+  for palabraVoc in vocabulario:
+    if palabraVoc[2] < len (TIPOS_PAL):
+      if palabraVoc[0] not in dicc_vocab:
+        dicc_vocab[palabraVoc[0]] = []
+      dicc_vocab[palabraVoc[0]].append (tuple (palabraVoc[1:]))
+      tipo = TIPOS_PAL[palabraVoc[2]]
+      if tipo == 'Conjuncion':
+        conjunciones.append (palabraVoc[0])
+      elif tipo == 'Pronombre':
+        pronombre = palabraVoc[0]
+    elif NOMBRE_SISTEMA == 'PAWS' and palabraVoc[0] == '*' and palabraVoc[1] == 1 and palabraVoc[2] == 255:
+      hay_asterisco = True
 
   if NOMBRE_SISTEMA == 'DAAD' and nueva_version:
     bucle_daad_nuevo()
