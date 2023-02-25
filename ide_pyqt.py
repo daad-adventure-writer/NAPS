@@ -922,41 +922,7 @@ def cambiaProceso (numero, numEntrada = None):
       campo_txt.setTextBackgroundColor (color_tope_pila if pila_procs[-1] == [numero, i, -1] else color_pila)
     else:
       campo_txt.setTextBackgroundColor (color_base)
-    campo_txt.setTextColor (QColor (200, 200, 200))  # Color gris claro
-    campo_txt.setFontItalic (True)  # Cursiva activada
-    verbo = cabeceras[i][0]  # Código del verbo (de esta cabecera)
-    if verbo == 255:
-      campo_txt.insertPlainText ('  _  ')
-    elif verbo == 1 and (1, 255) in pal_sinonimo:
-      campo_txt.insertPlainText ('  *  ')
-    elif (verbo, tipo_verbo) in pal_sinonimo:  # Hay un verbo con ese código
-      campo_txt.insertPlainText (pal_sinonimo[(verbo, tipo_verbo)].center (5))
-    elif verbo < 20 and (verbo, tipo_nombre) in pal_sinonimo:  # Es nombre convertible en verbo
-      campo_txt.insertPlainText (pal_sinonimo[(verbo, tipo_nombre)].center (5))
-    else:
-      campo_txt.setTextColor (QColor (255, 0, 0))  # Color rojo
-      if (numero, verbo, tipo_verbo) not in pals_no_existen:
-        muestraFallo ('Verbo no existente', 'Verbo de código ' + str (verbo) + ' no encontrado en el vocabulario')
-        pals_no_existen.append ((numero, verbo, tipo_verbo))
-      campo_txt.insertPlainText (str (verbo).center (5))
-      campo_txt.setTextColor (QColor (200, 200, 200))  # Color gris claro
-    campo_txt.insertPlainText ('  ')
-    nombre = cabeceras[i][1]  # Código del nombre (de esta cabecera)
-    if nombre == 255:
-      campo_txt.insertPlainText ('  _')
-    elif nombre == 1 and (1, 255) in pal_sinonimo:
-      campo_txt.insertPlainText ('  *')
-    elif (nombre, tipo_nombre) in pal_sinonimo:
-      campo_txt.insertPlainText (pal_sinonimo[(nombre, tipo_nombre)].center (5).rstrip())
-    else:
-      campo_txt.setTextColor (QColor (255, 0, 0))  # Color rojo
-      if (numero, nombre, tipo_nombre) not in pals_no_existen:
-        muestraFallo ('Nombre no existente', 'Nombre de código ' + str (nombre) + ' no encontrado en el vocabulario')
-        pals_no_existen.append ((numero, nombre, tipo_nombre))
-      campo_txt.insertPlainText (str (nombre).center (5).rstrip())
-    campo_txt.setFontItalic (False)  # Cursiva desactivada
-    campo_txt.setTextBackgroundColor (color_base)
-    campo_txt.textCursor().block().setUserState (i)  # Guardamos el número de la entrada
+    imprimeCabecera (cabeceras[i][0], cabeceras[i][1], i)
     campo_txt.insertPlainText ('\n     ')
     inalcanzable = False  # Marca de código inalcanzable
     for c in range (len (entradas[i])):
@@ -1458,6 +1424,42 @@ def importaBD (nombreFicheroBD, indiceFuncion = None, nombreFicheroGfx = None):
   nombre_fich_gfx = nombreFicheroGfx
   postCarga (os.path.basename (nombreFicheroBD))
   return True
+
+def imprimeCabecera (verbo, nombre, numEntrada):
+  """Imprime la cabecera de la entrada numEntrada del proceso, con el verbo y nombre de códigos dados, en campo_txt en la posición del cursor actual"""
+  campo_txt.setTextColor (QColor (200, 200, 200))  # Color gris claro
+  campo_txt.setFontItalic (True)  # Cursiva activada
+  if verbo == 255:
+    campo_txt.insertPlainText ('  _  ')
+  elif verbo == 1 and (1, 255) in pal_sinonimo:
+    campo_txt.insertPlainText ('  *  ')
+  elif (verbo, tipo_verbo) in pal_sinonimo:  # Hay un verbo con ese código
+    campo_txt.insertPlainText (pal_sinonimo[(verbo, tipo_verbo)].center (5))
+  elif verbo < 20 and (verbo, tipo_nombre) in pal_sinonimo:  # Es nombre convertible en verbo
+    campo_txt.insertPlainText (pal_sinonimo[(verbo, tipo_nombre)].center (5))
+  else:
+    campo_txt.setTextColor (QColor (255, 0, 0))  # Color rojo
+    if (numero, verbo, tipo_verbo) not in pals_no_existen:
+      muestraFallo ('Verbo no existente', 'Verbo de código ' + str (verbo) + ' no encontrado en el vocabulario')
+      pals_no_existen.append ((numero, verbo, tipo_verbo))
+    campo_txt.insertPlainText (str (verbo).center (5))
+    campo_txt.setTextColor (QColor (200, 200, 200))  # Color gris claro
+  campo_txt.insertPlainText ('  ')
+  if nombre == 255:
+    campo_txt.insertPlainText ('  _')
+  elif nombre == 1 and (1, 255) in pal_sinonimo:
+    campo_txt.insertPlainText ('  *')
+  elif (nombre, tipo_nombre) in pal_sinonimo:
+    campo_txt.insertPlainText (pal_sinonimo[(nombre, tipo_nombre)].center (5).rstrip())
+  else:
+    campo_txt.setTextColor (QColor (255, 0, 0))  # Color rojo
+    if (numero, nombre, tipo_nombre) not in pals_no_existen:
+      muestraFallo ('Nombre no existente', 'Nombre de código ' + str (nombre) + ' no encontrado en el vocabulario')
+      pals_no_existen.append ((numero, nombre, tipo_nombre))
+    campo_txt.insertPlainText (str (nombre).center (5).rstrip())
+  campo_txt.setFontItalic (False)  # Cursiva desactivada
+  campo_txt.setTextBackgroundColor (color_base)
+  campo_txt.textCursor().block().setUserState (numEntrada)  # Guardamos el número de la entrada
 
 def imprimeCondacto (condacto, parametros, inalcanzable = False):
   """Imprime el condacto de código y parámetros dados en campo_txt en la posición del cursor actual, opcionalmente indicando si era código inalcanzable. Devuelve True si el parámetro inalcanzable era True o el condacto cambia el flujo incondicionalmente"""
