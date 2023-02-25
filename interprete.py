@@ -485,41 +485,41 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
     for f in range (len (ordenes)):
       frase = {'Verbo': None, 'Nombre1': None, 'Nombre2': None, 'Adjetivo1': None, 'Adjetivo2': None, 'Adverbio': None, 'Preposicion': None, 'Pronombre': None}
       preposicionSinNombre = False  # Si se encuentra una preposición antes que ningún nombre
-      for palabra in ordenes[f]:
-        if palabra == pronombre:
-          frase['Pronombre'] = palabra
-          continue
-        for codigo, tipo in dicc_vocab.get (palabra, ()):
-          # TODO: optimizar sacando fuera el caso de Quill
-          if len (TIPOS_PAL) == 1:  # Como en Quill
-            if not frase['Verbo']:
-              frase['Verbo'] = codigo
-            elif not frase['Nombre1']:
-              frase['Nombre1'] = codigo
+      if len (TIPOS_PAL) == 1:  # Como en Quill
+        for palabra in ordenes[f]:
+          if not frase['Verbo']:
+            frase['Verbo'] = codigo
+          elif not frase['Nombre1']:
+            frase['Nombre1'] = codigo
+      else:  # Hay más de un tipo de palabra
+        for palabra in ordenes[f]:
+          if palabra == pronombre:
+            frase['Pronombre'] = palabra
             continue
-          tipo = TIPOS_PAL[tipo]
-          if tipo in ('Verbo', 'Adverbio', 'Preposicion', 'Pronombre'):
-            if tipo == 'Preposicion' and not frase['Nombre1'] and not frase['Adjetivo1']:
-              preposicionSinNombre = True
-            if not frase[tipo]:
-              frase[tipo] = codigo
-          elif tipo in ('Nombre', 'Adjetivo'):
-            if frase['Pronombre']:
-              if not frase['Nombre1'] and not frase['Adjetivo1']:  # Hubo Pronombre antes que Nombre o Adjetivo
+          for codigo, tipo in dicc_vocab.get (palabra, ()):
+            tipo = TIPOS_PAL[tipo]
+            if tipo in ('Verbo', 'Adverbio', 'Preposicion', 'Pronombre'):
+              if tipo == 'Preposicion' and not frase['Nombre1'] and not frase['Adjetivo1']:
+                preposicionSinNombre = True
+              if not frase[tipo]:
+                frase[tipo] = codigo
+            elif tipo in ('Nombre', 'Adjetivo'):
+              if frase['Pronombre']:
+                if not frase['Nombre1'] and not frase['Adjetivo1']:  # Hubo Pronombre antes que Nombre o Adjetivo
+                  frase[tipo + '2'] = codigo
+              elif frase['Preposicion'] and not preposicionSinNombre:
+                if not frase[tipo + '2']:
+                  frase[tipo + '2'] = codigo
+              elif frase[tipo + '1']:
                 frase[tipo + '2'] = codigo
-            elif frase['Preposicion'] and not preposicionSinNombre:
-              if not frase[tipo + '2']:
-                frase[tipo + '2'] = codigo
-            elif frase[tipo + '1']:
-              frase[tipo + '2'] = codigo
+              else:
+                frase[tipo + '1'] = codigo
             else:
-              frase[tipo + '1'] = codigo
-          else:
-            import pdb
-            pdb.set_trace()
-            pass  # Tipo de palabra inesperado
-          # TODO: permitir palabras iguales de más de un tipo, para modo sin compatibilidad
-          break  # No hay palabras iguales de más de un tipo, pasamos a la siguiente palabra
+              import pdb
+              pdb.set_trace()
+              pass  # Tipo de palabra inesperado
+            # TODO: permitir palabras iguales de más de un tipo, para modo sin compatibilidad
+            break  # No hay palabras iguales de más de un tipo, pasamos a la siguiente palabra
       if not frase['Verbo']:
         if frase['Nombre1']:
           if frase['Nombre1'] < 20 and not frase['Preposicion']:  # Sin verbo, pero con nombre que actúa como verbo
