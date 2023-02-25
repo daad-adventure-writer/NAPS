@@ -1557,7 +1557,20 @@ def irAEntradaProceso ():
   dialogo.setIntRange    (0, len (proceso[0]) - 1)
   dialogo.setWindowTitle ('Ir a')
   if dialogo.exec_() == QDialog.Accepted:
-    cambiaProceso (numProceso, dialogo.intValue())
+    cursor = campo_txt.textCursor()
+    cursor.movePosition (QTextCursor.Start)
+    linea = cursor.block()
+    if not linea.text() or linea.userState() != 0:
+      return  # Algo inesperado: la primera línea del proceso no es la primera cabecera
+    entradaActual  = 0
+    entradaElegida = dialogo.intValue()
+    while entradaActual < entradaElegida and linea.next().isValid():
+      linea = linea.next()
+      if linea.userState() > -1:
+        entradaActual = linea.userState()
+    cursor.setPosition (linea.position())
+    campo_txt.setTextCursor (cursor)
+    campo_txt.centraLineaCursor()
 
 def muestraAcercaDe ():
   """Muestra el diálogo 'Acerca de'"""
