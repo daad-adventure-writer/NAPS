@@ -239,6 +239,20 @@ class CampoTexto (QTextEdit):
     self.setTextCursor (cursor)
     return linea
 
+  def irAEntradaYCondacto (self, numEntrada, numCondacto):
+    """Mueve el cursor a la entrada y condacto en ésta dados del proceso actual"""
+    linea = self.irAEntrada (numEntrada)
+    if numCondacto > -1:  # No se estaba comprobando encaje con la cabecera de la entrada
+      condactoActual = -2
+      while condactoActual < numCondacto and linea.next().isValid():
+        linea = linea.next()
+        condactoActual += 1
+        if linea.userState() > -1:
+          break  # No debería ocurrir: hemos encontrado la cabecera de la siguiente entrada
+      cursor = self.textCursor()
+      cursor.setPosition (linea.position())
+      self.setTextCursor (cursor)
+
   def keyPressEvent (self, evento):
     if evento.key() in (Qt.Key_Down, Qt.Key_End, Qt.Key_Home, Qt.Key_Left, Qt.Key_Right, Qt.Key_Up):
       cursor = self.textCursor()
@@ -860,6 +874,7 @@ def actualizaProceso ():
 def actualizaPosProcesos ():
   """Refleja la posición de ejecución paso a paso actual en el diálogo de tablas de proceso"""
   global inicio_debug, pila_procs
+  pilaAnterior = pila_procs
   if len (pilas_pendientes) > 4:
     # Se están acumulando, por lo que tomamos la última y descartamos las demás
     pila_procs = pilas_pendientes[-1]
@@ -871,8 +886,43 @@ def actualizaPosProcesos ():
   muestraProcesos()
   if not pila_procs:
     cambiaProceso (pestanyas.currentIndex())
-  elif pestanyas.currentIndex() == pila_procs[-1][0]:
-    cambiaProceso (pila_procs[-1][0], pila_procs[-1][1] if len (pila_procs[-1]) > 1 else None)
+  elif pestanyas.currentIndex() == pila_procs[-1][0]:  # La línea ejecutándose actualmente es del proceso seleccionado
+    proceso = mod_actual.tablas_proceso[pila_procs[-1][0]]
+    # Desmarcamos la línea marcada anteriormente
+    if pilaAnterior and len (pilaAnterior[-1]) > 1:
+      campo_txt.irAEntradaYCondacto (pilaAnterior[-1][1], pilaAnterior[-1][2])
+      cursor = campo_txt.textCursor()
+      cursor.movePosition (QTextCursor.EndOfBlock)
+      cursor.movePosition (QTextCursor.StartOfBlock, QTextCursor.KeepAnchor)
+      if pilaAnterior[-1][2] > -1:  # Es línea de condacto
+        cursor.movePosition (QTextCursor.Left, QTextCursor.KeepAnchor)
+      cursor.removeSelectedText()
+      campo_txt.setTextBackgroundColor (color_base)
+      if pilaAnterior[-1][2] == -1:  # Es línea de cabecera
+        cabecera = proceso[0][pilaAnterior[-1][1]]
+        imprimeCabecera (cabecera[0], cabecera[1], pilaAnterior[-1][1])
+      else:
+        entrada  = proceso[1][pilaAnterior[-1][1]]
+        condacto = entrada[pilaAnterior[-1][2]]
+        imprimeCondacto (*condacto)
+    # Marcamos la línea ejecutándose actualmente
+    if len (pila_procs[-1]) > 1:
+      campo_txt.irAEntradaYCondacto (pila_procs[-1][1], pila_procs[-1][2])
+      cursor = campo_txt.textCursor()
+      cursor.movePosition (QTextCursor.EndOfBlock)
+      cursor.movePosition (QTextCursor.StartOfBlock, QTextCursor.KeepAnchor)
+      if pila_procs[-1][2] > -1:  # Es línea de condacto
+        cursor.movePosition (QTextCursor.Left, QTextCursor.KeepAnchor)
+      cursor.removeSelectedText()
+      campo_txt.setTextBackgroundColor (color_tope_pila)
+      if pila_procs[-1][2] == -1:  # Es línea de cabecera
+        cabecera = proceso[0][pila_procs[-1][1]]
+        imprimeCabecera (cabecera[0], cabecera[1], pila_procs[-1][1])
+      else:
+        entrada  = proceso[1][pila_procs[-1][1]]
+        condacto = entrada[pila_procs[-1][2]]
+        imprimeCondacto (*condacto)
+    campo_txt.centraLineaCursor()
   else:
     pestanyas.setCurrentIndex (pila_procs[-1][0])
   if mdi_juego:
