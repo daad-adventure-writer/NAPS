@@ -255,7 +255,7 @@ condactos = {
   105 : ('AUTOT',   'l',  True,  False, 3),
   106 : ('MOVE',    'f',  False, False, 3),  # Se comporta como condición
   107 : ('WINSIZE', 'uu', True,  False, 3),  # Era PROTECT
-  108 : ('REDO',    '',   True,  False, 3),
+  108 : ('REDO',    '',   True,  True,  3),
   109 : ('CENTRE',  '',   True,  False, 3),
   110 : ('EXIT',    'u',  True,  True,  3),
   111 : ('INKEY',   '',   False, False, 3),
