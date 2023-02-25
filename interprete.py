@@ -486,7 +486,7 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
       frase = {'Verbo': None, 'Nombre1': None, 'Nombre2': None, 'Adjetivo1': None, 'Adjetivo2': None, 'Adverbio': None, 'Preposicion': None, 'Pronombre': None}
       preposicionSinNombre = False  # Si se encuentra una preposición antes que ningún nombre
       for palabra in ordenes[f]:
-        if palabra == 'Pronombre':
+        if palabra == pronombre:
           frase['Pronombre'] = palabra
           continue
         for i in rango_vocabulario:
