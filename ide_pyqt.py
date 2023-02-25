@@ -223,6 +223,22 @@ class CampoTexto (QTextEdit):
     contextual.addAction ('&Ir a la entrada', irAEntradaProceso, 'Ctrl+G')
     contextual.exec_ (evento.globalPos())
 
+  def irAEntrada (self, numEntrada):
+    """Mueve el cursor a la entrada dada del proceso actual, y devuelve el bloque de su línea de cabecera"""
+    cursor = self.textCursor()
+    cursor.movePosition (QTextCursor.Start)
+    linea = cursor.block()
+    if not linea.text() or linea.userState() != 0:
+      return  # Algo inesperado: la primera línea del proceso no es la primera cabecera
+    entradaActual = 0
+    while entradaActual < numEntrada and linea.next().isValid():
+      linea = linea.next()
+      if linea.userState() > -1:
+        entradaActual = linea.userState()
+    cursor.setPosition (linea.position())
+    self.setTextCursor (cursor)
+    return linea
+
   def keyPressEvent (self, evento):
     if evento.key() in (Qt.Key_Down, Qt.Key_End, Qt.Key_Home, Qt.Key_Left, Qt.Key_Right, Qt.Key_Up):
       cursor = self.textCursor()
@@ -1557,19 +1573,7 @@ def irAEntradaProceso ():
   dialogo.setIntRange    (0, len (proceso[0]) - 1)
   dialogo.setWindowTitle ('Ir a')
   if dialogo.exec_() == QDialog.Accepted:
-    cursor = campo_txt.textCursor()
-    cursor.movePosition (QTextCursor.Start)
-    linea = cursor.block()
-    if not linea.text() or linea.userState() != 0:
-      return  # Algo inesperado: la primera línea del proceso no es la primera cabecera
-    entradaActual  = 0
-    entradaElegida = dialogo.intValue()
-    while entradaActual < entradaElegida and linea.next().isValid():
-      linea = linea.next()
-      if linea.userState() > -1:
-        entradaActual = linea.userState()
-    cursor.setPosition (linea.position())
-    campo_txt.setTextCursor (cursor)
+    campo_txt.irAEntrada (dialogo.intValue())
     campo_txt.centraLineaCursor()
 
 def muestraAcercaDe ():
