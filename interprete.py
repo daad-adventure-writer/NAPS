@@ -843,7 +843,6 @@ def prepara_tabla_proceso (num_tabla):
 
 def separa_orden (orden):
   """Separa la orden por frases y palabras, recortadas a LONGITUD_PAL"""
-  # TODO: modo de compatibilidad con cómo hace DAAD con los pronombres, buscando sufijos -la -lo
   global orden_psi
   comillas = False
   frases   = []
@@ -863,12 +862,8 @@ def separa_orden (orden):
         if palabras:
           frases.append (palabras)
           palabras = []
-      # FIXME: buscar si la palabra sin el prefijo -la(s) -lo(s) está en el vocabulario como verbo
-      elif palabra[-4:] in ('alas', 'alos', 'elas', 'elos', 'rlas', 'rlos'):
-        palabras.append ((palabra[:-3])[:LONGITUD_PAL])
-        palabras.append (pronombre)
-      elif palabra[-3:] in ('ala', 'alo', 'ela', 'elo', 'rla', 'rlo'):
-        palabras.append ((palabra[:-2])[:LONGITUD_PAL])
+      elif palabraSinPronombre (palabra) != palabra:
+        palabras.append (palabraSinPronombre (palabra)[:LONGITUD_PAL])
         palabras.append (pronombre)
       else:
         palabras.append (palabra[:LONGITUD_PAL])
@@ -879,11 +874,8 @@ def separa_orden (orden):
     else:
       palabra += caracter.lower()
   if palabra and palabra not in conjunciones:
-    if palabra[-4:] in ('elas', 'elos', 'rlas', 'rlos'):
-        palabras.append ((palabra[:-3])[:LONGITUD_PAL])
-        palabras.append (pronombre)
-    elif palabra[-3:] in ('ela', 'elo', 'rla', 'rlo'):
-      palabras.append ((palabra[:-2])[:LONGITUD_PAL])
+    if palabraSinPronombre (palabra) != palabra:
+      palabras.append (palabraSinPronombre (palabra)[:LONGITUD_PAL])
       palabras.append (pronombre)
     else:
       palabras.append (palabra[:LONGITUD_PAL])
@@ -913,6 +905,20 @@ Para depuración paso a paso, devuelve el número de pasos a ejecutar, que es: 10,
     import pdb
     pdb.set_trace()
   return 1
+
+
+# Funciones auxiliares que sólo se usan en este módulo
+
+def palabraSinPronombre (palabra):
+  """Devuelve la palabra dada quitándole el pronombre si tenía"""
+  # TODO: modo de compatibilidad con cómo hace DAAD con los pronombres, buscando sufijos -la -lo
+  # FIXME: buscar si la palabra sin sufijo de pronombre está en el vocabulario como verbo, para sólo contarla como pronombre si está
+  # FIXME: buscar si la palabra está tal cual en el vocabulario como no verbo, para no contarla como con pronombre si está
+  if palabra[-4:] in ('alas', 'alos', 'elas', 'elos', 'rlas', 'rlos'):
+    return palabra[:-3]
+  if palabra[-3:] in ('ala', 'alo', 'ela', 'elo', 'rla', 'rlo'):
+    return palabra[:-2]
+  return palabra
 
 
 if __name__ == '__main__':
