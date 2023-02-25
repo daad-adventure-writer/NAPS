@@ -915,12 +915,20 @@ Para depuración paso a paso, devuelve el número de pasos a ejecutar, que es: 10,
 def palabraSinPronombre (palabra):
   """Devuelve la palabra dada quitándole el pronombre si tenía"""
   # TODO: modo de compatibilidad con cómo hace DAAD con los pronombres, buscando sufijos -la -lo
-  # FIXME: buscar si la palabra sin sufijo de pronombre está en el vocabulario como verbo, para sólo contarla como pronombre si está
-  # FIXME: buscar si la palabra está tal cual en el vocabulario como no verbo, para no contarla como con pronombre si está
+  # Vemos si la palabra está tal cual en el vocabulario como no verbo
+  for codigo, tipo in dicc_vocab.get (palabra, ()):
+    if TIPOS_PAL[tipo] != 'Verbo':
+      return palabra  # No la consideraremos para ver si tiene sufijo de pronombre
   if palabra[-4:] in ('alas', 'alos', 'elas', 'elos', 'rlas', 'rlos'):
-    return palabra[:-3]
-  if palabra[-3:] in ('ala', 'alo', 'ela', 'elo', 'rla', 'rlo'):
-    return palabra[:-2]
+    inicioSufijo = -3
+  elif palabra[-3:] in ('ala', 'alo', 'ela', 'elo', 'rla', 'rlo'):
+    inicioSufijo = -2
+  else:  # No tiene ninguno de los sufijos
+    return palabra
+  # Vemos si la palabra sin sufijo de pronombre está en el vocabulario como verbo
+  for codigo, tipo in dicc_vocab.get (palabra[:inicioSufijo][:LONGITUD_PAL], ()):
+    if TIPOS_PAL[tipo] == 'Verbo':
+      return palabra[:inicioSufijo]  # Contamos el sufijo como pronombre
   return palabra
 
 
