@@ -517,7 +517,7 @@ def cargaCadena (fichero):
         cadena.append (' ')
       else:
         try:
-          cadena.append (abreviaturas[caracter - 127])
+          cadena.append (abreviaturas[caracter - 127].replace ('\r', '\n'))
         except:
           prn (caracter)
           raise
