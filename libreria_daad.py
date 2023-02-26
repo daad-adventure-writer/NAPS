@@ -92,11 +92,12 @@ CAB_POS_ATRIBS_OBJS       = 28  # Posición de los atributos de los objetos
 CAB_POS_ATRIBS_EXTRA_OBJS = 30  # Posición de los atributos extra de los objetos
 CAB_LONG_FICH             = 30  # Longitud de la base de datos
 
-alinear        = False  # Si alineamos con relleno (padding) las listas de desplazamientos a posiciones pares
-compatibilidad = True   # Modo de compatibilidad con los intérpretes originales
-despl_ini      = 0      # Desplazamiento inicial para cargar desde memoria
-nueva_version  = []     # Si la base de datos es de las últimas versiones de DAAD, vacío = no
-plataforma     = None   # Número de plataforma en la base de datos
+alinear         = False  # Si alineamos con relleno (padding) las listas de desplazamientos a posiciones pares
+compatibilidad  = True   # Modo de compatibilidad con los intérpretes originales
+despl_ini       = 0      # Desplazamiento inicial para cargar desde memoria
+nada_tras_flujo = []     # Si omitiremos los condactos que haya después de los de cambio de flujo incondicional
+nueva_version   = []     # Si la base de datos es de las últimas versiones de DAAD, vacío = no
+plataforma      = None   # Número de plataforma en la base de datos
 
 # Desplazamientos iniciales para cargar desde memoria, de las plataformas en las que éste no es 0
 # Si el valor está en una lista, será una cota inferior, y se auto-detectará este desplazamiento
@@ -868,6 +869,8 @@ def cargaTablasProcesos ():
         if plataforma not in (5, 6) and num_condacto == 61 and parametros[1] == 3:  # XMES de Maluva
           parametros.append (carga_int1())
         entrada.append ((condacto, parametros))
+        if nada_tras_flujo and condactoFlujo:
+          break  # Dejamos de obtener condactos para esta entrada
       entradas.append (entrada)
     if len (cabeceras) != len (entradas):
       prn ('ERROR: Número distinto de cabeceras y entradas para una tabla de',

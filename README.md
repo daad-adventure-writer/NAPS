@@ -47,13 +47,14 @@ Requisitos:
 
 Uso:
 
-``python ide_pyqt.py [-h|--help] [-r|--run] [bd_o_codigo] [bd_o_carpeta_gráficos]``
+``python ide_pyqt.py [-h|--help] [-ne|--no-entry-end] [-r|--run] [bd_o_codigo] [bd_o_carpeta_gráficos]``
 
 Parámetros:
 
 - ``bd_o_codigo`` (opcional) Base de datos o código fuente SCE de Quill/PAWS/SWAN/DAAD a cargar
 - ``bd_o_carpeta_gráficos`` (opcional) Base de datos gráfica que usar para las imágenes al depurar, o carpeta de la que tomarlas (con nombre pic###.png)
 - ``--help`` (opcional) Muestra ayuda sobre los parámetros de línea de comandos
+- ``--no-entry-end`` (opcional) Omite en entradas de proceso los condactos que haya detrás de los que cambian el flujo de ejecución incondicionalmente (como DONE), muy útil para bases de datos compiladas con DRC sin activar el modo clásico, donde no pone marcas de fin de entrada cuando hay algún condacto así, y descarta los condactos que haya después
 - ``--run`` (opcional) Ejecuta la base de datos pasada como parámetro directamente, depurando por pasos
 
 
