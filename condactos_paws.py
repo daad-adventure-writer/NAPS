@@ -434,15 +434,20 @@ def a1_DESTROY (objno):
   locs_objs[objno] = 252
 
 def a1_DOALL (locno):
+  global doall_siguiente
+  if doall_activo:
+    if banderas[50] == locno:
+      doall_siguiente += 1  # Siguiente objeto que comprobar
+    else:  # TODO: ver si es así como se interrumpe DOALL, y no sólo poniéndola a cero
+      doall_siguiente = 256  # Interrumpimos limpiamente el bucle DOALL
+  else:
+    banderas[50] = locno
+    doall_activo.extend (pila_procs[-1])
+    doall_siguiente = 0
+  # Buscamos en los objetos presentes en locno
   if locno == 255:  # Hace referencia a la localidad actual
     locno = banderas[38]
-  if doall_activo:
-    siguiente = banderas[50] + 1  # Siguiente objeto que comprobar
-  else:
-    doall_activo.extend (pila_procs[-1])
-    siguiente = 0
-  # Buscamos en los objetos presentes en locno
-  for objno in range (siguiente, len (locs_objs)):
+  for objno in range (doall_siguiente, len (locs_objs)):
     if locs_objs[objno] == locno:
       (nombre, adjetivo) = nombres_objs[objno]
       # Si hay encaje con nombre/adjetivo 2, el intérprete asume que se usó excepción, como COGER TODO SALVO BOLI ROJO
@@ -450,11 +455,11 @@ def a1_DOALL (locno):
         continue  # Encaja con la excepción, por lo que omite este objeto
       banderas[34] = nombre
       banderas[35] = adjetivo
-      banderas[50] = objno  # Guardará el objeto actual del bucle DOALL
+      obj_referido (objno)
       return  # Prosigue la ejecución con estos valores para la SL
   else:  # No hay más objetos que encajen, fin del bucle DOALL
     del doall_activo[:]
-    if not siguiente:  # Ningún encaje desde el inicio
+    if not doall_siguiente:  # Ningún encaje desde el inicio
       return busca_condacto ('a0_NOTDONE') ()
     return busca_condacto ('a0_DONE') ()
 
