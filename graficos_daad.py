@@ -226,7 +226,7 @@ def guarda_bd_pics (fichero):
   desplazamientos = sorted (pos_recursos.keys())
   if desplazamientos:  # Ponemos los números negativos (los de nuevos recursos) al final
     ultimoNegativo = -1
-    while desplazamientos[ultimoNegativo + 1] < 0:
+    while ultimoNegativo + 1 < len (desplazamientos) and desplazamientos[ultimoNegativo + 1] < 0:
       ultimoNegativo += 1
     desplNegativos = desplazamientos[:ultimoNegativo + 1]
     desplNegativos.reverse()
