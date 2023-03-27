@@ -487,10 +487,11 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
       preposicionSinNombre = False  # Si se encuentra una preposición antes que ningún nombre
       if len (TIPOS_PAL) == 1:  # Como en Quill
         for palabra in ordenes[f]:
-          if not frase['Verbo']:
-            frase['Verbo'] = codigo
-          elif not frase['Nombre1']:
-            frase['Nombre1'] = codigo
+          for codigo, tipo in dicc_vocab.get (palabra, ()):
+            if not frase['Verbo']:
+              frase['Verbo'] = codigo
+            elif not frase['Nombre1']:
+              frase['Nombre1'] = codigo
       else:  # Hay más de un tipo de palabra
         for palabra in ordenes[f]:
           if palabra == pronombre:
