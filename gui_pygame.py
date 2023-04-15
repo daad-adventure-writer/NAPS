@@ -252,8 +252,8 @@ def borra_orden ():
 def borra_pantalla (desdeCursor = False, noRedibujar = False):
   """Limpia la subventana de impresión"""
   global tras_portada
-  if tras_portada or (frase_guardada and texto_nuevo):
-    espera_tecla()  # Esperamos pulsación de tecla si se habían entrado varias frases y se había mostrado texto nuevo
+  if tras_portada or texto_nuevo:
+    espera_tecla()  # Esperamos pulsación de tecla si se había mostrado texto nuevo
     tras_portada = False
   if not desdeCursor:
     cursores[elegida]   = [0, 0]
