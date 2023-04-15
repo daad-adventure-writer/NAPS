@@ -1243,8 +1243,8 @@ def cambiaPaleta (nuevaPaleta, convertir = True, paraPortada = False):
           except:
             continue
           ventana.set_at ((x, y), nuevaPaleta[indicePaleta])
-    del paleta_gfx[:]
     del paleta[0][:]
+  del paleta_gfx[:]
   paleta_gfx.extend (nuevaPaleta)
   # Dejamos la paleta tal cual en modos gráficos que no soportan cambio de paleta
   if not paraPortada and graficos_daad.modo_gfx not in ('ST', 'VGA'):
