@@ -326,7 +326,7 @@ def a1_CALL (address):
 
 def a1_DESC (locno):
   """Imprime la descripción de la localidad dada"""
-  gui.imprime_cadena (desc_locs[locno], tiempo = banderas[48] if banderas[49] & 2 else 0)
+  imprime_mensaje (desc_locs[locno])
 
 def a1_DISPLAY (value):
   """Dibuja el gráfico preparado"""
