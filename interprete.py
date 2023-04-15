@@ -55,7 +55,6 @@ traza   = False  # Si queremos una traza de la ejecución
 
 frase_guardada = []     # Tendrá valor verdadero cuando se está ejecutando la segunda frase introducida o posterior
 hay_asterisco  = False  # Si está la palabra '*', 1, 255 en el vocabulario, en sistema PAWS no compilado (con editor)
-texto_nuevo    = []     # Tendrá valor verdadero cuando se haya escrito texto nuevo tras el último borrado de pantalla o espera de tecla
 
 
 # Funciones auxiliares para los módulos de condactos
@@ -537,7 +536,7 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
           frase['Verbo'] = frase['Preposicion']
       frases.append (frase)
     if len (frases) > 1:
-      del texto_nuevo[:]  # Hay más de una orden, por lo queremos saber cuándo se escribe texto nuevo
+      texto_nuevo.clear()  # Hay más de una orden, por lo queremos saber cuándo se escribe texto nuevo
   else:  # Había frases pendientes de ejecutar
     frase_guardada.append (True)
   if not frases:  # Sólo se escribió espacio en blanco, conjunciones o ,.;:
@@ -1011,7 +1010,7 @@ if __name__ == '__main__':
   gui = __import__ ('gui_' + args.gui)
   gui.frase_guardada = frase_guardada
   gui.ide            = args.ide
-  gui.texto_nuevo    = texto_nuevo
+  texto_nuevo        = gui.texto_nuevo
 
   if os.path.isdir (args.bbdd):
     libreria    = __import__ ('libreria_daad')

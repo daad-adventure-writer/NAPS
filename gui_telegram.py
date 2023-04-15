@@ -43,6 +43,7 @@ juego_bajo       = None      # Carácter que si se encuentra en una cadena, pasar
 paleta           = ([], [])  # Paleta de colores sin y con brillo, para los cambios con cambia_*
 partir_espacio   = True      # Si se deben partir las líneas en el último espacio
 tabulador        = None      # Carácter que si se encuentra en una cadena, pondrá espacios hasta mitad o final de línea
+texto_nuevo      = set()     # Subventanas donde se ha escrito texto nuevo tras el último borrado de pantalla o espera de tecla
 
 cursores    = [[0, 0]] * 2  # Posición relativa del cursor de cada subventana
 limite      = [999, 25]     # Ancho y alto máximos absolutos de cada subventana

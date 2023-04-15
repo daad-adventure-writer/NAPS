@@ -78,7 +78,7 @@ fuente.set_palette (((255, 255, 255), (0, 0, 0)))
 cad_cursor = '_'
 chr_cursor = pygame.Surface ((6, 8))  # Carácter con transparencia, para marcar posición de input
 
-# Variables que ajusta el intérprete
+# Variables que ajusta el intérprete y usa esta GUI u otro módulo
 brillo           = 0         # Sin brillo por defecto
 cambia_brillo    = None      # Carácter que si se encuentra en una cadena, dará o quitará brillo al color de tinta de la letra
 cambia_flash     = None      # Carácter que si se encuentra en una cadena, pondría o quitaría efecto flash a la letra
@@ -93,6 +93,7 @@ paleta_gfx       = []        # Paleta de colores para los gráficos
 partir_espacio   = True      # Si se deben partir las líneas en el último espacio
 ruta_graficos    = ''        # Carpeta de donde cargar los gráficos a dibujar
 tabulador        = None      # Carácter que si se encuentra en una cadena, pondrá espacios hasta mitad o final de línea
+texto_nuevo      = set()     # Subventanas donde se ha escrito texto nuevo tras el último borrado de pantalla o espera de tecla
 todo_mayusculas  = False     # Si la entrada del jugador será incondicionalmente en mayúsculas
 txt_mas          = '(más)'   # Cadena a mostrar cuando no cabe más texto y se espera a que el jugador pulse una tecla
 
@@ -252,7 +253,7 @@ def borra_orden ():
 def borra_pantalla (desdeCursor = False, noRedibujar = False):
   """Limpia la subventana de impresión"""
   global tras_portada
-  if tras_portada or texto_nuevo:
+  if tras_portada or elegida in texto_nuevo:
     espera_tecla()  # Esperamos pulsación de tecla si se había mostrado texto nuevo
     tras_portada = False
   if not desdeCursor:
@@ -552,7 +553,7 @@ def espera_tecla (tiempo = 0, numPasos = False):
 
   numPasos indica si se espera tecla para el número de pasos a ejecutar, al depurar"""
   global lineas_mas, tras_portada
-  del texto_nuevo[:]
+  texto_nuevo.clear()
   if not numPasos:  # Si no es para el número de pasos a ejecutar cuando se depura
     lineas_mas   = [0] * 8
     tras_portada = False
@@ -965,8 +966,7 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
     return
   if tras_portada:
     borra_pantalla()
-  if not texto_nuevo:
-    texto_nuevo.append (True)
+  texto_nuevo.add (elegida)
   cursor     = cursores[elegida]
   subventana = subventanas[elegida]
   tope       = topes[elegida]
