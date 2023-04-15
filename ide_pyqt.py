@@ -1612,7 +1612,7 @@ def imprimeCondacto (condacto, parametros, inalcanzable = False):
         campo_txt.setFontItalic (False)  # Cursiva desactivada
         campo_txt.insertPlainText ('"')
   else:  # Condacto sin parámetros
-    campo_txt.insertPlainText ((nombre + indirecto).center (7).rstrip())
+    campo_txt.insertPlainText ((nombre + indirecto).rstrip().center (7).rstrip())
   if inalcanzable or mod_actual.condactos[condacto][3]:
     return True
   return False
