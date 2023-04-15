@@ -661,10 +661,12 @@ Devuelve True si ha ejecutado DESC o equivalente. False si se debe reiniciar la 
       if (NOMBRE_SISTEMA == 'DAAD' or numTabla not in (1, 2)) and (
           (not hay_asterisco and ((cabecera[0] not in (255, banderas[33])) or (cabecera[1] not in (255, banderas[34])))) or
           (hay_asterisco and ((cabecera[0] not in (1, 255, banderas[33])) or (cabecera[1] not in (1, 255, banderas[34]))))):
-         cambioFlujo = 6
-      else:
+         cambioFlujo = 6  # No encaja la cabecera
+      elif tabla[1][numEntrada]:  # Ha encajado la cabecera, y la entrada tiene algún condacto
         pila_procs[-1][2] = 0  # Apuntamos al primer condacto
         continue
+      else:  # Ha encajado la cabecera, pero la entrada está vacía
+        cambioFlujo = 6  # Continuamos para que pase correctamente al siguiente condacto o entrada
     if tabla[0]:  # La tabla no está vacía
       # Toca ejecutar un condacto (o saltar la entrada si la cabecera no encaja)
       entrada = tabla[1][numEntrada]
