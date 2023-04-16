@@ -557,6 +557,8 @@ def espera_tecla (tiempo = 0, numPasos = False):
   if not numPasos:  # Si no es para el número de pasos a ejecutar cuando se depura
     lineas_mas   = [0] * 8
     tras_portada = False
+    if traza:
+      prn ('Esperando tecla, con tiempo muerto', tiempo, 'segundos')
   if ide:
     # TODO: tiempo muerto, teclas pulsadas, revisar teclas de edición, y que ninguna tecla indebida resulte en un Enter pulsado
     actualizaVentana()
