@@ -1073,28 +1073,22 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
       restante = tope[0] - len (linea)
   if linea:  # Queda algo en la última línea
     lineas.append (''.join (linea))
-  # Hacemos scrolling antes de nada, en caso de que vaya a ser necesario
-  lineasAsubir = cursor[1] + len (lineas) - tope[1]
-  if lineasAsubir > 0:  # Hay que desplazar el texto ese número de líneas
-    if lineas_mas[elegida] == (tope[1] - 2) and (not subv_input or elegida != subv_input):
-      if 0 in colores:
-        fuente.set_palette (colores[0])  # Cargamos el color inicial de la cadena
-      esperaMas (tiempo)  # Paginación
-    scrollLineas (lineasAsubir, subventana, tope)
-    cursor[1] -= min (cursor[1], lineasAsubir)  # Actualizamos el cursor antes de imprimir
+  # Paginamos antes de escribir sobre la última línea si todas las anteriores eran nuevas
+  if cursor[0] == 0 and tope[1] > 1 and cursor[1] == tope[1] - 1 and lineas_mas[elegida] == tope[1] - 1:
+    esperaMas (tiempo)  # Paginación
   if abajo:
     cursor[0] = 0
     cursor[1] = max (0, tope[1] - len (lineas) - (1 if cadena[-1] == '\n' else 0))
   # Imprimimos la cadena línea por línea
   for i in range (len (lineas)):
     if i > 0:  # Nueva línea antes de cada una, salvo la primera
-      cursor = [0, min (cursor[1] + 1, tope[1] - 1)]
+      cursorAntes = cursor
+      cursor      = [0, min (cursor[1] + 1, tope[1] - 1)]
       cursores[elegida] = cursor  # Actualizamos el cursor de la subventana
+      if cursorAntes[1] == cursor[1] and cursor[1] == tope[1] - 1:  # Tope de líneas sobrepasado, hacemos scroll con cada una
+        scrollLineas (1, subventana, tope)
       if lineas_mas[elegida] == (tope[1] - 1) and (textoNormal or i < len (lineas) - 1) and (not subv_input or elegida != subv_input):
         esperaMas (tiempo)  # Paginación
-      # TODO: Hacer scroll de golpe, del número de líneas necesario
-      elif i >= tope[1]:  # Tras sobrepasar el tope de líneas, hay que hacer scroll con cada una
-        scrollLineas (1, subventana, tope)
     elif 0 in colores and not lineas[i]:  # La primera línea es sólo \n
       fuente.set_palette (colores[0])  # Cargamos el color inicial de la cadena
     if cambia_brillo:
