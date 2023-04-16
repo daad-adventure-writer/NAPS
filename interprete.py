@@ -536,8 +536,9 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
           frase['Verbo'] = frase['Preposicion']
       frases.append (frase)
     if len (frases) > 1:
-      texto_nuevo.clear()  # Hay más de una orden, por lo queremos saber cuándo se escribe texto nuevo
+      del texto_nuevo[:]  # Hay más de una orden, por lo queremos saber cuándo se escribe texto nuevo
   else:  # Había frases pendientes de ejecutar
+    gui.espera_tecla()
     frase_guardada.append (True)
   if not frases:  # Sólo se escribió espacio en blanco, conjunciones o ,.;:
     if not psi and (NOMBRE_SISTEMA != 'DAAD' or not nueva_version):

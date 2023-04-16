@@ -93,7 +93,7 @@ paleta_gfx       = []        # Paleta de colores para los gráficos
 partir_espacio   = True      # Si se deben partir las líneas en el último espacio
 ruta_graficos    = ''        # Carpeta de donde cargar los gráficos a dibujar
 tabulador        = None      # Carácter que si se encuentra en una cadena, pondrá espacios hasta mitad o final de línea
-texto_nuevo      = set()     # Subventanas donde se ha escrito texto nuevo tras el último borrado de pantalla o espera de tecla
+texto_nuevo      = []        # Tendrá valor verdadero si se ha escrito texto nuevo tras el último borrado de pantalla o espera de tecla
 todo_mayusculas  = False     # Si la entrada del jugador será incondicionalmente en mayúsculas
 txt_mas          = '(más)'   # Cadena a mostrar cuando no cabe más texto y se espera a que el jugador pulse una tecla
 
@@ -253,8 +253,8 @@ def borra_orden ():
 def borra_pantalla (desdeCursor = False, noRedibujar = False):
   """Limpia la subventana de impresión"""
   global tras_portada
-  if tras_portada or elegida in texto_nuevo:
-    espera_tecla()  # Esperamos pulsación de tecla si se había mostrado texto nuevo
+  if tras_portada:
+    espera_tecla()
     tras_portada = False
   if not desdeCursor:
     cursores[elegida]   = [0, 0]
@@ -553,7 +553,7 @@ def espera_tecla (tiempo = 0, numPasos = False):
 
   numPasos indica si se espera tecla para el número de pasos a ejecutar, al depurar"""
   global lineas_mas, tras_portada
-  texto_nuevo.clear()
+  del texto_nuevo[:]
   if not numPasos:  # Si no es para el número de pasos a ejecutar cuando se depura
     lineas_mas   = [0] * 8
     tras_portada = False
@@ -968,7 +968,8 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
     return
   if tras_portada:
     borra_pantalla()
-  texto_nuevo.add (elegida)
+  if not texto_nuevo:
+    texto_nuevo.append (True)
   cursor     = cursores[elegida]
   subventana = subventanas[elegida]
   tope       = topes[elegida]
