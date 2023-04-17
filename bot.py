@@ -95,7 +95,10 @@ class ManejoInterprete (QThread):
         parrafo += ('\n' if parrafo else '') + linea
       elif parrafo:
         if self.usuario:
-          bot.send_message (self.usuario, parrafo)
+          if '```' in parrafo:
+            bot.send_message (self.usuario, parrafo, parse_mode = 'markdown')
+          else:
+            bot.send_message (self.usuario, parrafo)
         parrafo = ''
     # El proceso ha terminado
     imprimeLog ('Proceso terminado del jugador ' + str (self.usuario))
