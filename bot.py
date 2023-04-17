@@ -116,12 +116,18 @@ def menuPrincipal (message):
   if usuario in interpretes:
     interpretes[usuario].kill()
     limpiaRecursos (usuario)
-  bot.send_message (usuario, 'Bienvenido a NAPS bot, el bot de Telegram que utiliza NAPS para permitirte jugar una selección de aventuras conversacionales de los sistemas Quill, PAWS, SWAN o DAAD.', reply_markup = telebot.types.ReplyKeyboardRemove())
-  bot.send_message (usuario, 'Utiliza el comando /quit o /start para terminar el juego en curso y volver a este menú principal.')
   opciones = telebot.types.ReplyKeyboardMarkup (one_time_keyboard = True)
   for nombreJuego in juegos:
     opciones.add (telebot.types.KeyboardButton ('/jugar ' + nombreJuego))
-  bot.send_message (usuario, 'Elige qué juego jugar o cambia el juego en curso con el comando /jugar o /play. Puedes usar el botón de Telegram para esta función.', reply_markup = opciones)
+  bot.send_message (usuario, 'Bienvenido a NAPS bot, el bot de Telegram que utiliza NAPS para permitirte jugar una selección de aventuras conversacionales de los sistemas Quill, PAWS, SWAN o DAAD.', reply_markup = opciones)
+  ayuda (message)
+
+@bot.message_handler (commands=['ayuda', 'help'])
+def ayuda (message):
+  usuario = message.chat.id
+  bot.send_message (usuario, 'Utiliza el comando /quit o /start para terminar el juego en curso y preparar el botón de Telegram con la lista de juegos disponibles.')
+  bot.send_message (usuario, 'Elige qué juego jugar o cambia el juego en curso con el comando /jugar o /play. Puedes usar el botón de Telegram para esta función.')
+  bot.send_message (usuario, 'Utiliza el comando /ayuda o /help para volver a mostrar estos mensajes de ayuda.')
 
 @bot.message_handler (commands=['jugar', 'play'])
 def comandoJugar (message):
