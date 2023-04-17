@@ -12,7 +12,7 @@ Requisitos:
 
 Uso:
 
-``python interprete.py [-h|--help] [-c|--columns 32..42] [-D|--debug] [-g|--gui pygame|stdio] [-s|--scale 1..9] bd_cf_o_carpeta [bd_o_carpeta_gráficos]``
+``python interprete.py [-h|--help] [-c|--columns 32..42] [-D|--debug] [-g|--gui pygame|stdio|telegram] [-s|--scale 1..9] bd_cf_o_carpeta [bd_o_carpeta_gráficos]``
 
 Ejemplos bajo Windows:
 - ``python interprete.py -g stdio -c 42 ..\disappearance\disappearance.sna``
@@ -32,7 +32,7 @@ Parámetros:
 - ``--help`` (opcional) Muestra ayuda sobre los parámetros de línea de comandos
 - ``--columns`` (opcional) Cambia el número de columnas a usar cuando se imita la plataforma Spectrum, desde 32 hasta 42 (valor por defecto en interfaz pygame, en la stdio por defecto es sin límite)
 - ``--debug`` (opcional) Ejecuta la base de datos en modo depuración: ejecutando los condactos paso a paso, mientras muestra el valor de las banderas
-- ``--gui`` (opcional) Elige la interfaz gráfica a utilizar. Opciones posibles: pygame (interfaz gráfica con PyGame) y stdio (interfaz sólo texto, usando la entrada y salida estándar)
+- ``--gui`` (opcional) Elige la interfaz gráfica a utilizar. Opciones posibles: pygame (interfaz gráfica con PyGame), stdio (interfaz sólo texto, usando la entrada y salida estándar) y telegram (interfaz para el bot de Telegram)
 - ``--scale`` (opcional) Elige el factor de escalado de la ventana, desde 1 hasta 9, con lo que ampliará todo hasta ese número de veces sin superar la resolución de pantalla. El valor por defecto será el factor máximo dentro de la resolución de pantalla
 
 
