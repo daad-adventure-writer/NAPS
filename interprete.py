@@ -956,6 +956,7 @@ if __name__ == '__main__':
 
   argsParser = argparse.ArgumentParser (sys.argv[0], description = 'Intérprete de Quill/PAWS/SWAN/DAAD en Python')
   argsParser.add_argument ('-c', '--columns', type = int, choices = range (32, 43), help = 'número de columnas a usar al imitar Spectrum')
+  argsParser.add_argument ('--conversion', metavar = 'módulo', help = 'convertir caracteres con valores del diccionario conversion en el módulo Python dado')
   argsParser.add_argument ('-D', '--debug', action = 'store_true', help = 'ejecutar los condactos paso a paso')
   argsParser.add_argument ('-g', '--gui', choices = ('pygame', 'stdio', 'telegram'), help = 'interfaz gráfica a utilizar')
   argsParser.add_argument ('--ide', action = 'store_true', help = argparse.SUPPRESS)
@@ -1028,6 +1029,15 @@ if __name__ == '__main__':
     prn ('No hay ningún fichero ni carpeta con ese nombre:', args.bbdd, file = sys.stderr)
     sys.exit()
 
+  # Cargamos el diccionario de conversión de caracteres
+  if args.conversion:
+    try:
+      sys.path.append (os.path.dirname (args.conversion))
+      moduloConversion = __import__ (os.path.basename (args.conversion)[:-3])
+    except Exception as excepcion:
+      prn ('Error al tratar de cargar el módulo de conversión de caracteres:', excepcion, file = sys.stderr)
+      sys.exit()
+
   # Detectamos qué librerías pueden cargar bases de datos con esa extensión
   extension = args.bbdd[args.bbdd.rfind ('.') + 1:].lower()
   modLibs   = []  # Librerías que soportan la extensión, junto con su función de carga
@@ -1036,7 +1046,9 @@ if __name__ == '__main__':
   for nombreModulo in librerias:
     try:
       modulo = __import__ (nombreModulo)
-    except SyntaxError as excepcion:
+      if args.conversion and 'conversion' in modulo.__dict__ and 'conversion' in moduloConversion.__dict__:
+        modulo.conversion.update (moduloConversion.conversion)
+    except Exception as excepcion:
       prn ('Error al importar el módulo:', excepcion, file = sys.stderr)
       continue
     for funcion, extensiones, descripcion in modulo.funcs_importar:

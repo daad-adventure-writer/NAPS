@@ -152,12 +152,15 @@ def comandoJugar (message):
   opciones.add (telebot.types.KeyboardButton ('/start'))
   bot.send_message (usuario, 'Has elegido jugar a ' + eleccion + '. Puedes usar el comando /start para volver al menú principal.', reply_markup = opciones)
   bot.send_message (usuario, 'El tiempo de inactividad es de 30 minutos. Si pasa ese tiempo, tu plaza como jugador se cede a otros.')
-  nombre_fich_bd  = os.path.join (os.path.dirname (os.path.realpath (__file__)), carpeta_juegos, juegos[eleccion][0].replace ('/', os.sep))
-  rutaInterprete  = os.path.join (os.path.dirname (os.path.realpath (__file__)), 'interprete.py')
-  argumentos      = ['python', rutaInterprete, '-g', 'telegram', nombre_fich_bd]
+  nombreFichBD   = os.path.join (os.path.dirname (os.path.realpath (__file__)), carpeta_juegos, juegos[eleccion][0].replace ('/', os.sep))
+  rutaInterprete = os.path.join (os.path.dirname (os.path.realpath (__file__)), 'interprete.py')
+  argumentos     = ['python', rutaInterprete, '-g', 'telegram', nombreFichBD]
   if len (juegos[eleccion]) > 1:
     argumentos.extend (juegos[eleccion][1])
-  imprimeLog ('El jugador ' + str (usuario) + ' intenta cargar ' + nombre_fich_bd)
+  if '--conversion' in argumentos:  # Anteponemos la carpeta del juego al fichero de conversión
+    posicion = argumentos.index ('--conversion') + 1
+    argumentos[posicion] = os.path.join (os.path.dirname (nombreFichBD), argumentos[posicion])
+  imprimeLog ('El jugador ' + str (usuario) + ' intenta cargar ' + nombreFichBD)
   # devnull        = open (os.devnull, 'w')
   # procInterprete = subprocess.Popen (argumentos, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = devnull)
   procInterprete = subprocess.Popen (argumentos, encoding = cod_interprete, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE)

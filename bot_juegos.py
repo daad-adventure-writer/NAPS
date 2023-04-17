@@ -27,4 +27,5 @@
 juegos = {
   'Aventura original': ['orig'],
   'Hampstead':         ['hampstead.sna', ['-c32']],
+  'Supervivencia':     ['firfurcio.sna', ['--conversion', 'conv_firfurcio.py']],
 }
