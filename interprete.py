@@ -1048,6 +1048,8 @@ if __name__ == '__main__':
       modulo = __import__ (nombreModulo)
       if args.conversion and 'conversion' in modulo.__dict__ and 'conversion' in moduloConversion.__dict__:
         modulo.conversion.update (moduloConversion.conversion)
+      if args.conversion and 'secuencias' in gui.__dict__ and 'secuencias' in moduloConversion.__dict__:
+        gui.secuencias.update (moduloConversion.secuencias)
     except Exception as excepcion:
       prn ('Error al importar el módulo:', excepcion, file = sys.stderr)
       continue

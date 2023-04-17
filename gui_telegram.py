@@ -53,6 +53,7 @@ num_subvens = 8             # DAAD tiene 8 subventanas
 bufferTexto = ''     # Texto acumulado entre llamadas a lee_cadena
 elegida     = 1      # Subventana elegida (la predeterminada es la 1)
 nuevaLinea  = False  # Si el siguiente texto a imprimir debería ir en una nueva línea
+secuencias  = {}     # Secuencias que convertir en las cadenas
 
 
 # Funciones que no hacen nada al usar entrada y salida estándar de puro texto
@@ -276,6 +277,10 @@ def prepara_topes (columnas, filas):
 def limpiaCadena (cadena):
   if not cambia_brillo and not cambia_flash and not cambia_inversa and not cambia_papel and not cambia_tinta and not juego_alto and not juego_bajo:
     return cadena
+  if secuencias:
+    for secuencia in secuencias:
+      if secuencia in cadena:
+        cadena = cadena.replace (secuencia, secuencias[secuencia])
   limpia = ''
   c = 0
   while c < len (cadena):
