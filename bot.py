@@ -110,22 +110,22 @@ for i in range (MAX_JUGADORES):
 
 bot = telebot.TeleBot (os.environ.get ('TELEGRAM_TOKEN'))
 
-@bot.message_handler (commands=['start'])
+@bot.message_handler (commands=['quit', 'start'])
 def menuPrincipal (message):
   usuario = message.chat.id
   if usuario in interpretes:
     interpretes[usuario].kill()
     limpiaRecursos (usuario)
   bot.send_message (usuario, 'Bienvenido a NAPS bot, el bot de Telegram que utiliza NAPS para permitirte jugar una selección de aventuras conversacionales de los sistemas Quill, PAWS, SWAN o DAAD.', reply_markup = telebot.types.ReplyKeyboardRemove())
-  bot.send_message (usuario, 'Utiliza el comando /start para terminar el juego en curso y volver a este menú principal.')
+  bot.send_message (usuario, 'Utiliza el comando /quit o /start para terminar el juego en curso y volver a este menú principal.')
   opciones = telebot.types.ReplyKeyboardMarkup (one_time_keyboard = True)
   for nombreJuego in juegos:
     opciones.add (telebot.types.KeyboardButton ('/jugar ' + nombreJuego))
-  bot.send_message (usuario, 'Elige qué juego jugar o cambia el juego en curso con el comando /jugar. Puedes usar el botón de Telegram para esta función.', reply_markup = opciones)
+  bot.send_message (usuario, 'Elige qué juego jugar o cambia el juego en curso con el comando /jugar o /play. Puedes usar el botón de Telegram para esta función.', reply_markup = opciones)
 
-@bot.message_handler (commands=['jugar'])
+@bot.message_handler (commands=['jugar', 'play'])
 def comandoJugar (message):
-  eleccion = message.text[7:].strip()
+  eleccion = message.text[7 if message.text[1] == 'j' else 6:].strip()
   if eleccion not in juegos:
     bot.reply_to (message, 'Ese no es uno de los juegos disponibles.')
     return
@@ -153,7 +153,7 @@ def comandoJugar (message):
     limpiaRecursos (masAntiguo[0])
   opciones = telebot.types.ReplyKeyboardMarkup()
   opciones.add (telebot.types.KeyboardButton ('/start'))
-  bot.send_message (usuario, 'Has elegido jugar a ' + eleccion + '. Puedes usar el comando /start para volver al menú principal.', reply_markup = opciones)
+  bot.send_message (usuario, 'Has elegido jugar a ' + eleccion + '. Puedes usar el comando /quit o /start para terminar la partida.', reply_markup = opciones)
   bot.send_message (usuario, 'El tiempo de inactividad es de 30 minutos. Si pasa ese tiempo, tu plaza como jugador se cede a otros.')
   nombreFichBD   = os.path.join (os.path.dirname (os.path.realpath (__file__)), carpeta_juegos, juegos[eleccion][0].replace ('/', os.sep))
   rutaInterprete = os.path.join (os.path.dirname (os.path.realpath (__file__)), 'interprete.py')
