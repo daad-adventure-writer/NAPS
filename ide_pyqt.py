@@ -711,6 +711,7 @@ class PantallaJuego (QMdiSubWindow):
   """Subventana MDI para la pantalla de juego del intérprete"""
   def __init__ (self, parent):
     QMdiSubWindow.__init__ (self, parent)
+    self.setAttribute (Qt.WA_InputMethodEnabled, True)
     self.nivelZoom  = 1
     self.rutaImagen = os.path.join (os.path.dirname (os.path.realpath (__file__)), 'ventanaJuegoActual.bmp')
     self.pixmap     = QPixmap (self.rutaImagen)
@@ -743,6 +744,21 @@ class PantallaJuego (QMdiSubWindow):
         self.setMaximumSize (QSize (self.anchoBorde * 2 + self.pixmap.size().width() * 3,
                                     self.anchoBorde + self.altoTitulo + self.pixmap.size().height() * 3))
 
+  def enviaTecla (self, tecla):
+    enviar = '\n' if sys.version_info[0] < 3 else b'\n'
+    if type (tecla) == int:
+      if sys.version_info[0] < 3:
+        enviar = chr (0) + chr (tecla) + enviar
+      else:
+        enviar = bytes ([0, tecla]) + enviar
+    else:
+      if sys.version_info[0] < 3:
+        enviar = tecla + enviar
+      else:
+        enviar = bytes (tecla, 'iso-8859-15') + enviar
+    proc_interprete.stdin.write (enviar)
+    proc_interprete.stdin.flush()
+
   def closeEvent (self, evento):
     global mdi_banderas, mdi_juego
     if proc_interprete:
@@ -756,19 +772,15 @@ class PantallaJuego (QMdiSubWindow):
   def keyPressEvent (self, evento):
     if evento.key() in (Qt.Key_Alt, Qt.Key_AltGr, Qt.Key_CapsLock, Qt.Key_Control, Qt.Key_Meta, Qt.Key_NumLock, Qt.Key_ScrollLock, Qt.Key_Shift) or Qt.Key_F1 <= evento.key() <= Qt.Key_F35:
       return  # Ignoramos teclas modificadoras, de bloqueo y de función
-    enviar = '\n' if sys.version_info[0] < 3 else b'\n'
     if evento.key() in conversion_teclas:
-      if sys.version_info[0] < 3:
-        enviar = chr (0) + chr (conversion_teclas[evento.key()]) + enviar
-      else:
-        enviar = bytes ([0, conversion_teclas[evento.key()]]) + enviar
-    elif evento.key() not in (Qt.Key_Enter, Qt.Key_Return):
-      if sys.version_info[0] < 3:
-        enviar = str (evento.text()) + enviar
-      else:
-        enviar = bytes (str (evento.text()), locale.getpreferredencoding()) + enviar
-    proc_interprete.stdin.write (enviar)
-    proc_interprete.stdin.flush()
+      self.enviaTecla (conversion_teclas[evento.key()])
+    elif evento.key() in (Qt.Key_Enter, Qt.Key_Return):
+      self.enviaTecla ('')
+    else:
+      self.enviaTecla (str (evento.text()))
+
+  def inputMethodEvent (self, evento):
+    self.enviaTecla (str (evento.commitString()))
 
   def resizeEvent (self, evento):
     """Ajusta la redimensión de la pantalla de juego a los niveles de zoom permitidos"""

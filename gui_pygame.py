@@ -780,7 +780,7 @@ El parámetro espaciar permite elegir si se debe dejar una línea en blanco tras e
         if altGr:  # Alt Gr pulsado
           if tecla in teclas_alt_gr:
             insertaHastaMax (entrada, posInput, teclas_alt_gr[tecla], longMax)
-        elif (tecla in string.digits) or (tecla in '"º\'¡ñç<,.-+'):
+        elif tecla in izquierda[:-1]:
           insertaHastaMax (entrada, posInput, tecla, longMax)  # Es válida tal cual
       elif tecla in teclas_shift:  # Shift está pulsado
         insertaHastaMax (entrada, posInput, teclas_shift[tecla], longMax)
