@@ -754,8 +754,8 @@ class PantallaJuego (QMdiSubWindow):
       mdi_banderas = None
 
   def keyPressEvent (self, evento):
-    if evento.key() in (Qt.Key_Alt, Qt.Key_Control, Qt.Key_Meta, Qt.Key_Shift):
-      return  # Ignoramos teclas modificadoras
+    if evento.key() in (Qt.Key_Alt, Qt.Key_AltGr, Qt.Key_CapsLock, Qt.Key_Control, Qt.Key_Meta, Qt.Key_NumLock, Qt.Key_ScrollLock, Qt.Key_Shift) or Qt.Key_F1 <= evento.key() <= Qt.Key_F35:
+      return  # Ignoramos teclas modificadoras, de bloqueo y de función
     enviar = '\n' if sys.version_info[0] < 3 else b'\n'
     if evento.key() in conversion_teclas:
       if sys.version_info[0] < 3:
