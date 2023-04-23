@@ -48,10 +48,13 @@ derecha = ''.join (der)
 iso8859_15_a_fuente = maketrans (izquierda, derecha)
 
 # Pares de códigos ASCII para teclas pulsadas
+mapeo_unicode    = {}  # Asociación de scan codes con códigos de caracteres iso-8859-15
 teclas_ascii     = {pygame.K_DOWN: (0, 80), pygame.K_LEFT: (0, 75), pygame.K_RIGHT: (0, 77), pygame.K_UP: (0, 72)}
 teclas_ascii_inv = {27: pygame.K_ESCAPE, 71: pygame.K_HOME, 72: pygame.K_UP, 75: pygame.K_LEFT, 77: pygame.K_RIGHT, 79: pygame.K_END, 80: pygame.K_DOWN}
+# Teclas que procesar como unicode
+teclas_unicode = 'ª¡¿áéíóúñÑçÇüÜº*+-?@[\\]_{}~'
 # Teclas imprimibles y de edición, con código < 256
-teclas_edicion = string.printable + string.punctuation + 'ñçº¡\b\x1b'
+teclas_edicion = string.printable + string.punctuation + teclas_unicode + '\b\x1b'
 # Teclas de edición con código >= 256
 # 314 es Alt Gr + ` (es decir, '[' en el teclado español) FIXME: pero también es Alt Gr + acento, que debería ser '{' en el teclado español
 teclas_mas_256 = (314, pygame.K_DELETE, pygame.K_DOWN, pygame.K_END, pygame.K_HOME, pygame.K_KP_ENTER, pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP)
@@ -581,14 +584,24 @@ def espera_tecla (tiempo = 0, numPasos = False):
     pygame.event.pump()
     evento = pygame.event.wait (500) if pygame.vernum[0] > 1 else pygame.event.wait()
     if evento.type == pygame.KEYDOWN:
-      if evento.key not in teclas_pulsadas:
-        teclas_pulsadas.append (evento.key)
-      if ((evento.key < 256) and (chr (evento.key) in teclas_edicion)) or evento.key in teclas_kp or evento.key in teclas_mas_256:
-          pygame.time.set_timer (pygame.USEREVENT, 0)  # Paramos el timer
-          return evento.key
+      if evento.unicode and evento.unicode in teclas_unicode:
+        tecla  = evento.unicode
+        codigo = ord (tecla)
+        mapeo_unicode[evento.scancode] = codigo
+      elif evento.scancode == 40 and evento.unicode != '\r':  # Omitimos la tecla de acento
+        continue
+      else:
+        codigo = evento.key
+        tecla  = chr (codigo) if codigo < 256 else ''
+      if codigo not in teclas_pulsadas:
+        teclas_pulsadas.append (codigo)
+      if ((codigo < 256) and (tecla in teclas_edicion)) or codigo in teclas_kp or codigo in teclas_mas_256:
+        pygame.time.set_timer (pygame.USEREVENT, 0)  # Paramos el timer
+        return codigo
     elif evento.type == pygame.KEYUP:
-      if evento.key in teclas_pulsadas:
-        teclas_pulsadas.remove (evento.key)
+      codigo = mapeo_unicode[evento.scancode] if evento.scancode in mapeo_unicode else evento.key
+      if codigo in teclas_pulsadas:
+        teclas_pulsadas.remove (codigo)
     elif evento.type == pygame.USEREVENT:  # Tiempo de espera superado
       pygame.time.set_timer (pygame.USEREVENT, 0)  # Paramos el timer
       return None
@@ -749,7 +762,7 @@ El parámetro espaciar permite elegir si se debe dejar una línea en blanco tras e
       entrada = entrada[:posInput[0]] + entrada[posInput[0] + 1:]
     else:  # Código inferior a 256
       tecla = chr (tecla)
-      if (tecla.isalpha() or tecla == ' ') and tecla != 'º':  # Una tecla de letra
+      if (tecla.isalpha() or tecla in ' ñç') and tecla != 'º':  # Una tecla de letra
         # Vemos si es texto que pegar desde el portapapeles
         texto = None
         if tecla == 'v' and control:
@@ -765,7 +778,12 @@ El parámetro espaciar permite elegir si se debe dejar una línea en blanco tras e
         if texto == None:  # Era (o considerar como) una tecla pulsada
           # Vemos si tenemos que añadirla en mayúscula o minúscula
           if todo_mayusculas or mayuscula ^ shift:
-            tecla = tecla.upper()
+            if tecla == 'ñ':  # Python 2 no sabe pasar a mayúsculas ñ ni ç
+              tecla = 'Ñ'
+            elif tecla == 'ç':
+              tecla = 'Ç'
+            else:
+              tecla = tecla.upper()
           insertaHastaMax (entrada, posInput, tecla, longMax)
         else:  # Añadimos el texto del portapapeles carácter a carácter
           if todo_mayusculas:
@@ -784,6 +802,8 @@ El parámetro espaciar permite elegir si se debe dejar una línea en blanco tras e
           insertaHastaMax (entrada, posInput, tecla, longMax)  # Es válida tal cual
       elif tecla in teclas_shift:  # Shift está pulsado
         insertaHastaMax (entrada, posInput, teclas_shift[tecla], longMax)
+      else:
+        insertaHastaMax (entrada, posInput, tecla, longMax)
   # Borramos la entrada realimentada en pantalla, sólo si no es en subventana propia (usar borra_orden en el otro caso)
   if subv_input:
     borra_pantalla (noRedibujar = True)
