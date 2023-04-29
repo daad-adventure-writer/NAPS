@@ -1471,7 +1471,8 @@ def importaBD (nombreFicheroBD, indiceFuncion = None, nombreFicheroGfx = None):
     if recargar:
       mod_actual = reload (mod_actual)
     mod_actual.muestraFallo = muestraFallo
-    mod_actual.nada_tras_flujo.append (True)
+    if args.no_entry_end and 'nada_tras_flujo' in mod_actual.__dict__:
+      mod_actual.nada_tras_flujo.append (True)
     # Solicitamos la importación
     if mod_actual.__dict__[funcion] (fichero, os.path.getsize (nombreFicheroBD)) != False:
       hayFallo = False
