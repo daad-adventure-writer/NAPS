@@ -906,8 +906,6 @@ def actualizaPosProcesos ():
       cursor = campo_txt.textCursor()
       cursor.movePosition (QTextCursor.EndOfBlock)
       cursor.movePosition (QTextCursor.StartOfBlock, QTextCursor.KeepAnchor)
-      if pilaAnterior[-1][2] > -1:  # Es línea de condacto
-        cursor.movePosition (QTextCursor.Left, QTextCursor.KeepAnchor)
       cursor.removeSelectedText()
       campo_txt.setTextBackgroundColor (color_base)
       if pilaAnterior[-1][2] == -1:  # Es línea de cabecera
@@ -916,7 +914,7 @@ def actualizaPosProcesos ():
       else:
         entrada  = proceso[1][pilaAnterior[-1][1]]
         condacto = entrada[pilaAnterior[-1][2]]
-        imprimeCondacto (*condacto)
+        imprimeCondacto (*condacto, nuevaLinea = False)
     # Marcamos la línea ejecutándose actualmente
     if len (pila_procs[-1]) > 1:
       campo_txt.irAEntradaYCondacto (pila_procs[-1][1], pila_procs[-1][2])
@@ -1525,11 +1523,11 @@ def imprimeCabecera (verbo, nombre, numEntrada):
   campo_txt.setTextBackgroundColor (color_base)
   campo_txt.textCursor().block().setUserState (numEntrada)  # Guardamos el número de la entrada
 
-def imprimeCondacto (condacto, parametros, inalcanzable = False):
+def imprimeCondacto (condacto, parametros, inalcanzable = False, nuevaLinea = True):
   """Imprime el condacto de código y parámetros dados en campo_txt en la posición del cursor actual, opcionalmente indicando si era código inalcanzable. Devuelve True si el parámetro inalcanzable era True o el condacto cambia el flujo incondicionalmente"""
   if inalcanzable:
     campo_txt.setTextColor (QColor (60, 60, 60))  # Color gris muy oscuro
-  campo_txt.insertPlainText ('\n  ')
+  campo_txt.insertPlainText (('\n' if nuevaLinea else '') + '  ')
   if condacto > 127 and mod_actual.INDIRECCION:  # Condacto indirecto
     condacto -= 128
     indirecto = '@'  # Condacto indirecto
