@@ -284,6 +284,14 @@ def guarda_bd_pics (fichero):
     fichero.seek (6)
     guarda_int4 (desplActual)
 
+def guarda_portada_amiga (imagen, paleta, fichero):
+  """Guarda una portada de Amiga en el fichero abierto dado con la imagen dada como lista de índices"""
+  bajo_nivel_cambia_sal (fichero)
+  guarda_int2_be (0)
+  guardaPaleta16 (paleta, 4)
+  ancho, alto = resolucion_por_modo['ST']
+  guardaImagenPlanar (imagen, ancho, alto, 4)
+
 def recurso_es_unico (numRecurso):
   """Devuelve si el contenido del recurso es único, o si por el contrario es usado por varios recursos"""
   return len (pos_recursos[recursos[numRecurso]['desplazamiento']]) == 1
@@ -759,6 +767,38 @@ def generaPaletasCGA (destino = 'paletas'):
       for linea in lineas:
         fichero.write (linea + '\n')
       fichero.close()
+
+def guardaImagenPlanar (imagen, ancho, alto, numPlanos):
+  """Guarda de modo planar la imagen dada como lista de índices, con ancho, alto y número de planos de color dados"""
+  bitsPlano = []
+  for p in range (numPlanos):
+    bitsPlano.append ([])
+  for color in imagen:
+    for indicePlano in range (numPlanos):
+      bitsPlano[indicePlano].append (1 if color & (2 ** indicePlano) else 0)
+  for indicePlano in range (numPlanos):
+    for primerBit in range (0, len (imagen), 8):
+      pixeles       = bitsPlano[indicePlano][primerBit : primerBit + 8]  # Siguientes 8 píxeles de este plano
+      valorComoByte = 0  # Valor como byte de los siguientes 8 píxeles de este plano
+      for indiceBit in range (8):
+        valorComoByte += 2 ** indiceBit if pixeles[7 - indiceBit] else 0
+      guarda_int1 (valorComoByte)
+
+def guardaPaleta16 (paleta, bpc):
+  """Guarda una paleta de 16 colores, con el número de bits por componente de color dado"""
+  for c in range (16):
+    if c < len (paleta):
+      rojo, verde, azul = paleta[c]
+    elif (255, 255, 255) not in paleta:
+      rojo, verde, azul = (255, 255, 255)  # Color blanco
+    else:
+      rojo, verde, azul = (0, 0, 0)  # Color negro
+    # Aproximamos el color a los disponibles
+    rojo  >>= 8 - bpc
+    verde >>= 8 - bpc
+    azul  >>= 8 - bpc
+    guarda_int1 (rojo)
+    guarda_int1 ((verde << 4) + azul)
 
 def preparaPlataforma (extension, fichero):
   """Prepara la configuración dependiente de la versión, plataforma y modo gráfico. Devuelve un mensaje de error si falla"""
