@@ -357,7 +357,7 @@ def cargaPortadaAmiga (fichero):
   """Carga y devuelve una portada de Amiga junto con su paleta, como índices en la paleta de cada píxel"""
   bajo_nivel_cambia_ent (fichero)
   fichero.seek (2)
-  paleta = cargaPaleta16 (4)
+  paleta = cargaPaleta16 (4, True)
   ancho  = 320
   alto   = 200
   return cargaImagenPlanar (ancho, alto, 4, 0, [], ancho * alto), paleta
@@ -510,17 +510,31 @@ def cargaImagenPlanar (ancho, alto, numPlanos, numImg, repetir, tamImg):
         numFila += 1
   return imagen
 
-def cargaPaleta16 (bpc):
+def cargaPaleta16 (bpc, portadaAmiga = False):
   """Carga y devuelve una paleta de 16 colores, con el número de bits por componente de color dado"""
+  bytesPaleta = []
+  for color in range (16):
+    bytesPaleta.append ((carga_int1(), carga_int1()))  # Rojo primero, y luego verde y azul juntos
+  ordenAmiga = True  # Si el cuarto bit de componente de color es el más significativo
+  if not portadaAmiga and bpc == 4 and version > 1 and modo_gfx == 'ST':
+    # Es paleta de imagen de BD gráfica DMG 3+ de Amiga/Atari ST con 4 bpc
+    # Vemos si los 4 bytes de la tabla de conversión de colores para CGA marcan orden de Amiga, si valen 0xDAADDAAD
+    tablaCGA = (carga_int1(), carga_int1(), carga_int1(), carga_int1())
+    if tablaCGA != (0xDA, 0xAD, 0xDA, 0xAD):
+      ordenAmiga = False
   valorMax  = (2 ** bpc) - 1   # Valor máximo en componentes de color
   distancia = 255. / valorMax  # Distancia para equiespaciar de 0 a 255
   paleta = []
   for color in range (16):
-    rojo  = carga_int1()
-    rojo  = (rojo & valorMax) * distancia
-    veaz  = carga_int1()
-    verde = ((veaz >> 4) & valorMax) * distancia
-    azul  = (veaz & valorMax) * distancia
+    rojo, veaz = bytesPaleta[color]
+    if ordenAmiga:
+      rojo  = (rojo        & valorMax) * distancia
+      verde = ((veaz >> 4) & valorMax) * distancia
+      azul  = (veaz        & valorMax) * distancia
+    else:  # Los bits de las componentes de color están en el orden de las paletas de Atari STe
+      rojo  = ((rojo        & 7) * 2 + (1 if rojo & 8   else 0)) * distancia
+      verde = (((veaz >> 4) & 7) * 2 + (1 if veaz & 128 else 0)) * distancia
+      azul  = ((veaz        & 7) * 2 + (1 if veaz & 8   else 0)) * distancia
     paleta.append ((int (round (rojo)), int (round (verde)), int (round (azul))))
   return paleta
 
@@ -560,7 +574,7 @@ def cargaRecursos ():
     if modo_gfx == 'ST' or version > 1:
       recurso['cambioPaleta'] = (carga_int1(), carga_int1())
     if long_paleta:
-      recurso['paleta'] = cargaPaleta16 (3)
+      recurso['paleta'] = cargaPaleta16 (4 if version > 1 and modo_gfx == 'ST' else 3)
     elif modo_gfx == 'CGA':
       recurso['paleta'] = paleta1b if 'cgaPaleta1' in banderas else paleta2b
     elif modo_gfx == 'EGA':
