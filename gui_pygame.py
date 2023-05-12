@@ -605,6 +605,13 @@ def espera_tecla (tiempo = 0, numPasos = False):
     elif evento.type == pygame.USEREVENT:  # Tiempo de espera superado
       pygame.time.set_timer (pygame.USEREVENT, 0)  # Paramos el timer
       return None
+    elif evento.type == pygame.VIDEOEXPOSE:  # Ventana maximizada/restaurada
+      if name == 'nt':
+        try:  # Intentamos recuperar el tamaño de la ventana no maximizada
+          import ctypes
+          ctypes.windll.user32.ShowWindow (pygame.display.get_wm_info()['window'], 9)
+        except:
+          pass
     elif evento.type in (pygame.QUIT, pygame.VIDEORESIZE):
       redimensiona_ventana (evento, copia)
     pygame.display.update()  # Para que recupere el contenido si se cubrió la ventana
