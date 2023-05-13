@@ -588,7 +588,7 @@ def espera_tecla (tiempo = 0, numPasos = False):
         tecla  = evento.unicode
         codigo = ord (tecla)
         mapeo_unicode[evento.scancode] = codigo
-      elif evento.scancode == 40 and evento.unicode != '\r':  # Omitimos la tecla de acento
+      elif evento.scancode == 40 and evento.unicode not in ('\r', 'D', 'd'):  # Omitimos la tecla de acento
         continue
       else:
         codigo = evento.key
