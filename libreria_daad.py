@@ -511,9 +511,9 @@ def cargaCadena (fichero):
     caracter = ord (fichero.read (1)) ^ 255
     if caracter == ord ('\n'):  # Fin de esta cadena
       break
-    # Hay 129 abreviaturas, pero la 0 nunca se reemplaza por lo que tenga, sino por un espacio en blanco
+    # Hay 129 abreviaturas, pero la 0 se reemplaza por un espacio en blanco al menos en la Aventura Original
     if (caracter >= 127) and abreviaturas:
-      if compatibilidad and caracter - 127 == 0:
+      if compatibilidad and not nueva_version and caracter - 127 == 0:
         cadena.append (' ')
       else:
         try:
