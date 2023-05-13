@@ -1066,10 +1066,10 @@ if __name__ == '__main__':
     # Solicitamos la importación
     try:
       correcto = modulo.__dict__[funcion] (bbdd, os.path.getsize (args.bbdd)) != False
-      if args.gui == 'telegram':
+      if args.gui in ('stdio', 'telegram'):
         modulo.msgs_sys[16] = ''  # Mensaje de espera una tecla
-        if len (modulo.msgs_sys) > 32:
-          modulo.msgs_sys[33] = ''  # Prompt
+      if args.gui == 'telegram' and len (modulo.msgs_sys) > 32:
+        modulo.msgs_sys[33] = ''  # Prompt
     except:
       correcto = False
     if correcto:
