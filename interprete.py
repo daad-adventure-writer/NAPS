@@ -1156,6 +1156,7 @@ if __name__ == '__main__':
       gui.paleta[0].extend (((0, 0, 0), (0, 0, 255), (255, 0, 0), (255, 0, 255),
                              (0, 255, 0), (0, 255, 255), (255, 255, 0), (255, 255, 255)))
     gui.chichen  = False
+    gui.cozumel  = False
     gui.espacial = False
     gui.templos  = False
     # XXX: apaño para diferenciar la Aventura Original de aventuras posteriores
@@ -1165,6 +1166,7 @@ if __name__ == '__main__':
       gui.juego_bajo = 15  # Ü
     elif len (msgs_usr) > 151 and msgs_usr[124][1:20] == 'ABBBBBBBBBBBBBBBBBC' and msgs_usr[151][-12:] == 'Cozumelanos.':
       # XXX: apaño para detectar la primera parte de Cozumel
+      gui.cozumel    = True
       gui.juego_alto = 14  # ü
       gui.juego_bajo = 15  # Ü
     else:

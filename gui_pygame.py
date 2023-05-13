@@ -1046,7 +1046,7 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
     cadena, colores = parseaColores (cadena)
   convertida = cadena.translate (iso8859_15_a_fuente)
   # Dividimos la cadena en líneas
-  juego     = 0    # 128 si está en el juego alto, 0 si no
+  juego     = 0    # 128 ó 128 - 16 si está en el juego alto, 0 si no
   iniLineas = [0]  # Posición de inicio de cada línea, para colorear
   lineas    = []
   linea     = []
@@ -1060,7 +1060,7 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
       linea    = []
       restante = tope[0]
     elif ordinal == juego_alto and juego == 0:
-      juego = 128
+      juego = 128 - (0 if centrar_graficos or cozumel else 16)
     elif ordinal == juego_bajo:
       juego = 0
     elif ordinal == 127 and tabulador:  # Es un tabulador
