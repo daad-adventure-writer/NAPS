@@ -1063,7 +1063,7 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
       juego = 128
     elif ordinal == juego_bajo:
       juego = 0
-    elif ordinal == 127:  # Es un tabulador
+    elif ordinal == 127 and tabulador:  # Es un tabulador
       posTabulador = iniLineas[-1] + len (linea)
       if restante > tope[0] // 2:
         numEspacios = (tope[0] // 2) - len (linea)  # Rellena con espacios hasta mitad de línea
