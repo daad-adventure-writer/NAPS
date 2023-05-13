@@ -910,7 +910,7 @@ def actualizaPosProcesos ():
       campo_txt.setTextBackgroundColor (color_base)
       if pilaAnterior[-1][2] == -1:  # Es línea de cabecera
         cabecera = proceso[0][pilaAnterior[-1][1]]
-        imprimeCabecera (cabecera[0], cabecera[1], pilaAnterior[-1][1])
+        imprimeCabecera (cabecera[0], cabecera[1], pilaAnterior[-1][1], pilaAnterior[-1][0])
       else:
         entrada  = proceso[1][pilaAnterior[-1][1]]
         condacto = entrada[pilaAnterior[-1][2]]
@@ -927,7 +927,7 @@ def actualizaPosProcesos ():
       campo_txt.setTextBackgroundColor (color_tope_pila)
       if pila_procs[-1][2] == -1:  # Es línea de cabecera
         cabecera = proceso[0][pila_procs[-1][1]]
-        imprimeCabecera (cabecera[0], cabecera[1], pila_procs[-1][1])
+        imprimeCabecera (cabecera[0], cabecera[1], pila_procs[-1][1], pilaAnterior[-1][0])
       else:
         entrada  = proceso[1][pila_procs[-1][1]]
         condacto = entrada[pila_procs[-1][2]]
@@ -982,7 +982,7 @@ def cambiaProceso (numero, numEntrada = None):
       campo_txt.setTextBackgroundColor (color_tope_pila if pila_procs[-1] == [numero, i, -1] else color_pila)
     else:
       campo_txt.setTextBackgroundColor (color_base)
-    imprimeCabecera (cabeceras[i][0], cabeceras[i][1], i)
+    imprimeCabecera (cabeceras[i][0], cabeceras[i][1], i, numero)
     campo_txt.insertPlainText ('\n     ')
     inalcanzable = False  # Marca de código inalcanzable
     for c in range (len (entradas[i])):
@@ -1487,7 +1487,7 @@ def importaBD (nombreFicheroBD, indiceFuncion = None, nombreFicheroGfx = None):
   postCarga (os.path.basename (nombreFicheroBD))
   return True
 
-def imprimeCabecera (verbo, nombre, numEntrada):
+def imprimeCabecera (verbo, nombre, numEntrada, numProceso):
   """Imprime la cabecera de la entrada numEntrada del proceso, con el verbo y nombre de códigos dados, en campo_txt en la posición del cursor actual"""
   campo_txt.setTextColor (QColor (200, 200, 200))  # Color gris claro
   campo_txt.setFontItalic (True)  # Cursiva activada
@@ -1501,9 +1501,9 @@ def imprimeCabecera (verbo, nombre, numEntrada):
     campo_txt.insertPlainText (pal_sinonimo[(verbo, tipo_nombre)].center (5))
   else:
     campo_txt.setTextColor (QColor (255, 0, 0))  # Color rojo
-    if (numero, verbo, tipo_verbo) not in pals_no_existen:
+    if (numProceso, verbo, tipo_verbo) not in pals_no_existen:
       muestraFallo ('Verbo no existente', 'Verbo de código ' + str (verbo) + ' no encontrado en el vocabulario')
-      pals_no_existen.append ((numero, verbo, tipo_verbo))
+      pals_no_existen.append ((numProceso, verbo, tipo_verbo))
     campo_txt.insertPlainText (str (verbo).center (5))
     campo_txt.setTextColor (QColor (200, 200, 200))  # Color gris claro
   campo_txt.insertPlainText ('  ')
@@ -1515,9 +1515,9 @@ def imprimeCabecera (verbo, nombre, numEntrada):
     campo_txt.insertPlainText (pal_sinonimo[(nombre, tipo_nombre)].center (5).rstrip())
   else:
     campo_txt.setTextColor (QColor (255, 0, 0))  # Color rojo
-    if (numero, nombre, tipo_nombre) not in pals_no_existen:
+    if (numProceso, nombre, tipo_nombre) not in pals_no_existen:
       muestraFallo ('Nombre no existente', 'Nombre de código ' + str (nombre) + ' no encontrado en el vocabulario')
-      pals_no_existen.append ((numero, nombre, tipo_nombre))
+      pals_no_existen.append ((numProceso, nombre, tipo_nombre))
     campo_txt.insertPlainText (str (nombre).center (5).rstrip())
   campo_txt.setFontItalic (False)  # Cursiva desactivada
   campo_txt.setTextBackgroundColor (color_base)
