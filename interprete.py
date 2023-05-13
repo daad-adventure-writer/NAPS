@@ -1173,11 +1173,14 @@ if __name__ == '__main__':
       if len (msgs_sys) > 100 and hashlib.sha1 ((msgs_sys[21] + msgs_sys[77] + msgs_sys[80] + msgs_sys[82] + msgs_sys[94] + msgs_sys[100]).encode ('utf8')).hexdigest() == 'cfea71b482cc37f6353bca664c8b36bbbed87f97':
         gui.chichen = True
       # XXX: apaño para detectar La Aventura Espacial, al menos las versiones de 16 bits
-      if len (msgs_sys) > 69 and hashlib.sha1 ((msgs_sys[5] + msgs_sys[6] + msgs_sys[10] + msgs_sys[18] + msgs_sys[19] + msgs_sys[23] + msgs_sys[50] + msgs_sys[69]).encode ('utf8')).hexdigest() == '967672803a8234257a76dd478571b7793c9eb159':
+      elif len (msgs_sys) > 69 and hashlib.sha1 ((msgs_sys[5] + msgs_sys[6] + msgs_sys[10] + msgs_sys[18] + msgs_sys[19] + msgs_sys[23] + msgs_sys[50] + msgs_sys[69]).encode ('utf8')).hexdigest() == '967672803a8234257a76dd478571b7793c9eb159':
         gui.espacial = True
       # XXX: apaño para detectar Los Templos Sagrados, al menos las versiones de 16 bits
-      if len (msgs_sys) > 83 and hashlib.sha1 ((msgs_sys[6] + msgs_sys[27] + msgs_sys[43] + msgs_sys[66] + msgs_sys[74] + msgs_sys[77] + msgs_sys[81] + msgs_sys[83]).encode ('utf8')).hexdigest() == 'fe8d542a35c3f87f354bb60c6da50abca518b616':
+      elif len (msgs_sys) > 83 and hashlib.sha1 ((msgs_sys[6] + msgs_sys[27] + msgs_sys[43] + msgs_sys[66] + msgs_sys[74] + msgs_sys[77] + msgs_sys[81] + msgs_sys[83]).encode ('utf8')).hexdigest() == 'fe8d542a35c3f87f354bb60c6da50abca518b616':
         gui.templos = True
+      elif nueva_version:
+        gui.juego_alto = 14  # ü
+        gui.juego_bajo = 15  # Ü
   if NOMBRE_SISTEMA != 'QUILL':
     gui.txt_mas = msgs_sys[32]  # (más)
 
