@@ -150,7 +150,10 @@ def abre_ventana (traza, escalar, bbdd):
     except Exception as e:
       prn ('No se ha podido cargar la imagen para el icono:', ruta_icono)
       prn (e)
-  pygame.display.set_caption ('NAPS - ' + bbdd)
+  if titulo_ventana:
+    pygame.display.set_caption (titulo_ventana)
+  else:
+    pygame.display.set_caption ('NAPS - ' + bbdd)
   ancho_juego = int (math.ceil ((limite[0] * 6) / 8.)) * 8
   resolucion  = (ancho_juego, limite[1] * 8)  # Tamaño de la ventana de juego
   if traza and 'NUM_BANDERAS' in globals():  # Añadiremos espacio para las banderas
@@ -476,7 +479,7 @@ El parámetro parcial indica si es posible dibujar parte de la imagen"""
 
 def elige_parte (partes, graficos):
   """Obtiene del jugador el modo gráfico a usar y a qué parte jugar, y devuelve el nombre de la base de datos elegida"""
-  global fuente, tras_portada
+  global fuente, titulo_ventana, tras_portada
   portada = None
   for modoPortada, tinta in (('dat', 15), ('ega', 15), ('cga', 3)):
     if modoPortada in graficos and 0 in graficos[modoPortada]:
@@ -522,7 +525,12 @@ def elige_parte (partes, graficos):
     mueve_cursor (21, 13)
     imprime_cadena ('cargar? (%d%s%d)' % (numParteMenor, '/' if (numParteMayor - numParteMenor == 1) else '-', numParteMayor))
     entrada = espera_tecla() - ord ('0')
-  pygame.display.set_caption ('NAPS - ' + partes[entrada])
+  if titulo_ventana:
+    if len (partes) > 1:
+      titulo_ventana += ' - Parte ' + str (entrada)
+    pygame.display.set_caption (titulo_ventana)
+  else:
+    pygame.display.set_caption ('NAPS - ' + partes[entrada])
   if portada:
     ventana.blit (portada, (0, 0))
     actualizaVentana()

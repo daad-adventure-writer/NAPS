@@ -962,6 +962,7 @@ if __name__ == '__main__':
   argsParser.add_argument ('--icon', type = str, help = argparse.SUPPRESS)
   argsParser.add_argument ('--ide', action = 'store_true', help = argparse.SUPPRESS)
   argsParser.add_argument ('-s', '--scale', type = int, choices = range (1, 10), help = 'factor de escalado para la ventana')
+  argsParser.add_argument ('--title', type = str, help = argparse.SUPPRESS)
   argsParser.add_argument ('bbdd', metavar = 'bd_cf_o_carpeta', nargs = '?' if QDialog else 1, help = 'base de datos, código fuente o carpeta de Quill/PAWS/SWAN/DAAD a ejecutar')
   argsParser.add_argument ('ruta_graficos', metavar = 'bd_o_carpeta_gráficos', nargs = '?', help = 'base de datos gráfica o carpeta de la que tomar las imágenes (con nombre pic###.png)')
   args  = argsParser.parse_args()
@@ -1014,6 +1015,7 @@ if __name__ == '__main__':
   gui.frase_guardada = frase_guardada
   gui.ide            = args.ide
   gui.ruta_icono     = args.icon
+  gui.titulo_ventana = args.title
   texto_nuevo        = gui.texto_nuevo
 
   if os.path.isdir (args.bbdd):
