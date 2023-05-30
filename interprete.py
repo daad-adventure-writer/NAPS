@@ -959,6 +959,7 @@ if __name__ == '__main__':
   argsParser.add_argument ('--conversion', metavar = 'módulo', help = 'convertir caracteres con valores del diccionario conversion en el módulo Python dado')
   argsParser.add_argument ('-D', '--debug', action = 'store_true', help = 'ejecutar los condactos paso a paso')
   argsParser.add_argument ('-g', '--gui', choices = ('pygame', 'stdio', 'telegram'), help = 'interfaz gráfica a utilizar')
+  argsParser.add_argument ('--icon', type = str, help = argparse.SUPPRESS)
   argsParser.add_argument ('--ide', action = 'store_true', help = argparse.SUPPRESS)
   argsParser.add_argument ('-s', '--scale', type = int, choices = range (1, 10), help = 'factor de escalado para la ventana')
   argsParser.add_argument ('bbdd', metavar = 'bd_cf_o_carpeta', nargs = '?' if QDialog else 1, help = 'base de datos, código fuente o carpeta de Quill/PAWS/SWAN/DAAD a ejecutar')
@@ -1012,6 +1013,7 @@ if __name__ == '__main__':
   gui = __import__ ('gui_' + args.gui)
   gui.frase_guardada = frase_guardada
   gui.ide            = args.ide
+  gui.ruta_icono     = args.icon
   texto_nuevo        = gui.texto_nuevo
 
   if os.path.isdir (args.bbdd):

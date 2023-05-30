@@ -143,6 +143,13 @@ def abre_ventana (traza, escalar, bbdd):
   if pygame.display.get_caption():  # Ya había sido inicializada antes
     copia    = ventana.copy()
     iniAntes = True
+  elif ruta_icono:
+    try:
+      icono = pygame.image.load (ruta_icono)
+      pygame.display.set_icon (icono)
+    except Exception as e:
+      prn ('No se ha podido cargar la imagen para el icono:', ruta_icono)
+      prn (e)
   pygame.display.set_caption ('NAPS - ' + bbdd)
   ancho_juego = int (math.ceil ((limite[0] * 6) / 8.)) * 8
   resolucion  = (ancho_juego, limite[1] * 8)  # Tamaño de la ventana de juego
