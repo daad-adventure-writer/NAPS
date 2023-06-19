@@ -441,7 +441,7 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
       if traza:
         gui.imprime_banderas  (banderas)
         gui.imprime_locs_objs (locs_objs)
-      timeout = [banderas[48]] if NUM_BANDERAS > 39 and banderas[49] & 1 else [0]
+      timeout = [banderas[48]] if NUM_BANDERAS > 39 and (not orden or not banderas[49] & 1) else [0]
 
       ordenObtenida = False
       while not ordenObtenida:
