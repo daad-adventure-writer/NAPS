@@ -1227,8 +1227,9 @@ def mueve_cursor (columna, fila = None):
   """Cambia de posición el cursor de la subventana elegida"""
   if fila == None:
     fila = cursores[elegida][1]
-  cursores[elegida]   = [columna, fila]
-  lineas_mas[elegida] = fila
+  else:
+    lineas_mas[elegida] = fila
+  cursores[elegida] = [columna, fila]
   if traza:
     prn ('Subventana', elegida, 'en', subventanas[elegida], 'con topes', topes[elegida],
          'y cursor movido a', cursores[elegida])
