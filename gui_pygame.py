@@ -668,13 +668,14 @@ def insertaHastaMax (listaChrs, posInput, caracter, longMax):
     listaChrs.insert (posInput[0], caracter)
     posInput[0] += 1
 
-def lee_cadena (prompt = '', inicio = '', timeout = [0], espaciar = False):
+def lee_cadena (prompt = '', inicio = '', timeout = [0], espaciar = False, pararTimeout = False):
   """Lee una cadena (terminada con Enter) desde el teclado, dando realimentación al jugador
 
 El parámetro prompt, es el mensaje de prompt
 El parámetro inicio es la entrada a medias anterior
 El parámetro timeout es una lista con el tiempo muerto, en segundos
-El parámetro espaciar permite elegir si se debe dejar una línea en blanco tras el último texto"""
+El parámetro espaciar permite elegir si se debe dejar una línea en blanco tras el último texto
+El parámetro pararTimeout indica si se evitará el tiempo muerto cuando la entrada tenga algo escrito"""
   cursorMovido = None  # Posición de cursor que recuperar si se ha movido
   posHistorial = len (historial)
   textoAntes   = False  # Si había texto en la subventana de entrada antes de la línea del prompt
@@ -722,6 +723,8 @@ El parámetro espaciar permite elegir si se debe dejar una línea en blanco tras e
     tecla = espera_tecla (timeout[0])
 
     if tecla == None:  # Tiempo muerto vencido
+      if pararTimeout and entrada:
+        continue  # Omitimos el tiempo muerto porque hay algo escrito en la entrada
       timeout[0] = True
       if subv_input:
         borra_pantalla()  # Borramos la entrada realimentada en pantalla

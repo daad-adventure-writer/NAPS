@@ -248,13 +248,14 @@ def imprime_cadena (cadena, textoNormal = True, redibujar = True, tiempo = 0):
   if cadena:  # Queda algo en la última línea
     bufferTexto += cadena
 
-def lee_cadena (prompt = '', inicio = '', timeout = [0], espaciar = False):
+def lee_cadena (prompt = '', inicio = '', timeout = [0], espaciar = False, pararTimeout = False):
   """Lee una cadena (terminada con Enter) desde el teclado, dando realimentación al jugador
 
 El parámetro prompt, es el mensaje de prompt
 El parámetro inicio es la entrada a medias anterior
 El parámetro timeout es una lista con el tiempo muerto, en segundos
-El parámetro espaciar permite elegir si se debe dejar una línea en blanco tras el último texto"""
+El parámetro espaciar permite elegir si se debe dejar una línea en blanco tras el último texto
+El parámetro pararTimeout indica si se evitará el tiempo muerto cuando la entrada tenga algo escrito"""
   entrada = None
   while not entrada:
     if prompt:

@@ -445,7 +445,7 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
 
       ordenObtenida = False
       while not ordenObtenida:
-        orden = gui.lee_cadena (peticion, orden, timeout, espaciar)
+        orden = gui.lee_cadena (peticion, orden, timeout, espaciar, banderas[49] & 1)
         # Activamos o desactivamos la depuración paso a paso
         if type (timeout[0]) == int and args.gui != 'telegram' and orden.strip().lower() == '*debug*':
           orden = ''
