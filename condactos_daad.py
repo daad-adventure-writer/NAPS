@@ -139,7 +139,7 @@ def c0_ISNDONE ():
 
 def c0_LOAD ():
   """Carga el contenido de las banderas y de las localidades de los objetos desde un fichero"""
-  nombreFich = (gui.lee_cadena (msgs_sys[60] + msgs_sys[33], '', [0]) + '.' + EXT_SAVEGAME).lower()
+  nombreFich = (gui.lee_cadena (msgs_sys[60] + msgs_sys[33]) + '.' + EXT_SAVEGAME).lower()
   # Buscamos el fichero con independencia de mayúsculas y minúsculas
   for nombreFichero in os.listdir (os.path.dirname (ruta_bbdd)):
     if nombreFichero.lower() == nombreFich:
@@ -173,7 +173,7 @@ def c0_LOAD ():
 
 def c0_QUIT ():
   """Pide confirmación (MS12), y devuelve si la respuesta empieza por la primera letra del MS30"""
-  respuesta = gui.lee_cadena (msgs_sys[12] + msgs_sys[33], '', [0], False)
+  respuesta = gui.lee_cadena (msgs_sys[12] + msgs_sys[33])
   return respuesta[0].lower() == msgs_sys[30][0].lower()
 
 
@@ -289,7 +289,7 @@ def a0_RESET ():
 
 def a0_SAVE ():
   """Guarda el contenido de las banderas y de las localidades de los objetos a un fichero"""
-  nombreFich = gui.lee_cadena (msgs_sys[60] + msgs_sys[33], '', [0])
+  nombreFich = gui.lee_cadena (msgs_sys[60] + msgs_sys[33])
   invalido   = False
   if compatibilidad and (len (nombreFich) > 8 or not nombreFich.isalnum()):
     invalido = True

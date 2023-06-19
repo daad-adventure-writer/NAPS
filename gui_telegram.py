@@ -166,7 +166,7 @@ def elige_parte (partes, graficos):
   while entrada not in numerosPartes:
     imprime_cadena ('¿Qué parte quieres cargar? (%d%s%d) ' % (numParteMenor, '/' if (numParteMayor - numParteMenor == 1) else '-', numParteMayor))
     try:
-      entrada = int (lee_cadena ('', '', []).strip())
+      entrada = int (lee_cadena().strip())
     except (KeyboardInterrupt, ValueError) as e:
       if type (e).__name__ != 'ValueError':
         raise
@@ -248,7 +248,7 @@ def imprime_cadena (cadena, textoNormal = True, redibujar = True, tiempo = 0):
   if cadena:  # Queda algo en la última línea
     bufferTexto += cadena
 
-def lee_cadena (prompt, inicio, timeout, espaciar = False):
+def lee_cadena (prompt = '', inicio = '', timeout = [0], espaciar = False):
   """Lee una cadena (terminada con Enter) desde el teclado, dando realimentación al jugador
 
 El parámetro prompt, es el mensaje de prompt

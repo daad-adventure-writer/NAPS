@@ -668,7 +668,7 @@ def insertaHastaMax (listaChrs, posInput, caracter, longMax):
     listaChrs.insert (posInput[0], caracter)
     posInput[0] += 1
 
-def lee_cadena (prompt, inicio, timeout, espaciar = False):
+def lee_cadena (prompt = '', inicio = '', timeout = [0], espaciar = False):
   """Lee una cadena (terminada con Enter) desde el teclado, dando realimentación al jugador
 
 El parámetro prompt, es el mensaje de prompt

@@ -228,7 +228,7 @@ def imprime_cadena (cadena, textoNormal = True, redibujar = True, tiempo = 0):
   if cadena:  # Queda algo en la última línea
     prn (cadena, end = '')
 
-def lee_cadena (prompt, inicio, timeout, espaciar = False):
+def lee_cadena (prompt = '', inicio = '', timeout = [0], espaciar = False):
   """Lee una cadena (terminada con Enter) desde el teclado, dando realimentación al jugador
 
 El parámetro prompt, es el mensaje de prompt

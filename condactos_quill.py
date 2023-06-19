@@ -148,7 +148,7 @@ def a0_DONE ():
 
 def a0_END ():
   """Pregunta si se desea volver a empezar (MS13), y si la respuesta empieza por la primera letra del MS31, imprime el MS14 y termina completamente la ejecución de la aventura. Si no, reinicia la aventura"""
-  respuesta = gui.lee_cadena (msgs_sys[13] + '>', '', [0], False)
+  respuesta = gui.lee_cadena (msgs_sys[13] + '>')
   if respuesta[0].lower() == msgs_sys[31].lower():
     gui.imprime_cadena (msgs_sys[14])
     return 7
@@ -179,7 +179,7 @@ def a0_OK ():
 def a0_QUIT ():
   """Pide confirmación (MS12), y si la respuesta empieza por la primera letra del MS30, continúa. Si no, ejecuta DONE"""
   # FIXME: según el manual, no cambia el flujo incondicionalmente
-  respuesta = gui.lee_cadena (msgs_sys[12] + '>', '', [0], False)
+  respuesta = gui.lee_cadena (msgs_sys[12] + '>')
   if respuesta[0].lower() != msgs_sys[30][0].lower():
     return 3  # Lo mismo que hace DONE
 
