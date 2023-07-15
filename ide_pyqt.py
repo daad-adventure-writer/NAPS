@@ -927,7 +927,7 @@ def actualizaPosProcesos ():
       campo_txt.setTextBackgroundColor (color_tope_pila)
       if pila_procs[-1][2] == -1:  # Es línea de cabecera
         cabecera = proceso[0][pila_procs[-1][1]]
-        imprimeCabecera (cabecera[0], cabecera[1], pila_procs[-1][1], pilaAnterior[-1][0])
+        imprimeCabecera (cabecera[0], cabecera[1], pila_procs[-1][1], pila_procs[-1][0])
       else:
         entrada  = proceso[1][pila_procs[-1][1]]
         condacto = entrada[pila_procs[-1][2]]
