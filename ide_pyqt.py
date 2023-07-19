@@ -349,7 +349,7 @@ class CampoTexto (QTextEdit):
           nomCondacto = str (dialogo.textValue()).upper()
           if nomCondacto in self.condactos:
             condacto   = self.condactos[nomCondacto]
-            lineaNueva = [condacto[4], [0] * len (condacto[1])]  # Código y parámetros de la nueva línea
+            lineaNueva = [condacto[-1], [0] * len (condacto[1])]  # Código y parámetros de la nueva línea
             if posicion > 1:  # Si no añade al inicio de la entrada
               if self.overwriteMode():
                 cursor.movePosition (QTextCursor.EndOfBlock)
