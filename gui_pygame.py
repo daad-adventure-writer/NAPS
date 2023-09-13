@@ -1060,8 +1060,10 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
       cambiada += c
     cadena  = cambiada
     colores = {}
+    swan    = True
   else:  # No es SWAN o no se cambia entre juego alto y bajo
     cadena, colores = parseaColores (cadena)
+    swan = False
   convertida = cadena.translate (iso8859_15_a_fuente)
   # Dividimos la cadena en líneas
   juego     = 0    # 128 ó 128 - 16 si está en el juego alto, 0 si no
@@ -1078,7 +1080,7 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
       linea    = []
       restante = tope[0]
     elif ordinal == juego_alto and juego == 0:
-      juego = 128 - (0 if centrar_graficos or cozumel else 16)
+      juego = 128 - (0 if centrar_graficos or swan or cozumel else 16)
     elif ordinal == juego_bajo:
       juego = 0
     elif ordinal == 127 and tabulador:  # Es un tabulador
