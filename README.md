@@ -4,6 +4,10 @@ NAPS - The New Age PAW-like System - Herramientas para sistemas PAW-like
 Intérprete PAW-like
 -------------------
 
+![Intérprete de NAPS ejecutando "La Maldición de Rabenstein" (sistema DAAD, plataforma PC, con gráficos VGA)](Intérprete_NAPS_-_Ejecutando_DAAD.png "Intérprete de NAPS ejecutando 'La Maldición de Rabenstein' (sistema DAAD, plataforma PC, con gráficos VGA)")
+
+![Intérprete de NAPS depurando "Las Aventuras de Rudolphine Rur" (sistema DAAD, plataforma PC, con gráficos VGA)](Intérprete_NAPS_-_Depurando_DAAD.png "Intérprete de NAPS depurando 'Las Aventuras de Rudolphine Rur' (sistema DAAD, plataforma PC, con gráficos VGA)")
+
 Requisitos:
 
 - Python versión 2.X superior a 2.5, ó 3.X superior a 3.2
@@ -40,6 +44,8 @@ Parámetros:
 
 Entorno de desarrollo integrado (IDE)
 -------------------------------------
+
+![IDE de NAPS depurando "La Diosa de Cozumel" (sistema DAAD, plataforma PC, con gráficos CGA)](IDE_NAPS_-_Depurador_de_DAAD.png "IDE de NAPS depurando 'La Diosa de Cozumel' (sistema DAAD, plataforma PC, con gráficos CGA)")
 
 Requisitos:
 
