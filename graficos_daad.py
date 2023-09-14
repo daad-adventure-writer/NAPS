@@ -167,8 +167,8 @@ def carga_portada (fichero):
   fichero.seek (0, os.SEEK_END)
   longFichero = fichero.tell()
   fichero.seek (0)
-  if longFichero == 16384:
-    return cargaPortadaCGA (fichero)
+  if longFichero in (16000, 16384):
+    return cargaPortadaCGA (fichero, longFichero)
   if longFichero == 32001:
     return cargaPortadaEGA (fichero)
   if longFichero == 32049:
@@ -383,7 +383,7 @@ def cargaPortadaAtari (fichero):
         break
   return imagen, paleta
 
-def cargaPortadaCGA (fichero):
+def cargaPortadaCGA (fichero, longFichero):
   """Carga y devuelve una portada CGA junto con su paleta, como lista de índices en la paleta de cada fila"""
   bajo_nivel_cambia_ent (fichero)
   ancho   = 320
@@ -395,7 +395,7 @@ def cargaPortadaCGA (fichero):
     # Primero van las filas pares, y luego las impares
     numFila = i * 2
     if numFila >= alto:
-      if numFila == alto:  # Se acaba de leer la primera mitad de la imagen
+      if numFila == alto and longFichero == 16384:  # Se acaba de leer la primera mitad de la imagen
         fichero.seek (8192)
       numFila -= alto - 1
     for indiceByte in range (tamFila):  # Cada byte de la fila
@@ -403,10 +403,13 @@ def cargaPortadaCGA (fichero):
       fila += [b >> 6, (b >> 4) & 3, (b >> 2) & 3, b & 3]  # Color de los cuatro píxeles actuales
     imagen[numFila] = fila
     fila = []
-  fichero.seek (16382)
-  fondo     = carga_int1() & 15
-  paleta    = list (paleta1s if carga_int1() & 1 else paleta2s)
-  paleta[0] = paletaEGA[fondo]
+  if longFichero == 16384:
+    fichero.seek (16382)
+    fondo     = carga_int1() & 15
+    paleta    = list (paleta1s if carga_int1() & 1 else paleta2s)
+    paleta[0] = paletaEGA[fondo]
+  else:
+    paleta = list (paleta1b)
   return imagen, paleta
 
 def cargaPortadaEGA (fichero):
