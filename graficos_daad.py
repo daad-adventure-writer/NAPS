@@ -148,11 +148,12 @@ def carga_fuente (fichero):
   bajo_nivel_cambia_ent (fichero)
   fichero.seek (0, os.SEEK_END)
   longFichero = fichero.tell()
-  fichero.seek ((128 if longFichero > 2048 else 0) + 16 * 8)
+  fichero.seek ((128 if 3200 > longFichero > 2048 else 0) + (16 * 8 if longFichero < 3200 else 0))
+  fichero.seek (0)
   ancho  = 628
-  alto   = 38
+  alto   = 38 + (0 if longFichero < 3200 else 10)
   imagen = [0] * ancho * alto  # Índices en la paleta de cada píxel en la imagen
-  for caracter in range (256 - 16):
+  for caracter in range (256 - (16 if longFichero < 3200 else 0)):
     posPorCol  = (caracter % 63) * 10
     posPorFila = (caracter // 63) * 10 * ancho
     for fila in range (8):

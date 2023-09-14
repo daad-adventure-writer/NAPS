@@ -75,12 +75,13 @@ factor_escala = 1  # Factor de escalado, de 1 a 9
 forzar_escala = name == 'nt' and pygame.version.vernum < (1, 9, 5)  # Que escale aun con factor de escalado 1
 ventana       = None
 
+ancho_caracter = 6
 fuente = pygame.image.load (path.dirname (path.realpath (__file__)) + path.sep + 'fuente.png')  # Fuente tipográfica
 fuente.set_palette (((255, 255, 255), (0, 0, 0)))
 fuente_estandar = fuente
 
 cad_cursor = '_'
-chr_cursor = pygame.Surface ((6, 8))  # Carácter con transparencia, para marcar posición de input
+chr_cursor = pygame.Surface ((8, 8))  # Carácter con transparencia, para marcar posición de input
 
 # Variables que ajusta el intérprete y usa esta GUI u otro módulo
 brillo           = 0         # Sin brillo por defecto
@@ -90,6 +91,7 @@ cambia_inversa   = None      # Carácter que si se encuentra en una cadena, inver
 cambia_papel     = None      # Carácter que si se encuentra en una cadena, cambiará el color de papel/fondo de la letra
 cambia_tinta     = None      # Carácter que si se encuentra en una cadena, cambiará el color de tinta de la letra
 centrar_graficos = []        # Si se deben centrar los gráficos al dibujarlos
+cozumel          = None      # Si la aventura ejecutándose es Cozumel
 juego_alto       = None      # Carácter que si se encuentra en una cadena, pasará al juego de caracteres alto
 juego_bajo       = None      # Carácter que si se encuentra en una cadena, pasará al juego de caracteres bajo
 paleta           = ([], [])  # Paleta de colores sin y con brillo para los textos, que cambia con cambia_*
@@ -135,7 +137,7 @@ def abre_ventana (traza, escalar, bbdd):
   global ancho_juego, escalada, factor_escala, resolucion, ventana
   if ide:
     if not ventana:
-      ancho_juego = int (math.ceil ((limite[0] * 6) / 8.)) * 8
+      ancho_juego = int (math.ceil ((limite[0] * ancho_caracter) / 8.)) * 8
       resolucion  = (ancho_juego, limite[1] * 8)  # Tamaño de la ventana de juego
       ventana     = pygame.Surface (resolucion)
     return
@@ -155,7 +157,7 @@ def abre_ventana (traza, escalar, bbdd):
     pygame.display.set_caption (titulo_ventana)
   else:
     pygame.display.set_caption ('NAPS - ' + bbdd)
-  ancho_juego = int (math.ceil ((limite[0] * 6) / 8.)) * 8
+  ancho_juego = int (math.ceil ((limite[0] * ancho_caracter) / 8.)) * 8
   resolucion  = (ancho_juego, limite[1] * 8)  # Tamaño de la ventana de juego
   if traza and 'NUM_BANDERAS' in globals():  # Añadiremos espacio para las banderas
     if NUM_BANDERAS > 50:  # Sistemas desde PAWS en adelante
@@ -279,19 +281,19 @@ def borra_pantalla (desdeCursor = False, noRedibujar = False):
   tope       = topes[elegida]
   if elegida == 0:
     tope = topes_gfx  # Borrar únicamente ancho de la última imagen dibujada allí
-  inicioX = (subventana[0] + cursor[0]) * 6  # Esquina superior izquierda X
-  inicioY = (subventana[1] + cursor[1]) * 8  # Esquina superior izquierda Y
+  inicioX = (subventana[0] + cursor[0]) * ancho_caracter  # Esquina superior izquierda X
+  inicioY = (subventana[1] + cursor[1]) * 8               # Esquina superior izquierda Y
   if desdeCursor:
-    ancho = (tope[0] * 6) - inicioX  # Anchura del rectángulo a borrar
-    alto  = 8                        # Altura del rectángulo a borrar, luego se borrará el resto si es más de una línea
+    ancho = (tope[0] * ancho_caracter) - inicioX  # Anchura del rectángulo a borrar
+    alto  = 8                                     # Altura del rectángulo a borrar, luego se borrará el resto si es más de una línea
   else:
-    ancho = int (math.ceil ((tope[0] * 6) / 8.)) * 8  # Anchura del rectángulo a borrar
-    alto  = tope[1] * 8                               # Altura del rectángulo a borrar
+    ancho = int (math.ceil ((tope[0] * ancho_caracter) / 8.)) * 8  # Anchura del rectángulo a borrar
+    alto  = tope[1] * 8                                            # Altura del rectángulo a borrar
   ventana.fill (colorBorde, (inicioX, inicioY, ancho, alto))
   if desdeCursor and tope[1] - cursor[1] > 0:  # Borrado de las siguientes líneas
-    inicioX = subventana[0] * 6                    # Esquina superior izquierda X
+    inicioX = subventana[0] * ancho_caracter       # Esquina superior izquierda X
     inicioY = (subventana[1] + cursor[1] + 1) * 8  # Esquina superior izquierda Y
-    ancho   = tope[0] * 6                          # Anchura del rectángulo a borrar
+    ancho   = tope[0] * ancho_caracter             # Anchura del rectángulo a borrar
     alto    = (tope[1] - cursor[1] - 1) * 8        # Altura del rectángulo a borrar
     ventana.fill (colorBorde, (inicioX, inicioY, ancho, alto))
   if not desdeCursor and not noRedibujar:
@@ -480,7 +482,7 @@ El parámetro parcial indica si es posible dibujar parte de la imagen"""
 
 def elige_parte (partes, graficos):
   """Obtiene del jugador el modo gráfico a usar y a qué parte jugar, y devuelve el nombre de la base de datos elegida"""
-  global fuente, titulo_ventana, tras_portada
+  global ancho_caracter, fuente, titulo_ventana, tras_portada
   portada = None
   for modoPortada, tinta in (('dat', 15), ('ega', 15), ('cga', 3)):
     if modoPortada in graficos and 0 in graficos[modoPortada]:
@@ -552,8 +554,10 @@ def elige_parte (partes, graficos):
     fichero = open (graficos['chr'][entrada], 'rb')
     imagen, palImg = graficos_daad.carga_fuente (fichero)
     fichero.close()
+    if len (imagen) > 23864:
+      ancho_caracter = 8
     bufferImg = bytes (bytearray (imagen))
-    fuente = pygame.image.frombuffer (bufferImg, (628, 38), 'P')
+    fuente = pygame.image.frombuffer (bufferImg, (628, 48 if len (imagen) > 23864 else 38), 'P')
     fuente.set_palette (palImg)
   return partes[entrada]
 
@@ -1038,36 +1042,37 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
     prn ('Impresión sobre subventana', elegida, 'en', subventana, 'con topes',
          tope, 'y cursor en', cursor)
   # Convertimos la cadena a posiciones sobre la tipografía
-  if todo_mayusculas and juego_alto and izquierda[juego_alto] in cadena:  # Se trata de SWAN
-    # En la fuente alta sólo hay letras mayúsculas, así que las demás las ponemos como fuente baja
-    juego    = False  # Si la parte actual de la cadena está en juego alto o no
-    bajado   = False  # Si la parte actual de la cadena está pasada a juego bajo por letras no mayúsculas
-    cambiada = ''     # Cadena cambiada teniendo en cuenta que en la fuente alta sólo hay letras mayúsculas
-    for c in cadena:
-      if c == izquierda[juego_alto]:  # Es el mismo carácter para alternar entre juego alto y bajo
-        juego = not juego
-        if not bajado:
-          cambiada += c
-        bajado = False
-        continue
-      if juego:
-        if c.isupper():
-          if bajado:
-            bajado    = False
-            cambiada += izquierda[juego_alto]
-        elif not bajado:
-          bajado    = True
-          cambiada += izquierda[juego_alto]
-      cambiada += c
-    cadena  = cambiada
+  if ancho_caracter == 8 or (todo_mayusculas and juego_alto and izquierda[juego_alto] in cadena):  # Se trata de SWAN
     colores = {}
     swan    = True
+    if ancho_caracter == 6:  # No se ha cargado la tipografía desde fichero
+      # En la fuente alta sólo hay letras mayúsculas, así que las demás las ponemos como fuente baja
+      juego    = False  # Si la parte actual de la cadena está en juego alto o no
+      bajado   = False  # Si la parte actual de la cadena está pasada a juego bajo por letras no mayúsculas
+      cambiada = ''     # Cadena cambiada teniendo en cuenta que en la fuente alta sólo hay letras mayúsculas
+      for c in cadena:
+        if c == izquierda[juego_alto]:  # Es el mismo carácter para alternar entre juego alto y bajo
+          juego = not juego
+          if not bajado:
+            cambiada += c
+          bajado = False
+          continue
+        if juego:
+          if c.isupper():
+            if bajado:
+              bajado    = False
+              cambiada += izquierda[juego_alto]
+          elif not bajado:
+            bajado    = True
+            cambiada += izquierda[juego_alto]
+        cambiada += c
+      cadena = cambiada
   else:  # No es SWAN o no se cambia entre juego alto y bajo
     cadena, colores = parseaColores (cadena)
     swan = False
   convertida = cadena.translate (iso8859_15_a_fuente)
   # Dividimos la cadena en líneas
-  juego     = 0    # 128 ó 128 - 16 si está en el juego alto, 0 si no
+  juego     = 0    # Primera posición en la fuente del juego alto, si está en el juego alto, 0 (primera del juego bajo) si no
   iniLineas = [0]  # Posición de inicio de cada línea, para colorear
   lineas    = []
   linea     = []
@@ -1081,7 +1086,9 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
       linea    = []
       restante = tope[0]
     elif ordinal == juego_alto and juego == 0:
-      juego = 128 - (0 if centrar_graficos or swan or cozumel else 16)
+      juego = 128 - (0 if centrar_graficos or (swan and ancho_caracter == 6) or cozumel else 16)
+      if ancho_caracter == 8:  # SWAN con tipografía cargada desde fichero
+        juego -= 16
     elif ordinal == juego_bajo:
       juego = 0
     elif ordinal == 127 and tabulador:  # Es un tabulador
@@ -1166,23 +1173,23 @@ def imprime_linea (linea, posInput = None, redibujar = True, colores = {}, inici
 
 Los caracteres de linea deben estar convertidos a posiciones en la tipografía"""
   # Coordenadas de destino
-  destinoX = (subventanas[elegida][0] + cursores[elegida][0]) * 6
+  destinoX = (subventanas[elegida][0] + cursores[elegida][0]) * ancho_caracter
   destinoY = (subventanas[elegida][1] + cursores[elegida][1]) * 8
   for i in range (len (linea)):  # Dibujamos cada caracter en la línea
-    destinoXchr = destinoX + (i * 6)         # Posición X donde toca dibujar el caracter
-    restantes   = ancho_juego - destinoXchr  # Píxeles restantes desde esta posición en la ventana de juego
+    destinoXchr = destinoX + (i * ancho_caracter)  # Posición X donde toca dibujar el caracter
+    restantes   = ancho_juego - destinoXchr        # Píxeles restantes desde esta posición en la ventana de juego
     if restantes < 1:
       break  # No dibujar más allá del ancho de la ventana de juego
-    c = ord (linea[i])
+    c = ord (linea[i]) - (16 if ancho_caracter == 8 else 0)
     if i + inicioLinea in colores:
       fuente.set_palette (colores[i + inicioLinea])
     # Curioso, aquí fuente tiene dos significados correctos :)
     # (SPOILER: Como sinónimo de origen y como sinónimo de tipografía)
     ventana.blit (fuente, (destinoXchr, destinoY),
-                  ((c % 63) * 10, (c // 63) * 10, min (6, restantes), 8))
+                  ((c % 63) * 10, (c // 63) * 10, min (ancho_caracter, restantes), 8))
   if posInput != None:
     preparaCursor()
-    ventana.blit (chr_cursor, (destinoX + (posInput * 6), destinoY), (0, 0, 6, 8))
+    ventana.blit (chr_cursor, (destinoX + (posInput * ancho_caracter), destinoY), (0, 0, ancho_caracter, 8))
   if redibujar:
     actualizaVentana()
 
@@ -1240,6 +1247,8 @@ def mueve_cursor (columna, fila = None):
 def prepara_topes (columnas, filas):
   """Inicializa los topes al número de columnas y filas dado"""
   global topes, topes_gfx
+  if columnas == 53 and ancho_caracter == 8:  # Ajustamos ancho en caracteres cuando se ha cargado fuente de 8 x 8
+    columnas = resolucion[0] // 8
   limite[0] = columnas           # Ancho máximo absoluto de cada subventana
   limite[1] = filas              # Alto máximo absoluto de cada subventana
   topes_gfx = [columnas, filas]  # Ancho y alto del último gráfico dibujado en la subventana 0
@@ -1433,17 +1442,17 @@ def preparaCursor ():
   """Prepara el cursor con el carácter y color adecuado"""
   cadenaCursor, colores = parseaColores (cad_cursor)
   if len (cadenaCursor) >= 1 and cadenaCursor[0] in izquierda:
-    posEnFuente = izquierda.index (cadenaCursor[0])
+    posEnFuente = izquierda.index (cadenaCursor[0]) - (16 if ancho_caracter == 8 else 0)
     fuente.set_palette (colores[0])
-    chr_cursor.blit (fuente, (0, 0), ((posEnFuente % 63) * 10, (posEnFuente // 63) * 10, 6, 8))
+    chr_cursor.blit (fuente, (0, 0), ((posEnFuente % 63) * 10, (posEnFuente // 63) * 10, ancho_caracter, 8))
     chr_cursor.set_colorkey (colores[0][1])  # El color de papel/fondo será ahora transparente
 
 def scrollLineas (lineasAsubir, subventana, tope, redibujar = True):
   """Hace scroll gráfico del número dado de líneas, en la subventana dada, con topes dados"""
-  destino = (subventana[0] * 6, subventana[1] * 8)  # Posición de destino
+  destino = (subventana[0] * ancho_caracter, subventana[1] * 8)  # Posición de destino
   origenX = destino[0]  # Coordenada X del origen (a subir)
   origenY = (subventana[1] + lineasAsubir) * 8  # Coordenada Y del origen
-  anchura = tope[0] * 6  # Anchura del área a subir
+  anchura = tope[0] * ancho_caracter      # Anchura del área a subir
   altura  = (tope[1] - lineasAsubir) * 8  # Altura del área a subir
   # Copiamos las líneas a subir
   if altura > 0:
