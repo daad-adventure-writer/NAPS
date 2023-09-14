@@ -270,7 +270,10 @@ def busca_partes (rutaCarpeta):
       if numParte == 0:  # Las partes en las aventuras SWAN no son para ser cargadas directamente desde el inicio
         partes[numParte] = rutaCarpeta + nombreFichero
     elif extension == 'dat':  # Fuentes tipográficas
-      bd_gfx['chr'][numParte] = rutaCarpeta + nombreFichero
+      if os.path.getsize (os.path.join (rutaCarpeta, nombreFichero)) == 3200:
+        if numParte and 0 not in bd_gfx['chr']:
+          numParte = 0  # En Titan la fuente tipográfica está en titan001.dat, titan000.dat es otra cosa
+        bd_gfx['chr'][numParte] = rutaCarpeta + nombreFichero
     elif extension == 'pix':  # Imágenes de portada y bases de datos gráficas
       bd_gfx['cga' if numParte == 0 else 'pix'][numParte] = rutaCarpeta + nombreFichero
   # Quitamos modos gráficos sin bases de datos gráficas para ellos
