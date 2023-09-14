@@ -1280,6 +1280,8 @@ def reinicia_subventanas ():
 
 def cambiaPaleta (nuevaPaleta, convertir = True, paraPortada = False):
   """Cambia la paleta de la ventana de juego por la dada, la reordena para textos, y opcionalmente convierte los colores dibujados por los nuevos"""
+  if traza:
+    prn ('Paleta cambiada')
   if paleta[0]:
     if convertir and nuevaPaleta != paleta_gfx:
       for x in range (320):
