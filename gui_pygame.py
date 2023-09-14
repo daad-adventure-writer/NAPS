@@ -302,7 +302,7 @@ def borra_pantalla (desdeCursor = False, noRedibujar = False):
 def borra_todo ():
   """Limpia la pantalla completa"""
   colorBorde = daColorBorde()
-  ventana.fill (colorBorde, (0, 0, 320, 200))
+  ventana.fill (colorBorde, (0, 0, resolucion[0], resolucion[1]))
   actualizaVentana()
 
 def cambia_color_borde (color):
