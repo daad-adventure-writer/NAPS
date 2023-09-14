@@ -1022,8 +1022,11 @@ if __name__ == '__main__':
     libreria    = __import__ ('libreria_daad')
     partes, gfx = libreria.busca_partes (args.bbdd)
     if not partes:
-      prn ('Ninguna base de datos con nombre válido detectada en esa carpeta', file = sys.stderr)
-      sys.exit()
+      libreria    = __import__ ('libreria_swan')
+      partes, gfx = libreria.busca_partes (args.bbdd)
+      if not partes:
+        prn ('Ninguna base de datos con nombre válido detectada en esa carpeta', file = sys.stderr)
+        sys.exit()
     if traza:
       prn ('Bases de datos de partes detectadas:', partes, file = sys.stderr)
       prn ('Bases de datos gráficas detectadas:',  gfx,    file = sys.stderr)
@@ -1133,13 +1136,15 @@ if __name__ == '__main__':
 
   if NOMBRE_SISTEMA != 'DAAD':
     gui.todo_mayusculas = True
-    # Colores en este orden: negro, azul, rojo, magenta, verde, cyan, amarillo, blanco
-    gui.paleta[0].extend (((0, 0, 0), (0, 0, 215), (215, 0, 0), (215, 0, 215),  # Sin brillo
-                           (0, 215, 0), (0, 215, 215), (215, 215, 0), (215, 215, 215)))
-    gui.paleta[1].extend (((0, 0, 0), (0, 0, 255), (255, 0, 0), (255, 0, 255),  # Con brillo
-                           (0, 255, 0), (0, 255, 255), (255, 255, 0), (255, 255, 255)))
+    if not gui.paleta[0]:
+      # Colores en este orden: negro, azul, rojo, magenta, verde, cyan, amarillo, blanco
+      gui.paleta[0].extend (((0, 0, 0), (0, 0, 215), (215, 0, 0), (215, 0, 215),  # Sin brillo
+                             (0, 215, 0), (0, 215, 215), (215, 215, 0), (215, 215, 215)))
+      gui.paleta[1].extend (((0, 0, 0), (0, 0, 255), (255, 0, 0), (255, 0, 255),  # Con brillo
+                             (0, 255, 0), (0, 255, 255), (255, 255, 0), (255, 255, 255)))
     if NOMBRE_SISTEMA == 'SWAN':
-      gui.brillo     = 1   # Con brillo por defecto
+      if gui.paleta[1]:
+        gui.brillo = 1   # Con brillo por defecto
       gui.juego_alto = 48  # @
       gui.juego_bajo = 48
     elif NOMBRE_SISTEMA in ('QUILL', 'PAWS') and extension == 'sna':  # Quill/PAWS de Spectrum

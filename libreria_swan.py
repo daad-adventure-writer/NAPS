@@ -22,6 +22,8 @@
 # *                                                                           *
 # *****************************************************************************
 
+import os
+
 from bajo_nivel import *
 from prn_func   import prn
 
@@ -248,6 +250,32 @@ condactos = {
 
 
 # Funciones que utiliza el IDE o el intérprete directamente
+
+def busca_partes (rutaCarpeta):
+  """Analiza los ficheros en la carpeta dada, identificando por extensión y devolviendo una lista con las bases de datos de las diferentes partes, y las bases de datos de gráficos correspondientes, para los diferentes modos gráficos encontrados"""
+  rutaCarpeta += '' if (rutaCarpeta[-1] == os.sep) else os.sep  # Asegura que termine con separador de directorio
+  bd_gfx = {'cga': {}, 'pix': {}}
+  partes = {}
+  for nombreFichero in os.listdir (rutaCarpeta):
+    nombreFicheroMin = nombreFichero.lower()
+    if len (nombreFichero) != 12 or nombreFicheroMin[:5] not in ('mindf', 'titan') or nombreFichero[8] != '.':
+      continue
+    try:
+      numParte = int (nombreFichero[5:8])
+    except:
+      continue
+    extension = nombreFicheroMin[9:]
+    modo      = None  # Modo gráfico
+    if extension == 'adb':
+      if numParte == 0:  # Las partes en las aventuras SWAN no son para ser cargadas directamente desde el inicio
+        partes[numParte] = rutaCarpeta + nombreFichero
+    elif extension == 'pix':  # Imágenes de portada y bases de datos gráficas
+      bd_gfx['cga' if numParte == 0 else 'pix'][numParte] = rutaCarpeta + nombreFichero
+  # Quitamos modos gráficos sin bases de datos gráficas para ellos
+  for modo in tuple (bd_gfx.keys()):
+    if not bd_gfx[modo]:
+      del bd_gfx[modo]
+  return partes, bd_gfx
 
 def cadena_es_mayor (cadena1, cadena2):
   """Devuelve si la cadena1 es mayor a la cadena2 en el juego de caracteres de este sistema"""
