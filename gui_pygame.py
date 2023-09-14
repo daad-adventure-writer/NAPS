@@ -77,6 +77,7 @@ ventana       = None
 
 fuente = pygame.image.load (path.dirname (path.realpath (__file__)) + path.sep + 'fuente.png')  # Fuente tipográfica
 fuente.set_palette (((255, 255, 255), (0, 0, 0)))
+fuente_estandar = fuente
 
 cad_cursor = '_'
 chr_cursor = pygame.Surface ((6, 8))  # Carácter con transparencia, para marcar posición de input
@@ -884,13 +885,13 @@ def imprime_banderas (banderas):
     for num in range (NUM_BANDERAS):
       # Cambiamos el color de impresión cuando se sobrepase cada centena
       if num % 100 == 0:
-        fuente.set_palette ((coloresBanderas[num // 100], (0, 0, 0)))
+        fuente_estandar.set_palette ((coloresBanderas[num // 100], (0, 0, 0)))
       columna = ancho_juego + ((num // numFilas) * (((cifrasBandera + 3) * 6) + 3))
       fila    = (num % numFilas) * 8
       cadena  = str (num % (10 ** cifrasBandera)).zfill (cifrasBandera).translate (iso8859_15_a_fuente)
       for pos in range (cifrasBandera):
         c = ord (cadena[pos])
-        ventana.blit (fuente, (columna + (pos * 6), fila),
+        ventana.blit (fuente_estandar, (columna + (pos * 6), fila),
                       ((c % 63) * 10, (c // 63) * 10, 6, 8))
   # Imprimimos los valores de las banderas
   for num in range (NUM_BANDERAS):
@@ -904,20 +905,20 @@ def imprime_banderas (banderas):
     if banderas_antes[num] != banderas[num]:
       banderas_antes[num] = banderas[num]
       banderas_viejas.add (num)
-      fuente.set_palette (((64, 255, 0), (0, 0, 0)))
+      fuente_estandar.set_palette (((64, 255, 0), (0, 0, 0)))
     else:  # La bandera estaba en banderas_viejas
       banderas_viejas.remove (num)
       if banderas[num] == 0:
-        fuente.set_palette (((96, 96, 96), (0, 0, 0)))
+        fuente_estandar.set_palette (((96, 96, 96), (0, 0, 0)))
       else:
-        fuente.set_palette (((255, 255, 255), (0, 0, 0)))
+        fuente_estandar.set_palette (((255, 255, 255), (0, 0, 0)))
     # Imprimimos los valores de cada bandera
     for pos in range (3):
       c = ord (cadena[pos])
-      ventana.blit (fuente, (columna + (pos * 6), fila),
+      ventana.blit (fuente_estandar, (columna + (pos * 6), fila),
                     ((c % 63) * 10, (c // 63) * 10, 6, 8))
   actualizaVentana()
-  fuente.set_palette (((255, 255, 255), (0, 0, 0)))
+  fuente_estandar.set_palette (((255, 255, 255), (0, 0, 0)))
 
 def imprime_locs_objs (locs_objs):
   """Imprime las localidades de los objetos (en la extensión de la ventana)"""
@@ -962,13 +963,13 @@ def imprime_locs_objs (locs_objs):
     fila = filaInicial  # Fila en píxeles donde escribir índice o valor
     for num in range (c * numFilas, maxNum):
       # Seleccionamos el color de impresión para el índice, que cambiará cuando se sobrepase cada centena
-      fuente.set_palette ((coloresObjetos[num // 100], (0, 0, 0)))
+      fuente_estandar.set_palette ((coloresObjetos[num // 100], (0, 0, 0)))
       # Imprimimos el índice del objeto en esta fila y columna
       cadena  = str (num % (10 ** cifrasObjeto)).zfill (cifrasObjeto).translate (iso8859_15_a_fuente)
       columna = colColumna  # Columna en píxeles donde escribir índice o valor
       for pos in range (cifrasObjeto):
         c = ord (cadena[pos])
-        ventana.blit (fuente, (columna + (pos * 6), fila),
+        ventana.blit (fuente_estandar, (columna + (pos * 6), fila),
                       ((c % 63) * 10, (c // 63) * 10, 6, 8))
       # Imprimimos el valor de esta fila y columna
       columna += cifrasObjeto * 6 + 1
@@ -981,23 +982,23 @@ def imprime_locs_objs (locs_objs):
       if locs_objs_antes[num] != locs_objs[num]:  # Ha cambiado su valor
         locs_objs_antes[num] = locs_objs[num]
         locs_objs_viejas.add (num)
-        fuente.set_palette (((64, 255, 0), (0, 0, 0)))
+        fuente_estandar.set_palette (((64, 255, 0), (0, 0, 0)))
       else:  # No ha cambiado su valor
         if num in locs_objs_viejas:  # El objeto estaba en locs_objs_viejas
           locs_objs_viejas.remove (num)
         if locs_objs[num] == 252:  # No creados
-          fuente.set_palette (((96, 96, 96), (0, 0, 0)))
+          fuente_estandar.set_palette (((96, 96, 96), (0, 0, 0)))
         else:
-          fuente.set_palette (((255, 255, 255), (0, 0, 0)))
+          fuente_estandar.set_palette (((255, 255, 255), (0, 0, 0)))
       # Imprimimos el valor de este objeto
       for pos in range (cifrasValores):
         c = ord (cadena[pos])
-        ventana.blit (fuente, (columna + (pos * 6), fila),
+        ventana.blit (fuente_estandar, (columna + (pos * 6), fila),
                       ((c % 63) * 10, (c // 63) * 10, 6, 8))
       fila += 8
     colColumna += ((cifrasObjeto + cifrasValores) * 6) + 3
   actualizaVentana()
-  fuente.set_palette (((255, 255, 255), (0, 0, 0)))
+  fuente_estandar.set_palette (((255, 255, 255), (0, 0, 0)))
 
 def imprime_cadena (cadena, textoNormal = True, redibujar = True, abajo = False, tiempo = 0):
   """Imprime una cadena en la posición del cursor (dentro de la subventana), y devuelve la cadena partida en líneas
