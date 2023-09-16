@@ -254,7 +254,7 @@ condactos = {
 def busca_partes (rutaCarpeta):
   """Analiza los ficheros en la carpeta dada, identificando por extensión y devolviendo una lista con las bases de datos de las diferentes partes, y las bases de datos de gráficos correspondientes, para los diferentes modos gráficos encontrados"""
   rutaCarpeta += '' if (rutaCarpeta[-1] == os.sep) else os.sep  # Asegura que termine con separador de directorio
-  bd_gfx = {'chr': {}, 'cga': {}, 'pix': {}}
+  bd_gfx = {'chr': {}, 'cga': {}, 'dat': {}, 'pix': {}}
   partes = {}
   for nombreFichero in os.listdir (rutaCarpeta):
     nombreFicheroMin = nombreFichero.lower()
@@ -265,7 +265,6 @@ def busca_partes (rutaCarpeta):
     except:
       continue
     extension = nombreFicheroMin[9:]
-    modo      = None  # Modo gráfico
     if extension == 'adb':
       if numParte == 0:  # Las partes en las aventuras SWAN no son para ser cargadas directamente desde el inicio
         partes[numParte] = rutaCarpeta + nombreFichero
@@ -275,7 +274,8 @@ def busca_partes (rutaCarpeta):
           numParte = 0  # En Titan la fuente tipográfica está en titan001.dat, titan000.dat es otra cosa
         bd_gfx['chr'][numParte] = rutaCarpeta + nombreFichero
     elif extension == 'pix':  # Imágenes de portada y bases de datos gráficas
-      bd_gfx['cga' if numParte == 0 else 'pix'][numParte] = rutaCarpeta + nombreFichero
+      modoPortada = 'cga' if 'mindf' in nombreFicheroMin else 'dat'
+      bd_gfx[modoPortada if numParte == 0 else 'pix'][numParte] = rutaCarpeta + nombreFichero
   # Quitamos modos gráficos sin bases de datos gráficas para ellos
   for modo in tuple (bd_gfx.keys()):
     if not bd_gfx[modo]:

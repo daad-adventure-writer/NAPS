@@ -315,7 +315,6 @@ def busca_partes (rutaCarpeta):
     except:
       continue
     extension = nombreFicheroMin[6:]
-    modo      = None  # Modo gráfico
     if extension == 'ddb':
       partes[numParte] = rutaCarpeta + nombreFichero
     elif extension in ('cgs', 'egs', 'scr', 'vgs'):  # Imágenes de portada
