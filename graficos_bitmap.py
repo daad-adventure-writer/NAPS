@@ -2,7 +2,7 @@
 
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
-# Librería para operar con bases de datos gráficas y otros gráficos de DAAD
+# Librería para operar con bases de datos gráficas y otros gráficos de mapa de bits
 # Copyright (C) 2008, 2018-2023 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************

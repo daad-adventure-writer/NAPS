@@ -35,7 +35,7 @@ except:
   from PyQt5.QtGui     import *
   from PyQt5.QtWidgets import *
 
-import graficos_daad
+import graficos_bitmap
 
 
 acc_exportar = None  # Acción de exportar base de datos gráfica
@@ -139,11 +139,11 @@ class Recurso (QPushButton):
       if imagen.height() + imagen.width() < 1:
         muestraFallo ('Dimensiones inválidas', 'La imagen elegida (' + nombreFichero + u') tiene dimensiones inválidas, tanto su ancho como su alto debería ser mayor que cero')
         return
-      if imagen.height() > graficos_daad.resolucion_por_modo[graficos_daad.modo_gfx][1]:
-        muestraFallo ('Altura de imagen excesiva', 'La imagen elegida (' + nombreFichero + ') tiene ' + str (imagen.height()) + u' píxeles de alto, mientras que el modo ' + graficos_daad.modo_gfx + u' de la base de datos gráfica sólo soporta hasta ' + str (graficos_daad.resolucion_por_modo[graficos_daad.modo_gfx][1]))
+      if imagen.height() > graficos_bitmap.resolucion_por_modo[graficos_bitmap.modo_gfx][1]:
+        muestraFallo ('Altura de imagen excesiva', 'La imagen elegida (' + nombreFichero + ') tiene ' + str (imagen.height()) + u' píxeles de alto, mientras que el modo ' + graficos_bitmap.modo_gfx + u' de la base de datos gráfica sólo soporta hasta ' + str (graficos_bitmap.resolucion_por_modo[graficos_bitmap.modo_gfx][1]))
         return
-      if imagen.width() > graficos_daad.resolucion_por_modo[graficos_daad.modo_gfx][0]:
-        muestraFallo ('Anchura de imagen excesiva', 'La imagen elegida (' + nombreFichero + ') tiene ' + str (imagen.width()) + u' píxeles de ancho, mientras que el modo ' + graficos_daad.modo_gfx + u' de la base de datos gráfica sólo soporta hasta ' + str (graficos_daad.resolucion_por_modo[graficos_daad.modo_gfx][0]))
+      if imagen.width() > graficos_bitmap.resolucion_por_modo[graficos_bitmap.modo_gfx][0]:
+        muestraFallo ('Anchura de imagen excesiva', 'La imagen elegida (' + nombreFichero + ') tiene ' + str (imagen.width()) + u' píxeles de ancho, mientras que el modo ' + graficos_bitmap.modo_gfx + u' de la base de datos gráfica sólo soporta hasta ' + str (graficos_bitmap.resolucion_por_modo[graficos_bitmap.modo_gfx][0]))
         return
       if imagen.height() % 8:
         muestraFallo ('Altura de imagen incorrecta', 'La imagen elegida (' + nombreFichero + ') tiene ' + str (imagen.height()) + u' píxeles de alto, cuando debería ser múltiplo de 8')
@@ -164,9 +164,9 @@ class Recurso (QPushButton):
       else:
         coloresUsados = imagen.colorTable()
         numColores    = imagen.colorCount()
-      if numColores > graficos_daad.colores_por_modo[graficos_daad.modo_gfx]:
-        muestraFallo ('Advertencia: número de colores elevado', 'La imagen elegida (' + nombreFichero + ') utiliza ' + str (numColores) + ' colores diferentes, mientras que el modo ' + graficos_daad.modo_gfx + u' de la base de datos gráfica sólo soporta ' + str (graficos_daad.colores_por_modo[graficos_daad.modo_gfx]))
-      if self.imagen and graficos_daad.recurso_es_unico (self.numRecurso):
+      if numColores > graficos_bitmap.colores_por_modo[graficos_bitmap.modo_gfx]:
+        muestraFallo ('Advertencia: número de colores elevado', 'La imagen elegida (' + nombreFichero + ') utiliza ' + str (numColores) + ' colores diferentes, mientras que el modo ' + graficos_bitmap.modo_gfx + u' de la base de datos gráfica sólo soporta ' + str (graficos_bitmap.colores_por_modo[graficos_bitmap.modo_gfx]))
+      if self.imagen and graficos_bitmap.recurso_es_unico (self.numRecurso):
         dlgSiNo = QMessageBox (ventana)
         dlgSiNo.addButton ('&Sí', QMessageBox.YesRole)
         dlgSiNo.addButton ('&No', QMessageBox.NoRole)
@@ -176,7 +176,7 @@ class Recurso (QPushButton):
         dlgSiNo.setInformativeText ('\n¿Seguro que quieres sustituirla por la imagen del fichero elegido?')
         if dlgSiNo.exec_() != 0:  # No se ha pulsado el botón Sí
           return
-      paletas = graficos_daad.da_paletas_del_formato()
+      paletas = graficos_bitmap.da_paletas_del_formato()
       if len (paletas) > 1:
         muestraFallo ('No implementado', 'El formato de base de datos gráfica soporta más de un modo gráfico, y la selección de colores para cada modo todavía no está implementada')
         return
@@ -236,7 +236,7 @@ class Recurso (QPushButton):
       self.imagen = imgConvertida
       self.setIcon (QIcon (QPixmap (imgConvertida)))
       self.setIconSize (imagen.rect().size())
-      graficos_daad.cambia_imagen (self.numRecurso, imagen.width(), imagen.height(), imgComoIndices, paletas[mejorPaleta])
+      graficos_bitmap.cambia_imagen (self.numRecurso, imagen.width(), imagen.height(), imgComoIndices, paletas[mejorPaleta])
       ventana.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
 
 class Ventana (QMainWindow):
@@ -269,13 +269,13 @@ class Ventana (QMainWindow):
 def dialogoExportaBD ():
   """Exporta la base de datos gráfica al fichero elegido por el usuario"""
   global dlg_exportar
-  if graficos_daad.modo_gfx == 'CGA':
+  if graficos_bitmap.modo_gfx == 'CGA':
     extensiones   = ('.cga',)
     formatoFiltro = 'Bases de datos gráficas DAAD para CGA (*.cga)'
-  if graficos_daad.modo_gfx == 'EGA':
+  elif graficos_bitmap.modo_gfx == 'EGA':
     extensiones   = ('.ega',)
     formatoFiltro = 'Bases de datos gráficas DAAD para EGA (*.ega)'
-  elif graficos_daad.modo_gfx == 'PCW':
+  elif graficos_bitmap.modo_gfx == 'PCW':
     extensiones   = ('.pcw', '.dat')
     formatoFiltro = 'Bases de datos gráficas DAAD para PCW (*.dat *.pcw)'
   if not dlg_exportar:  # Diálogo no creado aún
@@ -313,7 +313,7 @@ def dialogoExportaBD ():
                     'Causa:\n' + excepcion.args[1])
       ventana.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
       return
-    graficos_daad.guarda_bd_pics (fichero)
+    graficos_bitmap.guarda_bd_pics (fichero)
     fichero.close()
     ventana.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
 
@@ -337,13 +337,13 @@ def dialogoImportaBD ():
 
 def importaBD (nombreFichero):
   """Importa una base de datos gráfica desde el fichero de nombre dado"""
-  error = graficos_daad.carga_bd_pics (nombreFichero)
+  error = graficos_bitmap.carga_bd_pics (nombreFichero)
   if error:
     muestraFallo ('No se puede abrir el fichero:\n' + nombreFichero, error)
     return
 
   global acc_exportar
-  if graficos_daad.modo_gfx in ('CGA', 'EGA', 'PCW'):  # Modos gráficos de la versión 1 de DMG
+  if graficos_bitmap.modo_gfx in ('CGA', 'EGA', 'PCW'):  # Modos gráficos de la versión 1 de DMG
     acc_exportar.setEnabled (True)
   else:
     acc_exportar.setEnabled (False)
@@ -352,7 +352,7 @@ def importaBD (nombreFichero):
   anchoMax = 0  # Ancho de imagen máximo
   imagenes = []
   for numImg in range (256):
-    recurso = graficos_daad.recursos[numImg]
+    recurso = graficos_bitmap.recursos[numImg]
     if not recurso:
       imagenes.append (None)
       continue

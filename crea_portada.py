@@ -28,7 +28,7 @@ import sys
 
 import pygame.image
 
-import graficos_daad
+import graficos_bitmap
 from prn_func import prn
 
 
@@ -44,7 +44,7 @@ formato = sys.argv[2]
 if formato not in formatos:
   prn ('Formato de portada no soportado. Usar uno de los siguientes:', ', '.join (formatos))
   sys.exit()
-resolucion = graficos_daad.resolucion_por_modo[formatos[formato]['modo']]
+resolucion = graficos_bitmap.resolucion_por_modo[formatos[formato]['modo']]
 
 imagen = pygame.image.load (sys.argv[1])
 if imagen.get_width() != resolucion[0] or imagen.get_height() != resolucion[1]:
@@ -77,5 +77,5 @@ if '.' not in os.path.basename (destino):
   destino += '.' + formatos[formato]['extension']
 fichero = open (destino, 'wb')
 if formato == 'amiga':
-  graficos_daad.guarda_portada_amiga (imgComoIndices, paleta, fichero)
+  graficos_bitmap.guarda_portada_amiga (imgComoIndices, paleta, fichero)
 fichero.close()

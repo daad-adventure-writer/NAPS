@@ -29,7 +29,7 @@ from sys      import stdout, version_info
 import math    # Para ceil y log10
 import string  # Para algunas constantes
 
-import graficos_daad
+import graficos_bitmap
 import pygame
 
 
@@ -371,21 +371,21 @@ def carga_bd_pics (rutaBDGfx):
   """Carga la base de datos gráfica de ruta dada, y prepara la paleta y lo relacionado con ella. Devuelve un mensaje de error si falla"""
   global color_tinta
   extension = rutaBDGfx[rutaBDGfx.rfind ('.') + 1:]
-  error     = graficos_daad.carga_bd_pics (rutaBDGfx)
+  error     = graficos_bitmap.carga_bd_pics (rutaBDGfx)
   if error:
     return error
-  if graficos_daad.modo_gfx == 'CGA':
-    cambiaPaleta (graficos_daad.paleta1b)  # Dejamos cargada la paleta CGA 1 con brillo
-  elif graficos_daad.modo_gfx == 'EGA':
-    cambiaPaleta (graficos_daad.paletaEGA, False)  # Dejamos cargada la paleta EGA
+  if graficos_bitmap.modo_gfx == 'CGA':
+    cambiaPaleta (graficos_bitmap.paleta1b)  # Dejamos cargada la paleta CGA 1 con brillo
+  elif graficos_bitmap.modo_gfx == 'EGA':
+    cambiaPaleta (graficos_bitmap.paletaEGA, False)  # Dejamos cargada la paleta EGA
   else:
     if len (paleta[0]) in (0, 8):  # Dejamos paleta de la portada si la había
-      if graficos_daad.modo_gfx in graficos_daad.colores_por_defecto:
-        cambiaPaleta (graficos_daad.colores_por_defecto[graficos_daad.modo_gfx], False)
+      if graficos_bitmap.modo_gfx in graficos_bitmap.colores_por_defecto:
+        cambiaPaleta (graficos_bitmap.colores_por_defecto[graficos_bitmap.modo_gfx], False)
       else:
-        cambiaPaleta (graficos_daad.paletaEGA, False)  # Dejamos cargada la paleta EGA
+        cambiaPaleta (graficos_bitmap.paletaEGA, False)  # Dejamos cargada la paleta EGA
     color_tinta = 1  # Ponemos este color de tinta por defecto
-  if graficos_daad.recursos:
+  if graficos_bitmap.recursos:
     precargaGraficos()
 
 def centra_subventana ():
@@ -406,11 +406,11 @@ El parámetro parcial indica si es posible dibujar parte de la imagen"""
         prn ('Gráfico', numero, 'inválido o no encontrado en:', ruta_graficos)
         prn (e)
       return  # No dibujamos nada
-  elif graficos_daad.recursos:
+  elif graficos_bitmap.recursos:
     if numero not in graficos:
-      if not graficos_daad.recursos[numero] or 'imagen' not in graficos_daad.recursos[numero]:
+      if not graficos_bitmap.recursos[numero] or 'imagen' not in graficos_bitmap.recursos[numero]:
         if traza:
-          if not graficos_daad.recursos[numero]:
+          if not graficos_bitmap.recursos[numero]:
             razon = 'no está en la base de datos gráfica'
           else:
             razon = 'ese recurso de la base de datos gráfica no es una imagen, o está corrupta'
@@ -488,7 +488,7 @@ def elige_parte (partes, graficos):
     if modoPortada in graficos and 0 in graficos[modoPortada]:
       try:
         fichero = open (graficos[modoPortada][0], 'rb')
-        imagen, palImg = graficos_daad.carga_portada (fichero)
+        imagen, palImg = graficos_bitmap.carga_portada (fichero)
         strImg = b''
         for fila in imagen if modoPortada == 'cga' else [imagen]:
           if version_info[0] > 2:
@@ -511,7 +511,7 @@ def elige_parte (partes, graficos):
     else:
       tinta = 1  # Paleta cargada desde portada
   else:  # Cargamos una paleta mínima para poder pedir qué parte cargar
-    cambiaPaleta (graficos_daad.paleta1b, False)
+    cambiaPaleta (graficos_bitmap.paleta1b, False)
     tinta = 3
   color_subv[elegida][0] = tinta  # Color de tinta
   numerosPartes = tuple (partes.keys())
@@ -543,16 +543,16 @@ def elige_parte (partes, graficos):
     elif 'dat' in graficos and entrada in graficos['dat']:
       carga_bd_pics (graficos['dat'][entrada])
   else:
-    if tuple (paleta[0]) == graficos_daad.paleta1b:  # Es la paleta mínima cargada para poder pedir qué parte cargar
+    if tuple (paleta[0]) == graficos_bitmap.paleta1b:  # Es la paleta mínima cargada para poder pedir qué parte cargar
       del paleta[0][:]  # La quitamos para que se cargue la paleta correspondiente a los gráficos
     for modo in ('dat', 'ega', 'cga'):
       if modo in graficos and entrada in graficos[modo]:
         carga_bd_pics (graficos[modo][entrada])
-        if graficos_daad.recursos:
+        if graficos_bitmap.recursos:
           break
   if 'chr' in graficos and entrada in graficos['chr']:  # Hay fuente tipográfica para esta parte
     fichero = open (graficos['chr'][entrada], 'rb')
-    imagen, palImg = graficos_daad.carga_fuente (fichero)
+    imagen, palImg = graficos_bitmap.carga_fuente (fichero)
     fichero.close()
     if len (imagen) > 23864:
       ancho_caracter = 8
@@ -654,10 +654,10 @@ def hay_grafico (numero):
         prn ('Gráfico', numero, 'inválido o no encontrado en:', ruta_graficos)
         prn (e)
       return False
-  elif graficos_daad.recursos:
-    if not graficos_daad.recursos[numero] or 'imagen' not in graficos_daad.recursos[numero]:
+  elif graficos_bitmap.recursos:
+    if not graficos_bitmap.recursos[numero] or 'imagen' not in graficos_bitmap.recursos[numero]:
       if traza:
-        if not graficos_daad.recursos[numero]:
+        if not graficos_bitmap.recursos[numero]:
           razon = 'no está en la base de datos gráfica'
         else:
           razon = 'ese recurso de la base de datos gráfica no es una imagen, o está corrupta'
@@ -1304,7 +1304,7 @@ def cambiaPaleta (nuevaPaleta, convertir = True, paraPortada = False):
   del paleta_gfx[:]
   paleta_gfx.extend (nuevaPaleta)
   # Dejamos la paleta tal cual en modos gráficos que no soportan cambio de paleta
-  if not paraPortada and graficos_daad.modo_gfx not in ('ST', 'VGA'):
+  if not paraPortada and graficos_bitmap.modo_gfx not in ('ST', 'VGA'):
     paleta[0].extend (nuevaPaleta)
     return
   # Asignamos la paleta en el orden para textos
@@ -1334,7 +1334,7 @@ def cambiaPaleta (nuevaPaleta, convertir = True, paraPortada = False):
 
 def cargaGrafico (numero):
   """Carga un gráfico del recurso de base de datos gráfica de número dado, dejando su información y la imagen PyGame preparada en graficos"""
-  recurso   = graficos_daad.recursos[numero]
+  recurso   = graficos_bitmap.recursos[numero]
   bufferImg = bytes (bytearray (recurso['imagen']))
   graficos[numero] = {'grafico': pygame.image.frombuffer (bufferImg, recurso['dimensiones'], 'P')}
   for propiedad in ('banderas', 'paleta', 'posicion'):
@@ -1432,8 +1432,8 @@ def parseaColores (cadena):
 
 def precargaGraficos ():
   """Deja preparados los gráficos residentes en la base de datos gráfica cargada"""
-  for numero in range (len (graficos_daad.recursos)):
-    recurso = graficos_daad.recursos[numero]
+  for numero in range (len (graficos_bitmap.recursos)):
+    recurso = graficos_bitmap.recursos[numero]
     if not recurso or 'imagen' not in recurso or 'residente' not in recurso['banderas']:
       continue
     cargaGrafico (numero)
