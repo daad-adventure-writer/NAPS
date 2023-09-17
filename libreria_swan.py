@@ -92,7 +92,7 @@ despl_ini      = 0      # Desplazamiento inicial para cargar desde memoria
 # Desplazamientos iniciales para cargar desde memoria, de las plataformas en las que éste no es 0
 despl_ini_plat = {
   2561: (19072, 38400),  # Commodore 64, Spectrum 48K
-  2817: 10240,  # Amstrad CPC
+  2817: (10240, 25600),  # Amstrad CPC, Amstrad PCW
 }
 plats_word = (266, )  # Plataformas que no pueden leer words en desplazamientos impares (Amiga/PC)
 
