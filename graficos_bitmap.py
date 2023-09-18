@@ -455,7 +455,7 @@ def cargaImagenDMG3DOS (le, numImagen, repetir, tamImg):
     color   = None
   return imagen
 
-def cargaImagenPlanar (ancho, alto, numPlanos, numImg, repetir, tamImg):
+def cargaImagenPlanar (ancho, alto, numPlanos, numImg, repetir, tamImg, invertir = True):
   """Carga una imagen EGA o PCW de DMG 1, modos gráficos PCW monocromo y Amiga y EGA en orden planar con cuatro planos de bit de color enteros consecutivos, y la devuelve como lista de índices en la paleta. Devuelve un mensaje de error si falla"""
   imagen       = [0] * tamImg  # Índices en la paleta de cada píxel en la imagen
   izqAder      = True          # Sentido de procesado de píxeles de la fila actual
@@ -479,7 +479,7 @@ def cargaImagenPlanar (ancho, alto, numPlanos, numImg, repetir, tamImg):
         for indiceBit in range (7, -1, -1):  # Cada bit del byte actual
           bits.append (1 if b & (2 ** indiceBit) else 0)
       cuantas = min (repeticiones, (ancho - len (bitsFila)) // 8)  # Evitamos exceder la longitud de una fila
-      if izqAder:  # Sentido de izquierda a derecha
+      if izqAder or not invertir:  # Sentido de izquierda a derecha
         bitsFila.extend (bits * cuantas)  # Añadimos al final
       else:  # Sentido de derecha a izquierda
         bitsReversa = bits[::-1]
@@ -498,7 +498,7 @@ def cargaImagenPlanar (ancho, alto, numPlanos, numImg, repetir, tamImg):
             for indiceBit in range (8):
               bit = byte[indiceBit]
               imagen[primerPixel + indiceBit] += (2 ** plano) if bit else 0
-        elif izqAder:  # Sentido de izquierda a derecha
+        elif izqAder or not invertir:  # Sentido de izquierda a derecha
           primerPixel = (numFila * ancho)  # Índice del primer píxel del byte
           for indiceBit in range (ancho):
             bit = bitsFila[indiceBit]
