@@ -128,11 +128,24 @@ Estas banderas no tienen ningún propósito predefinido y, por tanto, pueden ser u
 
 Esta bandera no tiene ningún propósito predefinido y, por tanto, puede ser utilizada libremente por el programador.
 \\\ \\
-\sistema{\paw y \swan}
+\sistema{\paw}
 
 El intérprete comprueba el valor de esta bandera para saber cuándo debe dibujar
 los gráficos en pantalla. FIXME: Más detalle.
+
+Para más información, consultar la Guía Técnica de \paw \cite{PawsZX}.
 \\\ \\
+\sistema{\swan}
+
+El intérprete comprueba el valor de esta bandera al menos para saber cuándo debe dibujar los gráficos de localidad en pantalla. En concreto, este es el significado de los bits de esta bandera:
+
+\begin{description}
+  \item[Bit 3] Si se está mostrando ahora mismo (valor 1) o no (valor 0) en la pantalla - en la parte del gráfico de localidad - el menú por iconos de opciones del juego.
+  \item[Bit 5] Desconocido, hace algo a la hora de imprimir mensajes.
+  \item[Bit 6] Si está activada (valor 1) o desactivada (valor 0) la impresión de gráficos de localidad, lo cual se puede cambiar con el menú de opciones del juego.
+  \item[Bit 7] Desconocido, lo modifica el intérprete (al menos el de PCW) al leer entrada de texto por parte del jugador, y al esperar una tecla. Tal vez lo use sólo de forma interna.
+\end{description}
+
 \sistema{\daad}
 
 El intérprete inicializa esta bandera a 128 si está ejecutándose con un modo gráfico de 320 píxeles de ancho, con lo cual se dispondrá de 53 columnas para gráficos (de 6 píxeles de anchura) o texto. Si, en cambio, el intérprete se ejecuta en modo texto; entonces inicializará esta bandera a 0, indicando con ello que se dispondrá de 80 columnas para texto.
