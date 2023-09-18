@@ -327,6 +327,28 @@ def cargaImagenAmiga (repetir, tamImg):
         break
   return imagen
 
+def cargaImagenAtari (fichero):
+  """Carga y devuelve una imagen de Atari ST (formato de SWAN) junto con su paleta, como índices en la paleta de cada píxel"""
+  bajo_nivel_cambia_ent (fichero)
+  fichero.seek (4)
+  paleta = cargaPaleta16 (3)
+  fichero.seek (128)
+  imagen    = []  # Índices en la paleta de cada píxel en la imagen
+  numPlanos = 4
+  tamImg    = 320 * 96
+  while len (imagen) < tamImg:  # Mientras quede imagen por procesar
+    colores = [0] * 16
+    for plano in range (numPlanos):
+      b = carga_int2_be()  # Doble byte actual
+      for indiceBit in range (16):
+        bit = b & (2 ** indiceBit)
+        colores[15 - indiceBit] += (2 ** plano) if bit else 0
+    for pixel in range (16):  # Cada píxel en el grupo
+      imagen += [colores[pixel]]
+      if len (imagen) == tamImg:
+        break
+  return imagen, paleta
+
 def cargaImagenCGA (ancho, repetir, tamImg):
   """Carga y devuelve una imagen CGA de DMG 1, como lista de índices en la paleta"""
   fila    = []    # Índices en la paleta de cada píxel en la fila actual
