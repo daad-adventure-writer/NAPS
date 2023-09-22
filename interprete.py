@@ -337,8 +337,8 @@ def describe_localidad ():
   # en lugar de si no está a 1, como decía la guía técnica en papel
   if NOMBRE_SISTEMA == 'QUILL':
     gui.borra_pantalla()
-  elif NOMBRE_SISTEMA == 'PAWS' and not banderas[40] & 1:
-    if gui.elegida == 2:  # Se había usado PROTECT
+  elif NOMBRE_SISTEMA in ('PAWS', 'SWAN') and not banderas[40] & 1:
+    if gui.elegida == 2:  # Se había usado PROTECT o equivalente
       gui.elige_subventana (1)
     gui.borra_pantalla()
 
@@ -363,6 +363,28 @@ def describe_localidad ():
         gui.borra_pantalla()
       else:
         gui.mueve_cursor (0, 0)
+    elif NOMBRE_SISTEMA == 'SWAN':
+      try:
+        imagenesSWAN  # Lista para conversión de número de localidad a número de gráfico
+      except:
+        from graficos_bitmap import imagenesSWAN
+        prefijoAventura = args.bbdd[-12:-7].lower()
+        if prefijoAventura in imagenesSWAN:
+          imagenesSWAN  = imagenesSWAN[prefijoAventura]
+          gui.grf_borde = imagenesSWAN['caracterBorde']
+        else:
+          imagenesSWAN = {'imagenPorLocalidad': tuple (range (len (desc_locs)))}
+        if banderas[38] < len (imagenesSWAN['imagenPorLocalidad']):
+          numImagen = imagenesSWAN['imagenPorLocalidad'][banderas[38]]
+        else:
+          numImagen = imagenesSWAN['imagenPorDefecto']
+        if gui.hay_grafico (numImagen):
+          gui.dibuja_grafico (numImagen, True)
+          gui.elige_subventana (2)
+          gui.pos_subventana (0, 10)
+          gui.cambia_topes (0, 0)  # Topes al máximo tamaño posible
+        else:  # No se dispone de ese gráfico, así que el texto lo pondremos a pantalla completa
+          gui.elige_subventana (1)
     else:
       gui.dibuja_grafico (banderas[38], True)
     if desc_locs[banderas[38]]:  # la bandera 38 contiene la localidad actual

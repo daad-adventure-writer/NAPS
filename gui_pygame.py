@@ -24,7 +24,7 @@
 
 from os       import environ, name, path
 from prn_func import *
-from sys      import stdout, version_info
+from sys      import stderr, stdout, version_info
 
 import math    # Para ceil y log10
 import string  # Para algunas constantes
@@ -92,6 +92,7 @@ cambia_papel     = None      # Carácter que si se encuentra en una cadena, cambi
 cambia_tinta     = None      # Carácter que si se encuentra en una cadena, cambiará el color de tinta de la letra
 centrar_graficos = []        # Si se deben centrar los gráficos al dibujarlos
 cozumel          = None      # Si la aventura ejecutándose es Cozumel
+grf_borde        = None      # Cuadrado 8x8 que usar repetidamente como borde de los gráficos
 juego_alto       = None      # Carácter que si se encuentra en una cadena, pasará al juego de caracteres alto
 juego_bajo       = None      # Carácter que si se encuentra en una cadena, pasará al juego de caracteres bajo
 paleta           = ([], [])  # Paleta de colores sin y con brillo para los textos, que cambia con cambia_*
@@ -398,6 +399,7 @@ def dibuja_grafico (numero, descripcion = False, parcial = False):
 
 El parámetro descripcion indica si se llama al describir la localidad
 El parámetro parcial indica si es posible dibujar parte de la imagen"""
+  global grf_borde
   if ruta_graficos:
     try:
       grafico = pygame.image.load (ruta_graficos + 'pic' + str (numero).zfill (3) + '.png')
@@ -422,6 +424,9 @@ El parámetro parcial indica si es posible dibujar parte de la imagen"""
     if 'flotante' not in recurso['banderas']:
       cambiaPaleta (recurso['paleta'])
     grafico.set_palette (paleta_gfx)
+  elif numero in graficos:
+    grafico = graficos[numero]
+    recurso = None
   else:
     return  # No dibujamos nada
   global tras_portada
@@ -442,12 +447,30 @@ El parámetro parcial indica si es posible dibujar parte de la imagen"""
     topes_gfx[1] = min (grafico.get_height() // 6, limite[1])
   if (descripcion or elegida == 0) and not parcial:
     ancho = tope[0] * 6
-    if numero in graficos and 'flotante' not in recurso['banderas']:
+    if numero in graficos and recurso and 'flotante' not in recurso['banderas']:
       destino = recurso['posicion']
     elif centrar_graficos and ancho > grafico.get_width():  # Centramos el gráfico
       # Se centran los gráficos en la Aventura Original, pero no en El Jabato, así está en la base de datos gráfica
       destino      = ((ancho - grafico.get_width()) // 2, 0)
       topes_gfx[0] = min ((grafico.get_width() + (ancho - grafico.get_width()) // 2) // 6, limite[0])  # TODO: revisar si esto es correcto
+    elif grf_borde:  # Dibujaremos un borde alrededor del gráfico, de ancho máximo, a partir del gráfico de 8x8 en grf_borde
+      if type (grf_borde) != pygame.Surface:  # Preparamos el gráfico de borde como superficie de pygame
+        bufferImg = bytes (bytearray (grf_borde))
+        grf_borde = pygame.image.frombuffer (bufferImg, (8, 8), 'P')
+        grf_borde.set_palette (paleta[0])
+      destino  = [0, 0]
+      numFilas = 2 + grafico.get_height() // 8  # Número de filas para el gráfico contando el recuadro con el borde
+      for fila in range (numFilas):
+        if fila in (0, numFilas - 1):  # Repetiremos grf_borde durante toda la fila
+          destino[0] = 0
+          for columna in range (limite[0]):
+            ventana.blit (grf_borde, (destino))
+            destino[0] += 8
+        else:  # Dibujamos grf_borde en la primera y última columna
+          ventana.blit (grf_borde, (0, destino[1]))
+          ventana.blit (grf_borde, ((limite[0] * 8) - 8, destino[1]))
+        destino[1] += 8
+      destino = (8, 8)
     else:
       destino = (0, 0)
     ventana.blit (grafico, destino)
@@ -559,6 +582,8 @@ def elige_parte (partes, graficos):
     bufferImg = bytes (bytearray (imagen))
     fuente = pygame.image.frombuffer (bufferImg, (628, 48 if len (imagen) > 23864 else 38), 'P')
     fuente.set_palette (palImg)
+  if not graficos_bitmap.recursos and 'pix' in graficos:
+    precargaGraficosSWAN (graficos['pix'])
   return partes[entrada]
 
 def elige_subventana (numero):
@@ -663,7 +688,7 @@ def hay_grafico (numero):
           razon = 'ese recurso de la base de datos gráfica no es una imagen, o está corrupta'
         prn ('Gráfico', numero, 'inválido,', razon)
       return False
-  else:
+  elif numero not in graficos:
     return False
   return True
 
@@ -1437,6 +1462,22 @@ def precargaGraficos ():
     if not recurso or 'imagen' not in recurso or 'residente' not in recurso['banderas']:
       continue
     cargaGrafico (numero)
+
+def precargaGraficosSWAN (gfx):
+  """Deja preparados los gráficos de ficheros PIX de SWAN detectados"""
+  for numImagen, rutaImagen in gfx.items():
+    try:
+      fichero = open (rutaImagen, 'rb')
+      imagen, paleta, dimensiones = graficos_bitmap.carga_imagen_pix (fichero)
+      fichero.close()
+      bufferImg = bytes (bytearray (imagen))
+      graficos[numImagen] = pygame.image.frombuffer (bufferImg, dimensiones, 'P')
+    except Exception as e:
+      prn ('Fichero de gráfico', rutaImagen, 'corrupto o inválido', file = stderr)
+      if traza:
+        prn (e)
+      continue
+    graficos[numImagen].set_palette (paleta)
 
 def preparaCursor ():
   """Prepara el cursor con el carácter y color adecuado"""

@@ -73,6 +73,25 @@ paletaEGA = ((  0,  0,  0), (  0,  0, 170), (  0, 170,  0), (  0, 170, 170),
 paletaPCW = ((0, 0, 0), (0, 255, 0))
 
 
+# Valores 'hardcodeados' para las imágenes de las aventuras SWAN
+imagenesSWAN = {
+  'mindf': {
+    'caracterBorde': (  # Los índices de color son sobre la paleta reordenada para textos
+      0, 0, 0, 0, 0, 0, 0, 0,
+      0, 2, 2, 2, 2, 2, 2, 0,
+      0, 2, 0, 0, 0, 0, 2, 0,
+      0, 2, 0, 2, 2, 0, 2, 0,
+      0, 2, 0, 2, 2, 0, 2, 0,
+      0, 2, 0, 0, 0, 0, 2, 0,
+      0, 2, 2, 2, 2, 2, 2, 0,
+      0, 0, 0, 0, 0, 0, 0, 0,
+    ),
+    'imagenPorDefecto': 1,
+    'imagenPorLocalidad': (3, 1, 1, 1, 1, 4, 4, 1, 1, 1, 1, 7, 5, 5, 1, 1, 1, 3, 3, 1, 7, 1, 1, 7, 7, 3, 3, 3, 3, 1, 1, 8, 8, 1, 8, 8, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 4, 4, 10, 9, 10, 10, 9, 9, 10, 10, 10, 9, 10, 11, 11, 10, 9, 9, 10, 10, 9, 10, 11, 11, 10, 10, 11, 11, 11, 11, 11, 10, 10, 1, 16, 16, 16, 16, 16, 12, 12, 12, 12, 12, 12, 12, 12, 12, 1, 14, 13, 12, 4, 1, 6)
+    }
+}
+
+
 indice_nuevos     = -1    # Índice para almacenar la posición de nuevos recursos
 le                = None  # Si el formato de la base de datos gráfica es Little Endian
 long_cabecera     = None  # Longitud de la cabecera de la base de datos
@@ -162,6 +181,19 @@ def carga_fuente (fichero):
         imagen[posPorFila + posPorCol + indiceBit] = 0 if b & (2 ** (7 - indiceBit)) else 1
       posPorFila += ancho
   return imagen, paletaBN
+
+def carga_imagen_pix (fichero):
+  """Carga y devuelve una imagen PIX de SWAN junto con su paleta y dimensiones, como índices en la paleta de cada píxel, detectando su modo gráfico"""
+  fichero.seek (0, os.SEEK_END)
+  longFichero = fichero.tell()
+  fichero.seek (0)
+  if longFichero < 15488:  # Como no ocupa lo suficiente para poder ser una imagen de Atari, asumimos que es en blanco y negro
+    dimensiones = (304, 64)
+    imagen, paleta = cargaImagenPIXenBN (fichero)
+  else:
+    dimensiones = (320, 96)
+    imagen, paleta = cargaImagenAtari (fichero)
+  return imagen, paleta, dimensiones
 
 def carga_portada (fichero):
   """Carga y devuelve una portada de DAAD junto con su paleta, como índices en la paleta de cada píxel, detectando su modo gráfico"""
@@ -328,7 +360,7 @@ def cargaImagenAmiga (repetir, tamImg):
   return imagen
 
 def cargaImagenAtari (fichero):
-  """Carga y devuelve una imagen de Atari ST (formato de SWAN) junto con su paleta, como índices en la paleta de cada píxel"""
+  """Carga y devuelve una imagen de Atari ST (en formato PIX de SWAN) junto con su paleta, como índices en la paleta de cada píxel"""
   bajo_nivel_cambia_ent (fichero)
   fichero.seek (4)
   paleta = cargaPaleta16 (3)
@@ -375,6 +407,14 @@ def cargaImagenCGA (ancho, repetir, tamImg):
       if repetir:  # Si la imagen usa compresión RLE
         izqAder = not izqAder
   return imagen
+
+def cargaImagenPIXenBN (fichero):
+  """Carga y devuelve una imagen PIX de SWAN en blanco y negro junto con su paleta, como índices en la paleta de cada píxel"""
+  fichero.seek (8)
+  bajo_nivel_cambia_ent (fichero)
+  ancho = 304
+  alto  = 64
+  return cargaImagenPlanar (ancho, alto, 1, 0, [None], ancho * alto, invertir = False), (paletaBN[1], paletaBN[0])
 
 def cargaPortadaAmiga (fichero):
   """Carga y devuelve una portada de Amiga junto con su paleta, como índices en la paleta de cada píxel"""
