@@ -168,7 +168,6 @@ def carga_fuente (fichero):
   fichero.seek (0, os.SEEK_END)
   longFichero = fichero.tell()
   fichero.seek ((128 if 3200 > longFichero > 2048 else 0) + (16 * 8 if longFichero < 3200 else 0))
-  fichero.seek (0)
   ancho  = 628
   alto   = 38 + (0 if longFichero < 3200 else 10)
   imagen = [0] * ancho * alto  # Índices en la paleta de cada píxel en la imagen
