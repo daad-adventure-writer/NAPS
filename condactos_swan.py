@@ -36,10 +36,10 @@ import sys
 # CONDICIONES
 
 def c2_BSET (flagno, value):
-  return banderas[flagno] & value
+  return banderas[flagno] & value != 0
 
 def c2_NOTBSET (flagno, value):
-  return not banderas[flagno] & value
+  return banderas[flagno] & value == 0
 
 def c2_OAT (objno, flagno):
   # TODO: verificar probando si esta implementación es correcta
