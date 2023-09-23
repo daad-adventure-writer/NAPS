@@ -6,6 +6,8 @@ Intérprete PAW-like
 
 ![Intérprete de NAPS ejecutando "La Maldición de Rabenstein" (sistema DAAD, plataforma PC, con gráficos VGA)](Intérprete_NAPS_-_Ejecutando_DAAD.png "Intérprete de NAPS ejecutando 'La Maldición de Rabenstein' (sistema DAAD, plataforma PC, con gráficos VGA)")
 
+![Intérprete de NAPS ejecutando "Mindfighter" (sistema SWAN, plataforma PC, con gráficos CGA)](Intérprete_NAPS_-_Ejecutando_SWAN.png "Intérprete de NAPS ejecutando 'Mindfighter' (sistema SWAN, plataforma PC, con gráficos CGA)")
+
 ![Intérprete de NAPS depurando "Las Aventuras de Rudolphine Rur" (sistema DAAD, plataforma PC, con gráficos VGA)](Intérprete_NAPS_-_Depurando_DAAD.png "Intérprete de NAPS depurando 'Las Aventuras de Rudolphine Rur' (sistema DAAD, plataforma PC, con gráficos VGA)")
 
 Requisitos:
