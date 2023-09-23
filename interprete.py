@@ -165,9 +165,9 @@ def obj_referido (objeto):
     banderas[58] = atributos_extra[objeto] // 256
     banderas[59] = atributos_extra[objeto]  % 256
 
-def parsea_orden (psi):
+def parsea_orden (psi, mensajesInvalida = True):
   """Obtiene e interpreta la orden del jugador para rellenar la sentencia lógica actual, o la del PSI entrecomillada. Devuelve verdadero si la frase no es válida o ha ocurrido tiempo muerto"""
-  return prepara_orden (True, psi) != None
+  return prepara_orden (True, psi, mensajesInvalida) != None
 
 def prepara_vocabulario ():
   """Prepara el diccionario con el vocabulario, y la lista conjunciones"""
@@ -251,6 +251,8 @@ def bucle_paws ():
         estado = 0
       elif valor == 7:  # Terminar completamente la aventura
         return
+      if valor == 8:  # Saltar a procesar la tabla de respuestas
+        estado = 3  # TODO: ver si el turno no debe incrementarse
       elif valor == True:  # Ha terminado con DESC
         estado = 1  # Saltamos a la descripción de la localidad
       else:
@@ -441,7 +443,7 @@ Devuelve True si la frase no es válida o ha ocurrido tiempo muerto (para que vue
 
   return prepara_orden() != None
 
-def prepara_orden (espaciar = False, psi = False):
+def prepara_orden (espaciar = False, psi = False, mensajesInvalida = True):
   """Prepara una orden de las pendientes de ejecutar u obtiene una nueva
 
 Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
@@ -623,7 +625,7 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
         valida = True
       else:
         gui.imprime_cadena (msgs_sys[8], tiempo = tiempoTimeout)  # No puedes hacer eso
-    elif not psi and (NOMBRE_SISTEMA != 'DAAD' or not nueva_version):
+    elif not psi and mensajesInvalida and (NOMBRE_SISTEMA != 'DAAD' or not nueva_version):
       gui.imprime_cadena (msgs_sys[6], tiempo = tiempoTimeout)  # No entendí nada
 
   if psi:
@@ -654,6 +656,7 @@ Devuelve el modo en que el condacto altera el flujo de ejecución:
    5: termina la ejecución de la tabla actual sin más detalle (como fallo GET)
    6: termina la entrada de tabla actual (como una condición que no se cumple)
    7: termina completamente la ejecución de la aventura
+   8: termina la ejecución y pasa a ejecutar la tabla de respuestas
 None: pasa al siguiente condacto"""
   global proceso_acc
   if libreria.INDIRECCION and codigo > 127:  # Si el sistema soporta indirección
@@ -723,16 +726,18 @@ Devuelve True si ha ejecutado DESC o equivalente. False si se debe reiniciar la 
         if cambioFlujo < 0:  # Ejecutar subproceso
           prepara_tabla_proceso (-cambioFlujo)
           continue
-        if cambioFlujo < 2:  # in (0, 1):  # Terminar todo
+        if cambioFlujo in (0, 1, 8):  # Terminar todo
           del doall_activo[:]
           del pila_procs[:]
           if cambioFlujo == 0:  # Reiniciar aventura
             gui.borra_todo()  # TODO: se hace en DAAD, ver si también lo hace PAWS
             proceso_ok = None
             return False
-          # cambioFlujo == 1:  # Saltar a describir la localidad
+          # cambioFlujo in (1, 8):  # Saltar a describir la localidad o a ejecutar el proceso 0
           proceso_ok = True  # TODO: comprobar si esto es así
-          return True
+          if cambioFlujo == 1:
+            return True
+          return 8
         if cambioFlujo == 2:  # Reiniciar tabla actual
           numEntrada  = 0
           numCondacto = -2
