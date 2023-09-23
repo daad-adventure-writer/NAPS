@@ -24,6 +24,7 @@
 
 from prn_func import prn
 
+import os
 import sys
 
 
@@ -70,6 +71,31 @@ def a1_FMES (flagno):
     prn ('ERROR PAW: Llamada a FMES con número de mensaje de usuario inexistente:', mesno)
     return
   busca_condacto ('a1_MES') (mesno)
+
+def a1_OVERLAY (partno):
+  """Carga la parte dada como parámetro y reinicia la ejecución"""
+  nombreFich = os.path.basename (ruta_bbdd)[:5].lower() + str (partno).zfill (3) + '.adb'
+  # Buscamos el fichero con independencia de mayúsculas y minúsculas
+  for nombreFichero in os.listdir (os.path.dirname (ruta_bbdd)):
+    if nombreFichero.lower() == nombreFich:
+      nombreFich = os.path.join (os.path.dirname (ruta_bbdd), nombreFichero)
+      break
+  bien = True
+  try:
+    fichero = open (nombreFich, 'rb')
+  except:
+    imprime_mensaje (msgs_sys[54])  # Fichero inexistente
+    bien = False
+  if bien:
+    try:
+      fichero.seek (0, os.SEEK_END)
+      if libreria.carga_bd (fichero, fichero.tell()) == False:
+        jkhsdjkfh  # Para que falle
+      prepara_vocabulario()
+    except:
+      imprime_mensaje (msgs_sys[55])  # Fichero corrupto
+  a0_ANYKEY()
+  return 1  # Lo mismo que DESC
 
 
 def a2_CLEARB (flagno, value):

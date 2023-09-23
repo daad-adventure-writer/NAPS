@@ -86,6 +86,7 @@ CAB_POS_NOMS_OBJS         = 27  # Posición de los nombres de los objetos
 CAB_POS_ATRIBS_OBJS       = 29  # Posición de los atributos de los objetos
 CAB_LONG_FICH             = 31  # Longitud de la base de datos
 
+abreviaturas   = []
 alinear        = False  # Si alineamos con relleno (padding) las listas de desplazamientos a posiciones pares
 compatibilidad = True   # Modo de compatibilidad con los intérpretes originales
 despl_ini      = 0      # Desplazamiento inicial para cargar desde memoria
@@ -327,8 +328,7 @@ def lee_secs_ctrl (cadena):
 
 # Carga las abreviaturas
 def cargaAbreviaturas ():
-  global abreviaturas
-  abreviaturas = []
+  del abreviaturas[:]  # Vaciamos la lista
   # Vamos a la posición de las abreviaturas
   posicion = carga_desplazamiento (CAB_POS_ABREVS)
   if posicion == 0:  # Sin abreviaturas
@@ -348,6 +348,7 @@ def cargaAbreviaturas ():
 
 # Carga los atributos de los objetos
 def cargaAtributos ():
+  del atributos[:]  # Vaciamos la lista
   # Cargamos el número de objetos (no lo tenemos todavía)
   fich_ent.seek (CAB_NUM_OBJS)
   num_objetos[0] = carga_int1()
@@ -362,6 +363,7 @@ def cargaAtributos ():
 # pos_lista_pos posición de donde obtener la lista de posiciones de las cadenas
 # cadenas es la lista donde almacenar las cadenas que se carguen
 def cargaCadenas (pos_num_cads, pos_lista_pos, cadenas):
+  del cadenas[:]  # Vaciamos la lista
   # Cargamos el número de cadenas
   fich_ent.seek (pos_num_cads)
   num_cads = carga_int1()
@@ -396,6 +398,7 @@ def cargaCadenas (pos_num_cads, pos_lista_pos, cadenas):
 
 # Carga las conexiones
 def cargaConexiones ():
+  del conexiones[:]  # Vaciamos la lista
   # Cargamos el número de localidades
   fich_ent.seek (CAB_NUM_LOCS)
   num_locs = carga_int1()
@@ -419,6 +422,7 @@ def cargaConexiones ():
 
 def cargaLocalidadesObjetos ():
   """Carga las localidades iniciales de los objetos (dónde está cada uno)"""
+  del locs_iniciales[:]  # Vaciamos la lista
   # Vamos a la posición de las localidades de los objetos
   fich_ent.seek (carga_desplazamiento (CAB_POS_LOCS_OBJS))
   # Cargamos la localidad de cada objeto
@@ -427,6 +431,7 @@ def cargaLocalidadesObjetos ():
 
 def cargaNombresObjetos ():
   """Carga los nombres y adjetivos de los objetos"""
+  del nombres_objs[:]  # Vaciamos la lista
   # Vamos a la posición de los nombres de los objetos
   fich_ent.seek (carga_desplazamiento (CAB_POS_NOMS_OBJS))
   # Cargamos el nombre y adjetivo de cada objeto
@@ -437,6 +442,7 @@ def cargaNombresObjetos ():
 # El proceso 0 es la tabla de respuestas
 # En los procesos 1 y 2, las cabeceras de las entradas se ignoran
 def cargaTablasProcesos ():
+  del tablas_proceso[:]  # Vaciamos la lista
   # Cargamos el número de procesos
   fich_ent.seek (CAB_NUM_PROCS)
   num_procs = carga_int1()
@@ -491,6 +497,7 @@ def cargaTablasProcesos ():
 
 # Carga el vocabulario
 def cargaVocabulario ():
+  del vocabulario[:]  # Vaciamos la lista
   # Vamos a la posición del vocabulario
   fich_ent.seek (carga_desplazamiento (CAB_POS_VOCAB))
   # Cargamos cada palabra de vocabulario
@@ -528,8 +535,8 @@ def preparaPlataforma ():
     alinear = True
     # Habrá padding en la posición 9 de la cabecera
     for variable in globals():
-      if variable[:8] == 'CAB_POS_':
-        globals()[variable] += 1  # Incrementaremos en uno todas las entradas de offsets en la cabecera
+      if variable[:8] == 'CAB_POS_' and globals()[variable] % 2:
+        globals()[variable] += 1  # Incrementaremos en uno todas las entradas de offsets impares en la cabecera
   # Preparamos el desplazamiento inicial para carga desde memoria
   if plataforma in despl_ini_plat:
     despl_ini = despl_ini_plat[plataforma]

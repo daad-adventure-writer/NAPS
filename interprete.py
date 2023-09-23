@@ -169,6 +169,25 @@ def parsea_orden (psi):
   """Obtiene e interpreta la orden del jugador para rellenar la sentencia lógica actual, o la del PSI entrecomillada. Devuelve verdadero si la frase no es válida o ha ocurrido tiempo muerto"""
   return prepara_orden (True, psi) != None
 
+def prepara_vocabulario ():
+  """Prepara el diccionario con el vocabulario, y la lista conjunciones"""
+  global hay_asterisco, pronombre
+  dicc_vocab.clear()
+  del conjunciones[:]
+  pronombre = 'Pronombre'
+  for palabraVoc in vocabulario:
+    if palabraVoc[2] < len (TIPOS_PAL):
+      if palabraVoc[0] not in dicc_vocab:
+        dicc_vocab[palabraVoc[0]] = []
+      dicc_vocab[palabraVoc[0]].append (tuple (palabraVoc[1:]))
+      tipo = TIPOS_PAL[palabraVoc[2]]
+      if tipo == 'Conjuncion':
+        conjunciones.append (palabraVoc[0])
+      elif tipo == 'Pronombre':
+        pronombre = palabraVoc[0]
+    elif NOMBRE_SISTEMA == 'PAWS' and palabraVoc[0] == '*' and palabraVoc[1] == 1 and palabraVoc[2] == 255:
+      hay_asterisco = True
+
 def restaura_objetos ():
   """Restaura las localidades iniciales de los objetos, ajusta el número de objetos llevados (bandera 1) y calcula el peso total (llevado + puesto)"""
   global peso_llevado
@@ -1120,7 +1139,7 @@ if __name__ == '__main__':
     gui.prepara_topes (53, 25)
 
   constantes = ('EXT_SAVEGAME', 'LONGITUD_PAL', 'NOMBRE_SISTEMA', 'NUM_BANDERAS', 'TIPOS_PAL')
-  funciones  = ('busca_condacto', 'busca_conexion', 'cambia_articulo', 'da_peso', 'imprime_mensaje', 'obj_referido', 'parsea_orden', 'restaura_objetos', 'tabla_hizo_algo')
+  funciones  = ('busca_condacto', 'busca_conexion', 'cambia_articulo', 'da_peso', 'imprime_mensaje', 'obj_referido', 'parsea_orden', 'prepara_vocabulario', 'restaura_objetos', 'tabla_hizo_algo')
   funcsLib   = ('carga_xmessage', )
   variables  = ('atributos', 'atributos_extra', 'banderas', 'compatibilidad', 'conexiones', 'desc_locs', 'desc_objs', 'doall_activo', 'frases', 'locs_iniciales', 'locs_objs', 'msgs_usr', 'msgs_sys', 'nombres_objs', 'nueva_version', 'num_objetos', 'partida', 'peso_llevado', 'pila_procs', 'tablas_proceso', 'vocabulario')
 
@@ -1134,6 +1153,7 @@ if __name__ == '__main__':
     modulo = __import__ (modulo)
     # Propagamos las constantes y estructuras básicas del intérprete y la librería entre los módulos de condactos
     modulo.gui       = gui
+    modulo.libreria  = libreria
     modulo.ruta_bbdd = args.bbdd
     for lista in (constantes, funcsLib, variables):
       for variable in lista:
@@ -1239,19 +1259,7 @@ if __name__ == '__main__':
   locs_objs.extend ([0,] * num_objetos[0])  # Localidades de los objetos
 
   # Preparamos el diccionario con el vocabulario, y la lista conjunciones
-  pronombre = 'Pronombre'
-  for palabraVoc in vocabulario:
-    if palabraVoc[2] < len (TIPOS_PAL):
-      if palabraVoc[0] not in dicc_vocab:
-        dicc_vocab[palabraVoc[0]] = []
-      dicc_vocab[palabraVoc[0]].append (tuple (palabraVoc[1:]))
-      tipo = TIPOS_PAL[palabraVoc[2]]
-      if tipo == 'Conjuncion':
-        conjunciones.append (palabraVoc[0])
-      elif tipo == 'Pronombre':
-        pronombre = palabraVoc[0]
-    elif NOMBRE_SISTEMA == 'PAWS' and palabraVoc[0] == '*' and palabraVoc[1] == 1 and palabraVoc[2] == 255:
-      hay_asterisco = True
+  prepara_vocabulario()
 
   if NOMBRE_SISTEMA == 'DAAD' and nueva_version:
     bucle_daad_nuevo()
