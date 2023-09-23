@@ -54,6 +54,7 @@ func_nueva = ''
 
 # Constantes que se exportan (fuera del paquete)
 
+EXT_SAVEGAME     = 'agp'    # Extensión para las partidas guardadas
 INDIRECCION      = False    # El parser no soporta indirección (para el IDE)
 LONGITUD_PAL     = 5        # Longitud máxima para las palabras de vocabulario
 NOMBRE_SISTEMA   = 'SWAN'   # Nombre de este sistema
