@@ -1565,14 +1565,15 @@ def imprimeCondacto (condacto, parametros, inalcanzable = False, nuevaLinea = Tr
       elif indirecto == '@':
         parametro = '@' + str (parametro)
       if (p > 0 or indirecto == ' ') and len (tiposParams) > p:
-        if (tiposParams[p] in 'bw' and parametro >= 8)                    or \
-           (tiposParams[p] == '%'  and (parametro < 1 or parametro > 99)) or \
-           (tiposParams[p] == 'l'  and parametro >= len (mod_actual.desc_locs)) or \
-           (tiposParams[p] == 'L'  and parametro >= len (mod_actual.desc_locs) and parametro not in range (252, 256)) or \
-           (tiposParams[p] == 'm'  and parametro >= len (mod_actual.msgs_usr))       or \
-           (tiposParams[p] == 'o'  and parametro >= len (mod_actual.desc_objs))      or \
-           (tiposParams[p] == 'p'  and parametro >= len (mod_actual.tablas_proceso)) or \
-           (tiposParams[p] == 's'  and parametro >= len (mod_actual.msgs_sys)):
+        if (tiposParams[p] == '%' and (parametro < 1 or parametro > 99))              or \
+           (tiposParams[p] == 'b' and parametro not in (1, 2, 4, 8, 16, 32, 64, 128)) or \
+           (tiposParams[p] == 'l' and parametro >= len (mod_actual.desc_locs))        or \
+           (tiposParams[p] == 'L' and parametro >= len (mod_actual.desc_locs) and parametro not in range (252, 256)) or \
+           (tiposParams[p] == 'm' and parametro >= len (mod_actual.msgs_usr))       or \
+           (tiposParams[p] == 'o' and parametro >= len (mod_actual.desc_objs))      or \
+           (tiposParams[p] == 'p' and parametro >= len (mod_actual.tablas_proceso)) or \
+           (tiposParams[p] == 's' and parametro >= len (mod_actual.msgs_sys))       or \
+           (tiposParams[p] == 'w' and parametro >= 8):
           if inalcanzable:
             campo_txt.setTextColor (QColor (120, 0, 0))  # Color rojo oscuro
           else:

@@ -107,7 +107,7 @@ condactos = {
   #   flujo indica si el condacto cambia el flujo de ejecución incondicionalmente, por lo que todo código posterior en su entrada será inalcanzable
   # Y los tipos de los parámetros se definen así:
   # % : Porcentaje (percent), de 1 a 99 (TODO: comprobar si sirven 0 y 100)
-  # b : Número de bit, de 0 a 7
+  # b : Número de bit, potencia de 2 con exponente de 0 a 7
   # f : Número de bandera (flagno), de 0 a NUM_BANDERAS - 1
   # j : Número de palabra de tipo adjetivo (adjective), ó 255
   # l : Número de localidad (locno), de 0 a num_localidades - 1
