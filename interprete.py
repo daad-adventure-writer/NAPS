@@ -235,6 +235,7 @@ def bucle_paws ():
     if estado == 0:  # Inicialización
       inicializa()
       estado = 1
+      turnos = True  # Si se incrementará el número de turnos
     elif estado == 1:  # Descripción de localidad y Proceso 1
       describe_localidad()
       valor = ejecuta_proceso (1)
@@ -252,7 +253,8 @@ def bucle_paws ():
       elif valor == 7:  # Terminar completamente la aventura
         return
       if valor == 8:  # Saltar a procesar la tabla de respuestas
-        estado = 3  # TODO: ver si el turno no debe incrementarse
+        estado = 3
+        turnos = False
       elif valor == True:  # Ha terminado con DESC
         estado = 1  # Saltamos a la descripción de la localidad
       else:
@@ -263,8 +265,10 @@ def bucle_paws ():
         if obtener_orden() != True:
           estado = 3
     elif estado == 3:  # Incremento de turno y Tabla de respuestas
-      incrementa_turno()
-      valor = ejecuta_proceso (0)
+      if turnos:
+        incrementa_turno()
+      turnos = True
+      valor  = ejecuta_proceso (0)
       if valor == False:  # Hay que reiniciar la aventura
         estado = 0
       elif valor == True:  # Ha terminado con DESC
