@@ -403,22 +403,22 @@ def describe_localidad ():
           gui.grf_borde = imagenesSWAN['caracterBorde']
         else:
           imagenesSWAN = {'imagenPorLocalidad': tuple (range (len (desc_locs)))}
-        if banderas[38] < len (imagenesSWAN['imagenPorLocalidad']):
-          numImagen = imagenesSWAN['imagenPorLocalidad'][banderas[38]]
-        else:
-          numImagen = imagenesSWAN['imagenPorDefecto']
-        if gui.hay_grafico (numImagen):
-          subventanaAntes = gui.elegida  # Así sabremos si antes había gráfico o no
-          gui.elige_subventana (0)
-          gui.dibuja_grafico (numImagen, True)
-          gui.elige_subventana (2)
-          if subventanaAntes != 2:  # Antes no había gráfico
-            gui.pos_subventana (0, 10)
-            gui.cambia_topes   (0, 0)  # Topes al máximo tamaño posible
-        else:  # No se dispone de ese gráfico, así que el texto lo pondremos a pantalla completa
-          gui.elige_subventana (1)
-          if gui.elegida == 2:  # Justo antes de describir esta localidad sí había gráfico
-            gui.mueve_cursor (gui.cursores[2][0], gui.cursores[2][1] + 10)  # Recuperamos el cursor a la posición equivalente a pantalla completa
+      if banderas[38] < len (imagenesSWAN['imagenPorLocalidad']):
+        numImagen = imagenesSWAN['imagenPorLocalidad'][banderas[38]]
+      else:
+        numImagen = imagenesSWAN['imagenPorDefecto']
+      if gui.hay_grafico (numImagen):
+        subventanaAntes = gui.elegida  # Así sabremos si antes había gráfico o no
+        gui.elige_subventana (0)
+        gui.dibuja_grafico (numImagen, True)
+        gui.elige_subventana (2)
+        if subventanaAntes != 2:  # Antes no había gráfico
+          gui.pos_subventana (0, 10)
+          gui.cambia_topes   (0, 0)  # Topes al máximo tamaño posible
+      else:  # No se dispone de ese gráfico, así que el texto lo pondremos a pantalla completa
+        gui.elige_subventana (1)
+        if gui.elegida == 2:  # Justo antes de describir esta localidad sí había gráfico
+          gui.mueve_cursor (gui.cursores[2][0], gui.cursores[2][1] + 10)  # Recuperamos el cursor a la posición equivalente a pantalla completa
     else:
       gui.dibuja_grafico (banderas[38], True)
     if desc_locs[banderas[38]]:  # la bandera 38 contiene la localidad actual
