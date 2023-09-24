@@ -99,8 +99,7 @@ def a1_OVERLAY (partno):
       prepara_vocabulario()
     except:
       imprime_mensaje (msgs_sys[55])  # Fichero corrupto
-  a0_ANYKEY()
-  return 1  # Lo mismo que DESC
+  return busca_condacto ('a0_DONE') ()  # Termina la ejecución de la tabla actual (evidentemente necesario, al haberse cargado otra base de datos)
 
 
 def a2_CLEARB (flagno, value):
