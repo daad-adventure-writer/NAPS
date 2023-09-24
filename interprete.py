@@ -338,6 +338,7 @@ def inicializa ():
 
 def describe_localidad ():
   """Hace lo que dice la guía técnica de PAWS, página 7: 2.- DESCRIPCIÓN DE LA LOCALIDAD ACTUAL"""
+  global imagenesSWAN
   # Si la bandera 2 no está a cero, será decrementada en 1
   if banderas[2] > 0:
     banderas[2] -= 1
