@@ -108,26 +108,10 @@ def a1_FMES (flagno):
 
 def a1_OVERLAY (partno):
   """Carga la parte dada como parámetro y reinicia la ejecución"""
-  nombreFich = os.path.basename (ruta_bbdd)[:5].lower() + str (partno).zfill (3) + '.adb'
-  # Buscamos el fichero con independencia de mayúsculas y minúsculas
-  for nombreFichero in os.listdir (os.path.dirname (ruta_bbdd)):
-    if nombreFichero.lower() == nombreFich:
-      nombreFich = os.path.join (os.path.dirname (ruta_bbdd), nombreFichero)
-      break
-  bien = True
-  try:
-    fichero = open (nombreFich, 'rb')
-  except:
-    imprime_mensaje (msgs_sys[54])  # Fichero inexistente
-    bien = False
-  if bien:
-    try:
-      fichero.seek (0, os.SEEK_END)
-      if libreria.carga_bd (fichero, fichero.tell()) == False:
-        jkhsdjkfh  # Para que falle
-      prepara_vocabulario()
-    except:
-      imprime_mensaje (msgs_sys[55])  # Fichero corrupto
+  msgError = libreria.carga_parte (partno)
+  if msgError:
+    imprime_mensaje (msgError)
+  prepara_vocabulario()
   return busca_condacto ('a0_DONE') ()  # Termina la ejecución de la tabla actual (evidentemente necesario, al haberse cargado otra base de datos)
 
 

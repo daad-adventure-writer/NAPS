@@ -251,7 +251,7 @@ condactos = {
 }
 
 
-# Funciones que utiliza el IDE o el intérprete directamente
+# Funciones que utiliza el IDE, el intérprete o el módulo de condactos directamente
 
 def busca_partes (rutaCarpeta):
   """Analiza los ficheros en la carpeta dada, identificando por extensión y devolviendo una lista con las bases de datos de las diferentes partes, y las bases de datos de gráficos correspondientes, para los diferentes modos gráficos encontrados"""
@@ -313,6 +313,27 @@ def carga_bd (fichero, longitud):
     cargaTablasProcesos()
   except:
     return False
+
+def carga_parte (numParte):
+  """Carga la parte dada como parámetro, devolviendo el mensaje de error que corresponda si lo hay, o nada si todo fue bien"""
+  nombreFich = os.path.basename (ruta_bbdd)[:5].lower() + str (numParte).zfill (3) + '.adb'
+  # Buscamos el fichero con independencia de mayúsculas y minúsculas
+  for nombreFichero in os.listdir (os.path.dirname (ruta_bbdd)):
+    if nombreFichero.lower() == nombreFich:
+      nombreFich = os.path.join (os.path.dirname (ruta_bbdd), nombreFichero)
+      break
+  try:
+    fichero = open (nombreFich, 'rb')
+  except:
+    return msgs_sys[54]  # Fichero inexistente
+  try:
+    fichero.seek (0, os.SEEK_END)
+    if carga_bd (fichero, fichero.tell()) == False:
+      raise Exception ('Ha fallado la carga del fichero de base de datos ' + nombreFichero)
+  except:
+    return msgs_sys[55]  # Fichero corrupto
+  finally:
+    fichero.close()
 
 def escribe_secs_ctrl (cadena):
   """Devuelve la cadena dada convirtiendo la representación de secuencias de control en sus códigos"""
