@@ -469,7 +469,8 @@ def cargaTablasProcesos ():
     for num_entrada in range (len (pos_entradas)):
       pos_entrada = pos_entradas[num_entrada]
       fich_ent.seek (pos_entrada)
-      entrada = []
+      condactoFlujo = False  # Si hay algún condacto en la entrada que cambia el flujo incondicionalmente
+      entrada       = []
       while True:
         condacto = carga_int1()
         if condacto == 255:  # Fin de esta entrada
@@ -480,11 +481,15 @@ def cargaTablasProcesos ():
           num_condacto = condacto
         parametros = []
         if num_condacto not in condactos:
+          if condactoFlujo:
+            break  # Dejamos de obtener condactos para esta entrada
           try:
             muestraFallo ('FIXME: Condacto desconocido', 'Código de condacto: ' + str (num_condacto) + '\nProceso: ' + str (num_proceso) + '\nÍndice de entrada: ' + str (num_entrada))
           except:
             prn ('FIXME: Número de condacto', num_condacto, 'desconocido, en entrada', num_entrada, 'del proceso', num_proceso)
           return
+        if condactos[num_condacto][3]:
+          condactoFlujo = True
         for i in range (len (condactos[num_condacto][1])):
           parametros.append (carga_int1())
         entrada.append ((condacto, parametros))
