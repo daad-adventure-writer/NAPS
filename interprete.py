@@ -275,6 +275,9 @@ def bucle_paws ():
         estado = 1  # Saltamos a la descripción de la localidad
       elif valor == 7:  # Terminar completamente la aventura
         return
+      elif valor == 8:  # Saltar a procesar la tabla de respuestas
+        estado = 3
+        turnos = False
       elif proceso_ok:  # Ha terminado con DONE u OK
         estado = 2
       # TODO: ¡parece que en Jabato sí lo hace! Al menos tras un DOALL sin objetos que encajen, y tras un NOTDONE
