@@ -66,6 +66,51 @@ def a0_DESC ():
   gui.imprime_cadena ('\n', tiempo = banderas[48] if banderas[49] & 2 else 0)
   return 1
 
+def a0_LOAD ():
+  """Carga el contenido de las banderas y de las localidades de los objetos desde un fichero"""
+  nombreFich = (gui.lee_cadena (msgs_sys[60] + msgs_sys[33]) + '.' + EXT_SAVEGAME).lower()
+  # Buscamos el fichero con independencia de mayúsculas y minúsculas
+  for nombreFichero in os.listdir (os.path.dirname (ruta_bbdd)):
+    if nombreFichero.lower() == nombreFich:
+      nombreFich = os.path.join (os.path.dirname (ruta_bbdd), nombreFichero)
+      break
+  bien = True
+  try:
+    fichero = open (nombreFich, 'rb')
+  except:
+    imprime_mensaje (msgs_sys[54])  # Fichero inexistente
+    bien = False
+  if bien:
+    banderasAntes = list (banderas)
+    locsObjsAntes = list (locs_objs)
+    numBanderas   = NUM_BANDERAS + 256
+    try:
+      fichero.seek (0, os.SEEK_END)
+      if fichero.tell() != numBanderas:  # Comprueba su longitud
+        raise Exception ('El fichero de partida que se ha intentado cargar no tiene la longitud adecuada')
+      fichero.seek (0)
+      leido = struct.unpack (str (numBanderas) + 'B', fichero.read (numBanderas))
+      del banderas[:]
+      banderas.extend (leido[:NUM_BANDERAS])
+      if banderas[58] != banderasAntes[58]:
+        if libreria.carga_parte (banderas[58]):
+          raise Exception ('Ha fallado la carga de la parte requerida por la bandera 58 de la partida guardada')
+      del locs_objs[:]
+      locs_objs.extend (leido[NUM_BANDERAS:NUM_BANDERAS + num_objetos[0]])
+      del gui.historial[:]
+      actualiza_grafico()
+    except:
+      imprime_mensaje (msgs_sys[55])  # Fichero corrupto
+      # Recuperamos la parte que había cargada antes, y las banderas y localidades de los objetos que había antes
+      del banderas [:]
+      banderas.extend (banderasAntes)
+      libreria.carga_parte (banderas[58])
+      del locs_objs [:]
+      locs_objs.extend (locsObjsAntes)
+  prepara_vocabulario()
+  parsea_orden (0)
+  return 8  # Salta a procesar la tabla de respuestas
+
 def a0_OOPSAVE ():
   prn ('TODO: a0_OOPSAVE no implementado', file = sys.stderr)  # TODO
 
