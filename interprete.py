@@ -345,7 +345,6 @@ def inicializa ():
 
 def describe_localidad ():
   """Hace lo que dice la guía técnica de PAWS, página 7: 2.- DESCRIPCIÓN DE LA LOCALIDAD ACTUAL"""
-  global imagenesSWAN
   # Si la bandera 2 no está a cero, será decrementada en 1
   if banderas[2] > 0:
     banderas[2] -= 1
@@ -382,45 +381,8 @@ def describe_localidad ():
   # Si no, cualquier gráfico presente para la localidad es dibujado, y la
   # descripción de la localidad en texto aparecerá sin hacer un NEWLINE
   else:
-    if NOMBRE_SISTEMA == 'DAAD':
-      if gui.hay_grafico (banderas[38]):
-        busca_condacto ('a1_WINDOW') (0)
-        gui.borra_pantalla()
-        gui.dibuja_grafico (banderas[38], True)
-      busca_condacto ('a1_WINDOW') (1)
-      if not banderas[40] & 1:
-        gui.borra_pantalla()
-      else:
-        gui.mueve_cursor (0, 0)
-    elif NOMBRE_SISTEMA == 'SWAN':
-      try:
-        imagenesSWAN  # Lista para conversión de número de localidad a número de gráfico
-      except:
-        from graficos_bitmap import imagenesSWAN
-        prefijoAventura = args.bbdd[-12:-7].lower()
-        if prefijoAventura in imagenesSWAN:
-          imagenesSWAN  = imagenesSWAN[prefijoAventura]
-          gui.grf_borde = imagenesSWAN['caracterBorde']
-        else:
-          imagenesSWAN = {'imagenPorLocalidad': tuple (range (len (desc_locs)))}
-      if banderas[38] < len (imagenesSWAN['imagenPorLocalidad']):
-        numImagen = imagenesSWAN['imagenPorLocalidad'][banderas[38]]
-      else:
-        numImagen = imagenesSWAN['imagenPorDefecto']
-      if gui.hay_grafico (numImagen):
-        subventanaAntes = gui.elegida  # Así sabremos si antes había gráfico o no
-        gui.elige_subventana (0)
-        gui.dibuja_grafico (numImagen, True)
-        gui.elige_subventana (2)
-        if subventanaAntes != 2:  # Antes no había gráfico
-          gui.pos_subventana (0, 10)
-          gui.cambia_topes   (0, 0)  # Topes al máximo tamaño posible
-      else:  # No se dispone de ese gráfico, así que el texto lo pondremos a pantalla completa
-        gui.elige_subventana (1)
-        if gui.elegida == 2:  # Justo antes de describir esta localidad sí había gráfico
-          gui.mueve_cursor (gui.cursores[2][0], gui.cursores[2][1] + 10)  # Recuperamos el cursor a la posición equivalente a pantalla completa
-    else:
-      gui.dibuja_grafico (banderas[38], True)
+    actualiza_grafico()
+
     if desc_locs[banderas[38]]:  # la bandera 38 contiene la localidad actual
       gui.imprime_cadena (desc_locs[banderas[38]], tiempo = banderas[48] if NOMBRE_SISTEMA != 'QUILL' and banderas[49] & 2 else 0)
 
@@ -434,6 +396,47 @@ def describe_localidad ():
             gui.imprime_cadena (msgs_sys[1] + '\n')
             alguno = True
           gui.imprime_cadena (desc_objs[objno] + '\n')
+
+def actualiza_grafico ():
+  """Actualiza el gráfico de localidad con el de la localidad actual, si ésta tiene gráfico, o quita el gráfico de localidad"""
+  global imagenesSWAN
+  if NOMBRE_SISTEMA == 'DAAD':
+    if gui.hay_grafico (banderas[38]):
+      busca_condacto ('a1_WINDOW') (0)
+      gui.borra_pantalla()
+      gui.dibuja_grafico (banderas[38], True)
+    busca_condacto ('a1_WINDOW') (1)
+    if not banderas[40] & 1:
+      gui.borra_pantalla()
+    else:
+      gui.mueve_cursor (0, 0)
+  elif NOMBRE_SISTEMA == 'SWAN':
+    if 'imagenesSWAN' not in globals():  # Lista para conversión de número de localidad a número de gráfico
+      from graficos_bitmap import imagenesSWAN
+      prefijoAventura = args.bbdd[-12:-7].lower()
+      if prefijoAventura in imagenesSWAN:
+        imagenesSWAN  = imagenesSWAN[prefijoAventura]
+        gui.grf_borde = imagenesSWAN['caracterBorde']
+      else:
+        imagenesSWAN = {'imagenPorLocalidad': tuple (range (len (desc_locs)))}
+    if banderas[38] < len (imagenesSWAN['imagenPorLocalidad']):
+      numImagen = imagenesSWAN['imagenPorLocalidad'][banderas[38]]
+    else:
+      numImagen = imagenesSWAN['imagenPorDefecto']
+    if gui.hay_grafico (numImagen):
+      subventanaAntes = gui.elegida  # Así sabremos si antes había gráfico o no
+      gui.elige_subventana (0)
+      gui.dibuja_grafico (numImagen, True)
+      gui.elige_subventana (2)
+      if subventanaAntes != 2:  # Antes no había gráfico
+        gui.pos_subventana (0, 10)
+        gui.cambia_topes   (0, 0)  # Topes al máximo tamaño posible
+    else:  # No se dispone de ese gráfico, así que el texto lo pondremos a pantalla completa
+      gui.elige_subventana (1)
+      if gui.elegida == 2:  # Justo antes de describir esta localidad sí había gráfico
+        gui.mueve_cursor (gui.cursores[2][0], gui.cursores[2][1] + 10)  # Recuperamos el cursor a la posición equivalente a pantalla completa
+  else:
+    gui.dibuja_grafico (banderas[38], True)
 
 def obtener_orden ():
   """Hace lo que dice la guía técnica de PAWS, páginas 8 y 9: 5.- COGER LA FRASE
@@ -1157,7 +1160,7 @@ if __name__ == '__main__':
     gui.prepara_topes (53, 25)
 
   constantes = ('EXT_SAVEGAME', 'LONGITUD_PAL', 'NOMBRE_SISTEMA', 'NUM_BANDERAS', 'TIPOS_PAL')
-  funciones  = ('busca_condacto', 'busca_conexion', 'cambia_articulo', 'da_peso', 'imprime_mensaje', 'obj_referido', 'parsea_orden', 'prepara_vocabulario', 'restaura_objetos', 'tabla_hizo_algo')
+  funciones  = ('actualiza_grafico', 'busca_condacto', 'busca_conexion', 'cambia_articulo', 'da_peso', 'imprime_mensaje', 'obj_referido', 'parsea_orden', 'prepara_vocabulario', 'restaura_objetos', 'tabla_hizo_algo')
   funcsLib   = ('carga_xmessage', )
   variables  = ('atributos', 'atributos_extra', 'banderas', 'compatibilidad', 'conexiones', 'desc_locs', 'desc_objs', 'doall_activo', 'frases', 'locs_iniciales', 'locs_objs', 'msgs_usr', 'msgs_sys', 'nombres_objs', 'nueva_version', 'num_objetos', 'partida', 'peso_llevado', 'pila_procs', 'tablas_proceso', 'vocabulario')
 
