@@ -1039,6 +1039,7 @@ Si textoNormal es True, la cadena no es un prompt, por lo que antes de imprimir 
 Si abajo es True, imprimirá abajo del todo de la subventana sin hacer scroll mientras no alcance el cursor
 
 Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla al paginar"""
+  global juego
   if not cadena:
     return
   if tras_portada:
@@ -1092,12 +1093,19 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
             cambiada += izquierda[juego_alto]
         cambiada += c
       cadena = cambiada
+      juego  = 0  # Inicializa la variable como número, se necesitará así a continuación
+    else:  # Cargada tipografía de 8 x 8
+      # Mantendremos el valor anterior de la variable juego, para poder mantenernos en el juego alto entre mensajes
+      try:
+        juego
+      except:
+        juego = 0
   else:  # No es SWAN o no se cambia entre juego alto y bajo
     cadena, colores = parseaColores (cadena)
-    swan = False
+    juego = 0  # Primera posición en la fuente del juego alto, si está en el juego alto, 0 (primera del juego bajo) si no
+    swan  = False
   convertida = cadena.translate (iso8859_15_a_fuente)
   # Dividimos la cadena en líneas
-  juego     = 0    # Primera posición en la fuente del juego alto, si está en el juego alto, 0 (primera del juego bajo) si no
   iniLineas = [0]  # Posición de inicio de cada línea, para colorear
   lineas    = []
   linea     = []
