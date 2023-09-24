@@ -359,8 +359,8 @@ def describe_localidad ():
   # en lugar de si no está a 1, como decía la guía técnica en papel
   if NOMBRE_SISTEMA == 'QUILL':
     gui.borra_pantalla()
-  elif NOMBRE_SISTEMA in ('PAWS', 'SWAN') and not banderas[40] & 1:
-    if gui.elegida == 2:  # Se había usado PROTECT o equivalente
+  elif NOMBRE_SISTEMA == 'PAWS' and not banderas[40] & 1:
+    if gui.elegida == 2:  # Se había usado PROTECT
       gui.elige_subventana (1)
     gui.borra_pantalla()
 
