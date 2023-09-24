@@ -25,6 +25,7 @@
 from prn_func import prn
 
 import os
+import struct
 import sys
 
 
@@ -67,6 +68,34 @@ def a0_DESC ():
 
 def a0_OOPSAVE ():
   prn ('TODO: a0_OOPSAVE no implementado', file = sys.stderr)  # TODO
+
+def a0_SAVE ():
+  """Guarda el contenido de las banderas y de las localidades de los objetos a un fichero"""
+  nombreFich = gui.lee_cadena (msgs_sys[60] + msgs_sys[33])
+  invalido   = False
+  if compatibilidad:  # Recortamos el nombre del fichero a 8 caracteres como máximo
+    nombreFich = nombreFich[:8]
+  for caracter in nombreFich:
+    if not caracter.isalnum():
+      invalido = True
+      break
+  if invalido:
+    imprime_mensaje (msgs_sys[59])  # Nombre de fichero inválido
+  else:
+    try:
+      fichero = open (os.path.join (os.path.dirname (ruta_bbdd), nombreFich + '.' + EXT_SAVEGAME), 'wb')
+      for bandera in banderas:
+        fichero.write (struct.pack ('B', bandera))
+      for loc_obj in locs_objs:
+        fichero.write (struct.pack ('B', loc_obj))
+      fichero.write (struct.pack ('B', 255))  # Marca de fin de localidades de objetos
+      for i in range (len (locs_objs), 256 - 2):  # El resto de bytes los ocupamos con 0
+        fichero.write (struct.pack ('B', 0))
+      fichero.write (struct.pack ('B', len (locs_objs)))  # Número de objetos
+    except:
+      imprime_mensaje (msgs_sys[56])  # Error I/O
+  parsea_orden (0)
+  return 8  # Salta a procesar la tabla de respuestas
 
 
 def a1_FMES (flagno):
