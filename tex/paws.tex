@@ -365,6 +365,10 @@ Algo relativo a si el objeto referido es una prenda... FIXME
 
 Esta bandera, inicialmente documentada como reservada para futuras ampliaciones, fue utilizada en las versiones de \paw A16 y posteriores, como parte del soporte para dar órdenes a los PSI. \cite{PawsSupl}
 
+\sistema{\swan}
+
+Esta bandera se utiliza para guardar el número de parte en ejecución. El intérprete no la cambia por sí mismo (salvo en la inicialización de banderas), pero sí que toma ese valor cuando se carga una partida, para cargar y cambiar a la parte que corresponda - es decir, a la parte cuyo número es el valor para la bandera 58 almacenado en la partida guardada.
+
 \sistema{\daad}
 
 En aventuras con versión de formato de base de datos 2, a esta bandera se copia el primer byte de los atributos extra del objeto referido. Lo rellena WHATO.
