@@ -66,6 +66,18 @@ def a0_DESC ():
   gui.imprime_cadena ('\n', tiempo = banderas[48] if banderas[49] & 2 else 0)
   return 1
 
+def a0_END ():
+  """Pregunta si se desea volver a empezar (MS13), y si la respuesta empieza por la primera letra del MS31, imprime el MS14 y termina completamente la ejecución de la aventura. Si no, reinicia la aventura"""
+  respuesta = gui.lee_cadena (msgs_sys[13] + msgs_sys[33])
+  if respuesta[0].lower() == msgs_sys[31][0].lower():
+    gui.imprime_cadena (msgs_sys[14])
+    return 7
+  if banderas[58] != 0:  # No estaba ejecutándose la primera parte
+    # Cargamos la primera parte
+    if libreria.carga_parte (0):
+      raise Exception ('Ha fallado la carga de la primera parte')
+  return 0
+
 def a0_LOAD ():
   """Carga el contenido de las banderas y de las localidades de los objetos desde un fichero"""
   nombreFich = (gui.lee_cadena (msgs_sys[60] + msgs_sys[33]) + '.' + EXT_SAVEGAME).lower()
