@@ -80,7 +80,7 @@ def cambia_articulo (texto, mayusculas = False):
   if not texto:
     return texto
   articulo = texto.split()[0].lower()
-  if articulo in ('a', 'an', 'some'):  # Artículos en inglés
+  if articulo in ('a', 'an', 'some', 'the'):  # Artículos en inglés
     return texto[len (articulo) + 1:]  # Quita el artículo
   elif articulo in ('um', 'uma', 'uns', 'umas'):  # Artículos en portugués
     if articulo == 'uns':
