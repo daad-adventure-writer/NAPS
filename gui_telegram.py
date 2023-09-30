@@ -286,7 +286,10 @@ def limpiaCadena (cadena):
   c = 0
   while c < len (cadena):
     if cadena[c] in (cambia_brillo, cambia_flash, cambia_inversa, cambia_papel, cambia_tinta, juego_alto, juego_bajo):
-      if cadena[c] not in (juego_alto, juego_bajo):
+      if cadena[c] in (juego_alto, juego_bajo):
+        if juego_alto == '@':  # En SWAN los caracteres del juego alto son en negrita
+          limpia += '`*`'
+      else:
         c += 1  # Descartamos también el siguiente byte, que indica el color o si se activa o no
     else:
       limpia += cadena[c]

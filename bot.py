@@ -95,8 +95,8 @@ class ManejoInterprete (QThread):
         parrafo += ('\n' if parrafo else '') + linea
       elif parrafo:
         if self.usuario:
-          if '```' in parrafo:
-            bot.send_message (self.usuario, parrafo, parse_mode = 'markdown')
+          if '```' in parrafo or '`*`' in parrafo:
+            bot.send_message (self.usuario, parrafo.replace ('`*`', '*'), parse_mode = 'markdown')
           else:
             bot.send_message (self.usuario, parrafo)
         parrafo = ''
