@@ -76,6 +76,7 @@ def a0_END ():
     # Cargamos la primera parte
     if libreria.carga_parte (0):
       raise Exception ('Ha fallado la carga de la primera parte')
+    prepara_vocabulario()
   return 0
 
 def a0_LOAD ():
