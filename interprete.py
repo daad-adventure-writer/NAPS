@@ -59,6 +59,13 @@ hay_asterisco  = False  # Si está la palabra '*', 1, 255 en el vocabulario, en s
 
 # Funciones auxiliares para los módulos de condactos
 
+def adapta_msgs_sys ():
+  """Adapta los mensajes de sistema de la base de datos para las interfaces de texto"""
+  if args.gui in ('stdio', 'telegram'):
+    libreria.msgs_sys[16] = ''  # Mensaje de espera una tecla
+  if args.gui == 'telegram' and len (libreria.msgs_sys) > 32:
+    libreria.msgs_sys[33] = ''  # Prompt
+
 def busca_condacto (firma):
   """Busca en los módulos de condactos la función donde está implementado el condacto con la firma dada"""
   for modulo in modulos:
@@ -1135,10 +1142,6 @@ if __name__ == '__main__':
     # Solicitamos la importación
     try:
       correcto = modulo.__dict__[funcion] (bbdd, os.path.getsize (args.bbdd)) != False
-      if args.gui in ('stdio', 'telegram'):
-        modulo.msgs_sys[16] = ''  # Mensaje de espera una tecla
-      if args.gui == 'telegram' and len (modulo.msgs_sys) > 32:
-        modulo.msgs_sys[33] = ''  # Prompt
     except:
       correcto = False
     if correcto:
@@ -1160,7 +1163,7 @@ if __name__ == '__main__':
     gui.prepara_topes (53, 25)
 
   constantes = ('EXT_SAVEGAME', 'LONGITUD_PAL', 'NOMBRE_SISTEMA', 'NUM_BANDERAS', 'TIPOS_PAL')
-  funciones  = ('actualiza_grafico', 'busca_condacto', 'busca_conexion', 'cambia_articulo', 'da_peso', 'imprime_mensaje', 'obj_referido', 'parsea_orden', 'prepara_vocabulario', 'restaura_objetos', 'tabla_hizo_algo')
+  funciones  = ('actualiza_grafico', 'adapta_msgs_sys', 'busca_condacto', 'busca_conexion', 'cambia_articulo', 'da_peso', 'imprime_mensaje', 'obj_referido', 'parsea_orden', 'prepara_vocabulario', 'restaura_objetos', 'tabla_hizo_algo')
   funcsLib   = ('carga_xmessage', )
   variables  = ('atributos', 'atributos_extra', 'banderas', 'compatibilidad', 'conexiones', 'desc_locs', 'desc_objs', 'doall_activo', 'frases', 'locs_iniciales', 'locs_objs', 'msgs_usr', 'msgs_sys', 'nombres_objs', 'nueva_version', 'num_objetos', 'partida', 'peso_llevado', 'pila_procs', 'tablas_proceso', 'vocabulario')
 
@@ -1278,6 +1281,9 @@ if __name__ == '__main__':
   # Preparamos las listas banderas y locs_objs
   banderas.extend  ([0,] * NUM_BANDERAS)    # Banderas del sistema
   locs_objs.extend ([0,] * num_objetos[0])  # Localidades de los objetos
+
+  # Adaptamos los mensajes de sistema si corresponde, según la interfaz
+  adapta_msgs_sys()
 
   # Preparamos el diccionario con el vocabulario, y la lista conjunciones
   prepara_vocabulario()

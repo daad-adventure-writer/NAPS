@@ -76,6 +76,7 @@ def a0_END ():
     # Cargamos la primera parte
     if libreria.carga_parte (0):
       raise Exception ('Ha fallado la carga de la primera parte')
+    adapta_msgs_sys()
     prepara_vocabulario()
   return 0
 
@@ -120,6 +121,7 @@ def a0_LOAD ():
       libreria.carga_parte (banderas[58])
       del locs_objs [:]
       locs_objs.extend (locsObjsAntes)
+  adapta_msgs_sys()
   prepara_vocabulario()
   parsea_orden (0)
   return 8  # Salta a procesar la tabla de respuestas
@@ -169,6 +171,7 @@ def a1_OVERLAY (partno):
   msgError = libreria.carga_parte (partno)
   if msgError:
     imprime_mensaje (msgError)
+  adapta_msgs_sys()
   prepara_vocabulario()
   return busca_condacto ('a0_DONE') ()  # Termina la ejecución de la tabla actual (evidentemente necesario, al haberse cargado otra base de datos)
 
