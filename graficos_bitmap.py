@@ -194,7 +194,7 @@ def carga_imagen_pix (fichero):
     imagen, paleta = cargaImagenAtari (fichero)
   return imagen, paleta, dimensiones
 
-def carga_portada (fichero):
+def carga_portada (fichero, pareceST = False):
   """Carga y devuelve una portada de DAAD junto con su paleta, como índices en la paleta de cada píxel, detectando su modo gráfico"""
   fichero.seek (0, os.SEEK_END)
   longFichero = fichero.tell()
@@ -205,9 +205,9 @@ def carga_portada (fichero):
     return cargaPortadaEGA (fichero)
   if longFichero == 32049:
     return cargaPortadaVGA (fichero)
-  if longFichero in (32034, 32127):
+  if (longFichero == 32034 and not pareceST) or longFichero == 32127:
     return cargaPortadaAmiga (fichero)
-  if longFichero == 32066:
+  if longFichero in (32034, 32066):
     return cargaPortadaAtari (fichero)
   return None
 

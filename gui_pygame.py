@@ -511,7 +511,7 @@ def elige_parte (partes, graficos):
     if modoPortada in graficos and 0 in graficos[modoPortada]:
       try:
         fichero = open (graficos[modoPortada][0], 'rb')
-        imagen, palImg = graficos_bitmap.carga_portada (fichero)
+        imagen, palImg = graficos_bitmap.carga_portada (fichero, 'ch0' in graficos)
         strImg = b''
         for fila in imagen if modoPortada == 'cga' else [imagen]:
           if version_info[0] > 2:

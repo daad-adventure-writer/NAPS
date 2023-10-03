@@ -304,7 +304,7 @@ def busca_partes (rutaCarpeta):
   """Analiza los ficheros en la carpeta dada, identificando por extensión y devolviendo una lista con las bases de datos de las diferentes partes, y las bases de datos de gráficos correspondientes, para los diferentes modos gráficos encontrados"""
   # TODO: en PCW es parte???.*
   rutaCarpeta += '' if (rutaCarpeta[-1] == os.sep) else os.sep  # Asegura que termine con separador de directorio
-  bd_gfx = {'chr': {}, 'cga': {}, 'ega': {}, 'dat': {}}
+  bd_gfx = {'chr': {}, 'ch0': {}, 'cga': {}, 'ega': {}, 'dat': {}}
   partes = {}
   for nombreFichero in os.listdir (rutaCarpeta):
     nombreFicheroMin = nombreFichero.lower()
@@ -333,7 +333,7 @@ def busca_partes (rutaCarpeta):
       else:  # extension == 'vgs'
         modoPortada = 'dat'
       bd_gfx[modoPortada][0] = rutaCarpeta + nombreFichero
-    elif extension in ('cga', 'chr', 'dat', 'ega'):  # Bases de datos gráficas y fuentes tipográficas
+    elif extension in ('cga', 'ch0', 'chr', 'dat', 'ega'):  # Bases de datos gráficas y fuentes tipográficas
       bd_gfx[extension][numParte] = rutaCarpeta + nombreFichero
   # Quitamos modos gráficos sin bases de datos gráficas para ellos
   for modo in tuple (bd_gfx.keys()):
