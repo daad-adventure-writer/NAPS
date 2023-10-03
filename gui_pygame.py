@@ -573,8 +573,12 @@ def elige_parte (partes, graficos):
         carga_bd_pics (graficos[modo][entrada])
         if graficos_bitmap.recursos:
           break
-  if 'chr' in graficos and entrada in graficos['chr']:  # Hay fuente tipográfica para esta parte
-    fichero = open (graficos['chr'][entrada], 'rb')
+  # Cargamos la fuente tipográfica para esta parte si la hay
+  if ('chr' in graficos and entrada in graficos['chr']) or ('ch0' in graficos and entrada in graficos['ch0']):
+    if 'ch0' in graficos and entrada in graficos['ch0']:  # Cargamos preferentemente la fuente .ch0, porque en ST la chr es para alta resolución
+      fichero = open (graficos['ch0'][entrada], 'rb')
+    else:
+      fichero = open (graficos['chr'][entrada], 'rb')
     imagen, palImg = graficos_bitmap.carga_fuente (fichero)
     fichero.close()
     if len (imagen) > 23864:
