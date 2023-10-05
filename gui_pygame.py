@@ -381,13 +381,17 @@ def carga_bd_pics (rutaBDGfx):
     cambiaPaleta (graficos_bitmap.paletaEGA, False)  # Dejamos cargada la paleta EGA
   else:
     if len (paleta[0]) in (0, 8):  # Dejamos paleta de la portada si la había
-      if graficos_bitmap.modo_gfx in graficos_bitmap.colores_por_defecto:
-        cambiaPaleta (graficos_bitmap.colores_por_defecto[graficos_bitmap.modo_gfx], False)
-      else:
-        cambiaPaleta (graficos_bitmap.paletaEGA, False)  # Dejamos cargada la paleta EGA
+      carga_paleta_defecto()
     color_tinta = 1  # Ponemos este color de tinta por defecto
   if graficos_bitmap.recursos:
     precargaGraficos()
+
+def carga_paleta_defecto ():
+  """Carga a la paleta por defecto para el modo gráfico"""
+  if graficos_bitmap.modo_gfx in graficos_bitmap.colores_por_defecto:
+    cambiaPaleta (graficos_bitmap.colores_por_defecto[graficos_bitmap.modo_gfx], False)
+  else:
+    cambiaPaleta (graficos_bitmap.paletaEGA, False)  # Dejamos cargada la paleta EGA
 
 def centra_subventana ():
   """Centra horizontalmente en la ventana la subventana elegida"""

@@ -345,6 +345,8 @@ def inicializa ():
       # La subventana predeterminada es la 1
       gui.elige_subventana (1)
       banderas[63] = 1
+      if nueva_version:  # Carga la paleta por defecto, evitando hacerlo en modo CGA (que de momento sólo está para DAAD v1)
+        gui.carga_paleta_defecto()
 
   # Permitimos que la librería inicialice banderas de modo distinto a la inicialización PAWS estándar
   if 'inicializa_banderas' in libreria.__dict__:
