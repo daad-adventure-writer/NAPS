@@ -485,7 +485,7 @@ def inicializa_banderas (banderas):
   # Comprobado con el intérprete DAAD de la versión EGA de Jabato: Se inicializa a 0
   # Con el intérprete DAAD de Chichen Itzá: Se inicializa a 13 en EGA, y 141 en VGA
   if nueva_version:
-    banderas[62] = 13
+    banderas[62] = 141  # TODO: cuando se pueda elegir modo EGA, poner valor 13, y ver para otros modos qué valores poner (CGA y modo texto)
 
   # Banderas 63-254:
   # Comprobado con el intérprete DAAD de la versión EGA de Jabato, y el de Chichen Itzá:
