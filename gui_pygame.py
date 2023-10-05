@@ -1363,9 +1363,14 @@ def cambiaPaleta (nuevaPaleta, convertir = True, paraPortada = False):
     paleta[0].append (copiaPaleta.pop (masCercanos[0][0]))
     paleta[0].append (copiaPaleta.pop (masCercanos[1][0] - 1))
   else:  # No es para la portada
-    for i in (0, 15, 4, 2, 1, 3):  # Orden que aplican los intérpretes originales sobre las primeras posiciones
-      paleta[0].append (copiaPaleta[i])
-    copiaPaleta = copiaPaleta[5:15]
+    if graficos_bitmap.modo_gfx == 'VGA':
+      for i in (0, 15, 4, 2, 1, 3):  # Orden que aplican los intérpretes originales sobre las primeras posiciones
+        paleta[0].append (copiaPaleta[i])
+      copiaPaleta = copiaPaleta[5:15]  # Colores restantes
+    else:  # modo_gfx == 'ST'
+      paleta[0].append (copiaPaleta[0])
+      paleta[0].append (copiaPaleta[15])
+      copiaPaleta = copiaPaleta[1:15]  # Colores restantes
   # Añadimos los colores restantes en el mismo orden
   paleta[0].extend (copiaPaleta)
 
