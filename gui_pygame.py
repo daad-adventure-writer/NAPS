@@ -484,7 +484,7 @@ El parámetro parcial indica si es posible dibujar parte de la imagen"""
     if numero in graficos:
       if nueva_version and elegida > 0 and not espacial:
         if 'flotante' not in recurso['banderas']:
-          pos_gfx_sub[elegida] = recurso['posicion']  # Otros graficos flotantes en esta subventana se dibujarán aquí
+          pos_gfx_sub[elegida] = recurso['posicion']  # Otros gráficos flotantes en esta subventana se dibujarán aquí
         destino = pos_gfx_sub[elegida]
       elif templos:
         # TODO: Probar esto más, ocurre así con gráficos de localidad de Los Templos Sagrados, pero no en Chichen Itzá, ni sirve para Aventura Espacial
@@ -1300,6 +1300,7 @@ def prepara_topes (columnas, filas):
 def pos_subventana (columna, fila):
   """Cambia la posición de origen de la subventana de impresión elegida"""
   subventanas[elegida] = [columna, fila]
+  pos_gfx_sub[elegida] = (columna * ancho_caracter, fila * 8)
   # Ajustamos los topes para que no revasen el máximo permitido
   # No sé si DAAD hace esto, en caso de no usar el condacto WINSIZE
   # FIXME: Comprobar qué ocurre si no se usa WINSIZE, ¿se usan los topes
