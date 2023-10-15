@@ -407,6 +407,31 @@ def cargaImagenCGA (ancho, repetir, tamImg):
         izqAder = not izqAder
   return imagen
 
+def cargaImagenDMG3DOS (le, numImagen, repetir, tamImg):
+  """Carga una imagen en formato de DMG 3+ para DOS, que también se usa para imágenes de Amiga/Atari ST comprimidas, y la devuelve como lista de índices en la paleta. Devuelve un mensaje de error si falla"""
+  cargar  = 1 if le else 4  # Cuántos bytes de valores cargar cada vez, tomando primero el último cargado
+  color   = None  # Índice de color del píxel actual
+  imagen  = []    # Índices en la paleta de cada píxel en la imagen
+  valores = []    # Valores (índices de color y contador de repeticiones) pendientes de procesar, en orden
+  while len (imagen) < tamImg:  # Mientras quede imagen por procesar
+    if not valores:
+      try:
+        for i in range (cargar):
+          b = carga_int1()  # Byte actual
+          valores = [b & 15, b >> 4] + valores  # Los 4 bits más bajos primero, y luego los 4 más altos
+      except:
+        return 'Imagen %d incompleta. ¿Formato incorrecto?' % numImagen
+    if color == None:
+      color = valores.pop (0)
+      continue  # Por si hay que cargar un nuevo byte
+    if color in repetir:
+      repeticiones = valores.pop (0) + 1
+    else:
+      repeticiones = 1
+    imagen += [color] * repeticiones
+    color   = None
+  return imagen
+
 def cargaImagenPIXenBN (fichero):
   """Carga y devuelve una imagen PIX de SWAN en blanco y negro junto con su paleta, como índices en la paleta de cada píxel"""
   fichero.seek (8)
@@ -414,6 +439,65 @@ def cargaImagenPIXenBN (fichero):
   ancho = 304
   alto  = 64
   return cargaImagenPlanar (ancho, alto, 1, 0, [None], ancho * alto, invertir = False), (paletaBN[1], paletaBN[0])
+
+def cargaImagenPlanar (ancho, alto, numPlanos, numImg, repetir, tamImg, invertir = True):
+  """Carga una imagen EGA o PCW de DMG 1, modos gráficos PCW monocromo y Amiga y EGA en orden planar con cuatro planos de bit de color enteros consecutivos, y la devuelve como lista de índices en la paleta. Devuelve un mensaje de error si falla"""
+  imagen       = [0] * tamImg  # Índices en la paleta de cada píxel en la imagen
+  izqAder      = True          # Sentido de procesado de píxeles de la fila actual
+  repeticiones = 0
+  for plano in range (numPlanos):
+    bitsFila = []
+    numFila  = 0
+    while numFila < alto:
+      if not repeticiones:
+        try:
+          b = carga_int1()  # Byte actual
+          if b in repetir:
+            repeticiones = carga_int1()
+            if repeticiones < 1:
+              return 'Valor inesperado (0) para el número de repeticiones de RLE, en la imagen ' + str (numImg)
+          else:
+            repeticiones = 1
+        except:
+          return 'Imagen %d incompleta. ¿Formato incorrecto?' % numImg
+        bits = []  # Bits del byte actual
+        for indiceBit in range (7, -1, -1):  # Cada bit del byte actual
+          bits.append (1 if b & (2 ** indiceBit) else 0)
+      cuantas = min (repeticiones, (ancho - len (bitsFila)) // 8)  # Evitamos exceder la longitud de una fila
+      if izqAder or not invertir:  # Sentido de izquierda a derecha
+        bitsFila.extend (bits * cuantas)  # Añadimos al final
+      else:  # Sentido de derecha a izquierda
+        bitsReversa = bits[::-1]
+        bitsFila.extend (bitsReversa * cuantas)  # Añadimos al final, pero con los bits invertidos
+      repeticiones -= cuantas
+      if len (bitsFila) == ancho:  # Al repetir no se excede la longitud de una fila
+        if numPlanos == 1 and not repetir:  # Modo PCW sin compresión RLE
+          bytesEnFila   = ancho       // 8
+          bloquesEnFila = bytesEnFila // 8  # Bloques de 8 bytes por cada fila
+          for indiceByte in range (bytesEnFila):
+            byte = bitsFila[indiceByte * 8 : (indiceByte * 8) + 8]
+            numBloqueDest = numFila // 8      # Índice del bloque de 8 filas, en destino
+            numFilaDest   = (indiceByte % 8)  # Índice de fila dentro del bloque, en destino
+            numByteDest   = ((numFila % 8) * bloquesEnFila) + (indiceByte // 8)  # Índice del byte dentro de la fila, en destino
+            primerPixel   = (numBloqueDest * ancho * 8) + (numFilaDest * ancho) + (numByteDest * 8)  # Índice del primer píxel del byte, en destino
+            for indiceBit in range (8):
+              bit = byte[indiceBit]
+              imagen[primerPixel + indiceBit] += (2 ** plano) if bit else 0
+        elif izqAder or not invertir:  # Sentido de izquierda a derecha
+          primerPixel = (numFila * ancho)  # Índice del primer píxel del byte
+          for indiceBit in range (ancho):
+            bit = bitsFila[indiceBit]
+            imagen[primerPixel + indiceBit] += (2 ** plano) if bit else 0
+        else:  # Sentido de derecha a izquierda
+          ultimoPixel = (numFila * ancho) + ancho - 1  # Índice del último píxel del byte
+          for indiceBit in range (ancho):
+            bit = bitsFila[indiceBit]
+            imagen[ultimoPixel - indiceBit] += (2 ** plano) if bit else 0
+        bitsFila = []
+        if repetir:  # Si la imagen usa compresión RLE
+          izqAder = not izqAder
+        numFila += 1
+  return imagen
 
 def cargaPortadaAmiga (fichero):
   """Carga y devuelve una portada de Amiga junto con su paleta, como índices en la paleta de cada píxel"""
@@ -490,90 +574,6 @@ def cargaPortadaVGA (fichero):
   ancho  = 320
   alto   = 200
   return cargaImagenPlanar (ancho, alto, 4, 0, [], ancho * alto), paleta
-
-def cargaImagenDMG3DOS (le, numImagen, repetir, tamImg):
-  """Carga una imagen en formato de DMG 3+ para DOS, que también se usa para imágenes de Amiga/Atari ST comprimidas, y la devuelve como lista de índices en la paleta. Devuelve un mensaje de error si falla"""
-  cargar  = 1 if le else 4  # Cuántos bytes de valores cargar cada vez, tomando primero el último cargado
-  color   = None  # Índice de color del píxel actual
-  imagen  = []    # Índices en la paleta de cada píxel en la imagen
-  valores = []    # Valores (índices de color y contador de repeticiones) pendientes de procesar, en orden
-  while len (imagen) < tamImg:  # Mientras quede imagen por procesar
-    if not valores:
-      try:
-        for i in range (cargar):
-          b = carga_int1()  # Byte actual
-          valores = [b & 15, b >> 4] + valores  # Los 4 bits más bajos primero, y luego los 4 más altos
-      except:
-        return 'Imagen %d incompleta. ¿Formato incorrecto?' % numImagen
-    if color == None:
-      color = valores.pop (0)
-      continue  # Por si hay que cargar un nuevo byte
-    if color in repetir:
-      repeticiones = valores.pop (0) + 1
-    else:
-      repeticiones = 1
-    imagen += [color] * repeticiones
-    color   = None
-  return imagen
-
-def cargaImagenPlanar (ancho, alto, numPlanos, numImg, repetir, tamImg, invertir = True):
-  """Carga una imagen EGA o PCW de DMG 1, modos gráficos PCW monocromo y Amiga y EGA en orden planar con cuatro planos de bit de color enteros consecutivos, y la devuelve como lista de índices en la paleta. Devuelve un mensaje de error si falla"""
-  imagen       = [0] * tamImg  # Índices en la paleta de cada píxel en la imagen
-  izqAder      = True          # Sentido de procesado de píxeles de la fila actual
-  repeticiones = 0
-  for plano in range (numPlanos):
-    bitsFila = []
-    numFila  = 0
-    while numFila < alto:
-      if not repeticiones:
-        try:
-          b = carga_int1()  # Byte actual
-          if b in repetir:
-            repeticiones = carga_int1()
-            if repeticiones < 1:
-              return 'Valor inesperado (0) para el número de repeticiones de RLE, en la imagen ' + str (numImg)
-          else:
-            repeticiones = 1
-        except:
-          return 'Imagen %d incompleta. ¿Formato incorrecto?' % numImg
-        bits = []  # Bits del byte actual
-        for indiceBit in range (7, -1, -1):  # Cada bit del byte actual
-          bits.append (1 if b & (2 ** indiceBit) else 0)
-      cuantas = min (repeticiones, (ancho - len (bitsFila)) // 8)  # Evitamos exceder la longitud de una fila
-      if izqAder or not invertir:  # Sentido de izquierda a derecha
-        bitsFila.extend (bits * cuantas)  # Añadimos al final
-      else:  # Sentido de derecha a izquierda
-        bitsReversa = bits[::-1]
-        bitsFila.extend (bitsReversa * cuantas)  # Añadimos al final, pero con los bits invertidos
-      repeticiones -= cuantas
-      if len (bitsFila) == ancho:  # Al repetir no se excede la longitud de una fila
-        if numPlanos == 1 and not repetir:  # Modo PCW sin compresión RLE
-          bytesEnFila   = ancho       // 8
-          bloquesEnFila = bytesEnFila // 8  # Bloques de 8 bytes por cada fila
-          for indiceByte in range (bytesEnFila):
-            byte = bitsFila[indiceByte * 8 : (indiceByte * 8) + 8]
-            numBloqueDest = numFila // 8      # Índice del bloque de 8 filas, en destino
-            numFilaDest   = (indiceByte % 8)  # Índice de fila dentro del bloque, en destino
-            numByteDest   = ((numFila % 8) * bloquesEnFila) + (indiceByte // 8)  # Índice del byte dentro de la fila, en destino
-            primerPixel   = (numBloqueDest * ancho * 8) + (numFilaDest * ancho) + (numByteDest * 8)  # Índice del primer píxel del byte, en destino
-            for indiceBit in range (8):
-              bit = byte[indiceBit]
-              imagen[primerPixel + indiceBit] += (2 ** plano) if bit else 0
-        elif izqAder or not invertir:  # Sentido de izquierda a derecha
-          primerPixel = (numFila * ancho)  # Índice del primer píxel del byte
-          for indiceBit in range (ancho):
-            bit = bitsFila[indiceBit]
-            imagen[primerPixel + indiceBit] += (2 ** plano) if bit else 0
-        else:  # Sentido de derecha a izquierda
-          ultimoPixel = (numFila * ancho) + ancho - 1  # Índice del último píxel del byte
-          for indiceBit in range (ancho):
-            bit = bitsFila[indiceBit]
-            imagen[ultimoPixel - indiceBit] += (2 ** plano) if bit else 0
-        bitsFila = []
-        if repetir:  # Si la imagen usa compresión RLE
-          izqAder = not izqAder
-        numFila += 1
-  return imagen
 
 def cargaPaleta16 (bpc, portadaAmiga = False):
   """Carga y devuelve una paleta de 16 colores, con el número de bits por componente de color dado"""
