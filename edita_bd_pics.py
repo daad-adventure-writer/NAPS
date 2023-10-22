@@ -151,19 +151,23 @@ class Recurso (QPushButton):
       if imagen.width() % 8:
         muestraFallo ('Anchura de imagen incorrecta', 'La imagen elegida (' + nombreFichero + ') tiene ' + str (imagen.width()) + u' píxeles de ancho, cuando debería ser múltiplo de 8')
         return
+      # Calculamos el número de colores que utiliza la imagen
+      ventana.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
+      coloresUsados = set()
       if imagen.depth() > 8:  # No usa paleta indexada
-        # Calculamos el número de colores que tiene
-        coloresUsados = set()
-        ventana.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
         for fila in range (imagen.height()):
           for columna in range (imagen.width()):
             coloresUsados.add (imagen.pixel (columna, fila))
-        ventana.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
-        numColores    = len (coloresUsados)
         coloresUsados = list (coloresUsados)
-      else:
-        coloresUsados = imagen.colorTable()
-        numColores    = imagen.colorCount()
+        numColores    = len (coloresUsados)
+      else:  # Usa paleta indexada
+        paletaImagen = imagen.colorTable()
+        for fila in range (imagen.height()):
+          for columna in range (imagen.width()):
+            coloresUsados.add (imagen.pixel (columna, fila))
+        numColores    = len (coloresUsados)
+        coloresUsados = paletaImagen
+      ventana.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
       if numColores > graficos_bitmap.colores_por_modo[graficos_bitmap.modo_gfx]:
         muestraFallo ('Advertencia: número de colores elevado', 'La imagen elegida (' + nombreFichero + ') utiliza ' + str (numColores) + ' colores diferentes, mientras que el modo ' + graficos_bitmap.modo_gfx + u' de la base de datos gráfica sólo soporta ' + str (graficos_bitmap.colores_por_modo[graficos_bitmap.modo_gfx]))
       if self.imagen and graficos_bitmap.recurso_es_unico (self.numRecurso):
