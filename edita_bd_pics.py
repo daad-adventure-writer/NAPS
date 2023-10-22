@@ -182,9 +182,15 @@ class Recurso (QPushButton):
           return
       paletas = graficos_bitmap.da_paletas_del_formato()
       if len (paletas) > 1:
-        muestraFallo ('No implementado', 'El formato de base de datos gráfica soporta más de un modo gráfico, y la selección de colores para cada modo todavía no está implementada')
-        return
-      paletas = paletas[list (paletas.keys())[0]]
+        if numColores > graficos_bitmap.colores_por_modo[graficos_bitmap.modo_gfx]:
+          muestraFallo ('Advertencia: paleta recortada', 'El formato de base de datos gráfica soporta paleta variable, se tomará como paleta los primeros ' + str (graficos_bitmap.colores_por_modo[graficos_bitmap.modo_gfx]) + ' colores de la imagen')
+          coloresUsados = coloresUsados[:graficos_bitmap.colores_por_modo[graficos_bitmap.modo_gfx]]
+        paletas = [[]]
+        for c in range (len (coloresUsados)):
+          color = QColor (coloresUsados[c])
+          paletas[0].append ((color.red(), color.green(), color.blue()))
+      else:
+        paletas = paletas[list (paletas.keys())[0]]
 
       # Buscamos los colores más cercanos de entre las paletas para los colores de la imagen
       masCercanos = []  # Índice en paleta del color más cercano a los usados en la imagen, y su cercanía, para ambas paletas
