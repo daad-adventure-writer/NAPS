@@ -114,23 +114,7 @@ class Recurso (QPushButton):
       ventana.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
 
   def importarImagen (self, conservarPaleta = False):
-    global dlg_abrir
-    extSoportadas = []  # Todas las extensiones de imágenes soportadas
-    filtro        = []
-    for descripcion, extensiones in filtros_img:
-      filtro.append (descripcion + ' (*.' + ' *.'.join (extensiones) + ')')
-      extSoportadas.extend (extensiones)
-    filtro.append ('Todas las imágenes soportadas (*.' + ' *.'.join (extSoportadas) + ')')
-    if not dlg_abrir:  # Diálogo no creado aún
-      dlg_abrir = QFileDialog (ventana, 'Abrir imagen', os.curdir, ';;'.join (filtro))
-      dlg_abrir.setFileMode  (QFileDialog.ExistingFile)
-      dlg_abrir.setLabelText (QFileDialog.LookIn,   'Lugares')
-      dlg_abrir.setLabelText (QFileDialog.FileName, '&Nombre:')
-      dlg_abrir.setLabelText (QFileDialog.FileType, 'Filtro:')
-      dlg_abrir.setLabelText (QFileDialog.Accept,   '&Abrir')
-      dlg_abrir.setLabelText (QFileDialog.Reject,   '&Cancelar')
-      dlg_abrir.setOption    (QFileDialog.DontUseNativeDialog)
-    dlg_abrir.selectNameFilter (filtro[len (filtro) - 1])  # Elegimos el filtro de todas las imágenes soportadas
+    preparaDialogoAbrir ()
     if dlg_abrir.exec_():  # No se ha cancelado
       ventana.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
       nombreFichero = (str if sys.version_info[0] > 2 else unicode) (dlg_abrir.selectedFiles()[0])
@@ -441,6 +425,25 @@ def muestraFallo (mensaje, detalle = '', parent = None):
   else:
     dlg_fallo.setInformativeText ('')
   dlg_fallo.exec_()
+
+def preparaDialogoAbrir ():
+  global dlg_abrir
+  extSoportadas = []  # Todas las extensiones de imágenes soportadas
+  filtro        = []
+  for descripcion, extensiones in filtros_img:
+    filtro.append (descripcion + ' (*.' + ' *.'.join (extensiones) + ')')
+    extSoportadas.extend (extensiones)
+  filtro.append ('Todas las imágenes soportadas (*.' + ' *.'.join (extSoportadas) + ')')
+  if not dlg_abrir:  # Diálogo no creado aún
+    dlg_abrir = QFileDialog (ventana, 'Abrir imagen', os.curdir, ';;'.join (filtro))
+    dlg_abrir.setFileMode  (QFileDialog.ExistingFile)
+    dlg_abrir.setLabelText (QFileDialog.LookIn,   'Lugares')
+    dlg_abrir.setLabelText (QFileDialog.FileName, '&Nombre:')
+    dlg_abrir.setLabelText (QFileDialog.FileType, 'Filtro:')
+    dlg_abrir.setLabelText (QFileDialog.Accept,   '&Abrir')
+    dlg_abrir.setLabelText (QFileDialog.Reject,   '&Cancelar')
+    dlg_abrir.setOption    (QFileDialog.DontUseNativeDialog)
+  dlg_abrir.selectNameFilter (filtro[len (filtro) - 1])  # Elegimos el filtro de todas las imágenes soportadas
 
 
 aplicacion = QApplication (sys.argv)
