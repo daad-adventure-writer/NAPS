@@ -62,12 +62,15 @@ class Recurso (QPushButton):
   def contextMenuEvent (self, evento):
     contextual = QMenu (self)
     if self.imagen:
-      accImgExportar  = QAction ('&Exportar imagen',  contextual)
-      accImgSustituir = QAction ('&Sustituir imagen', contextual)
+      accImgExportar     = QAction ('&Exportar imagen',                     contextual)
+      accImgSustituir    = QAction ('&Sustituir imagen',                    contextual)
+      accImgSustituirSin = QAction ('Sustituir imagen &conservando paleta', contextual)
       accImgExportar.triggered.connect (self.exportarImagen)
       accImgSustituir.triggered.connect (self.importarImagen)
+      accImgSustituirSin.triggered.connect (lambda: self.importarImagen (conservarPaleta = True))
       contextual.addAction (accImgExportar)
       contextual.addAction (accImgSustituir)
+      contextual.addAction (accImgSustituirSin)
     else:
       accImgAnyadir = QAction ('&Añadir imagen', contextual)
       accImgAnyadir.triggered.connect (self.importarImagen)
@@ -110,7 +113,7 @@ class Recurso (QPushButton):
       self.imagen.save (nombreFichero)
       ventana.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
 
-  def importarImagen (self):
+  def importarImagen (self, conservarPaleta = False):
     global dlg_abrir
     extSoportadas = []  # Todas las extensiones de imágenes soportadas
     filtro        = []
@@ -182,13 +185,16 @@ class Recurso (QPushButton):
           return
       paletas = graficos_bitmap.da_paletas_del_formato()
       if len (paletas) > 1:
-        if numColores > graficos_bitmap.colores_por_modo[graficos_bitmap.modo_gfx]:
-          muestraFallo ('Advertencia: paleta recortada', 'El formato de base de datos gráfica soporta paleta variable, se tomará como paleta los primeros ' + str (graficos_bitmap.colores_por_modo[graficos_bitmap.modo_gfx]) + ' colores de la imagen')
-          coloresUsados = coloresUsados[:graficos_bitmap.colores_por_modo[graficos_bitmap.modo_gfx]]
-        paletas = [[]]
-        for c in range (len (coloresUsados)):
-          color = QColor (coloresUsados[c])
-          paletas[0].append ((color.red(), color.green(), color.blue()))
+        if self.imagen and conservarPaleta:
+          paletas = [graficos_bitmap.recursos[self.numRecurso]['paleta']]
+        else:
+          if numColores > graficos_bitmap.colores_por_modo[graficos_bitmap.modo_gfx]:
+            muestraFallo ('Advertencia: paleta recortada', 'El formato de base de datos gráfica soporta paleta variable, se tomará como paleta los primeros ' + str (graficos_bitmap.colores_por_modo[graficos_bitmap.modo_gfx]) + ' colores de la imagen')
+            coloresUsados = coloresUsados[:graficos_bitmap.colores_por_modo[graficos_bitmap.modo_gfx]]
+          paletas = [[]]
+          for c in range (len (coloresUsados)):
+            color = QColor (coloresUsados[c])
+            paletas[0].append ((color.red(), color.green(), color.blue()))
       else:
         paletas = paletas[list (paletas.keys())[0]]
 
