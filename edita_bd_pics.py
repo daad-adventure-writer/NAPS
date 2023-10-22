@@ -25,6 +25,7 @@
 
 import math
 import os
+import re
 import sys
 
 try:
@@ -38,11 +39,13 @@ except:
 import graficos_bitmap
 
 
-acc_exportar = None  # Acción de exportar base de datos gráfica
-dlg_abrir    = None  # Diálogo de abrir imagen
-dlg_exportar = None  # Diálogo de exportar base de datos gráfica
-dlg_importar = None  # Diálogo de importar base de datos gráfica
-dlg_guardar  = None  # Diálogo de guardar imagen
+acc_exportar          = None  # Acción de exportar base de datos gráfica
+acc_importar_masa     = None  # Acción de importar múltiples imágenes
+acc_importar_masa_sin = None  # Acción de importar múltiples imágenes, conservando la paleta de las de número ya existente en la BD
+dlg_abrir             = None  # Diálogo de abrir imagen/importar múltiples imágenes
+dlg_exportar          = None  # Diálogo de exportar base de datos gráfica
+dlg_importar          = None  # Diálogo de importar base de datos gráfica
+dlg_guardar           = None  # Diálogo de guardar imagen
 
 filtro_img_def = 1  # Índice en filtros_img del formato de imagen por defecto
 filtros_img    = (('Imágenes BMP', ['bmp'])), ('Imágenes PNG', ['png'])  # Filtros de formatos de imagen soportados para abrir y guardar
@@ -113,11 +116,12 @@ class Recurso (QPushButton):
       self.imagen.save (nombreFichero)
       ventana.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
 
-  def importarImagen (self, conservarPaleta = False):
-    preparaDialogoAbrir ()
-    if not dlg_abrir.exec_():  # Se ha cancelado
-      return
-    nombreFichero = (str if sys.version_info[0] > 2 else unicode) (dlg_abrir.selectedFiles()[0])
+  def importarImagen (self, conservarPaleta = False, nombreFichero = None):
+    if not nombreFichero:
+      preparaDialogoAbrir (multiple = False)
+      if not dlg_abrir.exec_():  # Se ha cancelado
+        return
+      nombreFichero = (str if sys.version_info[0] > 2 else unicode) (dlg_abrir.selectedFiles()[0])
     ventana.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
     imagen = QImage (nombreFichero)
     ventana.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
@@ -164,7 +168,7 @@ class Recurso (QPushButton):
       dlgSiNo.addButton ('&No', QMessageBox.NoRole)
       dlgSiNo.setIcon (QMessageBox.Warning)
       dlgSiNo.setWindowTitle ('Sustituir imagen')
-      dlgSiNo.setText ('Esta imagen no es utilizada por ningún otro recurso')
+      dlgSiNo.setText ('La imagen ' + str (self.numRecurso) + ' no es utilizada por ningún otro recurso')
       dlgSiNo.setInformativeText ('\n¿Seguro que quieres sustituirla por la imagen del fichero elegido?')
       if dlgSiNo.exec_() != 0:  # No se ha pulsado el botón Sí
         return
@@ -243,13 +247,19 @@ class Recurso (QPushButton):
 class Ventana (QMainWindow):
   """Ventana principal"""
   def __init__ (self):
-    global acc_exportar
+    global acc_exportar, acc_importar_masa, acc_importar_masa_sin
     super (Ventana, self).__init__()
-    acc_exportar = QAction ('&Exportar', self)
-    accImportar  = QAction ('&Importar', self)
-    accSalir     = QAction ('&Salir',    self)
+    acc_importar_masa     = QAction ('&Añadir/sustituir imágenes', self)
+    acc_importar_masa_sin = QAction ('Añadir/sustituir imágenes &conservando paleta', self)
+    acc_exportar          = QAction ('&Exportar', self)
+    accImportar           = QAction ('&Importar', self)
+    accSalir              = QAction ('&Salir',    self)
     acc_exportar.setEnabled (False)
+    acc_importar_masa.setEnabled (False)
+    acc_importar_masa_sin.setEnabled (False)
     acc_exportar.triggered.connect (dialogoExportaBD)
+    acc_importar_masa.triggered.connect (dialogoImportarImagenes)
+    acc_importar_masa_sin.triggered.connect (lambda: dialogoImportarImagenes (conservarPaleta = True))
     accImportar.triggered.connect (dialogoImportaBD)
     accSalir.setShortcut ('Ctrl+Q')
     menuArchivo = self.menuBar().addMenu ('&Archivo')
@@ -257,6 +267,9 @@ class Ventana (QMainWindow):
     menuArchivo.addAction (acc_exportar)
     menuArchivo.addSeparator()
     menuArchivo.addAction (accSalir)
+    menuMasa = self.menuBar().addMenu ('&Operaciones en masa')
+    menuMasa.addAction (acc_importar_masa)
+    menuMasa.addAction (acc_importar_masa_sin)
     scroll = QScrollArea (self)
     self.rejilla = QWidget (scroll)
     self.rejilla.setLayout (QGridLayout (self.rejilla))
@@ -339,6 +352,22 @@ def dialogoImportaBD ():
     importaBD (nombreFichero)
     ventana.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
 
+def dialogoImportarImagenes (conservarPaleta = False):
+  """Deja al usuario elegir ficheros de imágenes, las intenta cargar, y si todo es correcto añade/sustituye las imágenes"""
+  muestraFallo ('Cada fichero seleccionado se tratará de cargar como imagen, y su imagen se aplicará sobre los recursos correspondientes a todos los números que se encuentren en el nombre del fichero separados por caracteres no sean dígitos.\n\nPor ejemplo:\n"pic08.png" "8" "imagen 8.bmp" aplicarán la imagen al recurso 8\n"lugar 1, 7 y 28.png" "imagen 28 (1).7.bmp" la aplicarán sobre los recursos 1, 7 y 28', icono = QMessageBox.Information)
+  preparaDialogoAbrir (multiple = True)
+  if not dlg_abrir.exec_():  # Se ha cancelado
+    return
+  for rutaFichero in dlg_abrir.selectedFiles():
+    rutaFichero   = (str if sys.version_info[0] > 2 else unicode) (rutaFichero)
+    nombreFichero = os.path.basename (rutaFichero)
+    for numRecurso in re.findall (r'\d+', nombreFichero):
+      numRecurso = int (numRecurso)
+      if numRecurso > 255:
+        muestraFallo ('Advertencia: número inválido', 'El fichero "' + nombreFichero + '" contiene un número ' + str (numRecurso) + 'que es inválido como recurso, por lo que ese número se ignorará. Y si el fichero sólo tiene ese número, el fichero se ignorará')
+        continue
+      ventana.rejilla.layout().itemAt (numRecurso).widget().importarImagen (conservarPaleta, rutaFichero)
+
 def importaBD (nombreFichero):
   """Importa una base de datos gráfica desde el fichero de nombre dado"""
   error = graficos_bitmap.carga_bd_pics (nombreFichero)
@@ -350,8 +379,12 @@ def importaBD (nombreFichero):
   if (graficos_bitmap.modo_gfx in ('CGA', 'EGA', 'PCW')  # Modos gráficos de la versión 1 de DMG
       or graficos_bitmap.modo_gfx in ('ST', 'VGA') and graficos_bitmap.version > 1):  # Versión 3+ de DMG
     acc_exportar.setEnabled (True)
+    acc_importar_masa.setEnabled (True)
+    acc_importar_masa_sin.setEnabled (True)
   else:
     acc_exportar.setEnabled (False)
+    acc_importar_masa.setEnabled (False)
+    acc_importar_masa_sin.setEnabled (False)
 
   altoMax  = 0  # Alto  de imagen máximo
   anchoMax = 0  # Ancho de imagen máximo
@@ -432,7 +465,7 @@ def muestraFallo (mensaje, detalle = '', icono = QMessageBox.Warning, parent = N
     dlg_fallo.setInformativeText ('')
   dlg_fallo.exec_()
 
-def preparaDialogoAbrir ():
+def preparaDialogoAbrir (multiple):
   global dlg_abrir
   extSoportadas = []  # Todas las extensiones de imágenes soportadas
   filtro        = []
@@ -442,13 +475,18 @@ def preparaDialogoAbrir ():
   filtro.append ('Todas las imágenes soportadas (*.' + ' *.'.join (extSoportadas) + ')')
   if not dlg_abrir:  # Diálogo no creado aún
     dlg_abrir = QFileDialog (ventana, 'Abrir imagen', os.curdir, ';;'.join (filtro))
-    dlg_abrir.setFileMode  (QFileDialog.ExistingFile)
     dlg_abrir.setLabelText (QFileDialog.LookIn,   'Lugares')
     dlg_abrir.setLabelText (QFileDialog.FileName, '&Nombre:')
     dlg_abrir.setLabelText (QFileDialog.FileType, 'Filtro:')
     dlg_abrir.setLabelText (QFileDialog.Accept,   '&Abrir')
     dlg_abrir.setLabelText (QFileDialog.Reject,   '&Cancelar')
     dlg_abrir.setOption    (QFileDialog.DontUseNativeDialog)
+  if multiple:
+    dlg_abrir.setFileMode    (QFileDialog.ExistingFiles)
+    dlg_abrir.setWindowTitle ('Abrir imágenes')
+  else:
+    dlg_abrir.setFileMode    (QFileDialog.ExistingFile)
+    dlg_abrir.setWindowTitle ('Abrir imagen')
   dlg_abrir.selectNameFilter (filtro[len (filtro) - 1])  # Elegimos el filtro de todas las imágenes soportadas
 
 
