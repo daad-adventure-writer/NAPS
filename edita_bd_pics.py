@@ -40,10 +40,12 @@ import graficos_bitmap
 
 
 acc_exportar          = None  # Acción de exportar base de datos gráfica
+acc_exportar_todo     = None  # Acción de exportar todos los recursos
 acc_importar_masa     = None  # Acción de importar múltiples imágenes
 acc_importar_masa_sin = None  # Acción de importar múltiples imágenes, conservando la paleta de las de número ya existente en la BD
 dlg_abrir             = None  # Diálogo de abrir imagen/importar múltiples imágenes
 dlg_exportar          = None  # Diálogo de exportar base de datos gráfica
+dlg_exportar_todo     = None  # Diálogo de exportar todos los recursos
 dlg_importar          = None  # Diálogo de importar base de datos gráfica
 dlg_guardar           = None  # Diálogo de guardar imagen
 
@@ -80,41 +82,43 @@ class Recurso (QPushButton):
       contextual.addAction (accImgAnyadir)
     contextual.exec_ (evento.globalPos())
 
-  def exportarImagen (self):
+  def exportarImagen (self, nombreFichero = None):
     global dlg_guardar
-    filtro = []
-    for descripcion, extensiones in filtros_img:
-      filtro.append (descripcion + ' (*.' + ' *.'.join (extensiones) + ')')
-    if not dlg_guardar:  # Diálogo no creado aún
-      dlg_guardar = QFileDialog (ventana, 'Exportar imagen', os.curdir, ';;'.join (filtro))
-      dlg_guardar.setAcceptMode (QFileDialog.AcceptSave)
-      dlg_guardar.setLabelText  (QFileDialog.LookIn,   'Lugares')
-      dlg_guardar.setLabelText  (QFileDialog.FileName, '&Nombre:')
-      dlg_guardar.setLabelText  (QFileDialog.FileType, 'Filtro:')
-      dlg_guardar.setLabelText  (QFileDialog.Accept,   '&Guardar')
-      dlg_guardar.setLabelText  (QFileDialog.Reject,   '&Cancelar')
-      dlg_guardar.setOption     (QFileDialog.DontConfirmOverwrite)
-      dlg_guardar.setOption     (QFileDialog.DontUseNativeDialog)
-    dlg_guardar.selectNameFilter (filtro[filtro_img_def])  # Elegimos el formato por defecto
-    if dlg_guardar.exec_():  # No se ha cancelado
+    if not nombreFichero:
+      filtro = []
+      for descripcion, extensiones in filtros_img:
+        filtro.append (descripcion + ' (*.' + ' *.'.join (extensiones) + ')')
+      if not dlg_guardar:  # Diálogo no creado aún
+        dlg_guardar = QFileDialog (ventana, 'Exportar imagen', os.curdir, ';;'.join (filtro))
+        dlg_guardar.setAcceptMode (QFileDialog.AcceptSave)
+        dlg_guardar.setLabelText  (QFileDialog.LookIn,   'Lugares')
+        dlg_guardar.setLabelText  (QFileDialog.FileName, '&Nombre:')
+        dlg_guardar.setLabelText  (QFileDialog.FileType, 'Filtro:')
+        dlg_guardar.setLabelText  (QFileDialog.Accept,   '&Guardar')
+        dlg_guardar.setLabelText  (QFileDialog.Reject,   '&Cancelar')
+        dlg_guardar.setOption     (QFileDialog.DontConfirmOverwrite)
+        dlg_guardar.setOption     (QFileDialog.DontUseNativeDialog)
+      dlg_guardar.selectNameFilter (filtro[filtro_img_def])  # Elegimos el formato por defecto
+      if dlg_guardar.exec_():  # Se ha cancelado
+        return
       indiceFiltro  = list (dlg_guardar.nameFilters()).index (dlg_guardar.selectedNameFilter())
       nombreFichero = (str if sys.version_info[0] > 2 else unicode) (dlg_guardar.selectedFiles()[0])
       extension     = '.' + filtros_img[indiceFiltro][1][0]
       if nombreFichero[- len (extension):].lower() != extension:
         nombreFichero += extension
-      if os.path.isfile (nombreFichero):
-        dlgSiNo = QMessageBox (ventana)
-        dlgSiNo.addButton ('&Sí', QMessageBox.YesRole)
-        dlgSiNo.addButton ('&No', QMessageBox.NoRole)
-        dlgSiNo.setIcon (QMessageBox.Warning)
-        dlgSiNo.setWindowTitle ('Sobreescritura')
-        dlgSiNo.setText ('Ya existe un fichero con ruta y nombre:\n\n' + nombreFichero)
-        dlgSiNo.setInformativeText ('\n¿Quieres sobreescribirlo?')
-        if dlgSiNo.exec_() != 0:  # No se ha pulsado el botón Sí
-          return
-      ventana.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
-      self.imagen.save (nombreFichero)
-      ventana.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
+    if os.path.isfile (nombreFichero):
+      dlgSiNo = QMessageBox (ventana)
+      dlgSiNo.addButton ('&Sí', QMessageBox.YesRole)
+      dlgSiNo.addButton ('&No', QMessageBox.NoRole)
+      dlgSiNo.setIcon (QMessageBox.Warning)
+      dlgSiNo.setWindowTitle ('Sobreescritura')
+      dlgSiNo.setText ('Ya existe un fichero con ruta y nombre:\n\n' + nombreFichero)
+      dlgSiNo.setInformativeText ('\n¿Quieres sobreescribirlo?')
+      if dlgSiNo.exec_() != 0:  # No se ha pulsado el botón Sí
+        return
+    ventana.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
+    self.imagen.save (nombreFichero)
+    ventana.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
 
   def importarImagen (self, conservarPaleta = False, nombreFichero = None):
     if not nombreFichero:
@@ -247,17 +251,20 @@ class Recurso (QPushButton):
 class Ventana (QMainWindow):
   """Ventana principal"""
   def __init__ (self):
-    global acc_exportar, acc_importar_masa, acc_importar_masa_sin
+    global acc_exportar, acc_exportar_todo, acc_importar_masa, acc_importar_masa_sin
     super (Ventana, self).__init__()
+    acc_exportar          = QAction ('&Exportar BD gráfica', self)
+    acc_exportar_todo     = QAction ('&Exportar todo', self)
     acc_importar_masa     = QAction ('&Añadir/sustituir imágenes', self)
     acc_importar_masa_sin = QAction ('Añadir/sustituir imágenes &conservando paleta', self)
-    acc_exportar          = QAction ('&Exportar BD gráfica', self)
     accImportar           = QAction ('&Importar BD gráfica', self)
-    accSalir              = QAction ('&Salir',    self)
+    accSalir              = QAction ('&Salir', self)
     acc_exportar.setEnabled (False)
+    acc_exportar_todo.setEnabled (False)
     acc_importar_masa.setEnabled (False)
     acc_importar_masa_sin.setEnabled (False)
     acc_exportar.triggered.connect (dialogoExportaBD)
+    acc_exportar_todo.triggered.connect (dialogoExportarTodo)
     acc_importar_masa.triggered.connect (dialogoImportarImagenes)
     acc_importar_masa_sin.triggered.connect (lambda: dialogoImportarImagenes (conservarPaleta = True))
     accImportar.triggered.connect (dialogoImportaBD)
@@ -270,6 +277,7 @@ class Ventana (QMainWindow):
     menuMasa = self.menuBar().addMenu ('&Operaciones en masa')
     menuMasa.addAction (acc_importar_masa)
     menuMasa.addAction (acc_importar_masa_sin)
+    menuMasa.addAction (acc_exportar_todo)
     scroll = QScrollArea (self)
     self.rejilla = QWidget (scroll)
     self.rejilla.setLayout (QGridLayout (self.rejilla))
@@ -334,6 +342,30 @@ def dialogoExportaBD ():
     fichero.close()
     ventana.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
 
+def dialogoExportarTodo ():
+  """Deja al usuario elegir una carpeta donde exportar todos los recursos"""
+  global dlg_exportar_todo
+  if not dlg_exportar_todo:  # Diálogo no creado aún
+    dlg_exportar_todo = QFileDialog (ventana, 'Carpeta donde exportar', os.curdir)
+    dlg_exportar_todo.setFileMode  (QFileDialog.Directory)
+    dlg_exportar_todo.setLabelText (QFileDialog.LookIn,   'Lugares')
+    dlg_exportar_todo.setLabelText (QFileDialog.FileName, '&Nombre:')
+    dlg_exportar_todo.setLabelText (QFileDialog.FileType, 'Filtro:')
+    dlg_exportar_todo.setLabelText (QFileDialog.Accept,   '&Abrir')
+    dlg_exportar_todo.setLabelText (QFileDialog.Reject,   '&Cancelar')
+    dlg_exportar_todo.setOption    (QFileDialog.DontUseNativeDialog)
+    dlg_exportar_todo.setOption    (QFileDialog.ShowDirsOnly)
+  if not dlg_exportar_todo.exec_():  # Se ha cancelado
+    return
+  rutaFichero = (str if sys.version_info[0] > 2 else unicode) (dlg_exportar_todo.selectedFiles()[0])
+  for numRecurso in range (256):
+    widget = ventana.rejilla.layout().itemAt (numRecurso).widget()
+    if not widget.imagen:
+      continue
+    # TODO: exportación de sonidos
+    nombreFichero = 'pic' + str (numRecurso).zfill (3) + '.png'
+    widget.exportarImagen (os.path.join (rutaFichero, nombreFichero))
+
 def dialogoImportaBD ():
   """Deja al usuario elegir un fichero de base datos gráfica, y lo intenta importar"""
   global dlg_importar
@@ -379,10 +411,12 @@ def importaBD (nombreFichero):
   if (graficos_bitmap.modo_gfx in ('CGA', 'EGA', 'PCW')  # Modos gráficos de la versión 1 de DMG
       or graficos_bitmap.modo_gfx in ('ST', 'VGA') and graficos_bitmap.version > 1):  # Versión 3+ de DMG
     acc_exportar.setEnabled (True)
+    acc_exportar_todo.setEnabled (True)
     acc_importar_masa.setEnabled (True)
     acc_importar_masa_sin.setEnabled (True)
   else:
     acc_exportar.setEnabled (False)
+    acc_exportar_todo.setEnabled (False)
     acc_importar_masa.setEnabled (False)
     acc_importar_masa_sin.setEnabled (False)
 
