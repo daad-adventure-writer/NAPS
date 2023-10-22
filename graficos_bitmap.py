@@ -234,15 +234,22 @@ def guarda_bd_pics (fichero):
     guarda_int2 = guarda_int2_be
     guarda_int4 = guarda_int4_be
   # Guardamos la plataforma y el modo gráfico
-  if modo_gfx == 'ST':
-    guarda_int2 (4)  # Plataforma Amiga/Atari ST
-    guarda_int2 (0)  # No tiene modo gráfico
-  else:
-    guarda_int2 (0)  # Plataforma DOS/PCW
-    if modo_gfx == 'EGA':
-      guarda_int2 (13)  # Modo gráfico EGA
+  if version > 1:
+    if modo_gfx == 'ST':
+      guarda_int2 (768)  # Plataforma Amiga/Atari ST
     else:
-      guarda_int2 (4)  # Modo gráfico CGA/PCW
+      guarda_int2 (65535)  # Plataforma PC
+    guarda_int2 (0)  # No se especifica modo gráfico
+  else:  # version == 1
+    if modo_gfx == 'ST':
+      guarda_int2 (4)  # Plataforma Amiga/Atari ST
+      guarda_int2 (0)  # No tiene modo gráfico
+    else:
+      guarda_int2 (0)  # Plataforma PC/PCW
+      if modo_gfx == 'EGA':
+        guarda_int2 (13)  # Modo gráfico EGA
+      else:
+        guarda_int2 (4)  # Modo gráfico CGA/PCW
   # Guardamos el número de imágenes únicas
   guarda_int2 (len (pos_recursos))
   if version > 1:  # Dejamos espacio para la longitud de la base de datos gráfica
@@ -268,9 +275,12 @@ def guarda_bd_pics (fichero):
     fichero.seek (desplActual)
     numRecursos = pos_recursos[desplazamiento]
     recurso     = recursos[numRecursos[0]]
-    # TODO: resto de formatos aparte de PCW
+    # TODO: resto de formatos aparte de PCW y DMG3+
     # TODO: no forzar compresión de imágenes
-    imagen, repetir = comprimeRLEporBytes (recurso['imagen'], recurso['dimensiones'][0], True, forzarRLE = True)
+    if version > 1:
+      imagen, repetir = comprimeImagenDMG3 (recurso['imagen'], forzarRLE = True)
+    else:
+      imagen, repetir = comprimeImagenPlanar (recurso['imagen'], recurso['dimensiones'][0], True, forzarRLE = True)
     # Guardamos el contenido del recurso
     # Guardamos el ancho de la imagen y la bandera de compresión RLE
     rle            = 128 if len (imagen) else 0                      # 0 no comprimir, 128 comprimir
@@ -284,15 +294,25 @@ def guarda_bd_pics (fichero):
       guarda_int1 (lsbAncho)
     guarda_int2 (recurso['dimensiones'][1])  # Altura de la imagen
     # TODO: no compresión de imágenes
-    guarda_int2 (len (imagen) + (5 if rle else 0))  # Longitud de la imagen codificada
+    longImagenRLE = len (imagen)  # Longitud de la imagen incluyendo la información para compresión RLE
+    if rle:
+      longImagenRLE += 2 if modo_gfx == 'ST' or version > 1 else 5
+    guarda_int2 (longImagenRLE)  # Longitud de la imagen codificada
     # Guardamos la información para compresión RLE
     if rle:
-      guarda_int1 (len (repetir))
-      for i in range (4):
-        if i < len (repetir):
-          guarda_int1 (repetir[i])
-        else:
-          guarda_int1 (0)
+      if modo_gfx == 'ST' or version > 1:
+        bits = 0  # Máscara de colores que se repetirán
+        for indiceBit in range (16):
+          if indiceBit in repetir:
+            bits += 2 ** indiceBit
+        guarda_int2 (bits)
+      else:
+        guarda_int1 (len (repetir))  # Número de secuencias que se repetirán
+        for i in range (4):
+          if i < len (repetir):
+            guarda_int1 (repetir[i])
+          else:
+            guarda_int1 (0)
     # Guardamos datos de la imagen en sí
     fichero.write (bytes (bytearray (imagen)))
     # Guardamos la posición actual para guardar el contenido del siguiente recurso aquí
@@ -309,7 +329,7 @@ def guarda_bd_pics (fichero):
       if 'cambioPaleta' in recurso:
         guarda_int1 (recurso['cambioPaleta'][0])
         guarda_int1 (recurso['cambioPaleta'][1])
-      # TODO: guardar la paleta
+      guardaPaletas (recurso)
     desplActual = desplSiguiente
   # Guardamos la longitud de la base de datos gráfica
   if version > 1:
@@ -714,8 +734,82 @@ def cargaRecursos ():
     recurso['imagen'] = imagen
     recursos.append (recurso)
 
-def comprimeRLEporBytes (imagen, anchoFilaEnBits, invertirBits, forzarRLE = False):
-  """Devuelve una lista de bytes como enteros con la compresión RLE óptima, y una lista de bytes como enteros con las combinaciones que se repiten.
+def comprimeImagenDMG3 (imagen, forzarRLE = False):
+  """Devuelve una lista de bytes como enteros con la compresión RLE óptima en el formato de DMG 3+ (el de DMG 1 para Amiga y ST), y una lista de bytes como enteros con las combinaciones que se repiten.
+
+    Si forzarRLE es falso y comprimir la imagen no ahorrará espacio, devuelve las dos listas vacías"""
+  # Primero calculamos cuánto se ahorra con cada secuencia de bits
+  ahorros       = {}  # Cuánto ahorrará cada secuencia
+  ocurrencias   = 1   # Número de veces seguidas que se ha encontrado el último valor
+  valorAnterior = imagen[0]
+  for i in range (1, len (imagen) + 1):
+    if i == len (imagen):  # Para procesar también el último valor
+      valor = None
+    else:
+      valor = imagen[i]
+      if valor == valorAnterior:
+        ocurrencias += 1
+        continue
+    if valorAnterior not in ahorros:
+      ahorros[valorAnterior] = 0
+    while ocurrencias:
+      cuantos = min (16, ocurrencias)
+      ahorros[valorAnterior] += cuantos - 2
+      ocurrencias -= cuantos
+    ocurrencias   = 1
+    valorAnterior = valor
+  ahorroTotal = 0
+  mejores     = []
+  while ahorros and len (mejores) < 4:
+    mejor = max (ahorros, key = ahorros.get)
+    if ahorros[mejor] < 1:
+      break
+    mejores.append (mejor)
+    ahorroTotal += ahorros[mejor]
+    del ahorros[mejor]
+  if not forzarRLE and ahorroTotal < 5:
+    return [], []  # La compresión RLE en esta imagen no ahorra nada
+  # Realizamos la compresión RLE
+  comprimida  = []  # Imagen comprimida por índices en la paleta
+  numFila     = 0
+  ocurrencias = 1   # Número de veces seguidas que se ha encontrado el último valor
+  valorAnterior = imagen[0]
+  for i in range (1, len (imagen) + 1):
+    if i == len (imagen):  # Para procesar también el último valor
+      valor = None
+    else:
+      valor = imagen[i]
+    if valorAnterior not in mejores:
+      comprimida.append (valorAnterior)
+      valorAnterior = valor
+      continue
+    if valor == valorAnterior:
+      ocurrencias += 1
+      continue
+    while ocurrencias:
+      cuantos = min (16, ocurrencias)
+      comprimida.append (valorAnterior)
+      comprimida.append (cuantos - 1)
+      ocurrencias -= cuantos
+    ocurrencias   = 1
+    valorAnterior = valor
+  # Convertimos a bytes la secuencia comprimida
+  comprimidaPorBytes = []
+  tamGrupo           = 1 if le else 4  # Cuántos bytes se guardan cada vez
+  for c in range (0, len (comprimida), tamGrupo * 2):
+    grupoBytes = []
+    for g in range (tamGrupo):
+      indiceNibble = c + (g * 2)
+      if indiceNibble + 1 >= len (comprimida):
+        while len (grupoBytes) < tamGrupo:
+          grupoBytes.append (0)
+        break
+      grupoBytes.append (comprimida[indiceNibble] + (comprimida[indiceNibble + 1] << 4))
+    comprimidaPorBytes.extend (grupoBytes[::-1])
+  return comprimidaPorBytes, mejores
+
+def comprimeImagenPlanar (imagen, anchoFilaEnBits, invertirBits, forzarRLE = False):
+  """Devuelve una lista de bytes como enteros con la compresión RLE óptima para imágenes planares en el formato de DMG 1, y una lista de bytes como enteros con las combinaciones que se repiten.
 
     Si forzarRLE es falso y comprimir la imagen no ahorrará espacio, devuelve las dos listas vacías"""
   # TODO: soporte de mayor profundidad de color, como será necesario en los demás formatos aparte de PCW
@@ -865,6 +959,7 @@ def guardaImagenPlanar (imagen, ancho, alto, numPlanos):
 
 def guardaPaleta16 (paleta, bpc):
   """Guarda una paleta de 16 colores, con el número de bits por componente de color dado"""
+  # TODO: soportar orden de bits de Atari STE
   for c in range (16):
     if c < len (paleta):
       rojo, verde, azul = paleta[c]
@@ -878,6 +973,15 @@ def guardaPaleta16 (paleta, bpc):
     azul  >>= 8 - bpc
     guarda_int1 (rojo)
     guarda_int1 ((verde << 4) + azul)
+
+def guardaPaletas (recurso):
+  """Guarda las paletas de un recurso"""
+  if not long_paleta or 'sonido' in recurso:
+    return
+  # TODO: paletas de 3 bpc
+  # TODO: paletas EGA y CGA en DMG3+ al menos para plataforma PC
+  # TODO: marcar orden de bits de Amiga o Atari STE para formato ST en DMG3+
+  guardaPaleta16 (recurso['paleta'], 4)
 
 def preparaPlataforma (extension, fichero):
   """Prepara la configuración dependiente de la versión, plataforma y modo gráfico. Devuelve un mensaje de error si falla"""

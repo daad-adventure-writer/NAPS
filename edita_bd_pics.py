@@ -278,6 +278,9 @@ def dialogoExportaBD ():
   elif graficos_bitmap.modo_gfx == 'PCW':
     extensiones   = ('.pcw', '.dat')
     formatoFiltro = 'Bases de datos gráficas DAAD para PCW (*.dat *.pcw)'
+  elif graficos_bitmap.modo_gfx in ('ST', 'VGA'):
+    extensiones   = ('.dat',)
+    formatoFiltro = 'Bases de datos gráficas DAAD v3 para Amiga/PC/ST (*.dat)'
   if not dlg_exportar:  # Diálogo no creado aún
     dlg_exportar = QFileDialog (ventana, 'Exportar base de datos gráfica', os.curdir, formatoFiltro)
     dlg_exportar.setAcceptMode (QFileDialog.AcceptSave)
@@ -343,7 +346,8 @@ def importaBD (nombreFichero):
     return
 
   global acc_exportar
-  if graficos_bitmap.modo_gfx in ('CGA', 'EGA', 'PCW'):  # Modos gráficos de la versión 1 de DMG
+  if (graficos_bitmap.modo_gfx in ('CGA', 'EGA', 'PCW')  # Modos gráficos de la versión 1 de DMG
+      or graficos_bitmap.modo_gfx in ('ST', 'VGA') and graficos_bitmap.version > 1):  # Versión 3+ de DMG
     acc_exportar.setEnabled (True)
   else:
     acc_exportar.setEnabled (False)
