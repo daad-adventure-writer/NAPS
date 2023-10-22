@@ -763,14 +763,12 @@ def comprimeImagenDMG3 (imagen, forzarRLE = False):
     valorAnterior = valor
   ahorroTotal = 0
   mejores     = []
-  while ahorros and len (mejores) < 4:
-    mejor = max (ahorros, key = ahorros.get)
-    if ahorros[mejor] < 1:
-      break
-    mejores.append (mejor)
-    ahorroTotal += ahorros[mejor]
-    del ahorros[mejor]
-  if not forzarRLE and ahorroTotal < 5:
+  for valor in ahorros:
+    if ahorros[valor] < 1:
+      continue
+    mejores.append (valor)
+    ahorroTotal += ahorros[valor]
+  if not forzarRLE and ahorroTotal < 2:
     return [], []  # La compresión RLE en esta imagen no ahorra nada
   # Realizamos la compresión RLE
   comprimida  = []  # Imagen comprimida por índices en la paleta
