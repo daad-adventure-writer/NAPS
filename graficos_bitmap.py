@@ -294,7 +294,7 @@ def guarda_bd_pics (fichero):
         else:
           guarda_int1 (0)
     # Guardamos datos de la imagen en sí
-    fichero.write (bytes (imagen))
+    fichero.write (bytes (bytearray (imagen)))
     # Guardamos la posición actual para guardar el contenido del siguiente recurso aquí
     desplSiguiente = fichero.tell()
     # Guardamos la cabecera de cada uno de los recursos con este mismo desplazamiento
