@@ -115,129 +115,130 @@ class Recurso (QPushButton):
 
   def importarImagen (self, conservarPaleta = False):
     preparaDialogoAbrir ()
-    if dlg_abrir.exec_():  # No se ha cancelado
-      ventana.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
-      nombreFichero = (str if sys.version_info[0] > 2 else unicode) (dlg_abrir.selectedFiles()[0])
-      imagen = QImage (nombreFichero)
-      ventana.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
-      if imagen.isNull():
-        muestraFallo ('No se puede abrir la imagen del fichero:\n' + nombreFichero)
-        return
-      if imagen.height() + imagen.width() < 1:
-        muestraFallo ('Dimensiones inválidas', 'La imagen elegida (' + nombreFichero + u') tiene dimensiones inválidas, tanto su ancho como su alto debería ser mayor que cero')
-        return
-      if imagen.height() > graficos_bitmap.resolucion_por_modo[graficos_bitmap.modo_gfx][1]:
-        muestraFallo ('Altura de imagen excesiva', 'La imagen elegida (' + nombreFichero + ') tiene ' + str (imagen.height()) + u' píxeles de alto, mientras que el modo ' + graficos_bitmap.modo_gfx + u' de la base de datos gráfica sólo soporta hasta ' + str (graficos_bitmap.resolucion_por_modo[graficos_bitmap.modo_gfx][1]))
-        return
-      if imagen.width() > graficos_bitmap.resolucion_por_modo[graficos_bitmap.modo_gfx][0]:
-        muestraFallo ('Anchura de imagen excesiva', 'La imagen elegida (' + nombreFichero + ') tiene ' + str (imagen.width()) + u' píxeles de ancho, mientras que el modo ' + graficos_bitmap.modo_gfx + u' de la base de datos gráfica sólo soporta hasta ' + str (graficos_bitmap.resolucion_por_modo[graficos_bitmap.modo_gfx][0]))
-        return
-      if imagen.height() % 8:
-        muestraFallo ('Altura de imagen incorrecta', 'La imagen elegida (' + nombreFichero + ') tiene ' + str (imagen.height()) + u' píxeles de alto, cuando debería ser múltiplo de 8')
-        return
-      if imagen.width() % 8:
-        muestraFallo ('Anchura de imagen incorrecta', 'La imagen elegida (' + nombreFichero + ') tiene ' + str (imagen.width()) + u' píxeles de ancho, cuando debería ser múltiplo de 8')
-        return
-      # Calculamos el número de colores que utiliza la imagen
-      ventana.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
-      coloresUsados = set()
-      if imagen.depth() > 8:  # No usa paleta indexada
-        for fila in range (imagen.height()):
-          for columna in range (imagen.width()):
-            coloresUsados.add (imagen.pixel (columna, fila))
-        coloresUsados = list (coloresUsados)
-        numColores    = len (coloresUsados)
-      else:  # Usa paleta indexada
-        paletaImagen = imagen.colorTable()
-        for fila in range (imagen.height()):
-          for columna in range (imagen.width()):
-            coloresUsados.add (imagen.pixel (columna, fila))
-        numColores    = len (coloresUsados)
-        coloresUsados = paletaImagen
-      ventana.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
-      if numColores > graficos_bitmap.colores_por_modo[graficos_bitmap.modo_gfx]:
-        muestraFallo ('Advertencia: número de colores elevado', 'La imagen elegida (' + nombreFichero + ') utiliza ' + str (numColores) + ' colores diferentes, mientras que el modo ' + graficos_bitmap.modo_gfx + u' de la base de datos gráfica sólo soporta ' + str (graficos_bitmap.colores_por_modo[graficos_bitmap.modo_gfx]))
-      if self.imagen and graficos_bitmap.recurso_es_unico (self.numRecurso):
-        dlgSiNo = QMessageBox (ventana)
-        dlgSiNo.addButton ('&Sí', QMessageBox.YesRole)
-        dlgSiNo.addButton ('&No', QMessageBox.NoRole)
-        dlgSiNo.setIcon (QMessageBox.Warning)
-        dlgSiNo.setWindowTitle ('Sustituir imagen')
-        dlgSiNo.setText ('Esta imagen no es utilizada por ningún otro recurso')
-        dlgSiNo.setInformativeText ('\n¿Seguro que quieres sustituirla por la imagen del fichero elegido?')
-        if dlgSiNo.exec_() != 0:  # No se ha pulsado el botón Sí
-          return
-      paletas = graficos_bitmap.da_paletas_del_formato()
-      if len (paletas) > 1:
-        if self.imagen and conservarPaleta:
-          paletas = [graficos_bitmap.recursos[self.numRecurso]['paleta']]
-        else:
-          if numColores > graficos_bitmap.colores_por_modo[graficos_bitmap.modo_gfx]:
-            muestraFallo ('Advertencia: paleta recortada', 'El formato de base de datos gráfica soporta paleta variable, se tomará como paleta los primeros ' + str (graficos_bitmap.colores_por_modo[graficos_bitmap.modo_gfx]) + ' colores de la imagen')
-            coloresUsados = coloresUsados[:graficos_bitmap.colores_por_modo[graficos_bitmap.modo_gfx]]
-          paletas = [[]]
-          for c in range (len (coloresUsados)):
-            color = QColor (coloresUsados[c])
-            paletas[0].append ((color.red(), color.green(), color.blue()))
-      else:
-        paletas = paletas[list (paletas.keys())[0]]
-
-      # Buscamos los colores más cercanos de entre las paletas para los colores de la imagen
-      masCercanos = []  # Índice en paleta del color más cercano a los usados en la imagen, y su cercanía, para ambas paletas
-      for p in range (len (paletas)):
-        masCercanos.append ([])
-      for c in range (len (coloresUsados)):
-        color = QColor (coloresUsados[c])
-        for p in range (len (masCercanos)):
-          masCercano = [-1, 999999]  # Índice de color en paleta, y cercanía del color más cercano en la paleta a éste
-          paleta     = paletas[p]
-          for cp in range (len (paleta)):
-            rojoPaleta, verdePaleta, azulPaleta = paleta[cp]
-            if color.red() == rojoPaleta and color.green() == verdePaleta and color.blue() == azulPaleta:  # Coincidencia exacta
-              masCercanos[p].append ((cp, 0))
-              break
-            else:
-              if (color.red() + rojoPaleta) / 2 < 128:
-                cercania = math.sqrt (1 * ((color.red() - rojoPaleta) ** 2) + 1 * ((color.green() - verdePaleta) ** 2) + 2 * ((color.blue() - azulPaleta) ** 2))
-              else:
-                cercania = math.sqrt (2 * ((color.red() - rojoPaleta) ** 2) + 1 * ((color.green() - verdePaleta) ** 2) + 1 * ((color.blue() - azulPaleta) ** 2))
-              if cercania < masCercano[1]:
-                masCercano = [cp, cercania]
-          else:
-            masCercanos[p].append (masCercano)
-
-      # Buscamos la paleta más adecuada para los colores de la imagen
-      if len (masCercanos) > 1:
-        mejorCercania = 999999
-        mejorPaleta   = None
-        for p in range (len (masCercanos)):
-          cercania = 0
-          for masCercano in masCercanos[p]:
-            cercania += masCercano[1]
-          if cercania < mejorCercania:
-            mejorCercania = cercania
-            mejorPaleta   = p
-      else:
-        mejorPaleta = 0
-
-      # Convertimos la imagen a los colores de la paleta más adecuada y la asignamos a este recurso
-      ventana.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
-      paleta = []
-      for rojo, verde, azul in paletas[mejorPaleta]:
-        paleta.append (qRgb (rojo, verde, azul))
-      imgConvertida = QImage (imagen.width(), imagen.height(), QImage.Format_Indexed8)
-      imgConvertida.setColorTable (paleta)
-      imgComoIndices = []  # Imagen como índices en la paleta
+    if not dlg_abrir.exec_():  # Se ha cancelado
+      return
+    nombreFichero = (str if sys.version_info[0] > 2 else unicode) (dlg_abrir.selectedFiles()[0])
+    ventana.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
+    imagen = QImage (nombreFichero)
+    ventana.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
+    if imagen.isNull():
+      muestraFallo ('No se puede abrir la imagen del fichero:\n' + nombreFichero)
+      return
+    if imagen.height() + imagen.width() < 1:
+      muestraFallo ('Dimensiones inválidas', 'La imagen elegida (' + nombreFichero + u') tiene dimensiones inválidas, tanto su ancho como su alto debería ser mayor que cero')
+      return
+    if imagen.height() > graficos_bitmap.resolucion_por_modo[graficos_bitmap.modo_gfx][1]:
+      muestraFallo ('Altura de imagen excesiva', 'La imagen elegida (' + nombreFichero + ') tiene ' + str (imagen.height()) + u' píxeles de alto, mientras que el modo ' + graficos_bitmap.modo_gfx + u' de la base de datos gráfica sólo soporta hasta ' + str (graficos_bitmap.resolucion_por_modo[graficos_bitmap.modo_gfx][1]))
+      return
+    if imagen.width() > graficos_bitmap.resolucion_por_modo[graficos_bitmap.modo_gfx][0]:
+      muestraFallo ('Anchura de imagen excesiva', 'La imagen elegida (' + nombreFichero + ') tiene ' + str (imagen.width()) + u' píxeles de ancho, mientras que el modo ' + graficos_bitmap.modo_gfx + u' de la base de datos gráfica sólo soporta hasta ' + str (graficos_bitmap.resolucion_por_modo[graficos_bitmap.modo_gfx][0]))
+      return
+    if imagen.height() % 8:
+      muestraFallo ('Altura de imagen incorrecta', 'La imagen elegida (' + nombreFichero + ') tiene ' + str (imagen.height()) + u' píxeles de alto, cuando debería ser múltiplo de 8')
+      return
+    if imagen.width() % 8:
+      muestraFallo ('Anchura de imagen incorrecta', 'La imagen elegida (' + nombreFichero + ') tiene ' + str (imagen.width()) + u' píxeles de ancho, cuando debería ser múltiplo de 8')
+      return
+    # Calculamos el número de colores que utiliza la imagen
+    ventana.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
+    coloresUsados = set()
+    if imagen.depth() > 8:  # No usa paleta indexada
       for fila in range (imagen.height()):
         for columna in range (imagen.width()):
-          indiceEnPaleta = masCercanos[mejorPaleta][coloresUsados.index (imagen.pixel (columna, fila))][0]
-          imgConvertida.setPixel (columna, fila, indiceEnPaleta)
-          imgComoIndices.append (indiceEnPaleta)
-      self.imagen = imgConvertida
-      self.setIcon (QIcon (QPixmap (imgConvertida)))
-      self.setIconSize (imagen.rect().size())
-      graficos_bitmap.cambia_imagen (self.numRecurso, imagen.width(), imagen.height(), imgComoIndices, paletas[mejorPaleta])
-      ventana.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
+          coloresUsados.add (imagen.pixel (columna, fila))
+      coloresUsados = list (coloresUsados)
+      numColores    = len (coloresUsados)
+    else:  # Usa paleta indexada
+      paletaImagen = imagen.colorTable()
+      for fila in range (imagen.height()):
+        for columna in range (imagen.width()):
+          coloresUsados.add (imagen.pixel (columna, fila))
+      numColores    = len (coloresUsados)
+      coloresUsados = paletaImagen
+    ventana.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
+    if numColores > graficos_bitmap.colores_por_modo[graficos_bitmap.modo_gfx]:
+      muestraFallo ('Advertencia: número de colores elevado', 'La imagen elegida (' + nombreFichero + ') utiliza ' + str (numColores) + ' colores diferentes, mientras que el modo ' + graficos_bitmap.modo_gfx + u' de la base de datos gráfica sólo soporta ' + str (graficos_bitmap.colores_por_modo[graficos_bitmap.modo_gfx]))
+    if self.imagen and graficos_bitmap.recurso_es_unico (self.numRecurso):
+      dlgSiNo = QMessageBox (ventana)
+      dlgSiNo.addButton ('&Sí', QMessageBox.YesRole)
+      dlgSiNo.addButton ('&No', QMessageBox.NoRole)
+      dlgSiNo.setIcon (QMessageBox.Warning)
+      dlgSiNo.setWindowTitle ('Sustituir imagen')
+      dlgSiNo.setText ('Esta imagen no es utilizada por ningún otro recurso')
+      dlgSiNo.setInformativeText ('\n¿Seguro que quieres sustituirla por la imagen del fichero elegido?')
+      if dlgSiNo.exec_() != 0:  # No se ha pulsado el botón Sí
+        return
+    paletas = graficos_bitmap.da_paletas_del_formato()
+    if len (paletas) > 1:
+      if self.imagen and conservarPaleta:
+        paletas = [graficos_bitmap.recursos[self.numRecurso]['paleta']]
+      else:
+        if numColores > graficos_bitmap.colores_por_modo[graficos_bitmap.modo_gfx]:
+          muestraFallo ('Advertencia: paleta recortada', 'El formato de base de datos gráfica soporta paleta variable, se tomará como paleta los primeros ' + str (graficos_bitmap.colores_por_modo[graficos_bitmap.modo_gfx]) + ' colores de la imagen')
+          coloresUsados = coloresUsados[:graficos_bitmap.colores_por_modo[graficos_bitmap.modo_gfx]]
+        paletas = [[]]
+        for c in range (len (coloresUsados)):
+          color = QColor (coloresUsados[c])
+          paletas[0].append ((color.red(), color.green(), color.blue()))
+    else:
+      paletas = paletas[list (paletas.keys())[0]]
+
+    # Buscamos los colores más cercanos de entre las paletas para los colores de la imagen
+    masCercanos = []  # Índice en paleta del color más cercano a los usados en la imagen, y su cercanía, para ambas paletas
+    for p in range (len (paletas)):
+      masCercanos.append ([])
+    for c in range (len (coloresUsados)):
+      color = QColor (coloresUsados[c])
+      for p in range (len (masCercanos)):
+        masCercano = [-1, 999999]  # Índice de color en paleta, y cercanía del color más cercano en la paleta a éste
+        paleta     = paletas[p]
+        for cp in range (len (paleta)):
+          rojoPaleta, verdePaleta, azulPaleta = paleta[cp]
+          if color.red() == rojoPaleta and color.green() == verdePaleta and color.blue() == azulPaleta:  # Coincidencia exacta
+            masCercanos[p].append ((cp, 0))
+            break
+          else:
+            if (color.red() + rojoPaleta) / 2 < 128:
+              cercania = math.sqrt (1 * ((color.red() - rojoPaleta) ** 2) + 1 * ((color.green() - verdePaleta) ** 2) + 2 * ((color.blue() - azulPaleta) ** 2))
+            else:
+              cercania = math.sqrt (2 * ((color.red() - rojoPaleta) ** 2) + 1 * ((color.green() - verdePaleta) ** 2) + 1 * ((color.blue() - azulPaleta) ** 2))
+            if cercania < masCercano[1]:
+              masCercano = [cp, cercania]
+        else:
+          masCercanos[p].append (masCercano)
+
+    # Buscamos la paleta más adecuada para los colores de la imagen
+    if len (masCercanos) > 1:
+      mejorCercania = 999999
+      mejorPaleta   = None
+      for p in range (len (masCercanos)):
+        cercania = 0
+        for masCercano in masCercanos[p]:
+          cercania += masCercano[1]
+        if cercania < mejorCercania:
+          mejorCercania = cercania
+          mejorPaleta   = p
+    else:
+      mejorPaleta = 0
+
+    # Convertimos la imagen a los colores de la paleta más adecuada y la asignamos a este recurso
+    ventana.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
+    paleta = []
+    for rojo, verde, azul in paletas[mejorPaleta]:
+      paleta.append (qRgb (rojo, verde, azul))
+    imgConvertida = QImage (imagen.width(), imagen.height(), QImage.Format_Indexed8)
+    imgConvertida.setColorTable (paleta)
+    imgComoIndices = []  # Imagen como índices en la paleta
+    for fila in range (imagen.height()):
+      for columna in range (imagen.width()):
+        indiceEnPaleta = masCercanos[mejorPaleta][coloresUsados.index (imagen.pixel (columna, fila))][0]
+        imgConvertida.setPixel (columna, fila, indiceEnPaleta)
+        imgComoIndices.append (indiceEnPaleta)
+    self.imagen = imgConvertida
+    self.setIcon (QIcon (QPixmap (imgConvertida)))
+    self.setIconSize (imagen.rect().size())
+    graficos_bitmap.cambia_imagen (self.numRecurso, imagen.width(), imagen.height(), imgComoIndices, paletas[mejorPaleta])
+    ventana.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
 
 class Ventana (QMainWindow):
   """Ventana principal"""
