@@ -280,7 +280,7 @@ def dialogoExportaBD ():
     formatoFiltro = 'Bases de datos gráficas DAAD para PCW (*.dat *.pcw)'
   elif graficos_bitmap.modo_gfx in ('ST', 'VGA'):
     extensiones   = ('.dat',)
-    formatoFiltro = 'Bases de datos gráficas DAAD v3 para Amiga/PC/ST (*.dat)'
+    formatoFiltro = 'Bases de datos gráficas DAAD v3 para Amiga/PC (*.dat);;Bases de datos gráficas DAAD v3 para Atari ST/STE (*.dat)'
   if not dlg_exportar:  # Diálogo no creado aún
     dlg_exportar = QFileDialog (ventana, 'Exportar base de datos gráfica', os.curdir, formatoFiltro)
     dlg_exportar.setAcceptMode (QFileDialog.AcceptSave)
@@ -316,7 +316,7 @@ def dialogoExportaBD ():
                     'Causa:\n' + excepcion.args[1])
       ventana.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
       return
-    graficos_bitmap.guarda_bd_pics (fichero)
+    graficos_bitmap.guarda_bd_pics (fichero, ordenAmiga = 'Amiga' in dlg_exportar.selectedNameFilter())
     fichero.close()
     ventana.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
 

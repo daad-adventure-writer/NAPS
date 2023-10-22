@@ -45,6 +45,9 @@ colores_por_modo = {
   'VGA': 16,
 }
 
+# Marca de orden de componentes de color con el bit menos significativo en el bit más bajo
+marca_amiga = (0xDA, 0xAD, 0xDA, 0xAD)
+
 # Resolución de cada modo gráfico
 resolucion_por_modo = {
   'CGA': (320, 200),
@@ -222,7 +225,7 @@ def da_paletas_del_formato ():
   if modo_gfx in ('ST', 'VGA'):
     return {'CGA': [paleta1b, paleta2b], 'EGA': [paletaEGA], 'ST/VGA': []}
 
-def guarda_bd_pics (fichero):
+def guarda_bd_pics (fichero, ordenAmiga = True):
   """Exporta la base de datos gráfica en memoria sobre el fichero dado"""
   # TODO: completar para el formato de DMG versión 3+
   bajo_nivel_cambia_endian (le)
@@ -329,7 +332,7 @@ def guarda_bd_pics (fichero):
       if 'cambioPaleta' in recurso:
         guarda_int1 (recurso['cambioPaleta'][0])
         guarda_int1 (recurso['cambioPaleta'][1])
-      guardaPaletas (recurso)
+      guardaPaletas (recurso, ordenAmiga)
     desplActual = desplSiguiente
   # Guardamos la longitud de la base de datos gráfica
   if version > 1:
@@ -605,7 +608,7 @@ def cargaPaleta16 (bpc, portadaAmiga = False):
     # Es paleta de imagen de BD gráfica DMG 3+ de Amiga/Atari ST con 4 bpc
     # Vemos si los 4 bytes de la tabla de conversión de colores para CGA marcan orden de Amiga, si valen 0xDAADDAAD
     tablaCGA = (carga_int1(), carga_int1(), carga_int1(), carga_int1())
-    if tablaCGA != (0xDA, 0xAD, 0xDA, 0xAD):
+    if tablaCGA != marca_amiga:
       ordenAmiga = False
   valorMax  = (2 ** bpc) - 1   # Valor máximo en componentes de color
   distancia = 255. / valorMax  # Distancia para equiespaciar de 0 a 255
@@ -957,9 +960,8 @@ def guardaImagenPlanar (imagen, ancho, alto, numPlanos):
         valorComoByte += 2 ** indiceBit if pixeles[7 - indiceBit] else 0
       guarda_int1 (valorComoByte)
 
-def guardaPaleta16 (paleta, bpc):
+def guardaPaleta16 (paleta, bpc, ordenAmiga = True):
   """Guarda una paleta de 16 colores, con el número de bits por componente de color dado"""
-  # TODO: soportar orden de bits de Atari STE
   for c in range (16):
     if c < len (paleta):
       rojo, verde, azul = paleta[c]
@@ -971,17 +973,26 @@ def guardaPaleta16 (paleta, bpc):
     rojo  >>= 8 - bpc
     verde >>= 8 - bpc
     azul  >>= 8 - bpc
+    if bpc == 4 and not ordenAmiga:
+      # Reordenamos los bits para Atari STE
+      rojo  = (rojo  >> 1) + (8 if rojo  & 1 else 0)
+      verde = (verde >> 1) + (8 if verde & 1 else 0)
+      azul  = (azul  >> 1) + (8 if azul  & 1 else 0)
     guarda_int1 (rojo)
     guarda_int1 ((verde << 4) + azul)
 
-def guardaPaletas (recurso):
+def guardaPaletas (recurso, ordenAmiga):
   """Guarda las paletas de un recurso"""
   if not long_paleta or 'sonido' in recurso:
     return
   # TODO: paletas de 3 bpc
-  # TODO: paletas EGA y CGA en DMG3+ al menos para plataforma PC
-  # TODO: marcar orden de bits de Amiga o Atari STE para formato ST en DMG3+
-  guardaPaleta16 (recurso['paleta'], 4)
+  # TODO: paleta EGA en DMG3+ al menos para plataforma PC
+  guardaPaleta16 (recurso['paleta'], 4, ordenAmiga)
+  if modo_gfx == 'ST' and version > 1 and ordenAmiga:
+    # Marcamos orden de bits de Amiga para formato ST en DMG3+
+    for byteMarca in marca_amiga:
+      guarda_int1 (byteMarca)
+  # TODO: paleta CGA en DMG3+ al menos para plataforma PC
 
 def preparaPlataforma (extension, fichero):
   """Prepara la configuración dependiente de la versión, plataforma y modo gráfico. Devuelve un mensaje de error si falla"""
