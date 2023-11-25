@@ -404,8 +404,11 @@ def importaBD (nombreFichero):
   """Importa una base de datos gráfica desde el fichero de nombre dado"""
   error = graficos_bitmap.carga_bd_pics (nombreFichero)
   if error:
-    muestraFallo ('No se puede abrir el fichero:\n' + nombreFichero, error)
-    return
+    if graficos_bitmap.recursos:
+      muestraFallo ('Ha fallado la carga de uno o varios recursos en la base de datos gráfica:\n' + nombreFichero, error)
+    else:
+      muestraFallo ('No se puede abrir el fichero:\n' + nombreFichero, error, QMessageBox.Critical)
+      return
 
   global acc_exportar
   if (graficos_bitmap.modo_gfx in ('CGA', 'EGA', 'PCW')  # Modos gráficos de la versión 1 de DMG
@@ -475,7 +478,7 @@ def importaBD (nombreFichero):
       fila += 1
 
 def muestraFallo (mensaje, detalle = '', icono = QMessageBox.Warning, parent = None):
-  """Muestra un diálogo de fallo leve"""
+  """Muestra un diálogo de fallo"""
   # TODO: sacar a módulo común con el IDE
   global dlg_fallo, ventana_principal
   try:

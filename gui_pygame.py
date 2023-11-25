@@ -373,7 +373,7 @@ def carga_bd_pics (rutaBDGfx):
   global color_tinta
   extension = rutaBDGfx[rutaBDGfx.rfind ('.') + 1:]
   error     = graficos_bitmap.carga_bd_pics (rutaBDGfx)
-  if error:
+  if error and not graficos_bitmap.recursos:
     return error
   if graficos_bitmap.modo_gfx == 'CGA':
     cambiaPaleta (graficos_bitmap.paleta1b)  # Dejamos cargada la paleta CGA 1 con brillo

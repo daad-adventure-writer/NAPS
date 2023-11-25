@@ -640,6 +640,7 @@ def cargaPaleta16_6bpc ():
 
 def cargaRecursos ():
   """Carga todos los gráficos y sonidos de la base de datos gráfica. Devuelve un mensaje de error si falla"""
+  errores = ''
   pos_recursos.clear()
   del recursos[:]
   for numRecurso in range (256):
@@ -731,11 +732,15 @@ def cargaRecursos ():
     else:  # Formato de DMG3+ de DOS o de Amiga/Atari ST comprimido
       imagen = cargaImagenDMG3DOS (le, numRecurso, repetir, tamImg)
 
-    if type (imagen) == str:
-      return imagen
+    if type (imagen) == str:  # Ha ocurrido algún error al tratar de cargar la imagen
+      errores += ('\n' if errores else '') + imagen
+      recursos.append (None)
+    else:  # Imagen cargada correctamente
+      recurso['imagen'] = imagen
+      recursos.append (recurso)
 
-    recurso['imagen'] = imagen
-    recursos.append (recurso)
+  if errores:
+    return errores
 
 def comprimeImagenDMG3 (imagen, forzarRLE = False):
   """Devuelve una lista de bytes como enteros con la compresión RLE óptima en el formato de DMG 3+ (el de DMG 1 para Amiga y ST), y una lista de bytes como enteros con las combinaciones que se repiten.
