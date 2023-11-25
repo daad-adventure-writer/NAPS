@@ -99,7 +99,7 @@ class Recurso (QPushButton):
         dlg_guardar.setOption     (QFileDialog.DontConfirmOverwrite)
         dlg_guardar.setOption     (QFileDialog.DontUseNativeDialog)
       dlg_guardar.selectNameFilter (filtro[filtro_img_def])  # Elegimos el formato por defecto
-      if dlg_guardar.exec_():  # Se ha cancelado
+      if not dlg_guardar.exec_():  # Se ha cancelado
         return
       indiceFiltro  = list (dlg_guardar.nameFilters()).index (dlg_guardar.selectedNameFilter())
       nombreFichero = (str if sys.version_info[0] > 2 else unicode) (dlg_guardar.selectedFiles()[0])
