@@ -1127,9 +1127,9 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
       linea    = []
       restante = tope[0]
     elif ordinal == juego_alto and juego == 0:
-      juego = 128 - (0 if centrar_graficos or (swan and ancho_caracter == 6) or cozumel else 16)
+      juego = 128  # TODO: ¿hay algún intérprete donde juego parta desde 128 - 16?
       if ancho_caracter == 8:  # SWAN con tipografía cargada desde fichero
-        juego -= 16
+        juego -= 32
     elif ordinal == juego_bajo:
       juego = 0
     elif ordinal == 127 and tabulador:  # Es un tabulador
