@@ -295,6 +295,8 @@ def limpiaCadena (cadena):
           limpia += '`*`'
       else:
         c += 1  # Descartamos también el siguiente byte, que indica el color o si se activa o no
+    elif centrar_graficos and cadena[c] == '\x7f':  # Abreviatura 0 en la Aventura Original
+      limpia += ' '
     else:
       limpia += cadena[c]
     c += 1
