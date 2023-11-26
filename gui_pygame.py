@@ -1117,19 +1117,20 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
   lineas    = []
   linea     = []
   restante  = tope[0] - cursor[0]  # Columnas restantes que quedan en la línea
-  for c in convertida:
-    ordinal = ord (c)
+  for c in range (len (convertida)):
+    ordinal = ord (convertida[c])
+    ordOrig = ordinal if swan else ord (cadena[c])
     if ((ordinal == len (izquierda) - 1) or  # Carácter nueva línea (el último)
         ((restante == 0) and (ordinal == 16))):  # Termina la línea con espacio
       lineas.append (''.join (linea))
       iniLineas.append (iniLineas[-1] + len (linea) + (1 if (ordinal == len (izquierda) - 1) else 0))
       linea    = []
       restante = tope[0]
-    elif ordinal == juego_alto and juego == 0:
+    elif ordOrig == juego_alto and juego == 0:
       juego = 128  # TODO: ¿hay algún intérprete donde juego parta desde 128 - 16?
       if ancho_caracter == 8:  # SWAN con tipografía cargada desde fichero
         juego -= 32
-    elif ordinal == juego_bajo:
+    elif ordOrig == juego_bajo:
       juego = 0
     elif ordinal == 127 and tabulador:  # Es un tabulador
       posTabulador = iniLineas[-1] + len (linea)
