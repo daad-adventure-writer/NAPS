@@ -91,7 +91,6 @@ cambia_inversa   = None      # Carácter que si se encuentra en una cadena, inver
 cambia_papel     = None      # Carácter que si se encuentra en una cadena, cambiará el color de papel/fondo de la letra
 cambia_tinta     = None      # Carácter que si se encuentra en una cadena, cambiará el color de tinta de la letra
 centrar_graficos = []        # Si se deben centrar los gráficos al dibujarlos
-cozumel          = None      # Si la aventura ejecutándose es Cozumel
 grf_borde        = None      # Cuadrado 8x8 que usar repetidamente como borde de los gráficos
 juego_alto       = None      # Carácter que si se encuentra en una cadena, pasará al juego de caracteres alto
 juego_bajo       = None      # Carácter que si se encuentra en una cadena, pasará al juego de caracteres bajo
