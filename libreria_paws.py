@@ -76,7 +76,7 @@ conversion       = {}          # Tabla de conversión de caracteres
 despl_ini        = 0           # Desplazamiento inicial para cargar desde memoria
 fin_cadena       = ord ('\n')  # Carácter de fin de cadena
 nueva_linea      = ord ('\r')  # Carácter de nueva línea
-num_abreviaturas = 128         # Número de abreviaturas cuando se comprime el texto
+num_abreviaturas = 129         # Número de abreviaturas cuando se comprime el texto
 
 # Desplazamientos iniciales para cargar desde memoria, de las plataformas en las que éste no es 0
 despl_ini_plat = {
@@ -382,6 +382,7 @@ def cargaCadenas (pos_num_cads, pos_lista_pos, cadenas):
     posiciones.append (carga_desplazamiento())
   # Cargamos cada cadena
   inicioAbrevs   = 255 - num_abreviaturas  # Primer código de carácter que es abreviatura
+  inicioAbrevs   = max(inicioAbrevs, 127)  # La abreviatura #0 (código 126) nunca se reemplaza cuando hay 129 abreviaturas
   saltaSiguiente = False                   # Si salta el siguiente carácter, como ocurre tras algunos códigos de control
   for posicion in posiciones:
     fich_ent.seek (posicion)
