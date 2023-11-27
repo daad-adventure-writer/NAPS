@@ -80,8 +80,10 @@ num_abreviaturas = 129         # Número de abreviaturas cuando se comprime el te
 
 # Desplazamientos iniciales para cargar desde memoria, de las plataformas en las que éste no es 0
 despl_ini_plat = {
+  0: 16357,  # ZX Spectrum
+  1: 6400,   # Amstrad CPC
 }
-plats_LE = (2, )  # Plataformas que son Little Endian (PC)
+plats_LE = (1, 2)  # Plataformas que son Little Endian (Amstrad CPC y PC)
 
 
 # Diccionario de condactos
@@ -270,7 +272,7 @@ def carga_sce (fichero, longitud):
   - Devuelve False si ha ocurrido algún error"""
   global plataforma, version
   # Los dos valores siguientes son necesarios para el intérprete y esta librería, pondremos valores de PAWS PC
-  plataforma = 2
+  plataforma = 2  # TODO: asignar valor 1 cuando se detecte que es Amstrad CPC (indica letra de unidad en sección /CTL)
   version    = 1
   return alto_nivel.carga_sce (fichero, longitud, LONGITUD_PAL, atributos, [], condactos, {}, conexiones, desc_locs, desc_objs, locs_iniciales, msgs_usr, msgs_sys, nombres_objs, [], num_objetos, tablas_proceso, vocabulario)
 
@@ -538,13 +540,12 @@ def preparaPlataforma ():
     conversionPorDefecto = {'#': 'é', '$': 'í', '%': 'ó', '&': 'ú', '@': 'á', '[': '¡', ']': '¿', '^': '»', '`': '«', '|': 'ñ', '\x7f': '©', '\x80': ' ', '\x90': 'X', '\x92': u'\u2192', '\x93': u'\u2190', '\x97': '%'}
     conversionPorDefecto.update (conversion)
     conversion.update (conversionPorDefecto)
-    despl_ini        = 16357
     fin_cadena       = 31
     nueva_linea      = 7
     num_abreviaturas = 91
     condactos[64]    = ('BEEP', 'uu', True, False)
     condactos[81]    = ('MODE', 'uu', True, False)
-  elif plataforma in despl_ini_plat:
+  if plataforma in despl_ini_plat:
     despl_ini = despl_ini_plat[plataforma]
   bajo_nivel_cambia_despl (despl_ini)
 

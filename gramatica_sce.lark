@@ -15,7 +15,7 @@ UINT: /[0-9]+/
 VOCWORD: /[^ _;\n\t\/]/+
 word: VOCWORD | "_"
 
-ctl: _CTL _wsnl "_"
+ctl: _CTL (_wsnl /[A-Z]/)? _wsnl "_"  // (_wsnl /[A-Z]/) usado en Amstrad CPC para indicar la letra de unidad donde guardar la base de datos
 _CTL: "/CTL"
 
 tok: _TOK _wsnlc (_wsnl TOKEN)*
