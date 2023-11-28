@@ -808,6 +808,8 @@ def comprimeImagenDMG3 (imagen, forzarRLE = False):
     for g in range (bytesEnGrupo):
       indiceNibble = c + (g * 2)
       if indiceNibble + 1 >= len (comprimida):
+        if indiceNibble < len (comprimida):
+          grupoBytes.append (comprimida[indiceNibble])
         while len (grupoBytes) < bytesEnGrupo:
           grupoBytes.append (0)
         break
