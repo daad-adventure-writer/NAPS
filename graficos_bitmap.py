@@ -801,13 +801,14 @@ def comprimeImagenDMG3 (imagen, forzarRLE = False):
     valorAnterior = valor
   # Convertimos a bytes la secuencia comprimida
   comprimidaPorBytes = []
-  tamGrupo           = 1 if le else 4  # Cuántos bytes se guardan cada vez
-  for c in range (0, len (comprimida), tamGrupo * 2):
+  bytesEnGrupo       = 1 if le else 4  # Cuántos bytes se guardan cada vez
+  nibblesEnGrupo     = bytesEnGrupo * 2
+  for c in range (0, len (comprimida), nibblesEnGrupo):
     grupoBytes = []
-    for g in range (tamGrupo):
+    for g in range (bytesEnGrupo):
       indiceNibble = c + (g * 2)
       if indiceNibble + 1 >= len (comprimida):
-        while len (grupoBytes) < tamGrupo:
+        while len (grupoBytes) < bytesEnGrupo:
           grupoBytes.append (0)
         break
       grupoBytes.append (comprimida[indiceNibble] + (comprimida[indiceNibble + 1] << 4))
