@@ -77,20 +77,40 @@ class Recurso (QPushButton):
   def contextMenuEvent (self, evento):
     contextual = QMenu (self)
     if self.imagen:
+      accImgEliminar     = QAction (_('&Delete image'),                     contextual)
       accImgExportar     = QAction (_('&Export image'),                     contextual)
       accImgSustituir    = QAction (_('&Replace image'),                    contextual)
       accImgSustituirSin = QAction (_('Replace image &preserving palette'), contextual)
+      accImgEliminar.triggered.connect (self.eliminarImagen)
       accImgExportar.triggered.connect (self.exportarImagen)
       accImgSustituir.triggered.connect (self.importarImagen)
       accImgSustituirSin.triggered.connect (lambda: self.importarImagen (conservarPaleta = True))
       contextual.addAction (accImgExportar)
       contextual.addAction (accImgSustituir)
       contextual.addAction (accImgSustituirSin)
+      contextual.addAction (accImgEliminar)
     else:
       accImgAnyadir = QAction (_('&Add image'), contextual)
       accImgAnyadir.triggered.connect (self.importarImagen)
       contextual.addAction (accImgAnyadir)
     contextual.exec_ (evento.globalPos())
+
+  def eliminarImagen (self):
+    if not self.imagen:
+      return
+    if graficos_bitmap.recurso_es_unico (self.numRecurso):
+      dlgSiNo = QMessageBox (ventana)
+      dlgSiNo.addButton (_('&Yes'), QMessageBox.YesRole)
+      dlgSiNo.addButton (_('&No'),  QMessageBox.NoRole)
+      dlgSiNo.setIcon (QMessageBox.Warning)
+      dlgSiNo.setWindowTitle (_('Delete image'))
+      dlgSiNo.setText (_("Image #%d isn't used by any other resource") % self.numRecurso)
+      dlgSiNo.setInformativeText (_('\nAre you sure you want to delete it?'))
+      if dlgSiNo.exec_() != 0:  # No se ha pulsado el botón Sí
+        return
+    graficos_bitmap.elimina_recurso (self.numRecurso)
+    self.imagen = None
+    self.setIcon (QIcon())
 
   def exportarImagen (self, nombreFichero = None):
     global dlg_guardar
@@ -120,7 +140,7 @@ class Recurso (QPushButton):
     if os.path.isfile (nombreFichero):
       dlgSiNo = QMessageBox (ventana)
       dlgSiNo.addButton (_('&Yes'), QMessageBox.YesRole)
-      dlgSiNo.addButton (_('&No'), QMessageBox.NoRole)
+      dlgSiNo.addButton (_('&No'),  QMessageBox.NoRole)
       dlgSiNo.setIcon (QMessageBox.Warning)
       dlgSiNo.setWindowTitle (_('Overwrite'))
       dlgSiNo.setText (_('A file already exists with path and name:\n\n') + nombreFichero)
@@ -180,7 +200,7 @@ class Recurso (QPushButton):
     if self.imagen and graficos_bitmap.recurso_es_unico (self.numRecurso):
       dlgSiNo = QMessageBox (ventana)
       dlgSiNo.addButton (_('&Yes'), QMessageBox.YesRole)
-      dlgSiNo.addButton (_('&No'), QMessageBox.NoRole)
+      dlgSiNo.addButton (_('&No'),  QMessageBox.NoRole)
       dlgSiNo.setIcon (QMessageBox.Warning)
       dlgSiNo.setWindowTitle (_('Replace image'))
       dlgSiNo.setText (_("Image #%d isn't used by any other resource") % self.numRecurso)
@@ -334,7 +354,7 @@ def dialogoExportaBD ():
     if os.path.isfile (nombreFichero):
       dlgSiNo = QMessageBox (ventana)
       dlgSiNo.addButton (_('&Yes'), QMessageBox.YesRole)
-      dlgSiNo.addButton (_('&No'), QMessageBox.NoRole)
+      dlgSiNo.addButton (_('&No'),  QMessageBox.NoRole)
       dlgSiNo.setIcon (QMessageBox.Warning)
       dlgSiNo.setWindowTitle (_('Overwrite'))
       dlgSiNo.setText (_('A file already exists with path and name:\n\n') + nombreFichero)

@@ -225,6 +225,15 @@ def da_paletas_del_formato ():
   if modo_gfx in ('ST', 'VGA'):
     return {'CGA': [paleta1b, paleta2b], 'EGA': [paletaEGA], 'ST/VGA': []}
 
+def elimina_recurso (numRecurso):
+  """Elimina los datos del recurso de número dado"""
+  recurso = recursos[numRecurso]
+  if len (pos_recursos[recurso['desplazamiento']]) > 1:  # El contenido de este recurso era usado por más de un recurso
+    pos_recursos[recurso['desplazamiento']].remove (numRecurso)
+  else:  # El contenido de este recurso era único
+    del pos_recursos[recurso['desplazamiento']]
+  recursos[numRecurso] = None
+
 def guarda_bd_pics (fichero, ordenAmiga = True):
   """Exporta la base de datos gráfica en memoria sobre el fichero dado"""
   # TODO: completar para el formato de DMG versión 3+
