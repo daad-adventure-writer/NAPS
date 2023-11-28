@@ -24,6 +24,6 @@ Se usará CamelCase iniciando en minúscula para variables locales incluyendo pa
 Llamadas a métodos
 ------------------
 
-Se espaciará entre el nombre del método y el paréntesis de apertura de sus parámetros si se llama con algún parámetro, y no se espaciará cuando se llame el método sin parámetros.
+Se espaciará entre el nombre del método y el paréntesis de apertura de sus parámetros si se llama con algún parámetro. No se espaciará entre el nombre del método y el paréntesis de apertura cuando se llame al método sin parámetros, ni cuando sea el método de traducción de textos con gettext (método cuyo nombre es el carácter de guión bajo).
 
 Se espaciará tras los separadores de los parámetros, antes y después de los signos "igual que" de los parámetros asignados por nombre, y no se espaciará tras el paréntesis de apertura ni antes del paréntesis de cierre.
