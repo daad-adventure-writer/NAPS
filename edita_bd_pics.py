@@ -50,9 +50,14 @@ dlg_exportar_todo     = None  # Diálogo de exportar todos los recursos
 dlg_importar          = None  # Diálogo de importar base de datos gráfica
 dlg_guardar           = None  # Diálogo de guardar imagen
 
+
+def traduceConGettext (cadena):
+  return unicode (gettext.gettext (cadena).decode ('utf8'))
+
 gettext.bindtextdomain ('naps', os.path.join (os.path.abspath (os.path.dirname (__file__)), 'locale'))
 gettext.textdomain ('naps')
-_ = gettext.gettext
+_ = traduceConGettext if sys.version_info[0] < 3 else gettext.gettext
+
 
 filtro_img_def = 1  # Índice en filtros_img del formato de imagen por defecto
 filtros_img    = ((_('BMP images'), ['bmp'])), (_('PNG images'), ['png'])  # Filtros de formatos de imagen soportados para abrir y guardar
@@ -502,7 +507,7 @@ def muestraFallo (mensaje, detalle = '', icono = QMessageBox.Warning, parent = N
       dlg_fallo.setWindowTitle (_('Warning'))
   dlg_fallo.setText (mensaje)
   if detalle:
-    dlg_fallo.setInformativeText (_('Cause:\n') + detalle)
+    dlg_fallo.setInformativeText (_('Cause:\n') + detalle.decode ('iso-8859-15') if sys.version_info[0] < 3 else detalle)
   else:
     dlg_fallo.setInformativeText ('')
   dlg_fallo.exec_()

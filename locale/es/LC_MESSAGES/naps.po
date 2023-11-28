@@ -1,5 +1,5 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
-# Copyright (C) 2008-2010, 2013, 2018-2023 JosÈ Manuel Ferrer Ortiz <jmfo1982@gmail.com>
+# Copyright (C) 2008-2010, 2013, 2018-2023 Jos√© Manuel Ferrer Ortiz <jmfo1982@gmail.com>
 # This file is distributed under the same license as the NAPS package.
 #
 msgid ""
@@ -7,20 +7,20 @@ msgstr ""
 "Project-Id-Version: 23.11\n"
 "Report-Msgid-Bugs-To: jmfo1982@gmail.com\n"
 "POT-Creation-Date: 2023-11-28 17:32+0100\n"
-"POT-Creation-Date: 2023-11-28 17:54+0100\n"
-"Last-Translator: JosÈ Manuel Ferrer Ortiz <jmfo1982@gmail.com>\n"
+"POT-Creation-Date: 2023-11-28 19:38+0100\n"
+"Last-Translator: Jos√© Manuel Ferrer Ortiz <jmfo1982@gmail.com>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=ISO-8859-15\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #: edita_bd_pics.py:58
 msgid "BMP images"
-msgstr "Im·genes BMP"
+msgstr "Im√°genes BMP"
 
 #: edita_bd_pics.py:58
 msgid "PNG images"
-msgstr "Im·genes PNG"
+msgstr "Im√°genes PNG"
 
 #: edita_bd_pics.py:75
 msgid "&Export image"
@@ -36,7 +36,7 @@ msgstr "Sustituir imagen &conservando paleta"
 
 #: edita_bd_pics.py:85
 msgid "&Add image"
-msgstr "&AÒadir imagen"
+msgstr "&A√±adir imagen"
 
 #: edita_bd_pics.py:97
 msgid "Export image"
@@ -68,7 +68,7 @@ msgstr "&Cancelar"
 
 #: edita_bd_pics.py:116 edita_bd_pics.py:176 edita_bd_pics.py:330
 msgid "&Yes"
-msgstr "&SÌ"
+msgstr "&S√≠"
 
 #: edita_bd_pics.py:117 edita_bd_pics.py:177 edita_bd_pics.py:331
 msgid "&No"
@@ -92,7 +92,7 @@ msgid ""
 "Do you want to overwrite it?"
 msgstr ""
 "\n"
-"øQuieres sobreescribirlo?"
+"¬øQuieres sobreescribirlo?"
 
 #: edita_bd_pics.py:138
 msgid "Unable to open image from file:\n"
@@ -100,7 +100,7 @@ msgstr "No se puede abrir la imagen del fichero:\n"
 
 #: edita_bd_pics.py:141
 msgid "Invalid dimensions"
-msgstr "Dimensiones inv·lidas"
+msgstr "Dimensiones inv√°lidas"
 
 #: edita_bd_pics.py:141
 #, python-format
@@ -108,8 +108,8 @@ msgid ""
 "The chosen image (%s) has invalid dimensions, both its width and its height "
 "should be bigger than zero"
 msgstr ""
-"La imagen elegida (%s) tiene dimensiones inv·lidas, tanto su ancho como su "
-"alto deberÌa ser mayor que cero"
+"La imagen elegida (%s) tiene dimensiones inv√°lidas, tanto su ancho como su "
+"alto deber√≠a ser mayor que cero"
 
 #: edita_bd_pics.py:144
 msgid "Excessive image height"
@@ -122,8 +122,8 @@ msgid ""
 "while the mode %(graphicMode)s of the graphic database only supports up to "
 "%(maxHeight)d"
 msgstr ""
-"La imagen elegida (%(fileName)s) tiene %(imageHeight)d pÌxeles de alto, "
-"mientras que el modo %(graphicMode)s de la base de datos gr·fica sÛlo "
+"La imagen elegida (%(fileName)s) tiene %(imageHeight)d p√≠xeles de alto, "
+"mientras que el modo %(graphicMode)s de la base de datos gr√°fica s√≥lo "
 "soporta hasta %(maxHeight)d"
 
 #: edita_bd_pics.py:147
@@ -137,8 +137,8 @@ msgid ""
 "the mode %(graphicMode)s of the graphic database only supports up to "
 "%(maxWidth)d"
 msgstr ""
-"La imagen elegida (%(fileName)s) tiene %(imageWidth)d pÌxeles de ancho, "
-"mientras que el modo %(graphicMode)s de la base de datos gr·fica sÛlo "
+"La imagen elegida (%(fileName)s) tiene %(imageWidth)d p√≠xeles de ancho, "
+"mientras que el modo %(graphicMode)s de la base de datos gr√°fica s√≥lo "
 "soporta hasta %(maxWidth)d"
 
 #: edita_bd_pics.py:150
@@ -151,8 +151,8 @@ msgid ""
 "The chosen image (%(fileName)s) has a height of %(imageHeight)d pixels, when "
 "it should be a multiple of 8"
 msgstr ""
-"La imagen elegida (%(fileName)s) tiene %(imageHeight)d pÌxeles de alto, "
-"cuando deberÌa ser m˙ltiplo de 8"
+"La imagen elegida (%(fileName)s) tiene %(imageHeight)d p√≠xeles de alto, "
+"cuando deber√≠a ser m√∫ltiplo de 8"
 
 #: edita_bd_pics.py:153
 msgid "Incorrect image width"
@@ -164,12 +164,12 @@ msgid ""
 "The chosen image (%(fileName)s) has a width of %(imageWidth)d pixels, when "
 "it should be a multiple of 8"
 msgstr ""
-"La imagen elegida (%(fileName)s) tiene %(imageWidth)d pÌxeles de ancho, "
-"cuando deberÌa ser m˙ltiplo de 8"
+"La imagen elegida (%(fileName)s) tiene %(imageWidth)d p√≠xeles de ancho, "
+"cuando deber√≠a ser m√∫ltiplo de 8"
 
 #: edita_bd_pics.py:173
 msgid "High number of colors"
-msgstr "N˙mero de colores elevado"
+msgstr "N√∫mero de colores elevado"
 
 #: edita_bd_pics.py:173
 #, python-format
@@ -179,7 +179,7 @@ msgid ""
 "%(maxColorCount)d"
 msgstr ""
 "La imagen elegida (%(fileName)s) utiliza %(colorCount)d colores diferentes, "
-"mientras que el modo %(graphicMode)s de la base de datos gr·fica sÛlo "
+"mientras que el modo %(graphicMode)s de la base de datos gr√°fica s√≥lo "
 "soporta %(maxColorCount)d"
 
 #: edita_bd_pics.py:179
@@ -189,7 +189,7 @@ msgstr "Sustituir imagen"
 #: edita_bd_pics.py:180
 #, python-format
 msgid "Image #%d isn't used by any other resource"
-msgstr "La imagen %d no es utilizada por ning˙n otro recurso"
+msgstr "La imagen %d no es utilizada por ning√∫n otro recurso"
 
 #: edita_bd_pics.py:181
 msgid ""
@@ -197,7 +197,7 @@ msgid ""
 "Are you sure you want to replace it with the image from the chosen file?"
 msgstr ""
 "\n"
-"øSeguro que quieres sustituirla por la imagen del fichero elegido?"
+"¬øSeguro que quieres sustituirla por la imagen del fichero elegido?"
 
 #: edita_bd_pics.py:190
 msgid "Trimmed palette"
@@ -209,12 +209,12 @@ msgid ""
 "The format of the graphic database supports variable palette, the first %d "
 "colors from the image will be taken as the palette"
 msgstr ""
-"El formato de base de datos gr·fica soporta paleta variable, se tomar· como "
+"El formato de base de datos gr√°fica soporta paleta variable, se tomar√° como "
 "paleta los primeros %d colores de la imagen"
 
 #: edita_bd_pics.py:261
 msgid "&Export graphic DB"
-msgstr "&Exportar BD gr·fica"
+msgstr "&Exportar BD gr√°fica"
 
 #: edita_bd_pics.py:262
 msgid "&Export all"
@@ -222,15 +222,15 @@ msgstr "&Exportar todo"
 
 #: edita_bd_pics.py:263
 msgid "&Add/replace images"
-msgstr "&AÒadir/sustituir im·genes"
+msgstr "&A√±adir/sustituir im√°genes"
 
 #: edita_bd_pics.py:264
 msgid "Add/replace images &preserving palette"
-msgstr "AÒadir/sustituir im·genes &conservando paleta"
+msgstr "A√±adir/sustituir im√°genes &conservando paleta"
 
 #: edita_bd_pics.py:265
 msgid "&Import graphic DB"
-msgstr "&Importar BD gr·fica"
+msgstr "&Importar BD gr√°fica"
 
 #: edita_bd_pics.py:266
 msgid "&Quit"
@@ -250,31 +250,31 @@ msgstr "&Operaciones en masa"
 
 #: edita_bd_pics.py:292
 msgid "Graphic database editor"
-msgstr "Editor de bases de datos gr·ficas"
+msgstr "Editor de bases de datos gr√°ficas"
 
 #: edita_bd_pics.py:301
 msgid "DAAD graphic databases for CGA (*.cga)"
-msgstr "Bases de datos gr·ficas DAAD para CGA (*.cga)"
+msgstr "Bases de datos gr√°ficas DAAD para CGA (*.cga)"
 
 #: edita_bd_pics.py:304
 msgid "DAAD graphic databases for EGA (*.ega)"
-msgstr "Bases de datos gr·ficas DAAD para EGA (*.ega)"
+msgstr "Bases de datos gr√°ficas DAAD para EGA (*.ega)"
 
 #: edita_bd_pics.py:307
 msgid "DAAD graphic databases for PCW (*.dat *.pcw)"
-msgstr "Bases de datos gr·ficas DAAD para PCW (*.dat *.pcw)"
+msgstr "Bases de datos gr√°ficas DAAD para PCW (*.dat *.pcw)"
 
 #: edita_bd_pics.py:310
 msgid ""
 "DAAD v3 graphic databases for Amiga/PC (*.dat);;DAAD v3 graphic databases "
 "for Atari ST/STE (*.dat)"
 msgstr ""
-"Bases de datos gr·ficas DAAD v3 para Amiga/PC (*.dat);;Bases de datos "
-"gr·ficas DAAD v3 para Atari ST/STE (*.dat)"
+"Bases de datos gr√°ficas DAAD v3 para Amiga/PC (*.dat);;Bases de datos "
+"gr√°ficas DAAD v3 para Atari ST/STE (*.dat)"
 
 #: edita_bd_pics.py:312
 msgid "Export graphic database"
-msgstr "Exportar base de datos gr·fica"
+msgstr "Exportar base de datos gr√°fica"
 
 #: edita_bd_pics.py:342 edita_bd_pics.py:415
 msgid "Unable to open the file:\n"
@@ -290,11 +290,11 @@ msgstr "&Abrir"
 
 #: edita_bd_pics.py:378
 msgid "Import graphic database"
-msgstr "Importar base de datos gr·fica"
+msgstr "Importar base de datos gr√°fica"
 
 #: edita_bd_pics.py:378
 msgid "DAAD graphic databases (*.cga *.dat *.ega *.pcw)"
-msgstr "Bases de datos gr·ficas DAAD (*.cga *.dat *.ega *.pcw)"
+msgstr "Bases de datos gr√°ficas DAAD (*.cga *.dat *.ega *.pcw)"
 
 #: edita_bd_pics.py:394
 msgid ""
@@ -307,19 +307,19 @@ msgid ""
 "\"location 1, 7 and 28.png\" \"image 28 (1).7.bmp\" will apply it over "
 "resources #1, #7 and #28"
 msgstr ""
-"Cada fichero seleccionado se tratar· de cargar como imagen, y su imagen se "
-"aplicar· sobre los recursos correspondientes a todos los n˙meros que se "
+"Cada fichero seleccionado se tratar√° de cargar como imagen, y su imagen se "
+"aplicar√° sobre los recursos correspondientes a todos los n√∫meros que se "
 "encuentren en el nombre del fichero separados por caracteres no sean "
-"dÌgitos.\n"
+"d√≠gitos.\n"
 "\n"
 "Por ejemplo:\n"
-"\"pic08.png\" \"8\" \"imagen 8.bmp\" aplicar·n la imagen al recurso 8\n"
-"\"lugar 1, 7 y 28.png\" \"imagen 28 (1).7.bmp\" la aplicar·n sobre los "
+"\"pic08.png\" \"8\" \"imagen 8.bmp\" aplicar√°n la imagen al recurso 8\n"
+"\"lugar 1, 7 y 28.png\" \"imagen 28 (1).7.bmp\" la aplicar√°n sobre los "
 "recursos 1, 7 y 28"
 
 #: edita_bd_pics.py:404
 msgid "Invalid number"
-msgstr "N˙mero inv·lido"
+msgstr "N√∫mero inv√°lido"
 
 #: edita_bd_pics.py:404
 #, python-format
@@ -328,13 +328,13 @@ msgid ""
 "invalid as a resource, so that number will be ignored. If the name only had "
 "that number, the file will be ignored"
 msgstr ""
-"El nombre del fichero \"%(fileName)s\" contiene un n˙mero %(resourceNumber)d "
-"que es inv·lido como recurso, por lo que ese n˙mero se ignorar·. Y si el "
-"nombre sÛlo tiene ese n˙mero, el fichero se ignorar·"
+"El nombre del fichero \"%(fileName)s\" contiene un n√∫mero %(resourceNumber)d "
+"que es inv√°lido como recurso, por lo que ese n√∫mero se ignorar√°. Y si el "
+"nombre s√≥lo tiene ese n√∫mero, el fichero se ignorar√°"
 
 #: edita_bd_pics.py:413
 msgid "Loading of one or more resources in the graphic database failed:\n"
-msgstr "Ha fallado la carga de uno o varios recursos en la base de datos gr·fica:\n"
+msgstr "Ha fallado la carga de uno o varios recursos en la base de datos gr√°fica:\n"
 
 #: edita_bd_pics.py:495
 msgid "&Accept"
@@ -346,7 +346,7 @@ msgstr "Fallo"
 
 #: edita_bd_pics.py:500
 msgid "Information"
-msgstr "InformaciÛn"
+msgstr "Informaci√≥n"
 
 #: edita_bd_pics.py:502
 msgid "Warning"
@@ -358,7 +358,7 @@ msgstr "Causa:\n"
 
 #: edita_bd_pics.py:517
 msgid "All supported images (*."
-msgstr "Todas las im·genes soportadas (*."
+msgstr "Todas las im√°genes soportadas (*."
 
 #: edita_bd_pics.py:519 edita_bd_pics.py:531
 msgid "Open image"
@@ -366,4 +366,4 @@ msgstr "Abrir imagen"
 
 #: edita_bd_pics.py:528
 msgid "Open images"
-msgstr "Abrir im·genes"
+msgstr "Abrir im√°genes"
