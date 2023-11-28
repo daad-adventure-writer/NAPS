@@ -111,13 +111,13 @@ despl_ini_plat = {
 longitud_XMessages = {
   2:     2048,  # Commodore 64
   3:     2048,  # Amstrad CPC
-  8:     2048,  # Commodore Plus/4
+  14:    2048,  # Commodore Plus/4
   15:   13684,  # MSX2
   None: 65536,  # Demás plataformas
 }
-plats_detectarLE = (0,)                  # Plataformas que podrían ser tanto BE como LE, en versión del formato 2 (PC)
-plats_LE         = (1, 2, 3, 7, 13, 15)  # Plataformas que son Little Endian (Spectrum 48K, Commodore 64, Amstrad CPC, Amstrad PCW, PC VGA 256 y MSX2)
-plats_word       = (0,)                  # Plataformas que no pueden leer words en desplazamientos impares (PC)
+plats_detectarLE = (0,)                      # Plataformas que podrían ser tanto BE como LE, en versión del formato 2 (PC)
+plats_LE         = (1, 2, 3, 7, 13, 14, 15)  # Plataformas que son Little Endian (Spectrum 48K, Commodore 64, Amstrad CPC, Amstrad PCW, PC VGA 256, Commodore Plus/4 y MSX2)
+plats_word       = (0,)                      # Plataformas que no pueden leer words en desplazamientos impares (PC)
 
 # Tabla de conversión de caracteres, posiciones 16-31 (inclusive)
 daad_a_chr = ('ª', '¡', '¿', '«', '»', 'á', 'é', 'í', 'ó', 'ú', 'ñ', 'Ñ', 'ç', 'Ç', 'ü', 'Ü')
