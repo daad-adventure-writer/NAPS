@@ -59,7 +59,7 @@ gettext.textdomain ('naps')
 _ = traduceConGettext if sys.version_info[0] < 3 else gettext.gettext
 
 
-filtro_img_def = 1  # Índice en filtros_img del formato de imagen por defecto
+filtro_img_def = 1  # Índice en filtros_img del formato de imagen por defecto (PNG)
 filtros_img    = ((_('BMP images'), ['bmp'])), (_('PNG images'), ['png'])  # Filtros de formatos de imagen soportados para abrir y guardar
 
 
@@ -108,7 +108,8 @@ class Recurso (QPushButton):
         dlg_guardar.setLabelText  (QFileDialog.Reject,   _('&Cancel'))
         dlg_guardar.setOption     (QFileDialog.DontConfirmOverwrite)
         dlg_guardar.setOption     (QFileDialog.DontUseNativeDialog)
-      dlg_guardar.selectNameFilter (filtro[filtro_img_def])  # Elegimos el formato por defecto
+      dlg_guardar.selectFile       ('pic' + str (self.numRecurso).zfill (3) + '.png')  # Ponemos el nombre de fichero por defecto
+      dlg_guardar.selectNameFilter (filtro[filtro_img_def])                            # Elegimos el formato por defecto
       if not dlg_guardar.exec_():  # Se ha cancelado
         return
       indiceFiltro  = list (dlg_guardar.nameFilters()).index (dlg_guardar.selectedNameFilter())
