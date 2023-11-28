@@ -132,7 +132,7 @@ class Recurso (QPushButton):
     if imagen.isNull():
       muestraFallo ('No se puede abrir la imagen del fichero:\n' + nombreFichero)
       return
-    if imagen.height() + imagen.width() < 1:
+    if imagen.height() < 1 or imagen.width() < 1:
       muestraFallo ('Dimensiones inválidas', 'La imagen elegida (' + nombreFichero + u') tiene dimensiones inválidas, tanto su ancho como su alto debería ser mayor que cero')
       return
     if imagen.height() > graficos_bitmap.resolucion_por_modo[graficos_bitmap.modo_gfx][1]:
