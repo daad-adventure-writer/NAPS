@@ -68,6 +68,29 @@ Parámetros:
 - ``--run`` (opcional) Ejecuta la base de datos pasada como parámetro directamente, depurando por pasos
 
 
+Editor de bases de datos gráficas
+---------------------------------
+
+![Editor de bases de datos gráficas de NAPS mostrando los gráficos de la segunda parte de "Los Templos Sagrados"](Editor_BD_gráficas.png "Editor de bases de datos gráficas de NAPS mostrando los gráficos de la segunda parte de 'Los Templos Sagrados'")
+
+Requisitos:
+
+- Python versión 2.X superior a 2.5, ó 3.X superior a 3.2
+- PyQt versión 4.X ó 5.X
+
+Modo de uso:
+
+Hacer doble click sobre ``edita_bd_pics.py`` en caso de tener instalados los requisitos, o bien sobre ``Editor BD gráficas.bat`` en caso de disponer de la versión portable de NAPS.
+
+Uso desde línea de comandos:
+
+``edita_bd_pics.py [bd_gráfica]``
+
+Parámetros:
+
+- ``bd_gráfica`` (opcional) Base de datos gráfica que importar
+
+
 Instalación de los requisitos en Windows
 ----------------------------------------
 
