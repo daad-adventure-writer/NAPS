@@ -20,20 +20,20 @@ Intérprete PAW-like
 
 ![Intérprete de NAPS depurando "Las Aventuras de Rudolphine Rur" (sistema DAAD, plataforma PC, con gráficos VGA)](Intérprete_NAPS_-_Depurando_DAAD.png "Intérprete de NAPS depurando 'Las Aventuras de Rudolphine Rur' (sistema DAAD, plataforma PC, con gráficos VGA)")
 
-Requisitos:
+**Requisitos:**
 
 - Python versión 2.X superior a 2.5, ó 3.X superior a 3.2
 - Recomendado: PyGame versión 1.X ó 2.X (necesario para que tenga interfaz gráfica)
 - Opcional: Lark versión 0.X para Python 2.X, o cualquiera para Python 3.X (necesario para importar código fuente SCE)
 - Opcional: PyQt versión 4.X ó 5.X (necesario para el diálogo de elección de fichero o carpeta que se desea ejecutar)
 
-Modo de uso básico:
+**Modo de uso básico:**
 
 Hacer doble click sobre ``interprete.py`` en caso de tener instalados los requisitos (necesitarás tener instalado también PyQt para utilizar el intérprete de esta manera), o bien sobre ``Intérprete NAPS.bat`` en caso de disponer de la versión portable para Windows de NAPS.
 
 Acto seguido, se mostrará un diálogo pidiendo que selecciones lo que deseas ejecutar, de entre las siguientes opciones: la carpeta donde están contenidos los ficheros del juego, el fichero de base de datos a ejecutar, el fichero de snapshot (con extensión .SNA) de ZX Spectrum del juego de Quill o PAWS que quieras ejecutar, o bien el fichero de código fuente SCE de PAWS o DAAD que quieras ejecutar.
 
-Uso desde línea de comandos:
+**Uso desde línea de comandos:**
 
 ``python interprete.py [-h|--help] [-c|--columns 32..42] [--conversion módulo] [-D|--debug] [-g|--gui pygame|stdio|telegram] [-s|--scale 1..9] bd_cf_o_carpeta [bd_o_carpeta_gráficos]``
 
@@ -66,17 +66,17 @@ Entorno de desarrollo integrado (IDE)
 
 ![IDE de NAPS depurando "La Diosa de Cozumel" (sistema DAAD, plataforma PC, con gráficos CGA)](IDE_NAPS_-_Depurador_de_DAAD.png "IDE de NAPS depurando 'La Diosa de Cozumel' (sistema DAAD, plataforma PC, con gráficos CGA)")
 
-Requisitos:
+**Requisitos:**
 
 - Python versión 2.X superior a 2.5, ó 3.X superior a 3.2
 - PyQt versión 4.X ó 5.X
 - Opcional: Lark versión 0.X para Python 2.X, o cualquiera para Python 3.X (necesario para importar código fuente SCE)
 
-Modo de uso básico:
+**Modo de uso básico:**
 
 Hacer doble click sobre ``ide_pyqt.py`` en caso de tener instalados los requisitos, o bien sobre ``IDE y depurador NAPS.bat`` en caso de disponer de la versión portable para Windows de NAPS.
 
-Uso desde línea de comandos:
+**Uso desde línea de comandos:**
 
 ``python ide_pyqt.py [-h|--help] [-ne|--no-entry-end] [-r|--run] [bd_o_codigo] [bd_o_carpeta_gráficos]``
 
@@ -94,16 +94,16 @@ Editor de bases de datos gráficas
 
 ![Editor de bases de datos gráficas de NAPS mostrando los gráficos de la segunda parte de "Los Templos Sagrados"](Editor_BD_gráficas.png "Editor de bases de datos gráficas de NAPS mostrando los gráficos de la segunda parte de 'Los Templos Sagrados'")
 
-Requisitos:
+**Requisitos:**
 
 - Python versión 2.X superior a 2.5, ó 3.X superior a 3.2
 - PyQt versión 4.X ó 5.X
 
-Modo de uso básico:
+**Modo de uso básico:**
 
 Hacer doble click sobre ``edita_bd_pics.py`` en caso de tener instalados los requisitos, o bien sobre ``Editor BD gráficas.bat`` en caso de disponer de la versión portable para Windows de NAPS.
 
-Uso desde línea de comandos:
+**Uso desde línea de comandos:**
 
 ``edita_bd_pics.py [bd_gráfica]``
 
