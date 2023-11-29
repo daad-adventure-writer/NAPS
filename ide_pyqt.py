@@ -1980,7 +1980,7 @@ cargaInfoModulos()
 argsParser = argparse.ArgumentParser (sys.argv[0], description = 'Entorno de Desarrollo Integrado para Quill/PAWS/SWAN/DAAD en Python')
 argsParser.add_argument ('-ne', '--no-entry-end', action = 'store_true', help = 'omitir condactos en entradas de proceso detrás de los que cambian el flujo de ejecución incondicionalmente')
 argsParser.add_argument ('-r', '--run', action = 'store_true', help = 'ejecutar base_de_datos por pasos directamente')
-argsParser.add_argument ('bbdd',     metavar = 'base_de_datos',         nargs = '?', help = 'base de datos de Quill/PAWS/SWAN/DAAD a ejecutar')
+argsParser.add_argument ('bbdd',     metavar = 'base_de_datos',         nargs = '?', help = 'base de datos, snapshot, o código fuente de Quill/PAWS/SWAN/DAAD a ejecutar')
 argsParser.add_argument ('graficos', metavar = 'bd_o_carpeta_gráficos', nargs = '?', help = 'base de datos gráfica o carpeta de la que tomar las imágenes (con nombre pic###.png)')
 args = argsParser.parse_args()
 
