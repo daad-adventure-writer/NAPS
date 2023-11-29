@@ -71,6 +71,8 @@ Parámetros:
 Instalación de los requisitos en Windows
 ----------------------------------------
 
+Nótese que no es necesario instalar nada en Windows para utilizar NAPS, porque basta con descargar una versión portable de NAPS (desde https://github.com/daad-adventure-writer/NAPS/releases), descomprimirla donde se quiera, y así ya se podrá ejecutar NAPS desde esa carpeta recién descomprimida. Al ser portable, esa carpeta luego se puede mover a cualquier otro lugar y seguirá funcionando NAPS desde allí.
+
 1. Instalar Python 3.X descargando un instalador desde esta web: https://www.python.org/downloads/windows/
 2. Abrir el Símbolo del sistema
 3. Ejecutar allí estos comandos:
