@@ -1,6 +1,16 @@
 NAPS - The New Age PAW-like System - Herramientas para sistemas PAW-like
 =========================================================================
 
+Tabla de contenidos
+-------------------
+
+- [Intérprete PAW-like](#intérprete-paw-like)
+- [Entorno de desarrollo integrado (IDE)](#entorno-de-desarrollo-integrado-ide)
+- [Editor de bases de datos gráficas](#editor-de-bases-de-datos-gráficas)
+- [Instalación de los requisitos en Windows](#instalación-de-los-requisitos-en-windows)
+- [Agradecimientos](#agradecimientos)
+
+
 Intérprete PAW-like
 -------------------
 
