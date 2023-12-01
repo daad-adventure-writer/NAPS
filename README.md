@@ -31,7 +31,7 @@ Intérprete PAW-like
 
 Hacer doble click sobre ``interprete.py`` en caso de tener instalados los requisitos (necesitarás tener instalado también PyQt para utilizar el intérprete de esta manera), o bien sobre ``Intérprete NAPS.bat`` en caso de disponer de la versión portable para Windows de NAPS.
 
-Acto seguido, se mostrará un diálogo pidiendo que selecciones lo que deseas ejecutar, de entre las siguientes opciones: la carpeta donde están contenidos los ficheros del juego, el fichero de base de datos a ejecutar, el fichero de snapshot (con extensión .SNA) de ZX Spectrum del juego de Quill o PAWS que quieras ejecutar, o bien el fichero de código fuente SCE de PAWS o DAAD que quieras ejecutar.
+Acto seguido, se mostrará un diálogo pidiendo que selecciones lo que deseas ejecutar, de entre las siguientes opciones: la carpeta donde están contenidos los ficheros del juego, el fichero de base de datos a ejecutar (de PAWS con extensión .PDB, de SWAN con extensión .ADB, o de DAAD con extensión .DDB), el fichero de snapshot (con extensión .SNA) de ZX Spectrum del juego de Quill o PAWS que quieras ejecutar, o bien el fichero de código fuente SCE de PAWS o DAAD que quieras ejecutar.
 
 **Uso desde línea de comandos:**
 
