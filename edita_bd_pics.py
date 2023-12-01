@@ -600,6 +600,7 @@ def importaBD (nombreFichero):
     widget.setMinimumSize (anchoMax + margenX, max (imagen.height() if imagen else 0, altoMin) + margenY)
     ventana.rejilla.layout().addWidget (widget)
   ventana.resizeEvent (None)
+  ventana.setWindowTitle (_('Graphic database editor') + ' - ' + os.path.relpath (nombreFichero))
 
 def muestraFallo (mensaje, detalle = '', icono = QMessageBox.Warning, parent = None):
   """Muestra un diálogo de fallo"""
