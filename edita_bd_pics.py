@@ -51,8 +51,17 @@ dlg_importar          = None  # Diálogo de importar base de datos gráfica
 dlg_guardar           = None  # Diálogo de guardar imagen
 
 
+# Preparativos para la localización de textos
+
 def traduceConGettext (cadena):
   return unicode (gettext.gettext (cadena).decode ('utf8'))
+
+if os.name == 'nt':
+  import locale
+  if not os.getenv ('LANG') and not os.getenv ('LANGUAGE'):
+    idioma, codificacion   = locale.getdefaultlocale()
+    os.environ['LANG']     = idioma
+    os.environ['LANGUAGE'] = idioma
 
 gettext.bindtextdomain ('naps', os.path.join (os.path.abspath (os.path.dirname (__file__)), 'locale'))
 gettext.textdomain ('naps')
