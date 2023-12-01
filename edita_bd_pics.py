@@ -279,10 +279,89 @@ class Recurso (QPushButton):
     graficos_bitmap.cambia_imagen (self.numRecurso, imagen.width(), imagen.height(), imgComoIndices, paletas[mejorPaleta])
     ventana.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
 
+class RejillaLayout (QLayout):
+  """Layout para la rejilla de recursos, basado en el FlowLayout del ejemplo de la documentación de Qt"""
+  def __init__ (self, parent):
+    super (RejillaLayout, self).__init__ (parent)
+    self.elementos = []
+
+  def addItem (self, item):
+    self.elementos.append (item)
+
+  def count (self):
+    return len (self.elementos)
+
+  def itemAt (self, pos):
+    if pos < 0 or pos >= len (self.elementos):
+      return None
+    return self.elementos[pos]
+
+  def minimumSize (self):
+    alturaTotal = []
+    self.setGeometry (self.geometry(), alturaTotal, soloParaAltura = True)
+    return QSize (self.geometry().width(), alturaTotal[0])
+
+  def setGeometry (self, rect, alturaTotal = None, soloParaAltura = False):
+    super (RejillaLayout, self).setGeometry (rect)
+    # Buscamos el ancho máximo de entre los elementos, y de paso guardamos el alto de cada uno
+    altoItems = []
+    anchoMax  = 0  # Ancho de elemento máximo
+    for i in range (len (self.elementos)):
+      tamItem = self.elementos[i].widget().minimumSize()
+      altoItems.append (tamItem.height())
+      if tamItem.width() > anchoMax:
+        anchoMax = tamItem.width()
+    # Variables que utilizaremos más adelante
+    margenes        = self.contentsMargins()
+    rectSinMargenes = rect.adjusted (margenes.left(), margenes.top(), -margenes.right(), -margenes.bottom())
+    separadorX      = min (margenes.left(), margenes.top(), margenes.right(), margenes.bottom()) // 2
+    separadorY      = separadorX
+    # Calculamos cuántas columnas tendrá cada fila
+    colsPorFila = 0
+    inicioX     = rectSinMargenes.x()
+    for i in range (len (self.elementos)):
+      finalX = inicioX + anchoMax
+      if i and finalX + separadorX > rectSinMargenes.right():  # Ya no caben más widgets en la fila
+        # Distribuimos espacio horizontal sobrante aumentando la anchura de los widgets
+        anchoMax += (rectSinMargenes.right() - inicioX - (rectSinMargenes.x() // 2)) // i
+        break
+      colsPorFila += 1
+      inicioX      = finalX + separadorX
+    # Colocamos cada elemento
+    inicioY = rectSinMargenes.y()
+    if self.elementos:
+      numFilas = int (math.ceil (256. / colsPorFila))
+      for numFila in range (numFilas):
+        altoFila    = 0  # Altura máxima de los widgets en la fila
+        itemsEnFila = colsPorFila  # Número de elementos en la fila
+        if numFila == numFilas - 1 and 256 % colsPorFila > 0:
+          itemsEnFila = 256 % colsPorFila
+        # Calculamos la altura máxima de entre los widgets de la fila
+        for i in range (itemsEnFila):
+          altoFila = max (altoFila, altoItems[(numFila * colsPorFila) + i])
+        if not soloParaAltura:  # Posicionamos cada elemento de la fila
+          inicioX = rectSinMargenes.x()
+          for i in range (itemsEnFila):
+            finalX = inicioX + anchoMax
+            self.elementos[(numFila * colsPorFila) + i].widget().setGeometry (QRect (inicioX, inicioY, anchoMax, altoFila))
+            inicioX = finalX + separadorX
+        inicioY += altoFila + separadorY
+    if alturaTotal != None:
+      alturaTotal.append (inicioY + margenes.bottom())
+
+  def sizeHint (self):
+    return self.minimumSize()
+
+  def takeAt (self, pos):
+    if pos < 0 or pos >= len (self.elementos):
+      return None
+    return self.elementos.pop (pos)
+
 class Ventana (QMainWindow):
   """Ventana principal"""
   def __init__ (self):
     global acc_exportar, acc_exportar_todo, acc_importar_masa, acc_importar_masa_sin
+    self.inicializada = False  # Si ya se ha terminado de inicializar la ventana
     super (Ventana, self).__init__()
     acc_exportar          = QAction (_('&Export graphic DB'), self)
     acc_exportar_todo     = QAction (_('&Export all'), self)
@@ -310,13 +389,24 @@ class Ventana (QMainWindow):
     menuMasa.addAction (acc_importar_masa_sin)
     menuMasa.addAction (acc_exportar_todo)
     scroll = QScrollArea (self)
+    scroll.setHorizontalScrollBarPolicy (Qt.ScrollBarAlwaysOff)
     self.rejilla = QWidget (scroll)
-    self.rejilla.setLayout (QGridLayout (self.rejilla))
+    self.rejilla.setLayout (RejillaLayout (self.rejilla))
     scroll.setWidget (self.rejilla)
     accSalir.triggered.connect (self.close)
     self.setCentralWidget (scroll)
     self.setWindowTitle (_('Graphic database editor'))
     self.showMaximized()
+    self.inicializada = True  # Ya se ha terminado de inicializar la ventana
+
+  def resizeEvent (self, evento):
+    # Omitimos eventos de redimensión mientras se inicializa y cuando no hay botones de recurso
+    if not self.inicializada or not self.rejilla.layout().count():
+      return
+    alturaTotal = []
+    self.rejilla.layout().setGeometry (self.rect(), alturaTotal, soloParaAltura = True)
+    ventana.rejilla.resize (QSize (self.rejilla.size().width(), alturaTotal[0]))
+    self.rejilla.layout().setGeometry (self.rect())
 
 
 def dialogoExportaBD ():
@@ -454,8 +544,8 @@ def importaBD (nombreFichero):
     acc_importar_masa.setEnabled (False)
     acc_importar_masa_sin.setEnabled (False)
 
-  altoMax  = 0  # Alto  de imagen máximo
-  anchoMax = 0  # Ancho de imagen máximo
+  altoMin  = 50  # Alto  de imagen mínimo
+  anchoMax = 0   # Ancho de imagen máximo
   imagenes = []
   for numImg in range (256):
     recurso = graficos_bitmap.recursos[numImg]
@@ -477,8 +567,6 @@ def importaBD (nombreFichero):
         col   = 0
         fila += 1
     imagenes.append (imagen)
-    if alto > altoMax:
-      altoMax = alto
     if ancho > anchoMax:
       anchoMax = ancho
 
@@ -491,22 +579,18 @@ def importaBD (nombreFichero):
 
   dtWidget  = QDesktopWidget()  # Para obtener el ancho de la pantalla (dado que el de la ventana no se correspondía con el real)
   geometria = dtWidget.availableGeometry (ventana)
-  margen    = 8
-  columnas  = geometria.width() // (anchoMax + margen)
+  margenX   = 24  # Margen adicional para que quepa mejor el número de recurso cuando éste tenga imagen
+  margenY   = 12
+  columnas  = geometria.width() // (anchoMax + margenX)
   filas     = math.ceil (256. / columnas)
-  ventana.rejilla.setMinimumSize (geometria.width() - 20, (filas * (altoMax + margen) + ((filas + 1) * 6)))
+  ventana.rejilla.setMinimumSize (geometria.width() - 20, (filas * (altoMin + margenY) + ((filas + 1) * 6)))
 
-  col  = 0  # Columna actual
-  fila = 0  # Fila actual
   for i in range (256):
     imagen = imagenes[i]
     widget = Recurso (i, imagen)
-    widget.setMinimumSize (anchoMax + margen, altoMax + margen)
-    ventana.rejilla.layout().addWidget (widget, fila, col)
-    col += 1
-    if col == columnas:
-      col   = 0
-      fila += 1
+    widget.setMinimumSize (anchoMax + margenX, max (imagen.height() if imagen else 0, altoMin) + margenY)
+    ventana.rejilla.layout().addWidget (widget)
+  ventana.resizeEvent (None)
 
 def muestraFallo (mensaje, detalle = '', icono = QMessageBox.Warning, parent = None):
   """Muestra un diálogo de fallo"""
