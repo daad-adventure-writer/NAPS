@@ -4,7 +4,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Extrae gráficos de bases de datos gráficas de DAAD, en el formato de las versiones más recientes de DAAD
-# Copyright (C) 2008, 2018-2022 José Manuel Ferrer Ortiz
+# Copyright (C) 2008, 2018-2023 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -105,6 +105,7 @@ for numImg in rango:
   # Obtenemos la paleta de la imagen
   fichero.seek (8, 1)  # El segundo parámetro indica posición relativa
   paleta = []
+  # FIXME: soporte de 4 bits por componente de color
   for color in range (16):
     # TODO: calcular valores exactos
     rojo  = carga_int1()
