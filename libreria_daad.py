@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Librería de DAAD (parte común a editor, compilador e intérprete)
-# Copyright (C) 2010, 2013, 2018-2023 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2013, 2018-2024 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -65,6 +65,8 @@ LONGITUD_PAL   = 5       # Longitud máxima para las palabras de vocabulario
 NOMBRE_SISTEMA = 'DAAD'  # Nombre de este sistema
 NUM_ATRIBUTOS  = [2]     # Número de atributos de objeto
 NUM_BANDERAS   = 256     # Número de banderas del parser
+NOMB_COMO_VERB = [20]    # Número de nombres convertibles a verbo
+PREP_COMO_VERB = 0       # Número de preposiciones convertibles a verbo
 NOMBRES_PROCS  = []      # Nombres de las primeras tablas de proceso (para el IDE)
 # Nombres de los tipos de palabra (para el IDE)
 TIPOS_PAL = ('Verbo', 'Adverbio', 'Nombre', 'Adjetivo', 'Preposicion', 'Conjuncion', 'Pronombre')
@@ -374,7 +376,8 @@ def carga_bd (fichero, longitud):
     cargaAtributos()
     if version > 1:
       cargaAtributosExtra()
-      NUM_ATRIBUTOS[0] = 18
+      NOMB_COMO_VERB[0] = 40
+      NUM_ATRIBUTOS[0]  = 18
     cargaConexiones()
     cargaLocalidadesObjetos()
     cargaVocabulario()

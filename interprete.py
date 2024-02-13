@@ -4,7 +4,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Intérprete de sistemas PAW-like
-# Copyright (C) 2010, 2018-2023 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2018-2024 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -595,11 +595,11 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
               break  # No hay palabras iguales de más de un tipo, pasamos a la siguiente palabra
       if not frase['Verbo']:
         if frase['Nombre1']:
-          if frase['Nombre1'] < 20 and not frase['Preposicion']:  # Sin verbo, pero con nombre que actúa como verbo
+          if frase['Nombre1'] < NOMB_COMO_VERB[0] and not frase['Preposicion']:  # Con nombre que actúa como verbo
             frase['Verbo'] = frase['Nombre1']
           elif f and frases[-1]['Verbo']:  # Verbo heredado de la frase anterior
             frase['Verbo'] = frases[-1]['Verbo']
-        elif NOMBRE_SISTEMA == 'SWAN' and frase['Preposicion'] and frase['Preposicion'] < 20:  # Con preposición que actúa como verbo
+        elif frase['Preposicion'] and frase['Preposicion'] < PREP_COMO_VERB:  # Con preposición que actúa como verbo
           # TODO: ver si esto ocurre también en PAWS y/o en DAAD
           frase['Verbo'] = frase['Preposicion']
       frases.append (frase)
@@ -858,7 +858,7 @@ def imprime_condacto ():
     elif hay_asterisco and cabecera[0] == 1:
       prn ('*', end = ' ')
     else:
-      if len (TIPOS_PAL) > 1 and cabecera[0] < 20:  # Podría ser un nombre convertible en verbo
+      if len (TIPOS_PAL) > 1 and cabecera[0] < NOMB_COMO_VERB[0]:  # Podría ser un nombre convertible en verbo
         idTipos = (cabecera[0], 0), (cabecera[0], 2)
       else:
         idTipos = ((cabecera[0], 0),)
@@ -1164,7 +1164,7 @@ if __name__ == '__main__':
   elif args.gui not in ('stdio', 'telegram'):
     gui.prepara_topes (53, 25)
 
-  constantes = ('EXT_SAVEGAME', 'LONGITUD_PAL', 'NOMBRE_SISTEMA', 'NUM_BANDERAS', 'TIPOS_PAL')
+  constantes = ('EXT_SAVEGAME', 'LONGITUD_PAL', 'NOMB_COMO_VERB', 'NOMBRE_SISTEMA', 'NUM_BANDERAS', 'PREP_COMO_VERB', 'TIPOS_PAL')
   funciones  = ('actualiza_grafico', 'adapta_msgs_sys', 'busca_condacto', 'busca_conexion', 'cambia_articulo', 'da_peso', 'imprime_mensaje', 'obj_referido', 'parsea_orden', 'prepara_vocabulario', 'restaura_objetos', 'tabla_hizo_algo')
   funcsLib   = ('carga_xmessage', )
   variables  = ('atributos', 'atributos_extra', 'banderas', 'compatibilidad', 'conexiones', 'desc_locs', 'desc_objs', 'doall_activo', 'frases', 'locs_iniciales', 'locs_objs', 'msgs_usr', 'msgs_sys', 'nombres_objs', 'nueva_version', 'num_objetos', 'partida', 'peso_llevado', 'pila_procs', 'tablas_proceso', 'vocabulario')

@@ -3,8 +3,8 @@
 
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
-# Entorno de desarrollo integrado (IDE), hecho con PyQt4
-# Copyright (C) 2010, 2018-2023 José Manuel Ferrer Ortiz
+# Entorno de desarrollo integrado (IDE), hecho con PyQt
+# Copyright (C) 2010, 2018-2024 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -1497,8 +1497,9 @@ def imprimeCabecera (verbo, nombre, numEntrada, numProceso):
     campo_txt.insertPlainText ('  *  ')
   elif (verbo, tipo_verbo) in pal_sinonimo:  # Hay un verbo con ese código
     campo_txt.insertPlainText (pal_sinonimo[(verbo, tipo_verbo)].center (5))
-  elif verbo < 20 and (verbo, tipo_nombre) in pal_sinonimo:  # Es nombre convertible en verbo
+  elif verbo < mod_actual.NOMB_COMO_VERB[0] and (verbo, tipo_nombre) in pal_sinonimo:  # Es nombre convertible en verbo
     campo_txt.insertPlainText (pal_sinonimo[(verbo, tipo_nombre)].center (5))
+  # TODO: preposiciones convertibles a verbo de SWAN
   else:
     campo_txt.setTextColor (QColor (255, 0, 0))  # Color rojo
     if (numProceso, verbo, tipo_verbo) not in pals_no_existen:
@@ -1652,7 +1653,7 @@ def muestraAcercaDe ():
     dlg_acerca_de.setIconPixmap (icono_ide.pixmap (96))
     dlg_acerca_de.setText ('NAPS: The New Age PAW-like System\n' +
         'Entorno de desarrollo integrado (IDE)\n' +
-        'Copyright © 2010, 2018-2023 José Manuel Ferrer Ortiz')
+        'Copyright © 2010, 2018-2024 José Manuel Ferrer Ortiz')
     dlg_acerca_de.setInformativeText ('Versión de PyQt: ' +
         PYQT_VERSION_STR + '\nVersión de Qt: ' + QT_VERSION_STR +
         '\nVersión de Python: ' + sys.version[:fin])

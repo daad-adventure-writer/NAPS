@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Librería de QUILL (versión de Spectrum). Parte común a editor, compilador e intérprete
-# Copyright (C) 2010, 2018-2020, 2022 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2018-2020, 2022, 2024 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -110,6 +110,8 @@ NUM_ATRIBUTOS    = [0]      # Número de atributos de objeto
 NUM_BANDERAS     = 39       # Número de banderas del parser, para compatibilidad. XXX: considerar usar constantes para las banderas del sistema
 NUM_BANDERAS_ACC = 33       # Número de banderas del parser accesibles por el programador
 NOMBRE_SISTEMA   = 'QUILL'  # Nombre de este sistema
+NOMB_COMO_VERB   = [0]      # Número de nombres convertibles a verbo
+PREP_COMO_VERB   = 0        # Número de preposiciones convertibles a verbo
 # Nombres de las primeras tablas de proceso (para el IDE)
 NOMBRES_PROCS    = ('Tabla de eventos', 'Tabla de estado')
 TIPOS_PAL        = ('Palabra',)  # Nombres de los tipos de palabra (para el IDE)
