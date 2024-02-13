@@ -995,7 +995,7 @@ def palabraSinPronombre (palabra):
       return palabra  # No la consideraremos para ver si tiene sufijo de pronombre
   if palabra[-4:] in ('alas', 'alos', 'elas', 'elos', 'rlas', 'rlos'):
     inicioSufijo = -3
-  elif palabra[-3:] in ('ala', 'alo', 'ela', 'elo', 'rla', 'rlo'):
+  elif palabra[-3:] in ('ala', 'alo', 'ela', 'elo', 'nla', 'nlo', 'rla', 'rlo'):
     inicioSufijo = -2
   else:  # No tiene ninguno de los sufijos
     return palabra
