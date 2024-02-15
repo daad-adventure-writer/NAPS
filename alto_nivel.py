@@ -49,10 +49,10 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
     return False
   try:
     import re
-    codigoSCE = fichero.read().replace (b'\r\n', b'\n').decode()
+    codigoSCE    = fichero.read().replace (b'\r\n', b'\n').decode()
+    origenLineas = [[codigoSCE.count ('\n') + 1, fichero.name]]
     # Procesamos carga de ficheros externos con directivas de preprocesador /LNK
     # TODO: extraer el código común con abreFichXMessages, a función en bajo_nivel
-    # TODO: indicar nombre del fichero externo en errores ocurridos en él, con número de línea relativo a él
     encaje = True
     while encaje:
       encaje = re.search ('\n/LNK[ \t]+([^ \n\t]+)', codigoSCE)
@@ -77,7 +77,20 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
       except:
         prn (causa + ' el fichero "' + nombreFich + '" requerido por la directiva de preprocesador /LNK', encaje.group (1), file = sys.stderr)
         return False
-      codigoSCE = codigoSCE[:encaje.start (0)] + ficheroLnk.read().replace (b'\r\n', b'\n').decode()
+      codigoIncluir = ficheroLnk.read().replace (b'\r\n', b'\n').decode()
+      lineaInicio   = codigoSCE[:encaje.start (0) + 1].count ('\n')  # Línea donde estaba la directiva, contando desde 0
+      lineaFin      = lineaInicio + codigoIncluir.count ('\n') + 1   # Último número de línea efectivo en fichero a incluir
+      for o in range (len (origenLineas)):
+        hastaLinea, rutaFichero = origenLineas[o]
+        if lineaInicio <= hastaLinea:
+          if lineaInicio > 0:
+            origenLineas = origenLineas[:o + 1]
+            origenLineas[o][0] = lineaInicio
+          else:
+            origenLineas = origenLineas[:o]
+          origenLineas.append ([lineaFin, os.path.normpath (ficheroLnk.name)])
+          break
+      codigoSCE = codigoSCE[:encaje.start (0) + 1] + codigoIncluir
       ficheroLnk.close()
     parserSCE = lark.Lark.open ('gramatica_sce.lark', __file__, propagate_positions = True)
     arbolSCE  = parserSCE.parse (codigoSCE)
@@ -311,25 +324,44 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
       numProceso += 1
     return
   except (TabError, lark.UnexpectedCharacters, lark.UnexpectedInput) as e:
-    if type (e) == TabError:
+    detalles      = ''
+    numColumna    = None
+    numLinea      = None
+    textoPosicion = ''
+    if type (e) == TabError:  # Es un error detectado por NAPS
       descripcion   = e.args[0]
       paramsFormato = e.args[1]
       if descripcion[0].islower():
         descripcion = 'Se esperaba ' + descripcion
+      descripcion = descripcion % paramsFormato
       if len (e.args) > 2:
-        posicion     = e.args[2]
-        descripcion += ', en línea %d'
-        if type (paramsFormato) == tuple:
-          paramsFormato += (posicion.line, )
-        else:
-          paramsFormato = (paramsFormato, posicion.line)
+        posicion = e.args[2]
+        numLinea = posicion.line
         if len (e.args) == 3:
-          descripcion   += ' columna %d'
-          paramsFormato += (posicion.column, )
-      texto = descripcion % paramsFormato
-    else:
-      texto = e
-    prn ('Formato del código fuente inválido o no soportado:', texto, file = sys.stderr, sep = '\n')
+          numColumna = posicion.column
+    else:  # Es un error detectado por la librería Lark
+      descripcion = str (e)
+      posLineaCol = descripcion.find (', at line ')
+      if posLineaCol > -1:  # El mensaje de error indica la línea del error
+        inicioDetalles = descripcion.find ('\n', posLineaCol)
+        if inicioDetalles > -1:  # El mensaje de error tiene más de una línea
+          detalles    = descripcion[inicioDetalles:]
+          descripcion = descripcion[:inicioDetalles]
+        lineaColLark = descripcion[posLineaCol + 10:].split()
+        descripcion  = descripcion[:posLineaCol]
+        numLinea     = int (lineaColLark[0])
+        if len (lineaColLark) > 2 and lineaColLark[1] == 'col':  # El mensaje de error indica la columna del error
+          numColumna = lineaColLark[2]
+    if numLinea != None:  # Disponemos del número de línea del error
+      for o in range (len (origenLineas)):
+        hastaLinea, rutaFichero = origenLineas[o]
+        if numLinea <= hastaLinea:
+          textoPosicion = ', en línea ' + str (numLinea + o + 1 - (origenLineas[o - 1][0] if o else 0))
+          if numColumna != None:
+            textoPosicion += ' columna ' + str (numColumna)
+          textoPosicion += ' de ' + rutaFichero
+          break
+    prn ('Formato del código fuente inválido o no soportado:', descripcion + textoPosicion + detalles, file = sys.stderr, sep = '\n')
   except:
     pass
   return False
