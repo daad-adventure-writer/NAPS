@@ -58,21 +58,22 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
       encaje = re.search ('\n/LNK[ \t]+([^ \n\t]+)', codigoSCE)
       if not encaje:
         break
-      nombreFich = encaje.group (1).lower()
+      nombreFich = encaje.group (1).lower().replace ('\\', os.sep)
       if '.' not in nombreFich:
         nombreFich += '.sce'
       # Buscamos el fichero con independencia de mayúsculas y minúsculas
-      rutaCarpeta = os.path.dirname (fichero.name)
+      rutaCarpeta = os.path.join (os.path.dirname (fichero.name), os.path.dirname (nombreFich))
+      nombreFich  = os.path.basename (nombreFich)
       try:
-        for nombreFichero in os.listdir (rutaCarpeta if rutaCarpeta else '.'):
-          if nombreFichero.lower() == nombreFich:
+        for nombreFichero in os.listdir (rutaCarpeta):
+          if os.path.basename (nombreFichero).lower() == nombreFich:
             nombreFich = nombreFichero
             break
         else:
           causa = 'No se encuentra'
           raise TabError
         causa      = 'No se puede abrir'
-        ficheroLnk = open (os.path.join (os.path.dirname (fichero.name), nombreFich), 'rb')
+        ficheroLnk = open (os.path.join (rutaCarpeta, nombreFich), 'rb')
       except:
         prn (causa + ' el fichero "' + nombreFich + '" requerido por la directiva de preprocesador /LNK', encaje.group (1), file = sys.stderr)
         return False
