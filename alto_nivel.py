@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Funciones de apoyo de alto nivel
-# Copyright (C) 2010, 2021, 2023 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2021, 2023-2024 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -63,17 +63,18 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
         nombreFich += '.sce'
       # Buscamos el fichero con independencia de mayúsculas y minúsculas
       rutaCarpeta = os.path.dirname (fichero.name)
-      for nombreFichero in os.listdir (rutaCarpeta if rutaCarpeta else '.'):
-        if nombreFichero.lower() == nombreFich:
-          nombreFich = nombreFichero
-          break
-      else:
-        prn ('No se encuentra el fichero "' + nombreFich + '" requerido por una directiva de preprocesador /LNK', encaje.group (1), file = sys.stderr)
-        return False
       try:
+        for nombreFichero in os.listdir (rutaCarpeta if rutaCarpeta else '.'):
+          if nombreFichero.lower() == nombreFich:
+            nombreFich = nombreFichero
+            break
+        else:
+          causa = 'No se encuentra'
+          raise TabError
+        causa      = 'No se puede abrir'
         ficheroLnk = open (os.path.join (os.path.dirname (fichero.name), nombreFich), 'rb')
       except:
-        prn ('No se puede abrir el fichero "' + nombreFich + '" requerido por una directiva de preprocesador /LNK', encaje.group (1), file = sys.stderr)
+        prn (causa + ' el fichero "' + nombreFich + '" requerido por la directiva de preprocesador /LNK', encaje.group (1), file = sys.stderr)
         return False
       codigoSCE = codigoSCE[:encaje.start (0)] + ficheroLnk.read().replace (b'\r\n', b'\n').decode()
       ficheroLnk.close()
