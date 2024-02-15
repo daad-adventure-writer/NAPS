@@ -51,14 +51,15 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
     import re
     codigoSCE    = fichero.read().replace (b'\r\n', b'\n').decode()
     origenLineas = [[codigoSCE.count ('\n') + 1, fichero.name]]
-    # Procesamos carga de ficheros externos con directivas de preprocesador /LNK
+    # Procesamos carga de ficheros externos con directivas de preprocesador /LNK e #include
     # TODO: extraer el código común con abreFichXMessages, a función en bajo_nivel
     encaje = True
     while encaje:
-      encaje = re.search ('\n/LNK[ \t]+([^ \n\t]+)', codigoSCE)
+      encaje = re.search ('\n(/LNK|#include)[ \t]+([^ \n\t]+)', codigoSCE)
       if not encaje:
         break
-      nombreFich = encaje.group (1).lower().replace ('\\', os.sep)
+      directiva  = encaje.group (1)
+      nombreFich = encaje.group (2).lower().replace ('\\', os.sep)
       if '.' not in nombreFich:
         nombreFich += '.sce'
       # Buscamos el fichero con independencia de mayúsculas y minúsculas
@@ -75,22 +76,31 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
         causa      = 'No se puede abrir'
         ficheroLnk = open (os.path.join (rutaCarpeta, nombreFich), 'rb')
       except:
-        prn (causa + ' el fichero "' + nombreFich + '" requerido por la directiva de preprocesador /LNK', encaje.group (1), file = sys.stderr)
+        prn (causa, 'el fichero "' + nombreFich + '" requerido por la directiva de preprocesador', directiva, encaje.group (2), file = sys.stderr)
         return False
       codigoIncluir = ficheroLnk.read().replace (b'\r\n', b'\n').decode()
       lineaInicio   = codigoSCE[:encaje.start (0) + 1].count ('\n')  # Línea donde estaba la directiva, contando desde 0
       lineaFin      = lineaInicio + codigoIncluir.count ('\n') + 1   # Último número de línea efectivo en fichero a incluir
+      restante      = ''  # Código restante detrás de la directiva
       for o in range (len (origenLineas)):
         hastaLinea, rutaFichero = origenLineas[o]
         if lineaInicio <= hastaLinea:
-          if lineaInicio > 0:
-            origenLineas = origenLineas[:o + 1]
+          if directiva == '/LNK':
+            if lineaInicio > 0:
+              origenLineas = origenLineas[:o + 1]
+              origenLineas[o][0] = lineaInicio
+            else:
+              origenLineas = origenLineas[:o]
+          else:  # directiva == '#include'
             origenLineas[o][0] = lineaInicio
-          else:
-            origenLineas = origenLineas[:o]
+            nlTrasDirectiva    = codigoSCE.find ('\n', encaje.end (0))
+            if nlTrasDirectiva > -1:
+              restante = codigoSCE[nlTrasDirectiva + (1 if codigoIncluir[-1] == '\n' else 0):]
           origenLineas.append ([lineaFin, os.path.normpath (ficheroLnk.name)])
+          if directiva == '#include':
+            origenLineas.append ([lineaFin + restante.count ('\n') + 1, origenLineas[o][1]])
           break
-      codigoSCE = codigoSCE[:encaje.start (0) + 1] + codigoIncluir
+      codigoSCE = codigoSCE[:encaje.start (0) + 1] + codigoIncluir + restante
       ficheroLnk.close()
     parserSCE = lark.Lark.open ('gramatica_sce.lark', __file__, propagate_positions = True)
     arbolSCE  = parserSCE.parse (codigoSCE)
