@@ -81,7 +81,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
         return False
       codigoIncluir = ficheroLnk.read().replace (b'\r\n', b'\n').rstrip (b'\x1a').decode ('cp437')
       lineaInicio   = codigoSCE[:encaje.start (0) + 1].count ('\n')  # Línea donde estaba la directiva, contando desde 0
-      lineaFin      = lineaInicio + codigoIncluir.count ('\n') + 1   # Último número de línea efectivo en fichero a incluir
+      lineaFin      = lineaInicio + codigoIncluir.count ('\n')       # Último número de línea efectivo en fichero a incluir
       restante      = ''  # Código restante detrás de la directiva
       for o in range (len (origenLineas)):
         hastaLinea, rutaFichero = origenLineas[o]
@@ -99,7 +99,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
               restante = codigoSCE[nlTrasDirectiva + (1 if codigoIncluir[-1] == '\n' else 0):]
           origenLineas.append ([lineaFin, os.path.normpath (ficheroLnk.name)])
           if directiva == '#include':
-            origenLineas.append ([lineaFin + restante.count ('\n') + 1, origenLineas[o][1]])
+            origenLineas.append ([lineaFin + restante.count ('\n'), origenLineas[o][1]])
           break
       codigoSCE = codigoSCE[:encaje.start (0) + 1] + codigoIncluir + restante
       ficheroLnk.close()
@@ -372,14 +372,21 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
         if len (lineaColLark) > 2 and lineaColLark[1] == 'col':  # El mensaje de error indica la columna del error
           numColumna = lineaColLark[2]
     if numLinea != None:  # Disponemos del número de línea del error
+      lineasDescontar = {}  # Líneas acumuladas que descontar de cada fichero
       for o in range (len (origenLineas)):
         hastaLinea, rutaFichero = origenLineas[o]
-        if numLinea <= hastaLinea:
-          textoPosicion = ', en línea ' + str (numLinea + o + 1 - (origenLineas[o - 1][0] if o else 0))
+        if numLinea <= hastaLinea:  # El error se encuentra en este grupo
+          lineaEnFichero = numLinea
+          if o:
+            lineaEnFichero -= origenLineas[o - 1][0]
+            if rutaFichero in lineasDescontar:
+              lineaEnFichero += lineasDescontar[rutaFichero] + 1  # Se suma 1 para descontar la línea del #include
+          textoPosicion  = ', en línea ' + str (lineaEnFichero)
           if numColumna != None:
             textoPosicion += ' columna ' + str (numColumna)
           textoPosicion += ' de ' + rutaFichero
           break
+        lineasDescontar[rutaFichero] = hastaLinea + (lineasDescontar[rutaFichero] if rutaFichero in lineasDescontar else 0)
     prn ('Formato del código fuente inválido o no soportado:', descripcion + textoPosicion + detalles, file = sys.stderr, sep = '\n')
   except UnicodeDecodeError as e:
     prn ('Error de codificación en el código fuente, que debe usar codificación cp437:', e, file = sys.stderr, sep = '\n')
