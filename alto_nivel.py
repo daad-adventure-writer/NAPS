@@ -66,17 +66,18 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
       rutaCarpeta = os.path.join (os.path.dirname (fichero.name), os.path.dirname (nombreFich))
       nombreFich  = os.path.basename (nombreFich)
       try:
+        causa = 'No se encuentra la ruta "' + encaje.group (2)[:- len (nombreFich)] + '" requerida'
         for nombreFichero in os.listdir (rutaCarpeta):
           if os.path.basename (nombreFichero).lower() == nombreFich:
             nombreFich = nombreFichero
             break
         else:
-          causa = 'No se encuentra'
+          causa = 'No se encuentra el fichero "' + nombreFich + '" requerido'
           raise TabError
-        causa      = 'No se puede abrir'
+        causa      = 'No se puede abrir el fichero "' + nombreFich + '" requerido'
         ficheroLnk = open (os.path.join (rutaCarpeta, nombreFich), 'rb')
       except:
-        prn (causa, 'el fichero "' + nombreFich + '" requerido por la directiva de preprocesador', directiva, encaje.group (2), file = sys.stderr)
+        prn (causa, 'por la directiva de preprocesador', directiva, encaje.group (2), file = sys.stderr)
         return False
       codigoIncluir = ficheroLnk.read().replace (b'\r\n', b'\n').decode()
       lineaInicio   = codigoSCE[:encaje.start (0) + 1].count ('\n')  # Línea donde estaba la directiva, contando desde 0
