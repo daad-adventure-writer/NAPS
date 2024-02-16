@@ -1141,6 +1141,8 @@ if __name__ == '__main__':
   # Cargamos la base de datos
   bbdd = open (args.bbdd, 'rb')
   for modulo, funcion in modLibs:
+    if traza or len (modLibs) > 1:
+      prn ('Intentando cargar el fichero', extension.upper(), 'con sistema', modulo.NOMBRE_SISTEMA)
     # Solicitamos la importación
     try:
       correcto = modulo.__dict__[funcion] (bbdd, os.path.getsize (args.bbdd)) != False
@@ -1153,6 +1155,8 @@ if __name__ == '__main__':
       modulo.ruta_bbdd = args.bbdd
       break
     bbdd.seek (0)
+    if len (modLibs) > 1:
+      prn()
   bbdd.close()
   if not correcto:
     prn ('Error al tratar de cargar la base de datos: formato incompatible o fichero corrupto', file = sys.stderr)
