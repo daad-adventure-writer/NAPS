@@ -49,7 +49,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
     return False
   try:
     import re
-    codigoSCE    = fichero.read().replace (b'\r\n', b'\n').decode ('cp437')
+    codigoSCE    = fichero.read().replace (b'\r\n', b'\n').rstrip (b'\x1a').decode ('cp437')
     origenLineas = [[codigoSCE.count ('\n') + 1, fichero.name]]
     # Procesamos carga de ficheros externos con directivas de preprocesador /LNK e #include
     # TODO: extraer el código común con abreFichXMessages, a función en bajo_nivel
@@ -79,7 +79,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
       except:
         prn (causa, 'por la directiva de preprocesador', directiva, encaje.group (2), file = sys.stderr)
         return False
-      codigoIncluir = ficheroLnk.read().replace (b'\r\n', b'\n').decode ('cp437')
+      codigoIncluir = ficheroLnk.read().replace (b'\r\n', b'\n').rstrip (b'\x1a').decode ('cp437')
       lineaInicio   = codigoSCE[:encaje.start (0) + 1].count ('\n')  # Línea donde estaba la directiva, contando desde 0
       lineaFin      = lineaInicio + codigoIncluir.count ('\n') + 1   # Último número de línea efectivo en fichero a incluir
       restante      = ''  # Código restante detrás de la directiva
