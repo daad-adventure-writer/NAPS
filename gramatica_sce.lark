@@ -1,7 +1,7 @@
 // NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 //
 // Gramática para código fuente SCE multi-sistema
-// Copyright (C) 2023 José Manuel Ferrer Ortiz
+// Copyright (C) 2023-2024 José Manuel Ferrer Ortiz
 
 start: _wsnl? (ctl _wsnl)? (tok _wsnl)? voc _wsnl stx _wsnl mtx _wsnl otx _wsnl ltx _wsnl con _wsnl obj _wsnl pros _wsnlc
 
@@ -72,4 +72,5 @@ _PRO: "/PRO"
 procentry: word _WS word (_WS condact)? _wsnlc (_wsnl _WS condact)*
 condact: condactname param*
 condactname: /[A-Z][A-Z0-9]*/
-param: _WS (CARRIED | HERE | WORN | INT | VOCWORD | "_")
+INDIRECTION: "[" UINT "]"
+param: _WS (CARRIED | HERE | WORN | INT | INDIRECTION | VOCWORD | "_")

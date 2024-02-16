@@ -261,6 +261,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
         cabeceras.append ((verbos[palabras[0]], nombres[palabras[1]]))
         entrada = []
         for condacto in procentry.find_data ('condact'):
+          indireccion = 0  # Tomará valor 128 cuando el condacto se use con indirección
           for condactname in condacto.find_data ('condactname'):
             nombre = str (condactname.children[0])
           if nombre not in datosCondactos:
@@ -293,6 +294,13 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
                 if palabra not in listaVocab:
                   raise TabError ('una palabra de vocabulario de tipo %s', tipoPalabra, parametro)
                 parametros.append (listaVocab[palabra])
+              elif parametro.type == 'INDIRECTION':
+                if not condactos_nuevos:
+                  raise TabError ('Este sistema no soporta indirección de parámetros', (), parametro)
+                if parametros:
+                  raise TabError ('Sólo se soporta indirección en el primer parámetro', (), parametro)
+                indireccion = 128
+                parametros.append (int (str (parametro)[1:-1]))
               else:  # Valores preestablecidos (p.ej. CARRIED)
                 parametros.append (IDS_LOCS[str (parametro)])
             else:
@@ -303,7 +311,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
             if not datosCondactos[nombre][version - 1]:
               raise TabError ('Condacto de nombre %s inexistente en DAAD versión %d (asumida por condactos anteriores)', (nombre, version), condacto.meta)
             # La comprobación del número de parámetros se hace abajo
-            entrada.append ((datosCondactos[nombre][version - 1][0], parametros))
+            entrada.append ((datosCondactos[nombre][version - 1][0] + indireccion, parametros))
           else:
             # Fijamos versión de DAAD si el condacto con ese nombre sólo está en una
             if not datosCondactos[nombre][0] or not datosCondactos[nombre][1]:
@@ -321,7 +329,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
               version = 1 if len (parametros) == len (datosCondactos[nombre][0][1]) else 2
               if version == 2:
                 nueva_version.append (True)
-            entrada.append ((datosCondactos[nombre][0][0], parametros))
+            entrada.append ((datosCondactos[nombre][0][0] + indireccion, parametros))
             # TODO: poner a condactos anteriores con código diferente entre versiones, el de la versión 2
             if version == 2:
               pass
