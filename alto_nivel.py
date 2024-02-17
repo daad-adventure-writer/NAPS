@@ -42,6 +42,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
   - Recibe como primer parámetro un fichero abierto
   - Recibe como segundo parámetro la longitud del fichero abierto
   - Devuelve False si ha ocurrido algún error"""
+  global erExpresiones, erSimbolo, simbolos
   try:
     import lark
   except:
@@ -103,8 +104,41 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
           break
       codigoSCE = codigoSCE[:encaje.start (0) + 1] + codigoIncluir + restante
       ficheroLnk.close()
+    # Procesamos las demás directivas de preprocesador
+    erExpresiones = re.compile ('([^ +-]+|[+-])')          # Expresión regular para partir expresiones de #define
+    erPartirPals  = re.compile ('[ \t]+([^ \t]+)')         # Expresión regular para partir por palabras
+    erSimbolo     = re.compile ('[A-Z_a-z][0-9A-Z_a-z]+')  # Expresión regular para detectar etiquetas de símbolos
+    simbolos      = {'AMIGA': 0, 'CBM64': 0, 'CPC': 0, 'MSX': 0, 'PC': 1, 'PCW': 0, 'SPE': 0, 'ST': 0}
+    lineasCodigo  = codigoSCE.split ('\n')
+    for numLinea in range (len (lineasCodigo)):
+      lineaCodigo = lineasCodigo[numLinea]
+      if not lineaCodigo or lineaCodigo[0] != '#':
+        continue  # Saltamos líneas vacías y sin directivas de preprocesador
+      if ';' in lineaCodigo:  # Quitamos comentarios
+        lineaCodigo = lineaCodigo[: lineaCodigo.find (';')]
+      if lineaCodigo[:7] == '#define':
+        encajesLinea = []
+        for encaje in erPartirPals.finditer (lineaCodigo[7:]):
+          encajesLinea.append (encaje)
+          if len (encajesLinea) > 1:
+            break
+        if not encajesLinea or encajesLinea[0].start():
+          raise TabError ('espacio en blanco' + ('' if encajesLinea else ' y una etiqueta de símbolo'), (), (numLinea + 1, 8))
+        simbolo = encajesLinea[0].group (1)
+        if not erSimbolo.match (simbolo):
+          raise TabError ('una etiqueta de símbolo válida en lugar de "%s"', simbolo, (numLinea + 1, 8 + encajesLinea[0].start (1)))
+        if simbolo in simbolos:
+          raise TabError ('El símbolo "%s" ya estaba definido', simbolo, (numLinea + 1, 8 + encajesLinea[0].start (1)))
+        if len (encajesLinea) < 2:
+          raise TabError ('expresión para definir el valor del símbolo', (), (numLinea + 1, len (lineaCodigo) + 1))
+        valorExpr = daValorExpresion (lineaCodigo[7 + encajesLinea[1].start (1):], numLinea + 1, 8 + encajesLinea[1].start (1))
+        # Asignamos el valor al símbolo, y comentamos la línea
+        simbolos[simbolo]      = valorExpr
+        lineasCodigo[numLinea] = ';' + lineasCodigo[numLinea]
+      else:
+        raise TabError ('una directiva de preprocesador válida', (), (numLinea + 1, 1))
     parserSCE = lark.Lark.open ('gramatica_sce.lark', __file__, propagate_positions = True)
-    arbolSCE  = parserSCE.parse (codigoSCE)
+    arbolSCE  = parserSCE.parse ('\n'.join (lineasCodigo))
     # Cargamos cada tipo de textos
     for idSeccion, listaCadenas in (('stx', msgs_sys), ('mtx', msgs_usr), ('otx', desc_objs), ('ltx', desc_locs)):
       for seccion in arbolSCE.find_data (idSeccion):
@@ -270,8 +304,11 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
           parametros = []
           for param in condacto.find_data ('param'):
             if param.children:
+              pideIndireccion = False
               parametro = param.children[0]
-              if parametro.type == 'INT':
+              if type (parametro) == lark.tree.Tree:
+                parametros.append (daValorExpresion (parametro.children))
+              elif parametro.type == 'INT':
                 parametros.append (int (parametro))
               elif parametro.type == 'VOCWORD':
                 # TODO: tolerar esto en caso que la palabra del parámetro sea única en el vocabulario
@@ -287,23 +324,36 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
                       palabraAdmitida = True
                       break
                 if not palabraAdmitida:
-                  raise TabError ('El condacto %s no admite una palabra de vocabulario como parámetro aquí', nombre, parametro)
-                # Los condactos con este tipo de parámetro sólo tienen un parámetro de igual tipo en ambas versiones de DAAD
-                palabra      = str (parametro)[:LONGITUD_PAL].lower()
-                letraTipoPal = datosCondactos[nombre][0][1][0]
-                listaVocab, tipoPalabra = tipoParametro[letraTipoPal]
-                if palabra not in listaVocab:
-                  raise TabError ('una palabra de vocabulario de tipo %s', tipoPalabra, parametro)
-                parametros.append (listaVocab[palabra])
+                  # Podría ser una expresión en lugar de una palabra de vocabulario
+                  simbolo = str (parametro)
+                  if simbolo[0] == '[' and simbolo[-1] == ']':
+                    pideIndireccion = True
+                    simbolo = simbolo[1:-1]
+                  if simbolo in simbolos:
+                    parametros.append (simbolos[simbolo])
+                  elif '+' in simbolo or '-' in simbolo:  # Parece ser una expresión
+                    parametros.append (daValorExpresion (simbolo, parametro.line, parametro.column))
+                  else:
+                    raise TabError ('El condacto %s no admite una palabra de vocabulario como parámetro aquí', nombre, parametro)
+                if palabraAdmitida:
+                  # Los condactos con este tipo de parámetro sólo tienen un parámetro de igual tipo en ambas versiones de DAAD
+                  palabra      = str (parametro)[:LONGITUD_PAL].lower()
+                  letraTipoPal = datosCondactos[nombre][0][1][0]
+                  listaVocab, tipoPalabra = tipoParametro[letraTipoPal]
+                  if palabra not in listaVocab:
+                    raise TabError ('una palabra de vocabulario de tipo %s', tipoPalabra, parametro)
+                  parametros.append (listaVocab[palabra])
               elif parametro.type == 'INDIRECTION':
-                if not condactos_nuevos:
-                  raise TabError ('Este sistema no soporta indirección de parámetros', (), parametro)
-                if parametros:
-                  raise TabError ('Sólo se soporta indirección en el primer parámetro', (), parametro)
-                indireccion = 128
+                pideIndireccion = True
                 parametros.append (int (str (parametro)[1:-1]))
               else:  # Valores preestablecidos (p.ej. CARRIED)
                 parametros.append (IDS_LOCS[str (parametro)])
+              if pideIndireccion:  # Este parámetro está puesto con indirección
+                if not condactos_nuevos:
+                  raise TabError ('Este sistema no soporta indirección de parámetros', (), parametro)
+                if len (parametros) > 1:
+                  raise TabError ('Sólo se soporta indirección en el primer parámetro', (), parametro)
+                indireccion = 128
             else:
               parametros.append (255)  # Es _
           # Detectamos incompatibilidades por requerirse versiones de DAAD diferentes
@@ -354,9 +404,9 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
       descripcion = descripcion % paramsFormato
       if len (e.args) > 2:
         posicion = e.args[2]
-        numLinea = posicion.line
+        numLinea = posicion[0] if type (posicion) == tuple else posicion.line
         if len (e.args) == 3:
-          numColumna = posicion.column
+          numColumna = posicion[1] if type (posicion) == tuple else posicion.column
     else:  # Es un error detectado por la librería Lark
       descripcion = str (e)
       posLineaCol = descripcion.find (', at line ')
@@ -398,3 +448,38 @@ def comprueba_nombre (modulo, nombre, tipo):
   if (nombre in modulo.__dict__) and (type (modulo.__dict__[nombre]) == tipo):
     return True
   return False
+
+
+# Funciones auxiliares que sólo se usan en este módulo
+
+def daValorExpresion (exprOpartesExpr, numLinea = None, colInicial = None):
+  """Evalúa y devuelve el valor de una expresión compuesta por símbolos, operadores y/o números"""
+  operador   = None  # Operador pendiente de aplicar
+  valorExpr  = None  # Valor hasta el momento de la expresión
+  paramEsStr = type (exprOpartesExpr) in (str, str if sys.version_info[0] > 2 else unicode)
+  partesExpresion = erExpresiones.finditer (exprOpartesExpr) if paramEsStr else exprOpartesExpr
+  for parte in partesExpresion:
+    parteExpr = parte.group (0) if paramEsStr else str (parte)
+    if valorExpr == None or operador != None:  # No tenemos valor o bien ya tenemos valor y operador
+      if parteExpr.isdigit():
+        numero = int (parteExpr)
+      elif erSimbolo.match (parteExpr):
+        if parteExpr in simbolos:
+          numero = simbolos[parteExpr]
+        else:
+          raise TabError ('un símbolo ya definido', (), (numLinea, colInicial + parte.start()) if paramEsStr else parte)
+      else:
+        raise TabError ('número o etiqueta de símbolo', (), (numLinea, colInicial + parte.start()) if paramEsStr else parte)
+      if valorExpr == None:  # No teníamos valor
+        valorExpr = numero
+      elif operador == '+':  # Ya teníamos valor y operador
+        valorExpr += numero
+      else:
+        valorExpr -= numero
+      operador = None
+    else:  # Tenemos valor pero no hay operador
+      if parteExpr in '+-':
+        operador = parteExpr
+      else:
+        raise TabError ('operador de suma o resta', (), (numLinea, colInicial + parte.start()) if paramEsStr else parte)
+  return valorExpr

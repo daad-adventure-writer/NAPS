@@ -6,6 +6,9 @@
 start: _wsnl? (ctl _wsnl)? (tok _wsnl)? voc _wsnl stx _wsnl mtx _wsnl otx _wsnl ltx _wsnl con _wsnl obj _wsnl pros _wsnlc
 
 COMMENT: ";" /[^\n]/*
+SYMBOL: /[A-Z_a-z][0-9A-Z_a-z]+/
+expression: (SYMBOL | UINT) (_WS? OPERATOR _WS? (SYMBOL | UINT))*
+OPERATOR: "+" | "-"
 _WS: (" " | "\t")+            // Espacio en blanco
 _wsc: _WS? COMMENT?           // Posible espacio en blanco y/o comentario
 _wsnl: (_WS? COMMENT? "\n")+  // Posible espacio en blanco y/o comentarios, y después nueva línea
@@ -73,4 +76,4 @@ procentry: word _WS word (_WS condact)? _wsnlc (_wsnl _WS condact)*
 condact: condactname param*
 condactname: /[A-Z][A-Z0-9]*/
 INDIRECTION: "[" UINT "]"
-param: _WS (CARRIED | HERE | WORN | INT | INDIRECTION | VOCWORD | "_")
+param: _WS (CARRIED | HERE | WORN | INT | expression | INDIRECTION | VOCWORD | "_")
