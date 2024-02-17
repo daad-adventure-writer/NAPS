@@ -317,8 +317,6 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
             # Fijamos versión de DAAD si el condacto con ese nombre sólo está en una
             if not datosCondactos[nombre][0] or not datosCondactos[nombre][1]:
               version = 1 if datosCondactos[nombre][0] else 2
-              if version == 2:
-                nueva_version.append (True)
             elif len (parametros) != len (datosCondactos[nombre][0][1]) and len (parametros) != len (datosCondactos[nombre][1][1]):
               if len (datosCondactos[nombre][0][1]) == len (datosCondactos[nombre][1][1]):
                 requerido = len (datosCondactos[nombre][0][1])
@@ -328,8 +326,6 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
             # Fijamos versión de DAAD si el condacto con ese número de parámetros sólo está en una
             elif len (datosCondactos[nombre][0][1]) != len (datosCondactos[nombre][1][1]):
               version = 1 if len (parametros) == len (datosCondactos[nombre][0][1]) else 2
-              if version == 2:
-                nueva_version.append (True)
             entrada.append ((datosCondactos[nombre][0][0] + indireccion, parametros))
             # TODO: poner a condactos anteriores con código diferente entre versiones, el de la versión 2
             if version == 2:
@@ -341,6 +337,9 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
         entradas.append (entrada)
       tablas_proceso.append ((cabeceras, entradas))
       numProceso += 1
+    if version == 2:
+      condactos.update (condactos_nuevos)
+      nueva_version.append (True)
     return
   except (TabError, lark.UnexpectedCharacters, lark.UnexpectedInput) as e:
     detalles      = ''
