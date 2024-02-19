@@ -55,8 +55,9 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
     # Procesamos carga de ficheros externos con directivas de preprocesador /LNK e #include
     # TODO: extraer el código común con abreFichXMessages, a función en bajo_nivel
     encaje = True
+    erLnk  = re.compile ('\n(/LNK|[ \t]*#include)[ \t]+([^ \n\t]+)', re.IGNORECASE)
     while encaje:
-      encaje = re.search ('\n(/LNK|#include)[ \t]+([^ \n\t]+)', codigoSCE)
+      encaje = erLnk.search (codigoSCE)
       if not encaje:
         break
       directiva  = encaje.group (1)
@@ -87,19 +88,19 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
       for o in range (len (origenLineas)):
         hastaLinea, rutaFichero = origenLineas[o]
         if lineaInicio <= hastaLinea:
-          if directiva == '/LNK':
+          if len (directiva) == 4:  # Es una directiva /LNK
             if lineaInicio > 0:
               origenLineas = origenLineas[:o + 1]
               origenLineas[o][0] = lineaInicio
             else:
               origenLineas = origenLineas[:o]
-          else:  # directiva == '#include'
+          else:  # Es una directiva include
             origenLineas[o][0] = lineaInicio
             nlTrasDirectiva    = codigoSCE.find ('\n', encaje.end (0))
             if nlTrasDirectiva > -1:
               restante = codigoSCE[nlTrasDirectiva + (1 if codigoIncluir[-1] == '\n' else 0):]
           origenLineas.append ([lineaFin, os.path.normpath (ficheroLnk.name)])
-          if directiva == '#include':
+          if len (directiva) > 4:  # Es una directiva include
             origenLineas.append ([lineaFin + restante.count ('\n'), origenLineas[o][1]])
           break
       codigoSCE = codigoSCE[:encaje.start (0) + 1] + codigoIncluir + restante
@@ -116,7 +117,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
         continue  # Saltamos líneas vacías y sin directivas de preprocesador
       if ';' in lineaCodigo:  # Quitamos comentarios
         lineaCodigo = lineaCodigo[: lineaCodigo.find (';')]
-      if lineaCodigo[:7] == '#define':
+      if lineaCodigo[:7].lower() == '#define':
         encajesLinea = []
         for encaje in erPartirPals.finditer (lineaCodigo[7:]):
           encajesLinea.append (encaje)
