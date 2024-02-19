@@ -112,7 +112,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
     simbolos      = {'AMIGA': 0, 'CBM64': 0, 'CPC': 0, 'MSX': 0, 'PC': 1, 'PCW': 0, 'SPE': 0, 'ST': 0}
     lineasCodigo  = codigoSCE.split ('\n')
     for numLinea in range (len (lineasCodigo)):
-      lineaCodigo = lineasCodigo[numLinea]
+      lineaCodigo = lineasCodigo[numLinea].lstrip()
       if not lineaCodigo or lineaCodigo[0] != '#':
         continue  # Saltamos líneas vacías y sin directivas de preprocesador
       if ';' in lineaCodigo:  # Quitamos comentarios
@@ -135,7 +135,41 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
         valorExpr = daValorExpresion (lineaCodigo[7 + encajesLinea[1].start (1):], numLinea + 1, 8 + encajesLinea[1].start (1))
         # Asignamos el valor al símbolo, y comentamos la línea
         simbolos[simbolo]      = valorExpr
-        lineasCodigo[numLinea] = ';' + lineasCodigo[numLinea]
+        lineasCodigo[numLinea] = ';NAPS;' + lineasCodigo[numLinea]
+      elif lineaCodigo[:3].lower() == '#if':
+        # FIXME: directivas anidadas, como en TD.SCE línea 273, del código fuente de Los Templos Sagrados
+        encajesLinea = []
+        for encaje in erPartirPals.finditer (lineaCodigo[3:]):
+          encajesLinea.append (encaje)
+          if len (encajesLinea) > 1:
+            break
+        if not encajesLinea or encajesLinea[0].start():
+          raise TabError ('espacio en blanco' + ('' if encajesLinea else ' y una etiqueta de símbolo'), (), (numLinea + 1, 4))
+        simbolo = encajesLinea[0].group (1)
+        if simbolo[0] == '!':
+          negado  = True
+          simbolo = simbolo[1:]
+        else:
+          negado = False
+        if not erSimbolo.match (simbolo):
+          raise TabError ('una etiqueta de símbolo válida', (), (numLinea + 1, 4 + encajesLinea[0].start (1) + (1 if negado else 0)))
+        if simbolo in simbolos:
+          satisfecho = simbolos[simbolo]
+          if negado:
+            satisfecho = not satisfecho
+          for numLineaCond in range (numLinea + 1, len (lineasCodigo)):
+            if lineasCodigo[numLineaCond][:6].lower() == '#endif':
+              lineasCodigo[numLineaCond] = ';NAPS;' + lineasCodigo[numLineaCond]
+              break
+            if lineasCodigo[numLineaCond][:5].lower() == '#else':
+              lineasCodigo[numLineaCond] = ';NAPS;' + lineasCodigo[numLineaCond]
+              satisfecho = not satisfecho
+              continue
+            if not satisfecho:
+              lineasCodigo[numLineaCond] = ';NAPS;' + lineasCodigo[numLineaCond]
+        else:
+          raise TabError ('un símbolo ya definido', (), (numLinea + 1, 4 + encajesLinea[0].start (1)))
+        lineasCodigo[numLinea] = ';NAPS;' + lineasCodigo[numLinea]
       else:
         raise TabError ('una directiva de preprocesador válida', (), (numLinea + 1, 1))
     parserSCE = lark.Lark.open ('gramatica_sce.lark', __file__, propagate_positions = True)
