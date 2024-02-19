@@ -95,21 +95,48 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
             else:
               origenLineas = origenLineas[:o]
           else:  # Es una directiva include
+            if o < len (origenLineas) - 1:
+              finalOrigLineas = origenLineas[o + 1:]
+              origenLineas    = origenLineas[:o + 1]
+            else:
+              finalOrigLineas = []
+            lineasRestantes    = origenLineas[o][0] - lineaInicio
             origenLineas[o][0] = lineaInicio
             nlTrasDirectiva    = codigoSCE.find ('\n', encaje.end (0))
             if nlTrasDirectiva > -1:
               restante = codigoSCE[nlTrasDirectiva + (1 if codigoIncluir[-1] == '\n' else 0):]
           origenLineas.append ([lineaFin, os.path.normpath (ficheroLnk.name)])
           if len (directiva) > 4:  # Es una directiva include
-            origenLineas.append ([lineaFin + restante.count ('\n'), origenLineas[o][1]])
+            origenLineas.append ([lineaFin + lineasRestantes, origenLineas[o][1]])
+            # Incrementamos los demás con el número de líneas del fichero incluido
+            for hastaLinea, rutaFichero in finalOrigLineas:
+              origenLineas.append ([hastaLinea + (lineaFin - lineaInicio), rutaFichero])
           break
       codigoSCE = codigoSCE[:encaje.start (0) + 1] + codigoIncluir + restante
       ficheroLnk.close()
+      # XXX: comprueba que las líneas de codigoSCE corresponden con las líneas de los ficheros según origenLineas
+      lineasCodigo = codigoSCE.split ('\n')
+      for inicioCod, inicioFich, numLineas, rutaFichero in origenLineas:
+        ficheroPrueba = open (rutaFichero, 'rb')
+        lineasFichero = ficheroPrueba.read().replace (b'\r\n', b'\n').rstrip (b'\x1a').decode ('cp437').split ('\n')
+        for n in range (numLineas):
+          if inicioFich + n == len (lineasFichero):
+            prn ('El fichero', rutaFichero, 'sale en origenLineas con más líneas de las que tiene')
+            break
+          if lineasCodigo[inicioCod + n] != lineasFichero[inicioFich + n]:
+            prn (origenLineas)
+            prn ('La línea', inicioCod + n + 1, 'cargada no corresponde con la línea', inicioFich + n + 1, 'del fichero', rutaFichero)
+            contexto = 3
+            prn (lineasCodigo[inicioCod + n - contexto : inicioCod + n + contexto + 1])
+            prn ('versus')
+            prn (lineasFichero[inicioFich + n - contexto : inicioFich + n + contexto + 1])
+            sys.exit()
+        ficheroPrueba.close()
     # Procesamos las demás directivas de preprocesador
     erExpresiones = re.compile ('([^ +-]+|[+-])')          # Expresión regular para partir expresiones de #define
     erPartirPals  = re.compile ('[ \t]+([^ \t]+)')         # Expresión regular para partir por palabras
     erSimbolo     = re.compile ('[A-Z_a-z][0-9A-Z_a-z]*')  # Expresión regular para detectar etiquetas de símbolos
-    simbolos      = {'AMIGA': 0, 'CBM64': 0, 'CPC': 0, 'MSX': 0, 'PC': 1, 'PCW': 0, 'SPE': 0, 'ST': 0}
+    simbolos      = {'AMIGA': 0, 'C40': 0, 'C42': 0, 'C53': 1, 'CBM64': 0, 'CGA': 0, 'CPC': 0, 'DEBUG': 0, 'DRAW': 0, 'EGA': 0, 'MSX': 0, 'PC': 1, 'PCW': 0, 'S48': 0, 'SP3': 0, 'SPE': 0, 'ST': 0, 'VGA': 1}
     lineasCodigo  = codigoSCE.split ('\n')
     for numLinea in range (len (lineasCodigo)):
       lineaCodigo = lineasCodigo[numLinea].lstrip()
