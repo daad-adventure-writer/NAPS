@@ -51,7 +51,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
   try:
     import re
     codigoSCE    = fichero.read().replace (b'\r\n', b'\n').rstrip (b'\x1a').decode ('cp437')
-    origenLineas = [[codigoSCE.count ('\n') + 1, fichero.name]]
+    origenLineas = [[0, 0, codigoSCE.count ('\n') + 1, fichero.name]]  # Inicio en código, inicio en fichero, nº líneas
     # Procesamos carga de ficheros externos con directivas de preprocesador /LNK e #include
     # TODO: extraer el código común con abreFichXMessages, a función en bajo_nivel
     encaje = True
@@ -83,55 +83,44 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
         return False
       codigoIncluir = ficheroLnk.read().replace (b'\r\n', b'\n').rstrip (b'\x1a').decode ('cp437')
       lineaInicio   = codigoSCE[:encaje.start (0) + 1].count ('\n')  # Línea donde estaba la directiva, contando desde 0
-      lineaFin      = lineaInicio + codigoIncluir.count ('\n')       # Último número de línea efectivo en fichero a incluir
+      lineasIncluir = codigoIncluir.count ('\n') + 1  # Número de líneas del fichero a incluir
       restante      = ''  # Código restante detrás de la directiva
-      for o in range (len (origenLineas)):
-        hastaLinea, rutaFichero = origenLineas[o]
-        if lineaInicio <= hastaLinea:
-          if len (directiva) == 4:  # Es una directiva /LNK
-            if lineaInicio > 0:
-              origenLineas = origenLineas[:o + 1]
-              origenLineas[o][0] = lineaInicio
-            else:
-              origenLineas = origenLineas[:o]
-          else:  # Es una directiva include
-            if o < len (origenLineas) - 1:
-              finalOrigLineas = origenLineas[o + 1:]
-              origenLineas    = origenLineas[:o + 1]
-            else:
-              finalOrigLineas = []
-            lineasRestantes    = origenLineas[o][0] - lineaInicio
-            origenLineas[o][0] = lineaInicio
-            nlTrasDirectiva    = codigoSCE.find ('\n', encaje.end (0))
-            if nlTrasDirectiva > -1:
-              restante = codigoSCE[nlTrasDirectiva + (1 if codigoIncluir[-1] == '\n' else 0):]
-          origenLineas.append ([lineaFin, os.path.normpath (ficheroLnk.name)])
-          if len (directiva) > 4:  # Es una directiva include
-            origenLineas.append ([lineaFin + lineasRestantes, origenLineas[o][1]])
-            # Incrementamos los demás con el número de líneas del fichero incluido
-            for hastaLinea, rutaFichero in finalOrigLineas:
-              origenLineas.append ([hastaLinea + (lineaFin - lineaInicio), rutaFichero])
-          break
+      # Buscamos el bloque de origenLineas donde está la línea de la directiva
+      o = 0
+      while o < len (origenLineas) and lineaInicio >= (origenLineas[o][0] + origenLineas[o][2]):
+        o += 1
+      if len (directiva) == 4:  # Es una directiva /LNK
+        if lineaInicio > origenLineas[o]:  # Quedará alguna línea en el bloque o de origenLineas
+          origenLineas = origenLineas[:o + 1]  # Eliminamos desde este bloque en adelante exclusive
+          origenLineas[o][2] = lineaInicio - origenLineas[o][0]  # Reducimos longitud del bloque
+        else:  # La directiva estaba en la primera línea del bloque
+          origenLineas = origenLineas[:o]  # Eliminamos desde este bloque en adelante inclusive
+      else:  # Es una directiva include
+        if o < len (origenLineas) - 1:  # Hay más bloques detrás de éste, así que los extraemos
+          finalOrigLineas = origenLineas[o + 1:]
+          origenLineas    = origenLineas[:o + 1]
+        else:  # Era el último bloque
+          finalOrigLineas = []
+        # Guardamos las líneas restantes en el fichero de este bloque, omitiendo la línea del include
+        lineasRestantes     = origenLineas[o][2] - (lineaInicio + 1 - origenLineas[o][0])
+        origenLineas[o][2] -= lineasRestantes + 1  # Reducimos longitud del bloque, el resto irá en otro
+        # FIXME: caso cuando la directiva está en la primera línea del bloque
+        nlTrasDirectiva     = codigoSCE.find ('\n', encaje.end (0))
+        if nlTrasDirectiva > -1:  # Hay más código detrás de la directiva
+          restante = codigoSCE[nlTrasDirectiva + (1 if codigoIncluir[-1] == '\n' else 0):]
+      # Añadimos bloque del fichero que se incluye
+      if codigoIncluir[-1] == '\n':  # La última línea del fichero a incluir es en blanco
+        lineasIncluir -= 1
+      origenLineas.append ([lineaInicio, 0, lineasIncluir, os.path.normpath (ficheroLnk.name)])
+      # Añadimos los bloques posteriores
+      if len (directiva) > 4:  # Es una directiva include
+        origenLineas.append ([lineaInicio + lineasIncluir, origenLineas[o][1] + origenLineas[o][2] + 1, lineasRestantes, origenLineas[o][3]])
+        # Incrementamos la posición de los demás y los añadimos al final
+        for origenLinea in finalOrigLineas:
+          origenLinea[0] = origenLineas[-1][0] + origenLineas[-1][2]
+          origenLineas.append (origenLinea)
       codigoSCE = codigoSCE[:encaje.start (0) + 1] + codigoIncluir + restante
       ficheroLnk.close()
-      # XXX: comprueba que las líneas de codigoSCE corresponden con las líneas de los ficheros según origenLineas
-      lineasCodigo = codigoSCE.split ('\n')
-      for inicioCod, inicioFich, numLineas, rutaFichero in origenLineas:
-        ficheroPrueba = open (rutaFichero, 'rb')
-        lineasFichero = ficheroPrueba.read().replace (b'\r\n', b'\n').rstrip (b'\x1a').decode ('cp437').split ('\n')
-        for n in range (numLineas):
-          if inicioFich + n == len (lineasFichero):
-            prn ('El fichero', rutaFichero, 'sale en origenLineas con más líneas de las que tiene')
-            break
-          if lineasCodigo[inicioCod + n] != lineasFichero[inicioFich + n]:
-            prn (origenLineas)
-            prn ('La línea', inicioCod + n + 1, 'cargada no corresponde con la línea', inicioFich + n + 1, 'del fichero', rutaFichero)
-            contexto = 3
-            prn (lineasCodigo[inicioCod + n - contexto : inicioCod + n + contexto + 1])
-            prn ('versus')
-            prn (lineasFichero[inicioFich + n - contexto : inicioFich + n + contexto + 1])
-            sys.exit()
-        ficheroPrueba.close()
     # Procesamos las demás directivas de preprocesador
     erExpresiones = re.compile ('([^ +-]+|[+-])')          # Expresión regular para partir expresiones de #define
     erPartirPals  = re.compile ('[ \t]+([^ \t]+)')         # Expresión regular para partir por palabras
@@ -154,7 +143,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
           raise TabError ('espacio en blanco' + ('' if encajesLinea else ' y una etiqueta de símbolo'), (), (numLinea + 1, 8))
         simbolo = encajesLinea[0].group (1)
         if not erSimbolo.match (simbolo):
-          raise TabError ('una etiqueta de símbolo válida en lugar de "%s"', simbolo, (numLinea + 1, 8 + encajesLinea[0].start (1)))
+          raise TabError ('una etiqueta de símbolo válida', (), (numLinea + 1, 8 + encajesLinea[0].start (1)))
         if simbolo in simbolos:
           raise TabError ('El símbolo "%s" ya estaba definido', simbolo, (numLinea + 1, 8 + encajesLinea[0].start (1)))
         if len (encajesLinea) < 2:
@@ -483,21 +472,15 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
         if len (lineaColLark) > 2 and lineaColLark[1] == 'col':  # El mensaje de error indica la columna del error
           numColumna = lineaColLark[2]
     if numLinea != None:  # Disponemos del número de línea del error
-      lineasDescontar = {}  # Líneas acumuladas que descontar de cada fichero
-      for o in range (len (origenLineas)):
-        hastaLinea, rutaFichero = origenLineas[o]
-        if numLinea <= hastaLinea:  # El error se encuentra en este grupo
-          lineaEnFichero = numLinea
-          if o:
-            lineaEnFichero -= origenLineas[o - 1][0]
-            if rutaFichero in lineasDescontar:
-              lineaEnFichero += lineasDescontar[rutaFichero] + 1  # Se suma 1 para descontar la línea del #include
-          textoPosicion  = ', en línea ' + str (lineaEnFichero)
-          if numColumna != None:
-            textoPosicion += ' columna ' + str (numColumna)
-          textoPosicion += ' de ' + rutaFichero
-          break
-        lineasDescontar[rutaFichero] = hastaLinea + (lineasDescontar[rutaFichero] if rutaFichero in lineasDescontar else 0)
+      # Buscamos el bloque de origenLineas donde está la línea del error
+      o = 0
+      while o < len (origenLineas) and numLinea >= (origenLineas[o][0] + origenLineas[o][2]):
+        o += 1
+      inicioCod, inicioFich, numLineas, rutaFichero = origenLineas[o]
+      textoPosicion  = ', en línea ' + str (inicioFich + numLinea - inicioCod)
+      if numColumna != None:
+        textoPosicion += ' columna ' + str (numColumna)
+      textoPosicion += ' de ' + rutaFichero
     prn ('Formato del código fuente inválido o no soportado:', descripcion + textoPosicion + detalles, file = sys.stderr, sep = '\n')
   except UnicodeDecodeError as e:
     prn ('Error de codificación en el código fuente, que debe usar codificación cp437:', e, file = sys.stderr, sep = '\n')
