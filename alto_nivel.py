@@ -108,7 +108,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
     # Procesamos las demás directivas de preprocesador
     erExpresiones = re.compile ('([^ +-]+|[+-])')          # Expresión regular para partir expresiones de #define
     erPartirPals  = re.compile ('[ \t]+([^ \t]+)')         # Expresión regular para partir por palabras
-    erSimbolo     = re.compile ('[A-Z_a-z][0-9A-Z_a-z]+')  # Expresión regular para detectar etiquetas de símbolos
+    erSimbolo     = re.compile ('[A-Z_a-z][0-9A-Z_a-z]*')  # Expresión regular para detectar etiquetas de símbolos
     simbolos      = {'AMIGA': 0, 'CBM64': 0, 'CPC': 0, 'MSX': 0, 'PC': 1, 'PCW': 0, 'SPE': 0, 'ST': 0}
     lineasCodigo  = codigoSCE.split ('\n')
     for numLinea in range (len (lineasCodigo)):

@@ -6,7 +6,7 @@
 start: _wsnl? (ctl _wsnl)? (tok _wsnl)? voc _wsnl stx _wsnl mtx _wsnl otx _wsnl ltx _wsnl con _wsnl obj _wsnl pros _wsnlc
 
 COMMENT: ";" /[^\n]/*
-SYMBOL: /[A-Z_a-z][0-9A-Z_a-z]+/
+SYMBOL: /[A-Z_a-z][0-9A-Z_a-z]*/
 expression: (SYMBOL | UINT) (_WS? OPERATOR _WS? (SYMBOL | UINT))*
 OPERATOR: "+" | "-"
 _WS: (" " | "\t")+            // Espacio en blanco
