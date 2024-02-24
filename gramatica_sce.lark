@@ -27,7 +27,7 @@ TOKEN: /[^ \n\t]/ /[^ \n\t]/+
 
 voc: _VOC _wsnlc (_wsnl vocentry)*
 _VOC: "/VOC"
-vocentry: VOCWORD _WS UINT _WS voctype
+vocentry: _WS? VOCWORD _WS UINT _WS voctype
 voctype: ADJECTIVE | ADVERB | CONJUGATION | NOUN | PREPOSITION | PRONOUN | VERB
 ADVERB: /adverb/i
 ADJECTIVE: /adjective/i
