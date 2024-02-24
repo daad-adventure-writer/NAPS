@@ -28,6 +28,8 @@ import os
 import sys
 
 
+validar = False  # Si queremos validar el funcionamiento correcto del código
+
 # Código de cada tipo de palabra por nombre en el código fuente
 tipos_pal_dict = {'verb': 0, 'adverb': 1, 'noun': 2, 'adjective': 3, 'preposition': 4, 'conjugation': 5, 'conjunction': 5, 'pronoun': 6}
 
@@ -128,6 +130,29 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
         codigoIncluir = erDirect.sub ('\n' + (' ' * nivelIncluir) + '\g<1>#', codigoIncluir)
       codigoSCE = codigoSCE[:encaje.start (0) + 1] + codigoIncluir + restante
       ficheroLnk.close()
+      # Comprobamos que las líneas de codigoSCE corresponden con las líneas de los ficheros según origenLineas
+      if validar:
+        lineasCodigo = codigoSCE.split ('\n')
+        for inicioCod, inicioFich, numLineas, rutaFichero, nivelIndent in origenLineas:
+          ficheroPrueba = open (rutaFichero, 'rb')
+          lineasFichero = ficheroPrueba.read().replace (b'\r\n', b'\n').rstrip (b'\x1a').decode ('cp437').split ('\n')
+          for n in range (numLineas):
+            if inicioFich + n == len (lineasFichero):
+              prn ('El fichero', rutaFichero, 'sale en origenLineas con más líneas de las que tiene', file = sys.stderr)
+              break
+            lineaCodigo  = lineasCodigo[inicioCod + n]
+            lineaFichero = lineasFichero[inicioFich + n]
+            if erDirect.match ('\n' + lineasFichero[inicioFich + n]):
+              lineaFichero = (' ' * nivelIndent) + lineaFichero
+            if lineaCodigo != lineaFichero:
+              prn (origenLineas, file = sys.stderr)
+              prn ('La línea', inicioCod + n + 1, 'cargada no corresponde con la línea', inicioFich + n + 1, 'del fichero', rutaFichero, file = sys.stderr)
+              contexto = 1  # Líneas de contexto que mostrar
+              prn (lineasCodigo[inicioCod + n - contexto : inicioCod + n + contexto + 1], file = sys.stderr)
+              prn ('versus', file = sys.stderr)
+              prn (lineasFichero[inicioFich + n - contexto : inicioFich + n + contexto + 1], file = sys.stderr)
+              sys.exit()
+          ficheroPrueba.close()
     # Procesamos las demás directivas de preprocesador
     erExpresiones = re.compile ('([^ +-]+|[+-])')          # Expresión regular para partir expresiones de #define
     erPartirPals  = re.compile ('[ \t]+([^ \t]+)')         # Expresión regular para partir por palabras
