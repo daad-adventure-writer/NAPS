@@ -169,9 +169,9 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
       nivelDirect = len (lineasCodigo[numLinea]) - len (lineaCodigo)  # Nivel de indentación/anidación de la directiva
       if ';' in lineaCodigo:  # Quitamos comentarios
         lineaCodigo = lineaCodigo[: lineaCodigo.find (';')]
-      if lineaCodigo[:7].lower() == '#define':
+      if lineaCodigo[:7].lower() == '#define' or lineaCodigo[:4].lower() == '#var':
         encajesLinea = []
-        for encaje in erPartirPals.finditer (lineaCodigo[7:]):
+        for encaje in erPartirPals.finditer (lineaCodigo[4 if lineaCodigo[:4] == '#var' else 7:]):
           encajesLinea.append (encaje)
           if len (encajesLinea) > 1:
             break
@@ -180,7 +180,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
         simbolo = encajesLinea[0].group (1)
         if not erSimbolo.match (simbolo):
           raise TabError ('una etiqueta de símbolo válida', (), (numLinea + 1, 8 + encajesLinea[0].start (1)))
-        if simbolo in simbolos:
+        if simbolo in simbolos and lineaCodigo[:4] != '#var':
           raise TabError ('El símbolo "%s" ya estaba definido', simbolo, (numLinea + 1, 8 + encajesLinea[0].start (1)))
         if len (encajesLinea) < 2:
           raise TabError ('expresión para definir el valor del símbolo', (), (numLinea + 1, len (lineaCodigo) + 1))
