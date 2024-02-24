@@ -51,7 +51,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
   try:
     import re
     codigoSCE    = fichero.read().replace (b'\r\n', b'\n').rstrip (b'\x1a').decode ('cp437')
-    origenLineas = [[0, 0, codigoSCE.count ('\n') + 1, fichero.name]]  # Inicio en código, inicio en fichero, nº líneas, ruta
+    origenLineas = [[0, 0, codigoSCE.count ('\n') + 1, fichero.name, 0]]  # Inicio en código, inicio en fichero, nº líneas, ruta, nivel indentanción
     # Procesamos carga de ficheros externos con directivas de preprocesador /LNK e #include
     # TODO: extraer el código común con abreFichXMessages, a función en bajo_nivel
     encaje = True
@@ -89,6 +89,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
       o = 0
       while o < len (origenLineas) and lineaInicio >= (origenLineas[o][0] + origenLineas[o][2]):
         o += 1
+      nivelDirectiva = 0  # Nivel de indentación/anidación de esta directiva
       if len (directiva) == 4:  # Es una directiva /LNK
         if lineaInicio > origenLineas[o]:  # Quedará alguna línea en el bloque o de origenLineas
           origenLineas = origenLineas[:o + 1]  # Eliminamos desde este bloque en adelante exclusive
@@ -96,6 +97,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
         else:  # La directiva estaba en la primera línea del bloque
           origenLineas = origenLineas[:o]  # Eliminamos desde este bloque en adelante inclusive
       else:  # Es una directiva include
+        nivelDirectiva = origenLineas[o][4]
         if o < len (origenLineas) - 1:  # Hay más bloques detrás de éste, así que los extraemos
           finalOrigLineas = origenLineas[o + 1:]
           origenLineas    = origenLineas[:o + 1]
@@ -111,14 +113,19 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
       # Añadimos bloque del fichero que se incluye
       if codigoIncluir[-1] == '\n':  # La última línea del fichero a incluir es en blanco
         lineasIncluir -= 1
-      origenLineas.append ([lineaInicio, 0, lineasIncluir, os.path.normpath (ficheroLnk.name)])
+      nivelIncluir = nivelDirectiva + codigoSCE.find ('#', encaje.start (0) + 1) - (encaje.start (0) + 1)  # Nivel de indentación del fichero a incluir
+      origenLineas.append ([lineaInicio, 0, lineasIncluir, os.path.normpath (ficheroLnk.name), nivelIncluir])
       # Añadimos los bloques posteriores
       if len (directiva) > 4:  # Es una directiva include
-        origenLineas.append ([lineaInicio + lineasIncluir, origenLineas[o][1] + origenLineas[o][2] + 1, lineasRestantes, origenLineas[o][3]])
+        origenLineas.append ([lineaInicio + lineasIncluir, origenLineas[o][1] + origenLineas[o][2] + 1, lineasRestantes, origenLineas[o][3], nivelDirectiva])
         # Incrementamos la posición de los demás y los añadimos al final
         for origenLinea in finalOrigLineas:
           origenLinea[0] = origenLineas[-1][0] + origenLineas[-1][2]
           origenLineas.append (origenLinea)
+      # Añadimos si corresponde espacios antes de cada directiva del fichero a incluir
+      erDirect = re.compile ('\n([ \t]*)#')  # Expresión regular para detectar directivas de preprocesador con #
+      if nivelIncluir:
+        codigoIncluir = erDirect.sub ('\n' + (' ' * nivelIncluir) + '\g<1>#', codigoIncluir)
       codigoSCE = codigoSCE[:encaje.start (0) + 1] + codigoIncluir + restante
       ficheroLnk.close()
     # Procesamos las demás directivas de preprocesador
@@ -127,10 +134,14 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
     erSimbolo     = re.compile ('[A-Z_a-z][0-9A-Z_a-z]*')  # Expresión regular para detectar etiquetas de símbolos
     simbolos      = {'AMIGA': 0, 'C40': 0, 'C42': 0, 'C53': 1, 'CBM64': 0, 'CGA': 0, 'CPC': 0, 'DEBUG': 0, 'DRAW': 0, 'EGA': 0, 'MSX': 0, 'PC': 1, 'PCW': 0, 'S48': 0, 'SP3': 0, 'SPE': 0, 'ST': 0, 'VGA': 1}
     lineasCodigo  = codigoSCE.split ('\n')
+    bloqueOrigen  = 0  # Número de bloque de la línea actual en origenLineas
     for numLinea in range (len (lineasCodigo)):
+      if numLinea == origenLineas[bloqueOrigen][0] + origenLineas[bloqueOrigen][2]:
+        bloqueOrigen += 1
       lineaCodigo = lineasCodigo[numLinea].lstrip()
-      if not lineaCodigo or lineaCodigo[0] != '#':
+      if not lineaCodigo or lineaCodigo[0] == ';' or lineaCodigo[0] != '#':
         continue  # Saltamos líneas vacías y sin directivas de preprocesador
+      nivelDirect = len (lineasCodigo[numLinea]) - len (lineaCodigo)  # Nivel de indentación/anidación de la directiva
       if ';' in lineaCodigo:  # Quitamos comentarios
         lineaCodigo = lineaCodigo[: lineaCodigo.find (';')]
       if lineaCodigo[:7].lower() == '#define':
@@ -154,7 +165,6 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
         simbolos[simbolo]      = valorExpr
         lineasCodigo[numLinea] = ';NAPS;' + lineasCodigo[numLinea]  # Ya procesada esta línea
       elif lineaCodigo[:3].lower() == '#if':
-        # FIXME: directivas anidadas, como en TD.SCE línea 273, del código fuente de Los Templos Sagrados
         encajesLinea = []
         for encaje in erPartirPals.finditer (lineaCodigo[3:]):
           encajesLinea.append (encaje)
@@ -175,13 +185,16 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
           if negado:
             satisfecho = not satisfecho
           for numLineaCond in range (numLinea + 1, len (lineasCodigo)):
-            if lineasCodigo[numLineaCond][:6].lower() == '#endif':
-              lineasCodigo[numLineaCond] = ';NAPS;' + lineasCodigo[numLineaCond]  # Ya procesada esta línea
-              break
-            if lineasCodigo[numLineaCond][:5].lower() == '#else':
-              lineasCodigo[numLineaCond] = ';NAPS;' + lineasCodigo[numLineaCond]  # Ya procesada esta línea
-              satisfecho = not satisfecho
-              continue
+            lineaCond = lineasCodigo[numLineaCond].lstrip()
+            nivelCond = len (lineasCodigo[numLineaCond]) - len (lineaCond)  # Nivel de indentación/anidación de esta línea
+            if nivelCond == nivelDirect:
+              if lineaCond[:6].lower() == '#endif':
+                lineasCodigo[numLineaCond] = ';NAPS;' + lineasCodigo[numLineaCond]  # Ya procesada esta línea
+                break
+              if lineaCond[:5].lower() == '#else':
+                lineasCodigo[numLineaCond] = ';NAPS;' + lineasCodigo[numLineaCond]  # Ya procesada esta línea
+                satisfecho = not satisfecho
+                continue
             if not satisfecho:
               lineasCodigo[numLineaCond] = ';NAPS;' + lineasCodigo[numLineaCond]  # Deshabilitada esta línea
         else:
@@ -477,7 +490,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
       o = 0
       while o < len (origenLineas) and numLinea > (origenLineas[o][0] + origenLineas[o][2]):
         o += 1
-      inicioCod, inicioFich, numLineas, rutaFichero = origenLineas[o]
+      inicioCod, inicioFich, numLineas, rutaFichero, nivelIndent = origenLineas[o]
       textoPosicion  = ', en línea ' + str (inicioFich + numLinea - inicioCod)
       if numColumna != None:
         textoPosicion += ' columna ' + str (numColumna)
