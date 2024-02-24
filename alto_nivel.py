@@ -51,7 +51,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
   try:
     import re
     codigoSCE    = fichero.read().replace (b'\r\n', b'\n').rstrip (b'\x1a').decode ('cp437')
-    origenLineas = [[0, 0, codigoSCE.count ('\n') + 1, fichero.name]]  # Inicio en código, inicio en fichero, nº líneas
+    origenLineas = [[0, 0, codigoSCE.count ('\n') + 1, fichero.name]]  # Inicio en código, inicio en fichero, nº líneas, ruta
     # Procesamos carga de ficheros externos con directivas de preprocesador /LNK e #include
     # TODO: extraer el código común con abreFichXMessages, a función en bajo_nivel
     encaje = True
@@ -150,8 +150,9 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
           raise TabError ('expresión para definir el valor del símbolo', (), (numLinea + 1, len (lineaCodigo) + 1))
         valorExpr = daValorExpresion (lineaCodigo[7 + encajesLinea[1].start (1):], numLinea + 1, 8 + encajesLinea[1].start (1))
         # Asignamos el valor al símbolo, y comentamos la línea
+        # TODO: cuando el IDE muestre líneas con comentarios y directivas de preprocesador, marcar diferenciando entre líneas deshabilitadas y procesadas
         simbolos[simbolo]      = valorExpr
-        lineasCodigo[numLinea] = ';NAPS;' + lineasCodigo[numLinea]
+        lineasCodigo[numLinea] = ';NAPS;' + lineasCodigo[numLinea]  # Ya procesada esta línea
       elif lineaCodigo[:3].lower() == '#if':
         # FIXME: directivas anidadas, como en TD.SCE línea 273, del código fuente de Los Templos Sagrados
         encajesLinea = []
@@ -175,17 +176,17 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
             satisfecho = not satisfecho
           for numLineaCond in range (numLinea + 1, len (lineasCodigo)):
             if lineasCodigo[numLineaCond][:6].lower() == '#endif':
-              lineasCodigo[numLineaCond] = ';NAPS;' + lineasCodigo[numLineaCond]
+              lineasCodigo[numLineaCond] = ';NAPS;' + lineasCodigo[numLineaCond]  # Ya procesada esta línea
               break
             if lineasCodigo[numLineaCond][:5].lower() == '#else':
-              lineasCodigo[numLineaCond] = ';NAPS;' + lineasCodigo[numLineaCond]
+              lineasCodigo[numLineaCond] = ';NAPS;' + lineasCodigo[numLineaCond]  # Ya procesada esta línea
               satisfecho = not satisfecho
               continue
             if not satisfecho:
-              lineasCodigo[numLineaCond] = ';NAPS;' + lineasCodigo[numLineaCond]
+              lineasCodigo[numLineaCond] = ';NAPS;' + lineasCodigo[numLineaCond]  # Deshabilitada esta línea
         else:
           raise TabError ('un símbolo ya definido', (), (numLinea + 1, 4 + encajesLinea[0].start (1)))
-        lineasCodigo[numLinea] = ';NAPS;' + lineasCodigo[numLinea]
+        lineasCodigo[numLinea] = ';NAPS;' + lineasCodigo[numLinea]  # Ya procesada la línea de la directiva #if
       else:
         raise TabError ('una directiva de preprocesador válida', (), (numLinea + 1, 1))
     parserSCE = lark.Lark.open ('gramatica_sce.lark', __file__, propagate_positions = True)
