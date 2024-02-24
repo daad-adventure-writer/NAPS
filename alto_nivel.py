@@ -474,7 +474,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
     if numLinea != None:  # Disponemos del número de línea del error
       # Buscamos el bloque de origenLineas donde está la línea del error
       o = 0
-      while o < len (origenLineas) and numLinea >= (origenLineas[o][0] + origenLineas[o][2]):
+      while o < len (origenLineas) and numLinea > (origenLineas[o][0] + origenLineas[o][2]):
         o += 1
       inicioCod, inicioFich, numLineas, rutaFichero = origenLineas[o]
       textoPosicion  = ', en línea ' + str (inicioFich + numLinea - inicioCod)
