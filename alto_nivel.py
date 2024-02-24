@@ -157,7 +157,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
     erExpresiones = re.compile ('([^ +-]+|[+-])')          # Expresión regular para partir expresiones de #define
     erPartirPals  = re.compile ('[ \t]+([^ \t]+)')         # Expresión regular para partir por palabras
     erSimbolo     = re.compile ('[A-Z_a-z][0-9A-Z_a-z]*')  # Expresión regular para detectar etiquetas de símbolos
-    simbolos      = {'AMIGA': 0, 'C40': 0, 'C42': 0, 'C53': 1, 'CBM64': 0, 'CGA': 0, 'CPC': 0, 'DEBUG': 0, 'DRAW': 0, 'EGA': 0, 'MSX': 0, 'PC': 1, 'PCW': 0, 'S48': 0, 'SP3': 0, 'SPE': 0, 'ST': 0, 'VGA': 1}
+    simbolos      = {'AMIGA': 0, 'C40': 0, 'C42': 0, 'C53': 1, 'CBM64': 0, 'CGA': 0, 'COLS': 53, 'CPC': 0, 'DEBUG': 0, 'DRAW': 0, 'EGA': 0, 'ENGLISH': 0, 'MSX': 0, 'PC': 1, 'PCW': 0, 'S48': 0, 'SP3': 0, 'SPANISH': 1, 'SPE': 0, 'ST': 0, 'VGA': 1}
     lineasCodigo  = codigoSCE.split ('\n')
     bloqueOrigen  = 0  # Número de bloque de la línea actual en origenLineas
     for numLinea in range (len (lineasCodigo)):
