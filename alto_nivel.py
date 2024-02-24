@@ -225,6 +225,8 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
         else:
           raise TabError ('un símbolo ya definido', (), (numLinea + 1, 4 + encajesLinea[0].start (1)))
         lineasCodigo[numLinea] = ';NAPS;' + lineasCodigo[numLinea]  # Ya procesada la línea de la directiva #if
+      elif lineaCodigo[:5].lower() == '#echo':
+        prn (lineaCodigo[6:])
       else:
         raise TabError ('una directiva de preprocesador válida', (), (numLinea + 1, 1))
     parserSCE = lark.Lark.open ('gramatica_sce.lark', __file__, propagate_positions = True)
