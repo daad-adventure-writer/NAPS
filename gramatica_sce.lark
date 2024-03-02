@@ -83,7 +83,7 @@ CARRIED: "CARRIED"
 HERE: "HERE"
 WORN: "WORN"
 
-pro: _PRO _WS UINT _wsnlc (_wsnl procentry)*
+pro: _PRO _WS (UINT | expression) _wsnlc (_wsnl procentry)*
 pros: pro (_wsnl pro)*
 _PRO: "/PRO"
 procentry: word _WS word (_WS condact)? _wsnlc (_wsnl _WS condact)*

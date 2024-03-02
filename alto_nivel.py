@@ -404,7 +404,10 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
     version    = 0  # Versión de DAAD necesaria, 0 significa compatibilidad con ambas
     for seccion in arbolSCE.find_data ('pro'):
       entero = seccion.children[0]
-      numero = int (entero)
+      if type (entero) == lark.tree.Tree:
+        numero = daValorExpresion (entero.children)
+      else:
+        numero = int (entero)
       if numero != numProceso:
         raise TabError ('número de proceso %d en lugar de %d', (numProceso, numero), entero)
       cabeceras = []
