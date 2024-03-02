@@ -27,7 +27,7 @@ TOKEN: /[^ \n\t]/ /[^ \n\t]/+
 
 voc: _VOC _wsnlc (_wsnl vocentry)*
 _VOC: "/VOC"
-vocentry: _WS? VOCWORD _WS UINT _WS voctype
+vocentry: VOCWORD _WS UINT _WS voctype
 voctype: ADJECTIVE | ADVERB | CONJUGATION | NOUN | PREPOSITION | PRONOUN | VERB
 ADVERB: /adverb/i
 ADJECTIVE: /adjective/i
@@ -55,7 +55,7 @@ _LTX: "/LTX"
 con: _CON _wsnlc (_wsnl conentry)*
 _CON: "/CON"
 conentry: "/" UINT _wsnlc (_wsnl conitem)*
-conitem: _WS? word _WS UINT
+conitem: word _WS UINT
 
 obj: _OBJ _wsnlc (_wsnl objentry)*
 _OBJ: "/OBJ"
