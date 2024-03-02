@@ -240,7 +240,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
     for idSeccion, listaCadenas in (('stx', msgs_sys), ('mtx', msgs_usr), ('otx', desc_objs), ('ltx', desc_locs)):
       for seccion in arbolSCE.find_data (idSeccion):
         numEntrada = 0
-        for entrada in seccion.find_data ('textentry'):
+        for entrada in seccion.find_data (idSeccion + 'textentry'):
           if type (entrada.children[0]) == lark.tree.Tree:
             numero = daValorExpresion (entrada.children[0].children)
           else:
