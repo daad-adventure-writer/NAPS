@@ -252,9 +252,11 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
             if lineaTexto.type == 'COMMENT':
               continue  # Omitimos comentarios reconocidos por la gramática
             linea = str (lineaTexto)
+            # El primer carácter siempre será \n
             if not lineas and linea[:2] == '\n;':
               continue  # Omitimos comentarios iniciales
-            lineas.append (linea[1:])  # El primer carácter siempre será \n
+            linea = linea[1:].replace ('\\b', '\x0b').replace ('\\k', '\x0c').replace ('\\s', ' ').replace ('\\\\', '\\')
+            lineas.append (linea)
           # Evitamos tomar nueva línea antes de comentario final como línea de texto en blanco
           if lineas and not linea and codigoSCE[lineaTexto.start_pos + 1] == ';':
             del lineas[-1]
