@@ -461,9 +461,9 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
                   else:
                     raise TabError ('El condacto %s no admite una palabra de vocabulario como parámetro aquí', nombre, parametro)
                 if palabraAdmitida:
-                  # Los condactos con este tipo de parámetro sólo tienen un parámetro de igual tipo en ambas versiones de DAAD
+                  # Salvo SYNONYM, los condactos con este tipo de parámetro sólo tienen uno de igual tipo en ambas versiones de DAAD
                   palabra      = str (parametro)[:LONGITUD_PAL].lower()
-                  letraTipoPal = datosCondactos[nombre][0][1][0]
+                  letraTipoPal = datosCondactos[nombre][1][1][len (parametros)]
                   listaVocab, tipoPalabra = tipoParametro[letraTipoPal]
                   if palabra not in listaVocab:
                     raise TabError ('una palabra de vocabulario de tipo %s', tipoPalabra, parametro)
