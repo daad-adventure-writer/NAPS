@@ -431,10 +431,21 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
           parametros = []
           for param in condacto.find_data ('param'):
             if param.children:
-              pideIndireccion = False
               parametro = param.children[0]
               if type (parametro) == lark.tree.Tree:
-                parametros.append (daValorExpresion (parametro.children))
+                if str (parametro.data) == 'expression':  # Es una expresión
+                  parametros.append (daValorExpresion (parametro.children))
+                else:  # Es una regla de indirección
+                  if not condactos_nuevos:
+                    raise TabError ('Este sistema no soporta indirección de parámetros', (), parametro)
+                  if parametros:
+                    raise TabError ('Sólo se soporta indirección en el primer parámetro', (), parametro)
+                  indireccion = 128
+                  valor = parametro.children[0]
+                  if type (valor) == lark.tree.Tree:  # Es una expresión
+                    parametros.append (daValorExpresion (valor.children))
+                  else:  # Es un entero
+                    parametros.append (int (valor))
               elif parametro.type == 'INT':
                 parametros.append (int (parametro))
               elif parametro.type == 'VOCWORD':
@@ -453,9 +464,6 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
                 if not palabraAdmitida:
                   # Podría ser una expresión en lugar de una palabra de vocabulario
                   simbolo = str (parametro)
-                  if simbolo[0] == '[' and simbolo[-1] == ']':
-                    pideIndireccion = True
-                    simbolo = simbolo[1:-1]
                   if simbolo in simbolos:
                     parametros.append (simbolos[simbolo])
                   elif '+' in simbolo or '-' in simbolo:  # Parece ser una expresión
@@ -470,17 +478,8 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
                   if palabra not in listaVocab:
                     raise TabError ('una palabra de vocabulario de tipo %s', tipoPalabra, parametro)
                   parametros.append (listaVocab[palabra])
-              elif parametro.type == 'INDIRECTION':
-                pideIndireccion = True
-                parametros.append (int (str (parametro)[1:-1]))
               else:  # Valores preestablecidos (p.ej. CARRIED)
                 parametros.append (IDS_LOCS[str (parametro)])
-              if pideIndireccion:  # Este parámetro está puesto con indirección
-                if not condactos_nuevos:
-                  raise TabError ('Este sistema no soporta indirección de parámetros', (), parametro)
-                if len (parametros) > 1:
-                  raise TabError ('Sólo se soporta indirección en el primer parámetro', (), parametro)
-                indireccion = 128
             else:
               parametros.append (255)  # Es _
           # Detectamos incompatibilidades por requerirse versiones de DAAD diferentes
