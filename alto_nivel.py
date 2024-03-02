@@ -220,7 +220,11 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
                 lineasCodigo[numLineaCond] = ';NAPS;' + lineasCodigo[numLineaCond]  # Ya procesada esta línea
                 satisfecho = not satisfecho
                 continue
-            if not satisfecho:
+            if satisfecho:  # Se cumple la condición de la directiva #if
+              if lineaCond[:1] != '#' and lineasCodigo[numLineaCond][:1] == ' ':  # No es directiva y empieza por espacio
+                # Quitamos un nivel de indentación para que se pueda procesar correctamente la sintaxis de la línea
+                lineasCodigo[numLineaCond] = lineasCodigo[numLineaCond][1:]
+            else:  # No se cumple la condición de la directiva #if
               lineasCodigo[numLineaCond] = ';NAPS;' + lineasCodigo[numLineaCond]  # Deshabilitada esta línea
         else:
           raise TabError ('un símbolo ya definido', (), (numLinea + 1, 4 + encajesLinea[0].start (1)))
