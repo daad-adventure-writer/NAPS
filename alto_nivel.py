@@ -422,8 +422,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
         entrada = []
         for condacto in procentry.find_data ('condact'):
           indireccion = 0  # Tomará valor 128 cuando el condacto se use con indirección
-          for condactname in condacto.find_data ('condactname'):
-            nombre = str (condactname.children[0])
+          nombre = str (condacto.children[0])
           if nombre not in datosCondactos:
             raise TabError ('Condacto de nombre %s inexistente', nombre, condacto.meta)
           parametros = []

@@ -87,7 +87,7 @@ pro: _PRO _WS UINT _wsnlc (_wsnl procentry)*
 pros: pro (_wsnl pro)*
 _PRO: "/PRO"
 procentry: word _WS word (_WS condact)? _wsnlc (_wsnl _WS condact)*
-condact: condactname param*
-condactname: /[A-Z][A-Z0-9]*/
+condact: CONDACTNAME param*
+CONDACTNAME: /[A-Z][A-Z0-9]*/
 INDIRECTION: "[" UINT "]"
 param: _WS (CARRIED | HERE | WORN | INT | expression | INDIRECTION | VOCWORD | "_")
