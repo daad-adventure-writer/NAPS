@@ -38,7 +38,7 @@ PRONOUN: /pronoun/i
 VERB: /verb/i
 
 TEXTLINE: "\n" /[^\n\/][^\n]*/?
-textentry: "/" UINT _wsnlc TEXTLINE*
+textentry: "/" (UINT | expression) _wsnlc TEXTLINE*
 
 stx: _STX _wsnlc ("\n" textentry)*
 _STX: "/STX"

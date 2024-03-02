@@ -241,7 +241,10 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
       for seccion in arbolSCE.find_data (idSeccion):
         numEntrada = 0
         for entrada in seccion.find_data ('textentry'):
-          numero = int (entrada.children[0])
+          if type (entrada.children[0]) == lark.tree.Tree:
+            numero = daValorExpresion (entrada.children[0].children)
+          else:
+            numero = int (entrada.children[0])
           if numero != numEntrada:
             raise TabError ('número de entrada %d en lugar de %d', (numEntrada, numero), entrada.meta)
           lineas = []
