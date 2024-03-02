@@ -300,7 +300,14 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
     # Cargamos las conexiones entre localidades
     numEntrada = 0
     for seccion in arbolSCE.find_data ('conentry'):
-      numero = int (seccion.children[0])
+      if seccion.children[0].type == 'UINT':
+        numero = int (seccion.children[0])
+      else:  # Es un símbolo
+        simbolo = str (seccion.children[0])
+        if simbolo in simbolos:
+          numero = simbolos[simbolo]
+        else:
+          raise TabError ('un símbolo ya definido', (), seccion.children[0])
       if numero != numEntrada:
         raise TabError ('número de localidad %d en lugar de %d', (numEntrada, numero), seccion.meta)
       salidas = []
@@ -308,7 +315,14 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
         verbo = str (conexion.children[0].children[0])[:LONGITUD_PAL].lower()
         if verbo not in verbos:
           raise TabError ('una palabra de vocabulario de tipo verbo', (), conexion.children[0])
-        destino = int (conexion.children[1])
+        if conexion.children[1].type == 'UINT':
+          destino = int (conexion.children[1])
+        else:  # Es un símbolo
+          simbolo = str (conexion.children[1])
+          if simbolo in simbolos:
+            destino = simbolos[simbolo]
+          else:
+            raise TabError ('un símbolo ya definido', (), conexion.children[1])
         if destino >= len (desc_locs):
           raise TabError ('número de localidad entre 0 y %d', len (desc_locs) - 1, conexion.children[1])
         salidas.append ((verbos[verbo], destino))
