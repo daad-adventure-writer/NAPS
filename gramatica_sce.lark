@@ -72,8 +72,9 @@ SYMBOLNOOBJ: /(?!OBJ)/ /[A-Z_a-z][0-9A-Z_a-z]*/
 
 obj: _OBJ _wsnlc (_wsnl objentry)*
 _OBJ: "/OBJ"
-objentry: "/" UINT _WS objinitial _WS OBJWEIGHT _WS attr _WS attr (_WS attr)* _WS word _WS word
-objinitial: INT | CARRIED | WORN | "_"
+objentry: "/" (SYMBOLNOPRO | UINT) _WS objinitial _WS OBJWEIGHT _WS attr _WS attr (_WS attr)* _WS word _WS word
+SYMBOLNOPRO: /(?!PRO)/ /[A-Z_a-z][0-9A-Z_a-z]*/
+objinitial: INT | CARRIED | WORN | "_" | SYMBOL
 OBJWEIGHT: INT
 attr: Y | "_"
 Y: "Y"

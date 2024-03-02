@@ -333,7 +333,13 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
     # Cargamos datos de los objetos
     numEntrada = 0
     for seccion in arbolSCE.find_data ('objentry'):
-      numero = int (seccion.children[0])
+      if seccion.children[0].type == 'UINT':
+        numero = int (seccion.children[0])
+      else:  # Es un símbolo
+        simbolo = str (seccion.children[0])
+        if simbolo not in simbolos:
+          raise TabError ('un símbolo ya definido', (), seccion.children[0])
+        numero = simbolos[simbolo]
       if numero != numEntrada:
         raise TabError ('número de objeto %d en lugar de %d', (numEntrada, numero), seccion.meta)
       # Cargamos la localidad inicial del objeto
@@ -341,6 +347,11 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
         localidad = seccion.children[1].children[0]
         if localidad.type == 'INT':
           locs_iniciales.append (int (localidad))
+        elif localidad.type == 'SYMBOL':
+          simbolo = str (localidad)
+          if simbolo not in simbolos:
+            raise TabError ('un símbolo ya definido', (), localidad)
+          locs_iniciales.append (simbolos[simbolo])
         else:  # Valor no numérico (p.ej. CARRIED)
           locs_iniciales.append (IDS_LOCS[str (localidad)])
       else:
