@@ -410,6 +410,15 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
         numero = int (entero)
       if numero != numProceso:
         raise TabError ('número de proceso %d en lugar de %d', (numProceso, numero), entero)
+      # Guardamos las posiciones de las etiquetas de entrada
+      etiquetas  = {}
+      numEntrada = 0
+      for procentry in seccion.find_data ('procentry'):
+        for label in procentry.find_data ('label'):
+          if label.children:
+            etiquetas[label.children[0][1:]] = numEntrada
+        numEntrada += 1
+      # Cargamos cada entrada del proceso
       cabeceras = []
       entradas  = []
       for procentry in seccion.find_data ('procentry'):
@@ -478,6 +487,16 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
                   if palabra not in listaVocab:
                     raise TabError ('una palabra de vocabulario de tipo %s', tipoPalabra, parametro)
                   parametros.append (listaVocab[palabra])
+              elif parametro.type == 'LABEL':
+                etiqueta = str (parametro[1:])
+                if etiqueta not in etiquetas:
+                  raise TabError ('una etiqueta existente en este proceso', (), parametro)
+                salto = etiquetas[etiqueta] - len (entradas) - 1
+                if salto < -127 or salto > 128:
+                  raise TabError ('una etiqueta más cercana', (), parametro)
+                if salto < 0:
+                  salto += 256
+                parametros.append (salto)
               else:  # Valores preestablecidos (p.ej. CARRIED)
                 parametros.append (IDS_LOCS[str (parametro)])
             else:

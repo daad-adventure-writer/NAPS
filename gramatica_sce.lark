@@ -86,8 +86,10 @@ WORN: "WORN"
 pro: _PRO _WS (UINT | expression) _wsnlc (_wsnl procentry)*
 pros: pro (_wsnl pro)*
 _PRO: "/PRO"
-procentry: word _WS word (_WS condact)? _wsnlc (_wsnl _WS condact)*
+procentry: label word _WS word (_WS condact)? _wsnlc (_wsnl _WS condact)*
+label: (LABEL _wsnl)?
+LABEL: "$" /[A-ZÑ][A-Z0-9Ñ]*/
 condact: CONDACTNAME param*
 CONDACTNAME: /[A-Z][A-Z0-9]*/
 indirection: "[" (UINT | expression) "]"
-param: _WS (CARRIED | HERE | WORN | INT | expression | indirection | VOCWORD | "_")
+param: _WS (CARRIED | HERE | WORN | INT | expression | indirection | LABEL | VOCWORD | "_")
