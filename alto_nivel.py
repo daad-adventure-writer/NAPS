@@ -448,9 +448,9 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
                   parametros.append (daValorExpresion (parametro.children))
                 else:  # Es una regla de indirección
                   if not condactos_nuevos:
-                    raise TabError ('Este sistema no soporta indirección de parámetros', (), parametro)
+                    raise TabError ('Este sistema no soporta indirección de parámetros', (), parametro.meta)
                   if parametros:
-                    raise TabError ('Sólo se soporta indirección en el primer parámetro', (), parametro)
+                    raise TabError ('Sólo se soporta indirección en el primer parámetro', (), parametro.meta)
                   indireccion = 128
                   valor = parametro.children[0]
                   if type (valor) == lark.tree.Tree:  # Es una expresión
