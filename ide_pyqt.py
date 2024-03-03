@@ -1373,7 +1373,7 @@ def ejecutaPorPasos ():
   accBanderas.setEnabled  (True)
   accPasoAPaso.setEnabled (False)
   rutaInterprete = os.path.join (os.path.dirname (os.path.realpath (__file__)), 'interprete.py')
-  argumentos     = ['python', rutaInterprete, '--ide', nombre_fich_bd]
+  argumentos     = ['python', rutaInterprete, '--ide', '--system', mod_actual.NOMBRE_SISTEMA.lower(), nombre_fich_bd]
   if nombre_fich_gfx:
     argumentos.append (nombre_fich_gfx)
   devnull = open (os.devnull, 'w')
