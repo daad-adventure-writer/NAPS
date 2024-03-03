@@ -949,6 +949,7 @@ def actualizaPosProcesos ():
       mdi_procesos.resize (selector.centralWidget().width() - anchoJuego, selector.centralWidget().height())
       mdi_procesos.move (anchoJuego, 0)
       muestraBanderas()
+      selector.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
       selector.centralWidget().setActiveSubWindow (mdi_juego)
 
 def actualizaVentanaJuego ():
@@ -1005,7 +1006,10 @@ def cambiaProceso (numero, numEntrada = None):
     campo_txt.centraLineaCursor()
   else:
     campo_txt.moveCursor (QTextCursor.Start)  # Movemos el cursor al principio
-  selector.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
+  if inicio_debug:
+    selector.setCursor (Qt.BusyCursor)  # Puntero de ratón de trabajo en segundo plano
+  else:
+    selector.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
 
 def cargaInfoModulos ():
   """Carga la información de los módulos de librería válidos que encuentre en el directorio"""
@@ -1372,6 +1376,7 @@ def ejecutaPorPasos ():
   inicio_debug = True
   accBanderas.setEnabled  (True)
   accPasoAPaso.setEnabled (False)
+  selector.setCursor (Qt.BusyCursor)  # Puntero de ratón de trabajo en segundo plano
   rutaInterprete = os.path.join (os.path.dirname (os.path.realpath (__file__)), 'interprete.py')
   argumentos     = ['python', rutaInterprete, '--ide', '--system', mod_actual.NOMBRE_SISTEMA.lower(), nombre_fich_bd]
   if nombre_fich_gfx:
@@ -1803,7 +1808,10 @@ def muestraTextos (dialogo, listaTextos, tipoTextos, subventanaMdi):
     dlg_msg_usr = dialogo
     mdi_msg_usr = subventanaMdi
   dialogo.showMaximized()
-  selector.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
+  if inicio_debug:
+    selector.setCursor (Qt.BusyCursor)  # Puntero de ratón de trabajo en segundo plano
+  else:
+    selector.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
 
 def muestraVistaVocab ():
   """Muestra el diálogo para consultar el vocabulario"""
@@ -1824,7 +1832,10 @@ def muestraVistaVocab ():
   dlg_vocabulario.doubleClicked.connect (editaVocabulario)
   mdi_vocabulario = selector.centralWidget().addSubWindow (dlg_vocabulario)
   dlg_vocabulario.showMaximized()
-  selector.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
+  if inicio_debug:
+    selector.setCursor (Qt.BusyCursor)  # Puntero de ratón de trabajo en segundo plano
+  else:
+    selector.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
 
 def nuevaBD (posicion):
   """Ejecuta la función de índice posicion para crear una nueva base de datos vacía"""
