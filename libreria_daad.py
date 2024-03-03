@@ -416,8 +416,9 @@ def carga_xmessage (desplazamiento):
 
 def escribe_secs_ctrl (cadena):
   """Devuelve la cadena dada convirtiendo la representación de secuencias de control en sus códigos"""
-  # TODO: implementar
-  return cadena
+  if nueva_version:
+    cadena = cadena.replace ('\\b', '\x0b').replace ('\\k', '\x0c').replace ('\\s', ' ')
+  return cadena.replace ('\\\\', '\\').replace ('\\n', '\n')
 
 def inicializa_banderas (banderas):
   """Inicializa banderas con valores propios de DAAD"""
