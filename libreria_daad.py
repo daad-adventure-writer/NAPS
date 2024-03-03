@@ -393,7 +393,11 @@ def carga_sce (fichero, longitud):
   - Recibe como primer parámetro un fichero abierto
   - Recibe como segundo parámetro la longitud del fichero abierto
   - Devuelve False si ha ocurrido algún error"""
-  return alto_nivel.carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, condactos, condactos_nuevos, conexiones, desc_locs, desc_objs, locs_iniciales, msgs_usr, msgs_sys, nombres_objs, nueva_version, num_objetos, tablas_proceso, vocabulario)
+  retorno = alto_nivel.carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, condactos, condactos_nuevos, conexiones, desc_locs, desc_objs, locs_iniciales, msgs_usr, msgs_sys, nombres_objs, nueva_version, num_objetos, tablas_proceso, vocabulario)
+  # Liberamos la memoria utilizada para la carga
+  import gc
+  gc.collect()
+  return retorno
 
 def carga_xmessage (desplazamiento):
   """Carga desde los ficheros de XMessages el mensaje que inicia en el desplazamiento dado, devolviendo None en caso de no lograrlo"""
