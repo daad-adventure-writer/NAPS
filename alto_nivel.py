@@ -580,8 +580,8 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
     prn ('Formato del código fuente inválido o no soportado:', descripcion + textoPosicion + detalles, file = sys.stderr, sep = '\n')
   except UnicodeDecodeError as e:
     prn ('Error de codificación en el código fuente, que debe usar codificación cp437:', e, file = sys.stderr, sep = '\n')
-  except:
-    pass
+  except Exception as e:
+    prn ('Error imprevisto:', e, file = sys.stderr, sep = '\n')
   return False
 
 def comprueba_nombre (modulo, nombre, tipo):
