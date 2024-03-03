@@ -39,7 +39,7 @@ Por tanto, para jugar en tu sistema operativo moderno (normalmente Windows o Lin
 
 **Uso desde línea de comandos:**
 
-``python interprete.py [-h|--help] [-c|--columns 32..42] [--conversion módulo] [-D|--debug] [-g|--gui pygame|stdio|telegram] [-s|--scale 1..9] bd_cf_o_carpeta [bd_o_carpeta_gráficos]``
+``python interprete.py [-h|--help] [-c|--columns 32..42] [--conversion módulo] [-D|--debug] [-g|--gui pygame|stdio|telegram] [-s|--scale 1..9] [--system quill|paws|swan|daad] bd_cf_o_carpeta [bd_o_carpeta_gráficos]``
 
 Ejemplos bajo Windows:
 - ``python interprete.py -g stdio -c 42 ..\disappearance\disappearance.sna``
@@ -63,6 +63,7 @@ Parámetros:
 - ``--debug`` (opcional) Ejecuta la base de datos en modo depuración: ejecutando los condactos paso a paso, mientras muestra el valor de las banderas
 - ``--gui`` (opcional) Elige la interfaz gráfica a utilizar. Opciones posibles: pygame (interfaz gráfica con PyGame), stdio (interfaz sólo texto, usando la entrada y salida estándar) y telegram (interfaz para el bot de Telegram)
 - ``--scale`` (opcional) Elige el factor de escalado de la ventana, desde 1 hasta 9, con lo que ampliará todo hasta ese número de veces sin superar la resolución de pantalla. El valor por defecto será el factor máximo dentro de la resolución de pantalla
+- ``--system`` (opcional) Elige el sistema con el que tratar de cargar la base de datos, snapshot SNA, código fuente SCE, o carpeta dado. El funcionamiento por defecto es autodetectar el sistema a utilizar, probando varios en caso necesario
 
 
 Entorno de desarrollo integrado (IDE)

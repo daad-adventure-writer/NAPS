@@ -1033,6 +1033,7 @@ if __name__ == '__main__':
   argsParser.add_argument ('--icon', type = str, help = argparse.SUPPRESS)
   argsParser.add_argument ('--ide', action = 'store_true', help = argparse.SUPPRESS)
   argsParser.add_argument ('-s', '--scale', type = int, choices = range (1, 10), help = 'factor de escalado para la ventana')
+  argsParser.add_argument ('--system', choices = ('quill', 'paws', 'swan', 'daad'), help = 'usar este sistema en lugar de autodetectarlo')
   argsParser.add_argument ('--title', type = str, help = argparse.SUPPRESS)
   argsParser.add_argument ('bbdd', metavar = 'bd_cf_o_carpeta', nargs = '?' if QDialog else 1, help = 'base de datos, snapshot, código fuente, o carpeta de Quill/PAWS/SWAN/DAAD a ejecutar')
   argsParser.add_argument ('ruta_graficos', metavar = 'bd_o_carpeta_gráficos', nargs = '?', help = 'base de datos gráfica o carpeta de la que tomar las imágenes (con nombre pic###.png)')
@@ -1122,6 +1123,8 @@ if __name__ == '__main__':
   librerias = (f[:-3] for f in os.listdir (os.path.dirname (os.path.realpath (__file__)))
                if (f[:9] == 'libreria_' and f[-3:] == '.py'))
   for nombreModulo in librerias:
+    if args.system and nombreModulo != 'libreria_' + args.system:
+      continue
     try:
       modulo = __import__ (nombreModulo)
       if args.conversion and 'conversion' in modulo.__dict__ and 'conversion' in moduloConversion.__dict__:
