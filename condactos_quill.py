@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Condactos de The Quill
-# Copyright (C) 2010, 2019-2023 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2019-2024 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -265,6 +265,10 @@ def a1_SET (flagno):
   """Pone el valor de la bandera flagno a 255"""
   banderas[flagno] = 255
 
+
+def a2_BEEP (duration, pitch):
+  """Emite un pitido"""
+  prn ('a2_BEEP no implementado', file = sys.stderr)
 
 def a2_LET (flagno, value):
   """Pone el valor de la bandera flagno a value"""

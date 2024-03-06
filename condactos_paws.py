@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Condactos PAWS estándar
-# Copyright (C) 2010, 2018-2023 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2018-2024 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -234,6 +234,10 @@ def a0_AUTOW ():
 def a0_BACKAT ():
   """Cambia la posición del cursor de la subventana elegida, a la guardada mediante SAVEAT"""
   gui.carga_cursor()
+
+def a0_BELL ():
+  """Emite un pitido"""
+  prn ('a0_BELL no implementado', file = sys.stderr)
 
 def a0_DROPALL ():
   """Mueve todos los objetos llevados y puestos a la localidad actual, y deja la cuenta de objetos llevados (bandera 1) a 0"""
