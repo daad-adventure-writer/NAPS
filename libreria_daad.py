@@ -50,7 +50,8 @@ tablas_proceso  = []   # Tablas de proceso
 vocabulario     = []   # Vocabulario
 
 # Lista de funciones que importan bases de datos desde ficheros, con sus extensiones soportadas y descripción del tipo de fichero
-funcs_exportar = (('guarda_bd', ('ddb',), 'Bases de datos DAAD'), )
+funcs_exportar = (('guarda_bd',             ('ddb',), 'Base de datos DAAD'),
+                  ('guarda_bd_tradicional', ('ddb',), 'Base de datos DAAD (formato tradicional)'))
 funcs_importar = (('carga_bd',              ('ddb',), 'Bases de datos DAAD'),
                   ('carga_sce',             ('sce',), 'Código fuente de DAAD tradicional'))
 # Función que crea una nueva base de datos (vacía)
@@ -356,6 +357,23 @@ def cadena_es_mayor (cadena1, cadena2):
     numeros.append (codigos)
   return numeros[0] > numeros[1]
 
+def cambia_version (numero):
+  """Cambia el número de versión de la plataforma, al menos para genera.py"""
+  global guarda_int2, version, CAB_LONG_FICH
+  le = False
+  if plataforma in plats_LE:
+    le = True
+  if le:
+    guarda_int2 = guarda_int2_le
+  else:
+    guarda_int2 = guarda_int2_be
+  bajo_nivel_cambia_endian (le)
+  if numero < version:
+    CAB_LONG_FICH -= 2
+  elif numero > version:
+    CAB_LONG_FICH += 2
+  version = numero
+
 # Carga la base de datos entera desde el fichero de entrada
 # Para compatibilidad con el IDE:
 # - Recibe como primer parámetro un fichero abierto
@@ -423,6 +441,17 @@ def escribe_secs_ctrl (cadena):
   if nueva_version:
     cadena = cadena.replace ('\\b', '\x0b').replace ('\\k', '\x0c').replace ('\\s', ' ')
   return cadena.replace ('\\\\', '\\').replace ('\\n', '\n')
+
+def guarda_bd_tradicional (ficheroBD):
+  """Almacena la base de datos entera en el fichero dado, en el formato tradicional de DC (el compilador de DAAD original)"""
+  guardaBDOrden (ficheroBD,
+    ('vocabulario', 'abreviaturas', 'msgs_sys+pos', 'msgs_usr+pos', 'desc_objs+pos', 'desc_locs+pos', 'conexiones', 'pos_conexiones', 'nombres_objs', 'atributos', 'atributos_extra', 'locs_iniciales', 'procesos_ent_cab', 'pos_procesos'),
+    {
+      'abrev_sys':   False,
+      'abrev_usr':   False,
+      'calc_abrevs': False,
+      'funcs_ext':   False,
+    })
 
 def inicializa_banderas (banderas):
   """Inicializa banderas con valores propios de DAAD"""
@@ -587,7 +616,7 @@ def abreFichXMessages (numFichero):
     return None
   return fichero
 
-def abreviaCadenas ():
+def abreviaCadenas (locs = True, objs = True, sys = True, usr = True):
   """Abrevia las distintas cadenas abreviables"""
   global desc_locs_abrev, desc_objs_abrev, msgs_sys_abrev, msgs_usr_abrev
   desc_locs_abrev = []
@@ -596,21 +625,25 @@ def abreviaCadenas ():
   msgs_usr_abrev  = []
   if not abreviaturas:
     return
-  for cadena in desc_locs:
-    desc_locs_abrev.append (daCadenaAbreviada (cadena))
-  if compatibilidad:
-    for cadena in desc_objs:  # DC no los abrevia, porque no funciona bien en el intérprete
-      desc_objs_abrev.append (cadena)
-  else:
-    for cadena in desc_objs:
-      # XXX: ¿lista mal los objetos si se abrevian, al menos en la AO de PC (hace mal la conversión de su artículo)?
-      desc_objs_abrev.append (daCadenaAbreviada (cadena))
-  for cadena in msgs_sys:
-    # FIXME: parece mostrar mal alguno de ellos si se abrevian, al menos en la AO de PC
-    # tal vez abrevie mal
-    msgs_sys_abrev.append (daCadenaAbreviada (cadena))
-  for cadena in msgs_usr:
-    msgs_usr_abrev.append (daCadenaAbreviada (cadena))
+  if locs:
+    for cadena in desc_locs:
+      desc_locs_abrev.append (daCadenaAbreviada (cadena))
+  if objs:
+    # TODO: hacer esto cambiando el valor de objs, una vez esté la función guardaDescObjs
+    if compatibilidad:
+      for cadena in desc_objs:  # DC no los abrevia, porque no funciona bien en el intérprete
+        desc_objs_abrev.append (cadena)
+    else:
+      for cadena in desc_objs:
+        # XXX: ¿lista mal los objetos si se abrevian, al menos en la AO de PC (hace mal la conversión de su artículo)?
+        desc_objs_abrev.append (daCadenaAbreviada (cadena))
+  if sys:
+    for cadena in msgs_sys:
+      # FIXME: parece mostrar mal alguno de ellos si se abrevian, al menos en la AO de PC tal vez abrevie mal
+      msgs_sys_abrev.append (daCadenaAbreviada (cadena))
+  if usr:
+    for cadena in msgs_usr:
+      msgs_usr_abrev.append (daCadenaAbreviada (cadena))
 
 def calcula_abreviaturas (maxAbrev):
   """Calcula y devuelve las abreviaturas óptimas, y la longitud de las cadenas tras aplicarse
@@ -1125,6 +1158,7 @@ def guarda_bd_ (bbdd):
 
 def guarda_bd (bbdd):
   """Almacena la base de datos entera en el fichero de salida, por orden de conveniencia"""
+  # TODO: detectar cuando se sobrepasa el máximo valor representable en 16 bits para ocupado
   global abreviaturas, fich_sal
   longMin = 999999
   for maxAbrev in range (3, 30):
@@ -1317,12 +1351,133 @@ def guarda_bd (bbdd):
   fich_sal.seek (CAB_LONG_FICH)
   guarda_desplazamiento (ocupado)
 
+def guardaBDOrden (ficheroBD, orden, opciones):
+  """Almacena la base de datos entera en el fichero dado, siguiendo el orden dado y con las opciones dadas"""
+  global abreviaturas, fich_sal
+
+  fich_sal = ficheroBD
+  bajo_nivel_cambia_sal (ficheroBD)
+
+  opcs = {  # Opciones por defecto
+    'abreviar':    True,  # Si se desea usar abreviaturas
+    'abrev_locs':  True,  # Si se desea abreviar las descripciones de las localidades
+    'abrev_objs':  True,  # Si se desea abreviar las descripciones de los objetos
+    'abrev_sys':   True,  # Si se desea abreviar los mensajes de sistema
+    'abrev_usr':   True,  # Si se desea abreviar los mensajes de usuario
+    'chr_comodin': '_',   # Carácter que indica "cualquier palabra"
+    'calc_abrevs': True,  # Si se desea recalcular las abreviaturas
+    'funcs_ext':   None,  # Funciones externas, None replica las de la base de datos cargada
+  }
+  if compatibilidad:
+    opcs['abrev_objs'] = False
+  opcs.update (opciones)
+
+  comodin    = ord (opcs['chr_comodin'])
+  numLocs    = len (desc_locs)       # Número de localidades
+  numMsgsSys = len (msgs_sys)        # Número de mensajes de sistema
+  numMsgsUsr = len (msgs_usr)        # Número de mensajes de usuario
+  numProcs   = len (tablas_proceso)  # Número de tablas de proceso
+
+  # Guardamos los datos que ya tenemos de la cabecera
+  guarda_int1 (version)         # Versión del formato
+  guarda_int1 (plataforma + 1)  # Identificador de plataforma e idioma
+  guarda_int1 (comodin)         # Número de carácter que indica "cualquier palabra"
+  guarda_int1 (num_objetos[0])
+  guarda_int1 (numLocs)
+  guarda_int1 (numMsgsUsr)
+  guarda_int1 (numMsgsSys)
+  guarda_int1 (numProcs)
+  # TODO: funciones externas
+  for i in range (8, tam_cabecera):  # Rellenamos los punteros con ceros
+    guarda_int2 (50000)  # FIXME: dejar a 0
+  ocupado = tam_cabecera
+
+  # Preparamos las abreviaturas y las cadenas abreviadas
+  if opcs['abreviar']:
+    if opcs['calc_abrevs']:
+      longMin = 999999
+      for maxAbrev in range (3, 30):
+        try:
+          (posibles, longAbrev) = calcula_abreviaturas (maxAbrev)
+        except KeyboardInterrupt:
+          break
+        if longAbrev < longMin:
+          if compatibilidad:
+            abreviaturas = [chr (127)] + posibles  # Hay que dejar eso como la primera abreviatura
+          else:
+            abreviaturas = posibles
+          longMin = longAbrev  # Reducción máxima de longitud total de textos lograda
+          longMax = maxAbrev   # Longitud máxima en la búsqueda de abreviaturas
+      if longMin < longAntes:
+        prn (longAntes - longMin, 'bytes ahorrados por abreviación de textos')
+        prn ('La mejor combinación de abreviaturas se encontró con longitud máxima de abreviatura', longMax)
+        prn (len (abreviaturas), 'abreviaturas en total, que son:')
+        prn (abreviaturas)
+      else:
+          prn ('No se ahorra nada por abreviación de textos, abreviaturas desactivadas')
+          abreviaturas = []
+  else:
+    abreviaturas = []
+  abreviaCadenas (opcs['abrev_locs'], opcs['abrev_objs'], opcs['abrev_sys'], opcs['abrev_usr'])
+
+  # Guardamos el resto de secciones de la base de datos
+  # TODO: padding donde corresponda
+  for seccion in orden:
+    if seccion == 'abreviaturas':
+      espacio = guardaAbreviaturas()
+      if espacio:
+        fich_sal.seek (CAB_POS_ABREVS)
+        guarda_desplazamiento (ocupado)
+        ocupado += espacio
+        fich_sal.seek (ocupado)
+    elif seccion in ('desc_locs+pos', 'desc_objs+pos', 'msgs_sys+pos', 'msgs_usr+pos', 'pos+desc_locs', 'pos+desc_objs', 'pos+msgs_sys', 'pos+msgs_usr'):
+      if 'desc_locs' in seccion:
+        funcGuardaMsgs    = guardaDescLocs
+        funcGuardaPosMsgs = guardaPosDescLocs
+        msgs              = desc_locs
+        posCabPosMsgs     = CAB_POS_LST_POS_LOCS
+      elif 'desc_objs' in seccion:
+        funcGuardaMsgs    = guardaDescObjs
+        funcGuardaPosMsgs = guardaPosDescObjs
+        msgs              = desc_objs
+        posCabPosMsgs     = CAB_POS_LST_POS_OBJS
+      elif 'msgs_sys' in seccion:
+        funcGuardaMsgs    = guardaMsgsSys
+        funcGuardaPosMsgs = guardaPosMsgsSys
+        msgs              = msgs_sys
+        posCabPosMsgs     = CAB_POS_LST_POS_MSGS_SYS
+      else:  # 'msgs_usr' in seccion
+        funcGuardaMsgs    = guardaMsgsUsr
+        funcGuardaPosMsgs = guardaPosMsgsUsr
+        msgs              = msgs_usr
+        posCabPosMsgs     = CAB_POS_LST_POS_MSGS_USR
+      if seccion[0] == 'p':  # Posición antes
+        fich_sal.seek (posCabPosMsgs)
+        guarda_desplazamiento (ocupado)
+        fich_sal.seek (ocupado)
+        ocupado += funcGuardaPosMsgs (ocupado + len (msgs) * 2)
+        ocupado += funcGuardaMsgs    (ocupado)[0]
+      else:  # Posición después
+        espacio, posMsgs = funcGuardaMsgs (ocupado)
+        ocupado += espacio
+        fich_sal.seek (posCabPosMsgs)
+        guarda_desplazamiento (ocupado)
+        fich_sal.seek (ocupado)
+        ocupado += funcGuardaPosMsgs (posMsgs)
+    elif seccion == 'vocabulario':
+      fich_sal.seek (CAB_POS_VOCAB)
+      guarda_desplazamiento (ocupado)
+      fich_sal.seek (ocupado)
+      ocupado += guardaVocabulario()
+
 def guardaDescLocs (posInicial = 0):
   """Guarda la sección de descripciones de las localidades sobre el fichero de salida, y devuelve cuántos bytes ocupa la sección, y las posiciones de cada descripción incluyendo posInicial"""
   return guardaMsgs (desc_locs, desc_locs_abrev, posInicial)
 
 def guardaDescObjs (posInicial = 0):
   """Guarda la sección de descripciones de los objetos sobre el fichero de salida, y devuelve cuántos bytes ocupa la sección, y las posiciones de cada descripción incluyendo posInicial"""
+  if compatibilidad:
+    return guardaMsgs (desc_objs, None, posInicial)
   return guardaMsgs (desc_objs, desc_objs_abrev, posInicial)
 
 def guardaMsgs (msgs, msgsAbrev, posInicial = 0):

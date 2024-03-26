@@ -45,6 +45,9 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
   - Recibe como segundo parámetro la longitud del fichero abierto
   - Devuelve False si ha ocurrido algún error"""
   global erExpresiones, erSimbolo, simbolos
+  # if not condactos_nuevos:  # FIXME: quitar esto, es para que no intente cargar con PAWS
+  #   prn ('Omitiendo intento de carga con el sistema PAWS')
+  #   return False
   try:
     import lark
   except:
@@ -234,8 +237,18 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
         lineasCodigo[numLinea] = ';NAPS;' + lineasCodigo[numLinea]  # Ya procesada esta línea
       else:
         raise TabError ('una directiva de preprocesador válida', (), (numLinea + 1, 1))
+    # prn ('Aquí 0 bien (antes de parsear con Lark)')
+    # import resource
+    # import time
+    # timeInicio = time.time()
+    # import pdb
+    # pdb.set_trace()
+    # parserSCE = lark.Lark.open ('gramatica_sce.lark', __file__, lexer = 'contextual', parser = 'lalr', propagate_positions = True)
     parserSCE = lark.Lark.open ('gramatica_sce.lark', __file__, propagate_positions = True)
     arbolSCE  = parserSCE.parse ('\n'.join (lineasCodigo))
+    # prn (time.time() - timeInicio, 'segundos')
+    # prn (resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+    # prn ('Aquí 1 bien (justo tras parsear con Lark)')
     # Cargamos cada tipo de textos
     for idSeccion, listaCadenas in (('stx', msgs_sys), ('mtx', msgs_usr), ('otx', desc_objs), ('ltx', desc_locs)):
       for seccion in arbolSCE.find_data (idSeccion):
@@ -274,6 +287,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
               cadena += '\n'
           listaCadenas.append (cadena)
           numEntrada += 1
+    # prn ('Aquí 2 bien')
     # Cargamos el vocabulario
     adjetivos     = {'_': 255}
     adverbios     = {}
@@ -299,6 +313,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
         adjetivos[palabra] = codigo
       elif tipo == 4:
         preposiciones[palabra] = codigo
+    # prn ('Aquí 3 bien')
     # Cargamos las conexiones entre localidades
     numEntrada = 0
     for seccion in arbolSCE.find_data ('conentry'):
@@ -332,6 +347,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
       numEntrada += 1
     if numEntrada != len (desc_locs):
       raise TabError ('el mismo número de entradas de conexión (%d) que de descripciones de localidades (%d)', (numEntrada, len (desc_locs)))
+    # prn ('Aquí 4 bien')
     # Cargamos datos de los objetos
     numEntrada = 0
     for seccion in arbolSCE.find_data ('objentry'):
@@ -387,6 +403,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
     if numEntrada != len (desc_objs):
       raise TabError ('el mismo número de objetos (%d) que de descripciones de objetos (%d)', (numEntrada, len (desc_objs)))
     num_objetos[0] = numEntrada
+    # prn ('Aquí 5 bien')
     # Preparamos código y parámetros en cada versión, de los condactos, indexando por nombre
     datosCondactos = {}
     for listaCondactos in (condactos, condactos_nuevos):
@@ -424,6 +441,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
       cabeceras = []
       entradas  = []
       for procentry in seccion.find_data ('procentry'):
+        # prn ('Proceso', numProceso, 'entrada', len (entradas))
         palabras = []
         for word in procentry.find_data ('word'):
           palabra = str (word.children[0])[:LONGITUD_PAL].lower() if word.children else '_'
@@ -556,17 +574,18 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
           numColumna = posicion[1] if type (posicion) == tuple else posicion.column
     else:  # Es un error detectado por la librería Lark
       descripcion = str (e)
-      posLineaCol = descripcion.find (', at line ')
+      posLineaCol = descripcion.find (' at line ')
       if posLineaCol > -1:  # El mensaje de error indica la línea del error
-        inicioDetalles = descripcion.find ('\n', posLineaCol)
+        conComa = descripcion[posLineaCol - 1] == ','
+        inicioDetalles = descripcion.find ('\n', posLineaCol + 9)
         if inicioDetalles > -1:  # El mensaje de error tiene más de una línea
           detalles    = descripcion[inicioDetalles:]
           descripcion = descripcion[:inicioDetalles]
-        lineaColLark = descripcion[posLineaCol + 10:].split()
-        descripcion  = descripcion[:posLineaCol]
-        numLinea     = int (lineaColLark[0])
-        if len (lineaColLark) > 2 and lineaColLark[1] == 'col':  # El mensaje de error indica la columna del error
-          numColumna = lineaColLark[2]
+        lineaColLark = descripcion[posLineaCol + 9:].split()
+        descripcion  = descripcion[:posLineaCol - (1 if conComa else 0)]
+        numLinea     = int (lineaColLark[0].rstrip (','))
+        if len (lineaColLark) > 2 and lineaColLark[1][:3] == 'col':  # El mensaje de error indica la columna del error
+          numColumna = lineaColLark[2].rstrip ('.')
     if numLinea != None:  # Disponemos del número de línea del error
       # Buscamos el bloque de origenLineas donde está la línea del error
       o = 0

@@ -41,7 +41,7 @@ except:
   from PyQt5.QtWidgets import *
 
 
-carpeta_juegos = '../juegos'  # Ruta a la carpeta donde están los juegos
+carpeta_juegos = 'aventuras'  # Ruta a la carpeta donde están los juegos
 cod_interprete = 'utf-8'      # Codificación de entrada y salida del intérprete
 
 MAX_ESPERA    = 30 * 60  # Tiempo máximo desde la última orden que se reserva la plaza a los jugadores
@@ -142,6 +142,7 @@ def guia (message):
 
 @bot.message_handler (commands=['jugar', 'play'])
 def comandoJugar (message):
+  # FIXME: doble click sobre un botón de jugar lanza dos intérpretes
   eleccion = message.text[7 if message.text[1] == 'j' else 6:].strip()
   if eleccion not in juegos:
     bot.reply_to (message, 'Ese no es uno de los juegos disponibles.')
@@ -202,6 +203,7 @@ def ordenRecibida (message):
   enviar = message.text
   interpretes[usuario].stdin.write (enviar + '\n')
   interpretes[usuario].stdin.flush()
+  imprimeLog ('Recibida orden: "' + enviar + '" del jugador ' + str (usuario))
   if os.path.isfile ('recargar/juegos'):
     try:
       modulo = importlib.reload (bot_juegos)

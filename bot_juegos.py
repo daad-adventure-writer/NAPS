@@ -25,7 +25,20 @@
 # El formato es el siguiente:
 # Título del juego : [ruta a la carpeta/BD del juego, [parámetros para el intérprete]]
 juegos = {
-  'Aventura original': ['orig'],
-  'Hampstead':         ['hampstead.sna', ['-c32']],
-  'Supervivencia':     ['firfurcio.sna', ['--conversion', 'conv_firfurcio.py']],
+  'Aventura original':       ['original/dos/', ['--conversion', 'conversion.py']],
+  'Chichen Itzá':            ['chichen/dos'],
+  'Cozumel':                 ['cozumel/dos/', ['--conversion', 'conversion.py']],
+  'El cetro del sol':        ['cetro/dos'],
+  'El hobbit':               ['hobbit/amiga/', ['--conversion', 'conversion.py']],
+  'Hampstead':               ['hampstead/hampstead.sna', ['-c32']],
+  'Jabato':                  ['jabato/dos'],
+  'La sorpresa':             ['sorpresa/DAAD_nopics.DDB'],
+  'Los templos sagrados':    ['templos/dos'],
+  'Magic Castle':            ['castle/castle.pdb'],
+  'Maldición de Rabenstein': ['rabenstein/dos'],
+  'Mindfighter':             ['mindfighter/dos'],
+  'Rudolphine Rur':          ['rudolphine/dos'],
+  'Supervivencia':           ['firfurcio/firfurcio.sna', ['--conversion', 'conversion.py']],
+  'TEWK':                    ['tewk/TEWK.PDB'],
+  'The Ticket':              ['ticket/TICKET.PDB'],
 }

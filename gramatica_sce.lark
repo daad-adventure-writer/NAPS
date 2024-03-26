@@ -22,9 +22,9 @@ word: VOCWORD | "_"
 ctl: _CTL (_wsnl /[A-Z]/)? _wsnl "_"  // (_wsnl /[A-Z]/) usado en Amstrad CPC para indicar la letra de unidad donde guardar la base de datos
 _CTL: "/CTL"
 
-tok: _TOK _wsnlc (_wsnl TOKEN)*
+tok: _TOK _wsnl? (_wsnl TOKEN)*
 _TOK: "/TOK"
-TOKEN: /[^ \n\t]/ /[^ \n\t]/+
+TOKEN: /[^ ;\n\t\/]/ /[^ \n\t]/+
 
 voc: _VOC _wsnlc (_wsnl vocentry)*
 _VOC: "/VOC"
@@ -38,7 +38,7 @@ PREPOSITION: /preposition/i
 PRONOUN: /pronoun/i
 VERB: /verb/i
 
-TEXTLINE: "\n" /[^\n\/][^\n]*/?
+TEXTLINE: "\n" /[^;\n\/][^\n]*/?
 stxtextentry: "/" (UINT | expressionnomtx) _wsnlc TEXTLINE*
 SYMBOLNOMTX: /(?!MTX)/ /[A-Z_a-z][0-9A-Z_a-z]*/
 expressionnomtx: SYMBOLNOMTX _operations
@@ -70,9 +70,10 @@ conentry: "/" (SYMBOLNOOBJ | UINT) _wsnlc (_wsnl conitem)*
 conitem: word _WS (SYMBOLNOOBJ | UINT)
 SYMBOLNOOBJ: /(?!OBJ)/ /[A-Z_a-z][0-9A-Z_a-z]*/
 
-obj: _OBJ _wsnlc (_wsnl objentry)*
+obj: _OBJ _wsnlc (_wsnl objentry objwords)*
 _OBJ: "/OBJ"
-objentry: "/" (SYMBOLNOPRO | UINT) _WS objinitial _WS OBJWEIGHT _WS attr _WS attr (_WS attr)* _WS word _WS word
+objentry: "/" (SYMBOLNOPRO | UINT) _WS objinitial _WS OBJWEIGHT _WS attr _WS attr (_WS attr)*
+objwords: _WS word _WS word
 SYMBOLNOPRO: /(?!PRO)/ /[A-Z_a-z][0-9A-Z_a-z]*/
 objinitial: INT | CARRIED | WORN | "_" | SYMBOL
 OBJWEIGHT: INT
@@ -90,6 +91,6 @@ procentry: label word _WS word (_WS condact)? _wsnlc (_wsnl _WS condact)*
 label: (LABEL _wsnl)?
 LABEL: "$" /[A-ZÑ][A-Z0-9Ñ]*/
 condact: CONDACTNAME param*
-CONDACTNAME: /[A-Z][A-Z0-9]*/
+CONDACTNAME: /[A-Z]+[12]?/
 indirection: "[" (UINT | expression) "]"
 param: _WS (CARRIED | HERE | WORN | INT | expression | indirection | LABEL | VOCWORD | "_")

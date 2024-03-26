@@ -1266,9 +1266,12 @@ def daTextoImprimible (texto):
 def dialogoImportaBD ():
   """Deja al usuario elegir un fichero de base datos, y lo intenta importar"""
   global dlg_abrir
-  filtro = []
+  extSoportadas = set()  # Todas las extensiones soportadas
+  filtro        = []
   for modulo, funcion, extensiones, descripcion in info_importar:
     filtro.append (descripcion + ' (*.' + ' *.'.join (extensiones) + ')')
+    extSoportadas.update (extensiones)
+  filtro.append ('Todos los formatos soportados (*.' + ' *.'.join (sorted (extSoportadas)) + ')')
   if not dlg_abrir:  # Diálogo no creado aún
     dlg_abrir = QFileDialog (selector, 'Importar base de datos', os.curdir, ';;'.join (sorted (filtro)))
     dlg_abrir.setFileMode  (QFileDialog.ExistingFile)
@@ -1278,12 +1281,16 @@ def dialogoImportaBD ():
     dlg_abrir.setLabelText (QFileDialog.Accept,   '&Abrir')
     dlg_abrir.setLabelText (QFileDialog.Reject,   '&Cancelar')
     dlg_abrir.setOption    (QFileDialog.DontUseNativeDialog)
+  dlg_abrir.selectNameFilter (filtro[len (filtro) - 1])  # Elegimos el filtro de todos los formatos soportados
   if dlg_abrir.exec_():  # No se ha cancelado
     selector.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
     cierraDialogos()
     indiceFiltro  = filtro.index (dlg_abrir.selectedNameFilter())
     nombreFichero = (str if sys.version_info[0] > 2 else unicode) (dlg_abrir.selectedFiles()[0])
-    importaBD (nombreFichero, indiceFiltro)
+    if indiceFiltro == len (filtro) - 1:
+      importaBD (nombreFichero)
+    else:
+      importaBD (nombreFichero, indiceFiltro)
     selector.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
 
 def editaBandera (numBandera):
