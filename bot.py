@@ -4,7 +4,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Bot de Telegram para ejecutar aventuras mediante NAPS
-# Copyright (C) 2023 José Manuel Ferrer Ortiz
+# Copyright (C) 2023-2024 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -117,6 +117,7 @@ def menuPrincipal (message):
     interpretes[usuario].kill()
     limpiaRecursos (usuario)
   opciones = telebot.types.ReplyKeyboardMarkup (one_time_keyboard = True)
+  opciones.add (telebot.types.KeyboardButton ('/guia'))
   for nombreJuego in juegos:
     opciones.add (telebot.types.KeyboardButton ('/jugar ' + nombreJuego))
   bot.send_message (usuario, 'Bienvenido a NAPS bot, el bot de Telegram que utiliza NAPS para permitirte jugar una selección de aventuras conversacionales de los sistemas Quill, PAWS, SWAN o DAAD.', reply_markup = opciones)
@@ -127,7 +128,17 @@ def ayuda (message):
   usuario = message.chat.id
   bot.send_message (usuario, 'Utiliza el comando /quit o /start para terminar el juego en curso y preparar el botón de Telegram con la lista de juegos disponibles.')
   bot.send_message (usuario, 'Elige qué juego jugar o cambia el juego en curso con el comando /jugar o /play. Puedes usar el botón de Telegram para esta función.')
+  bot.send_message (usuario, '*NUEVO*: Utiliza el comando /guia para ver una breve guía sobre cómo jugar aventuras conversacionales.', parse_mode = 'markdown')
   bot.send_message (usuario, 'Utiliza el comando /ayuda o /help para volver a mostrar estos mensajes de ayuda.')
+
+@bot.message_handler (commands=['guia'])
+def guia (message):
+  usuario = message.chat.id
+  bot.send_message (usuario, 'Para que las aventuras conversacionales te entiendan, y puedas completarlas con éxito, sigue los siguientes consejos:')
+  bot.send_message (usuario, 'Da órdenes al juego indicándole lo que quieres que el protagonista haga, usando verbos en infinitivo. Por ejemplo: ESPERAR, COGER HACHA, ENTRAR.')
+  bot.send_message (usuario, 'Comandos típicos para manejo de objetos (entre paréntesis sus abreviaturas): INVENTARIO (I) te dice los objetos que tiene el protagonista, EXAMINAR, COGER, DEJAR, ABRIR, CERRAR, ENCENDER, APAGAR, METER, SACAR.')
+  bot.send_message (usuario, 'Comandos típicos para moverse entre localidades: SALIDAS te dice hacia dónde puede ir el protagonista, NORTE (N), SUR (S), ESTE (E), OESTE (O), ENTRAR, SALIR, SUBIR, BAJAR, NORESTE (NE), NOROESTE (NO), SURESTE (SE), SUROESTE (SO).')
+  bot.send_message (usuario, 'Para hablar con otro personaje, lo que quieres que diga el protagonista ponlo entre comillas dobles. Por ejemplo: DECIR A TOMAS "SIGUEME".')
 
 @bot.message_handler (commands=['jugar', 'play'])
 def comandoJugar (message):
