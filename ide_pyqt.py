@@ -454,7 +454,7 @@ class CampoTexto (QTextEdit):
           self.setTextCursor (cursor)
 
   def mousePressEvent (self, evento):
-    if evento.button() & Qt.LeftButton or evento.button() & Qt.RightButton:
+    if evento.button() & Qt.LeftButton or (evento.button() & Qt.RightButton and not self.textCursor().hasSelection()):
       cursor     = self.cursorForPosition (evento.pos())
       bloque     = cursor.block()
       columna    = cursor.positionInBlock()
