@@ -82,6 +82,7 @@ color_tope_pila = QColor (35, 40, 110)  # Color de fondo morado oscuro
 inicio_debug    = False  # Para hacer la inicialización de subventanas MDI al lanzar depuración
 pila_procs      = []     # Pila con estado de los procesos en ejecución
 proc_interprete = None   # Proceso del intérprete
+puntos_ruptura  = {}     # Puntos de ruptura donde pausar la ejecución, indexados por proceso
 
 # Identificadores (para hacer el código más legible) predefinidos
 IDS_LOCS = {
@@ -126,6 +127,90 @@ nombres_necesarios = (('acciones',          dict),
                       ('vocabulario',       list))
 
 
+class BarraIzquierda (QWidget):
+  """Barra vertical del margen izquierdo del campo de texto, para puntos de ruptura"""
+  anchoBarra = 20  # Ancho en píxeles de esta barra
+  diametro   = 16  # Diámetro del círculo indicador de punto de ruptura
+  margenHor  = 2   # Margen horizontal para el indicador de punto de ruptura
+
+  def __init__ (self, parent):
+    QWidget.__init__ (self, parent)
+
+  def enterEvent (self, evento):
+    selector.statusBar().showMessage ('Añade o elimina puntos de ruptura')
+
+  def leaveEvent (self, evento):
+    selector.statusBar().clearMessage()
+
+  def mousePressEvent (self, evento):
+    """Añade o elimina punto de ruptura al pulsar el ratón en la barra"""
+    linea = campo_txt.cursorForPosition (evento.pos()).block()
+    numEntrada, posicion = campo_txt._daNumEntradaYLinea (linea)
+    if posicion == 1:  # Es la línea en blanco tras la cabecera de entrada
+      return
+    numProceso = pestanyas.currentIndex()
+    proceso    = mod_actual.tablas_proceso[numProceso]  # El proceso de la posición pulsada
+    if not proceso[0]:  # El proceso no tiene entradas
+      return
+    entrada     = proceso[1][numEntrada]  # La entrada de la posición pulsada
+    numCondacto = max (-1, posicion - 2)
+    if numCondacto >= len (entrada):  # Es alguna de las líneas en blanco al final de la entrada
+      return
+    puntoRuptura = (numEntrada, numCondacto, posicion)
+    if numProceso not in puntos_ruptura:
+      puntos_ruptura[numProceso] = []
+    if puntoRuptura in puntos_ruptura[numProceso]:
+      puntos_ruptura[numProceso].remove (puntoRuptura)
+    else:
+      puntos_ruptura[numProceso].append (puntoRuptura)
+      puntos_ruptura[numProceso].sort()  # Se necesita ordenado
+    enviaPuntoRuptura (numProceso, numEntrada, numCondacto)
+    self.update()
+
+  def paintEvent (self, evento):
+    painter = QPainter (self)
+    painter.fillRect (evento.rect(), Qt.lightGray)
+    numProceso = pestanyas.currentIndex()
+    if numProceso not in puntos_ruptura or not puntos_ruptura[numProceso]:
+      return
+    linea = campo_txt.cursorForPosition (QPoint (0, 0)).block()
+    numEntrada, posicion = campo_txt._daNumEntradaYLinea (linea)
+    # Saltamos puntos de ruptura anteriores a esta posición (están ordenados)
+    for p in range (len (puntos_ruptura[numProceso])):
+      if puntos_ruptura[numProceso][p][0] > numEntrada or (puntos_ruptura[numProceso][p][0] == numEntrada and puntos_ruptura[numProceso][p][2] >= posicion):
+        break
+    else:  # No hay puntos de ruptura en este proceso desde la primera línea visible en adelante
+      return
+    # Detectamos si al inicio del campo de texto hay una línea incompleta o margen antes de la primera línea
+    alturaLinea = campo_txt.cursorRect().height()
+    for i in range (2, alturaLinea + 10, 2):
+      sigLinea    = campo_txt.cursorForPosition (QPoint (0, i)).block()
+      sigPosicion = campo_txt._daNumEntradaYLinea (sigLinea)[1]
+      if sigPosicion != posicion:  # Ya es la siguiente línea
+        # Vemos si el píxel anterior era también la siguiente línea ya, para centrar mejor los marcadores de ruptura
+        sigLinea = campo_txt.cursorForPosition (QPoint (0, i - 1)).block()
+        if campo_txt._daNumEntradaYLinea (sigLinea)[1] != posicion:
+          i -= 1
+        break
+    else:
+      prn ('FIXME: margen superior del campo de texto mayor de lo esperado', file = stderr)
+    # Dibujamos donde corresponda los marcadores de punto de ruptura visibles
+    margenSup      = i - alturaLinea  # Espacio que precede a la primera línea, por margen o por estar incompleta
+    lineasVisibles = ((self.size().height() - abs (margenSup)) // alturaLinea) + (1 if margenSup < 0 else 0) + 1
+    painter.setBrush (Qt.red)
+    l = 0  # Índice de línea actual
+    while p < len (puntos_ruptura[numProceso]) and l < lineasVisibles:
+      linea = campo_txt.cursorForPosition (QPoint (0, max (0, margenSup) + l * alturaLinea)).block()
+      numEntrada, posicion = campo_txt._daNumEntradaYLinea (linea)
+      if puntos_ruptura[numProceso][p][0] == numEntrada and puntos_ruptura[numProceso][p][2] == posicion:
+        painter.drawEllipse (self.margenHor, margenSup + max (0, (alturaLinea - self.diametro) // 2) + l * alturaLinea, self.diametro, self.diametro)
+        p += 1
+      l += 1
+
+  def wheelEvent (self, evento):
+    """Pasa el evento al campo de texto, para hacer scroll y cambiar el zoom como si fuera el mismo widget"""
+    campo_txt.wheelEvent (evento)
+
 class CampoTexto (QTextEdit):
   """Campo de texto para las tablas de proceso"""
   def __init__ (self, parent):
@@ -133,6 +218,8 @@ class CampoTexto (QTextEdit):
     self.actualizandoProceso = QTimer()
     self.actualizandoProceso.setSingleShot (True)
     self.actualizandoProceso.timeout.connect (actualizaProceso)
+    self.barra = BarraIzquierda (self)
+    self.setViewportMargins (self.barra.anchoBarra, 0, 0, 0)
 
   def _daColsValidas (self, textoLinea):
     """Devuelve las posiciones válidas para el cursor en la línea de tabla de proceso con texto dado"""
@@ -459,6 +546,7 @@ class CampoTexto (QTextEdit):
           cursor.movePosition (QTextCursor.StartOfBlock)
           cursor.movePosition (QTextCursor.WordRight, n = 4)  # Vamos al segundo parámetro
           self.setTextCursor (cursor)
+    self.barra.update()
 
   def mousePressEvent (self, evento):
     if evento.button() & Qt.LeftButton or (evento.button() & Qt.RightButton and not self.textCursor().hasSelection()):
@@ -488,6 +576,7 @@ class CampoTexto (QTextEdit):
 
   def resizeEvent (self, evento):
     super (CampoTexto, self).resizeEvent (evento)
+    self.barra.resize (self.barra.anchoBarra, evento.size().height())  # Actualizamos la altura de la barra izquierda
     if accMostrarRec.isChecked():  # Recortar al ancho de línea disponible
       try:
         self.anchoAntes
@@ -511,6 +600,12 @@ class CampoTexto (QTextEdit):
           self.cuentaDifAncho[diferencia] = 1
       self.actualizandoProceso.start (100)
       self.anchoAntes = evento.size().width()
+
+  def viewportEvent (self, evento):
+    resultado = super (CampoTexto, self).viewportEvent (evento)
+    if isinstance (evento, QMouseEvent) or isinstance (evento, QPaintEvent) or isinstance (evento, QResizeEvent) or isinstance (evento, QWheelEvent):
+      self.barra.update()
+    return resultado
 
   def wheelEvent (self, evento):
     if evento.modifiers() & Qt.ControlModifier:
@@ -1373,6 +1468,16 @@ def editaVocabulario (indice):
     return  # No se ha modificado
   nuevaEntradaVocabulario (nuevaPal, numFila)
 
+def enviaPuntoRuptura (numProceso, numEntrada, numCondacto):
+  """Envía al intérprete un punto de ruptura para añadirlo o eliminarlo"""
+  if not proc_interprete:
+    return
+  if sys.version_info[0] < 3:
+    proc_interprete.stdin.write ('$' + str (numProceso) + ',' + str (numEntrada) + ',' + str (numCondacto) + '\n')
+  else:  # Python 3+
+    proc_interprete.stdin.write (bytes ('$' + str (numProceso) + ',' + str (numEntrada) + ',' + str (numCondacto) + '\n', locale.getpreferredencoding()))
+  proc_interprete.stdin.flush()
+
 def ejecutaPasos (indicePasos):
   """Pide al intérprete ejecutar cierto número de pasos"""
   teclasPasos = '1 \t\n'
@@ -1401,6 +1506,10 @@ def ejecutaPorPasos ():
   hilo.cambiaImagen.connect   (actualizaVentanaJuego)
   hilo.cambiaPila.connect     (actualizaPosProcesos)
   hilo.start()
+  # Enviamos al intérprete los puntos de ruptura que ya haya
+  for numProceso in puntos_ruptura:
+    for numEntrada, numCondacto, posicion in puntos_ruptura[numProceso]:
+      enviaPuntoRuptura (numProceso, numEntrada, numCondacto)
 
 def exportaBD ():
   """Exporta la base de datos a fichero"""
@@ -1623,7 +1732,7 @@ def imprimeCondacto (condacto, parametros, inalcanzable = False, nuevaLinea = Tr
     if not inalcanzable and mensaje != None:
       if accMostrarRec.isChecked():  # Recortar al ancho de línea disponible
         qfm = QFontMetrics (campo_txt.font())
-        columnasVisibles = int (campo_txt.size().width() // (qfm.size (0, '#').width()))
+        columnasVisibles = int ((campo_txt.size().width() - BarraIzquierda.anchoBarra) // (qfm.size (0, '#').width()))
       if not accMostrarRec.isChecked() or columnasVisibles > 26:  # No recortamos o hay espacio suficiente para mostrar algo de texto
         mensaje = daTextoImprimible (mensaje)
         if not inalcanzable:

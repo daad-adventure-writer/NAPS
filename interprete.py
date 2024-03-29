@@ -35,20 +35,21 @@ import types     # Para poder comprobar si algo es una función
 
 # Variables de estado del intérprete
 
-banderas     = []     # Banderas del sistema
-conjunciones = []     # Palabras que son conjunciones
-dicc_vocab   = {}     # Vocabulario como diccionario, con el texto de las palabras como claves
-doall_activo = []     # Si hay bucle DOALL activo, guarda puntero al condacto DOALL activo
-frases       = []     # Buffer de órdenes parseadas por ejecutar, cuando el jugador tecleó más de una
-locs_objs    = []     # Localidades de los objetos
-orden        = ''     # Orden a medio obtener (para tiempo muerto)
-orden_psi    = ''     # Parte de la orden entrecomillada
-partida      = []     # Partida guardada mediante RAMSAVE
-peso_llevado = [0]    # Peso total de objetos llevados y puestos
-pila_procs   = []     # Pila con estado de los procesos en ejecución
-proceso_acc  = False  # Guarda si el proceso ejecutó alguna acción adecuada
-proceso_ok   = None   # Guarda si el proceso ha terminado con DONE u OK (True), NOTDONE (False) o ninguno de estos (None)
-pronombre    = ''     # Alguna palabra que sea pronombre
+banderas       = []     # Banderas del sistema
+conjunciones   = []     # Palabras que son conjunciones
+dicc_vocab     = {}     # Vocabulario como diccionario, con el texto de las palabras como claves
+doall_activo   = []     # Si hay bucle DOALL activo, guarda puntero al condacto DOALL activo
+frases         = []     # Buffer de órdenes parseadas por ejecutar, cuando el jugador tecleó más de una
+locs_objs      = []     # Localidades de los objetos
+orden          = ''     # Orden a medio obtener (para tiempo muerto)
+orden_psi      = ''     # Parte de la orden entrecomillada
+partida        = []     # Partida guardada mediante RAMSAVE
+peso_llevado   = [0]    # Peso total de objetos llevados y puestos
+pila_procs     = []     # Pila con estado de los procesos en ejecución
+proceso_acc    = False  # Guarda si el proceso ejecutó alguna acción adecuada
+proceso_ok     = None   # Guarda si el proceso terminó con DONE u OK (True), NOTDONE (False) o ninguno de estos (None)
+pronombre      = ''     # Alguna palabra que sea pronombre
+puntos_ruptura = []     # Puntos de ruptura donde pausar la ejecución
 
 modulos = []     # Módulos de condactos cargados
 traza   = False  # Si queremos una traza de la ejecución
@@ -717,12 +718,23 @@ def ejecuta_pasos (numPasos):
 Un paso es la comparación de una cabecera o la ejecución de un condacto.
 
 Devuelve True si ha ejecutado DESC o equivalente. False si se debe reiniciar la aventura"""
-  global pila_procs, proceso_ok
+  global pila_procs, proceso_ok, punto_ruptura_actual
+  try:
+    punto_ruptura_actual
+  except:
+    punto_ruptura_actual = ()
   for paso in range (numPasos):
     if traza and numPasos > 1 and paso:
       imprime_condacto()
     # Obtenemos los índices de tabla, entrada y condacto actuales
     numTabla, numEntrada, numCondacto = pila_procs[-1]
+    # Paramos en puntos de ruptura
+    if (numTabla, numEntrada, numCondacto) in puntos_ruptura:
+      if punto_ruptura_actual != (numTabla, numEntrada, numCondacto):
+        punto_ruptura_actual = (numTabla, numEntrada, numCondacto)
+        sys.stdout.flush()  # Que se imprima todo lo que quede
+        return
+      punto_ruptura_actual = ()
     tabla = tablas_proceso[numTabla]
     cambioFlujo = 0
     if numCondacto == -1 and tabla[0]:  # Toca comprobar la cabecera
@@ -1086,6 +1098,7 @@ if __name__ == '__main__':
   gui = __import__ ('gui_' + args.gui)
   gui.frase_guardada = frase_guardada
   gui.ide            = args.ide
+  gui.puntos_ruptura = puntos_ruptura
   gui.ruta_icono     = args.icon
   gui.titulo_ventana = args.title
   texto_nuevo        = gui.texto_nuevo

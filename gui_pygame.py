@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Interfaz gráfica de usuario (GUI) con PyGame para el intérprete PAW-like
-# Copyright (C) 2010, 2018-2023 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2018-2024 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -625,9 +625,19 @@ def espera_tecla (tiempo = 0, numPasos = False):
         return ord ('\r')
       if ord (entrada[0]) == 0 and len (entrada) > 1 and ord (entrada[1]) in teclas_ascii_inv:
         return teclas_ascii_inv[ord (entrada[1])]
-      if entrada[0] == '#' and len (entrada) > 3:  # Cambio de valor de bandera
-        valores = entrada[1:].split ('=' if type (entrada) == str else b'=')
-        banderas_viejas[int (valores[0])] = int (valores[1])  # Actualizamos el valor de la bandera en su módulo
+      if entrada[0] in ('#', '$') and len (entrada) > 3:  # Cambio de valor de bandera o punto de ruptura
+        separador = '=' if entrada[0] == '#' else ','
+        if type (entrada) != str:
+          separador = separador.encode ('iso-8859-15')
+        valores = entrada[1:].split (separador)
+        if entrada[0] == '#':  # Cambio de valor de bandera
+          banderas_viejas[int (valores[0])] = int (valores[1])  # Actualizamos el valor de la bandera en su módulo
+        else:  # Añadir o quitar punto de ruptura
+          puntoRuptura = (int (valores[0]), int (valores[1]), int (valores[2]))
+          if puntoRuptura in puntos_ruptura:
+            puntos_ruptura.remove (puntoRuptura)
+          else:
+            puntos_ruptura.append (puntoRuptura)
         continue
       return ord (entrada[0] if entrada else '\r')
   pygame.time.set_timer (pygame.USEREVENT, tiempo * 1000)  # Ponemos el timer
