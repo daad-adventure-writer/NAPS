@@ -1564,7 +1564,7 @@ def imprimeCondacto (condacto, parametros, inalcanzable = False, nuevaLinea = Tr
       nombre    = 'DEBUG'
   else:  # No debería ocurrir
     if not inalcanzable:
-      prn ('FIXME: Condacto', condacto, 'no reconocido por la librería')
+      prn ('FIXME: Condacto', condacto, 'no reconocido por la librería', file = stderr)
       campo_txt.setTextColor (QColor (255, 0, 0))  # Color rojo
     nombre      = str (condacto)
     tiposParams = '?' * len (parametros)
