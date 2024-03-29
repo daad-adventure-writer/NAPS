@@ -390,6 +390,22 @@ class CampoTexto (QTextEdit):
         cursor.movePosition (QTextCursor.Left,         QTextCursor.KeepAnchor)
         self.setTextCursor (cursor)
         self.cut()
+        # Actualizamos los puntos de ruptura necesarios de la entrada
+        if numProceso in puntos_ruptura:
+          # Quitamos punto de ruptura del condacto quitado si tenía
+          if (numEntrada, posicion - 2, posicion) in puntos_ruptura[numProceso]:
+            puntos_ruptura[numProceso].remove ((numEntrada, posicion - 2, posicion))
+          # Saltamos puntos de ruptura anteriores a la posición del condacto quitado
+          e = 0
+          while e < len (puntos_ruptura[numProceso]):
+            if puntos_ruptura[numProceso][e][0] > numEntrada or (puntos_ruptura[numProceso][e][0] == numEntrada and puntos_ruptura[numProceso][e][2] > posicion):
+              break
+            e += 1
+          # Actualizamos los puntos de ruptura de condactos en la entrada posteriores al quitado
+          for pe in range (e, len (puntos_ruptura[numProceso])):
+            if puntos_ruptura[numProceso][pe][0] > numEntrada:
+              break
+            puntos_ruptura[numProceso][pe] = (puntos_ruptura[numProceso][pe][0], puntos_ruptura[numProceso][pe][1] - 1, puntos_ruptura[numProceso][pe][2] - 1)
     elif evento.key() == Qt.Key_Insert:
       if self.overwriteMode():
         self.setCursorWidth   (1)
@@ -478,6 +494,23 @@ class CampoTexto (QTextEdit):
               cursor.movePosition (QTextCursor.StartOfBlock)
               cursor.movePosition (QTextCursor.WordRight, n = 2)
             self.setTextCursor (cursor)
+            # Actualizamos los puntos de ruptura de condactos en la entrada posteriores al añadido
+            if numProceso in puntos_ruptura and not self.overwriteMode() and posicion < len (entrada) + 1:
+              # import pdb
+              # pdb.set_trace()
+              if columna >= len (linea.text()):  # Era fin de línea, condacto añadido después
+                posicion += 1
+              # Saltamos puntos de ruptura anteriores a la posición del condacto añadido
+              e = 0
+              while e < len (puntos_ruptura[numProceso]):
+                if puntos_ruptura[numProceso][e][0] > numEntrada or (puntos_ruptura[numProceso][e][0] == numEntrada and puntos_ruptura[numProceso][e][2] >= posicion):
+                  break
+                e += 1
+              # Actualizamos los puntos de ruptura de condactos en la entrada posteriores al añadido
+              for pe in range (e, len (puntos_ruptura[numProceso])):
+                if puntos_ruptura[numProceso][pe][0] > numEntrada:
+                  break
+                puntos_ruptura[numProceso][pe] = (puntos_ruptura[numProceso][pe][0], puntos_ruptura[numProceso][pe][1] + 1, puntos_ruptura[numProceso][pe][2] + 1)
       elif linea.userState() > -1:  # Estamos en la cabecera
         prn ('En cabecera')
     elif evento.key() in (Qt.Key_At, Qt.Key_BracketLeft) and mod_actual.INDIRECCION:
@@ -1972,8 +2005,21 @@ def nuevaEntradaProceso (posicion):
     posicion = 0
   numProceso = pestanyas.currentIndex()
   proceso    = mod_actual.tablas_proceso[numProceso]  # El proceso seleccionado
+  # Añadimos la nueva entrada
   proceso[0].insert (posicion, [255, 255])
   proceso[1].insert (posicion, [])
+  # Actualizamos los puntos de ruptura que quedan detrás de la nueva entrada
+  if numProceso in puntos_ruptura:
+    # Saltamos puntos de ruptura de entradas anteriores
+    e = 0
+    while e < len (puntos_ruptura[numProceso]):
+      if puntos_ruptura[numProceso][e][0] >= posicion:
+        break
+      e += 1
+    # Actualizamos los puntos de ruptura de entradas posteriores a la nueva
+    for pe in range (e, len (puntos_ruptura[numProceso])):
+      puntos_ruptura[numProceso][pe] = (puntos_ruptura[numProceso][pe][0] + 1, puntos_ruptura[numProceso][pe][1], puntos_ruptura[numProceso][pe][2])
+  # Redibujamos el campo de texto para reflejar los cambios
   cambiaProceso (numProceso, posicion)
 
 def nuevaEntradaVocabulario (entrada, numFilaAntes = None):
@@ -2031,16 +2077,37 @@ def quitaEntradaProceso (posicion):
   """Quita la entrada de proceso de la posición dada como parámetro"""
   numProceso = pestanyas.currentIndex()
   proceso    = mod_actual.tablas_proceso[numProceso]  # El proceso seleccionado
+  # Quitamos la entrada
   del proceso[0][posicion]
   del proceso[1][posicion]
+  # Quitamos los puntos de ruptura de la entrada y actualizamos los de detrás
+  if numProceso in puntos_ruptura:
+    # Saltamos puntos de ruptura de entradas anteriores
+    e = 0
+    while e < len (puntos_ruptura[numProceso]):
+      if puntos_ruptura[numProceso][e][0] >= posicion:
+        break
+      e += 1
+    # Quitamos puntos de ruptura de la entrada quitada
+    while e < len (puntos_ruptura[numProceso]) and puntos_ruptura[numProceso][e][0] == posicion:
+      puntos_ruptura[numProceso].pop (e)
+    # Actualizamos los puntos de ruptura de entradas posteriores a la nueva
+    for pe in range (e, len (puntos_ruptura[numProceso])):
+      puntos_ruptura[numProceso][pe] = (puntos_ruptura[numProceso][pe][0] - 1, puntos_ruptura[numProceso][pe][1], puntos_ruptura[numProceso][pe][2])
+  # Redibujamos el campo de texto para reflejar los cambios
   cambiaProceso (numProceso, max (0, posicion - 1))
 
 def quitaEntradasProceso ():
   """Quita la entradas del proceso seleccionado"""
   numProceso = pestanyas.currentIndex()
   proceso    = mod_actual.tablas_proceso[numProceso]  # El proceso seleccionado
+  # Quitamos las entradas
   del proceso[0][:]
   del proceso[1][:]
+  # Quitamos los puntos de ruptura del proceso
+  if numProceso in puntos_ruptura:
+    del puntos_ruptura[numProceso][:]
+  # Redibujamos el campo de texto para reflejar los cambios
   cambiaProceso (numProceso)
 
 def postCarga (nombre):
