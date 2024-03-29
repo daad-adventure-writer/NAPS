@@ -211,8 +211,11 @@ class CampoTexto (QTextEdit):
     accionDespues  = QAction ('Añadir entrada &después', contextual)
     accionElimEnt  = QAction ('Esta entrada',       selector)  # Necesario poner como padre selector...
     accionElimTodo = QAction ('Todas las entradas', selector)  # ... para que funcionen los status tips
-    if numEntrada == -1:
+    if numEntrada == -1 or self.textCursor().hasSelection():
       menuEliminar.setEnabled (False)
+    if self.textCursor().hasSelection():
+      accionAntes.setEnabled (False)
+      accionDespues.setEnabled (False)
     accionElimTodo.setStatusTip ('Elimina todas las entradas del proceso')
     accionElimEnt.triggered.connect  (lambda: quitaEntradaProceso (numEntrada))
     accionElimTodo.triggered.connect (quitaEntradasProceso)
