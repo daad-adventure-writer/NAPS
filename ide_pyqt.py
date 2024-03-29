@@ -193,7 +193,7 @@ class BarraIzquierda (QWidget):
           i -= 1
         break
     else:
-      prn ('FIXME: margen superior del campo de texto mayor de lo esperado', file = stderr)
+      prn ('FIXME: margen superior del campo de texto mayor de lo esperado', file = sys.stderr)
     # Dibujamos donde corresponda los marcadores de punto de ruptura visibles
     margenSup      = i - alturaLinea  # Espacio que precede a la primera línea, por margen o por estar incompleta
     lineasVisibles = ((self.size().height() - abs (margenSup)) // alturaLinea) + (1 if margenSup < 0 else 0) + 1
@@ -1706,7 +1706,7 @@ def imprimeCondacto (condacto, parametros, inalcanzable = False, nuevaLinea = Tr
       nombre    = 'DEBUG'
   else:  # No debería ocurrir
     if not inalcanzable:
-      prn ('FIXME: Condacto', condacto, 'no reconocido por la librería', file = stderr)
+      prn ('FIXME: Condacto', condacto, 'no reconocido por la librería', file = sys.stderr)
       campo_txt.setTextColor (QColor (255, 0, 0))  # Color rojo
     nombre      = str (condacto)
     tiposParams = '?' * len (parametros)
