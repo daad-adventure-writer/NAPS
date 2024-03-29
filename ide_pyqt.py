@@ -468,8 +468,6 @@ class CampoTexto (QTextEdit):
           if enlace and enlace[:8] == 'proceso:':
             self.quitaFormatoEnlace()  # Quitamos el formato anterior
             pestanyas.setCurrentIndex (int (enlace[8:]))
-        else:
-          return
     super (CampoTexto, self).mousePressEvent (evento)
 
   def quitaFormatoEnlace (self):
