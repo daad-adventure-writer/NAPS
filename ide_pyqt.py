@@ -1901,6 +1901,7 @@ def muestraProcesos ():
   campo_txt    = CampoTexto (dlg_procesos)
   layout.addWidget (pestanyas)
   layout.addWidget (campo_txt)
+  layout.setMargin (1)
   pestanyas.currentChanged.connect (cambiaProceso)
   num_procesos = len (mod_actual.tablas_proceso)
   for numero in range (num_procesos):
