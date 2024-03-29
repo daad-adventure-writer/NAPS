@@ -313,11 +313,11 @@ class CampoTexto (QTextEdit):
           self.zoomOut (2)
         else:
           self.zoomIn (2)
-        if accMostrarRec.isChecked():  # Recortar al ancho de línea disponible
+        if accMostrarRec.isChecked():  # Se recortará al ancho de línea disponible
           self.actualizandoProceso.start (100)
       elif evento.key() == Qt.Key_G:
         irAEntradaProceso()
-      else:
+      elif evento.key() not in (Qt.Key_V, Qt.Key_X):  # Descartamos las combinaciones de pegar y cortar
         super (CampoTexto, self).keyPressEvent (evento)
     elif proc_interprete:
       return  # No se puede modificar nada cuando la BD está en ejecución
