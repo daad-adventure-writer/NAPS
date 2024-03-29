@@ -201,7 +201,11 @@ class CampoTexto (QTextEdit):
     # prn ('Nº entrada guardado en la línea:', linea.userState())
     # prn ('Nº entrada guardado en cabecera:', cabecera.userState())
     # prn ('Texto de la línea:', linea.text())
-    contextual   = self.createStandardContextMenu()
+    contextual = self.createStandardContextMenu()
+    # Deshabilitamos al menos de momento las acciones de cortar, pegar y eliminar
+    for accion in contextual.actions():
+      if 'Ctrl+V' in accion.text() or 'Ctrl+X' in accion.text() or 'Delete' in accion.text():
+        accion.setEnabled (False)
     menuEliminar = QMenu ('Eliminar', contextual)
     accionAntes    = QAction ('Añadir entrada &antes',   contextual)
     accionDespues  = QAction ('Añadir entrada &después', contextual)
