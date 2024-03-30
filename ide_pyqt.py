@@ -419,7 +419,9 @@ class CampoTexto (QTextEdit):
           self.zoomOut (2)
         else:
           self.zoomIn (2)
-        if accMostrarRec.isChecked():  # Se recortará al ancho de línea disponible
+        if self.overwriteMode():
+          self.setCursorWidth (int (self.font().pointSize() * 0.8))
+        if accMostrarRec.isChecked():  # Recortar al ancho de línea disponible
           self.actualizandoProceso.start (100)
       elif evento.key() == Qt.Key_G:
         irAEntradaProceso()
@@ -647,7 +649,7 @@ class CampoTexto (QTextEdit):
       else:
         self.zoomIn (2)
       if self.overwriteMode():
-        self.setCursorWidth (self.font().pointSize() * 0.8)
+        self.setCursorWidth (int (self.font().pointSize() * 0.8))
       if accMostrarRec.isChecked():  # Recortar al ancho de línea disponible
         self.actualizandoProceso.start (100)
     else:
