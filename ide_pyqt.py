@@ -83,6 +83,7 @@ inicio_debug    = False  # Para hacer la inicialización de subventanas MDI al la
 pila_procs      = []     # Pila con estado de los procesos en ejecución
 proc_interprete = None   # Proceso del intérprete
 puntos_ruptura  = {}     # Puntos de ruptura donde pausar la ejecución, indexados por proceso
+tam_fuente      = 12     # El tamaño de fuente para el diálogo de procesos
 
 # Identificadores (para hacer el código más legible) predefinidos
 IDS_LOCS = {
@@ -348,6 +349,7 @@ class CampoTexto (QTextEdit):
       self.setTextCursor (cursor)
 
   def keyPressEvent (self, evento):
+    global tam_fuente
     if evento.key() in (Qt.Key_Down, Qt.Key_End, Qt.Key_Home, Qt.Key_Left, Qt.Key_Right, Qt.Key_Up):
       cursor = self.textCursor()
       if evento.key() in (Qt.Key_Down, Qt.Key_Up):
@@ -411,16 +413,22 @@ class CampoTexto (QTextEdit):
         self.setCursorWidth   (1)
         self.setOverwriteMode (False)
       else:
-        self.setCursorWidth   (self.font().pointSize() * 0.8)
+        self.setCursorWidth   (int (tam_fuente * 0.7))
         self.setOverwriteMode (True)
     elif evento.modifiers() & Qt.ControlModifier:  # Teclas de acción
       if evento.key() in (Qt.Key_Minus, Qt.Key_Plus):
+        cursor = self.textCursor()
+        self.selectAll()
         if evento.key() == Qt.Key_Minus:
-          self.zoomOut (2)
+          tam_fuente -= 2
         else:
-          self.zoomIn (2)
+          tam_fuente += 2
         if self.overwriteMode():
-          self.setCursorWidth (int (self.font().pointSize() * 0.8))
+          self.setCursorWidth (int (tam_fuente * 0.7))
+        fuente = self.font()
+        fuente.setPixelSize (tam_fuente)
+        self.setFont (fuente)
+        self.setTextCursor (cursor)
         if accMostrarRec.isChecked():  # Recortar al ancho de línea disponible
           self.actualizandoProceso.start (100)
       elif evento.key() == Qt.Key_G:
@@ -643,13 +651,20 @@ class CampoTexto (QTextEdit):
     return resultado
 
   def wheelEvent (self, evento):
+    global tam_fuente
     if evento.modifiers() & Qt.ControlModifier:
+      cursor = self.textCursor()
+      self.selectAll()
       if (evento.delta() if vers_pyqt < 5 else evento.angleDelta().y()) < 0:
-        self.zoomOut (2)
+        tam_fuente = max (8, tam_fuente - 2)
       else:
-        self.zoomIn (2)
+        tam_fuente += 2
       if self.overwriteMode():
-        self.setCursorWidth (int (self.font().pointSize() * 0.8))
+        self.setCursorWidth (int (tam_fuente * 0.7))
+      fuente = self.font()
+      fuente.setPixelSize (tam_fuente)
+      self.setFont (fuente)
+      self.setTextCursor (cursor)
       if accMostrarRec.isChecked():  # Recortar al ancho de línea disponible
         self.actualizandoProceso.start (100)
     else:
@@ -1921,6 +1936,7 @@ def muestraProcesos ():
   paleta.setColor (QPalette.Base, color_base)              # Color de fondo gris oscuro
   paleta.setColor (QPalette.Text, QColor (255, 255, 255))  # Color de frente (para el cursor) blanco
   fuente = QFont ('Courier')  # Fuente que usaremos
+  fuente.setPixelSize (tam_fuente)
   fuente.setStyleHint (QFont.TypeWriter)  # Como alternativa, usar una fuente monoespaciada
   campo_txt.setFont            (fuente)
   campo_txt.setPalette         (paleta)
