@@ -183,28 +183,38 @@ class BarraIzquierda (QWidget):
     else:  # No hay puntos de ruptura en este proceso desde la primera línea visible en adelante
       return
     # Detectamos si al inicio del campo de texto hay una línea incompleta o margen antes de la primera línea
-    alturaLinea = campo_txt.cursorRect().height()
-    for i in range (2, alturaLinea + 10, 2):
+    alturaLinea = tam_fuente   # Sirve como cota inferior
+    for i in range (1, alturaLinea * 2, 2):
       sigLinea    = campo_txt.cursorForPosition (QPoint (0, i)).block()
       sigPosicion = campo_txt._daNumEntradaYLinea (sigLinea)[1]
       if sigPosicion != posicion:  # Ya es la siguiente línea
-        # Vemos si el píxel anterior era también la siguiente línea ya, para centrar mejor los marcadores de ruptura
-        sigLinea = campo_txt.cursorForPosition (QPoint (0, i - 1)).block()
-        if campo_txt._daNumEntradaYLinea (sigLinea)[1] != posicion:
-          i -= 1
         break
-    else:
-      prn ('FIXME: margen superior del campo de texto mayor de lo esperado', file = sys.stderr)
+    else:  # Margen superior del campo de texto mayor de lo esperado
+      # Puede ocurrir mientras se redibuja el campo de texto, y cuando la línea ocupa varias
+      i = alturaLinea + 1
     # Dibujamos donde corresponda los marcadores de punto de ruptura visibles
-    margenSup      = i - alturaLinea  # Espacio que precede a la primera línea, por margen o por estar incompleta
+    margenSup      = i - alturaLinea - 1  # Espacio que precede a la primera línea, por margen o por estar incompleta
     lineasVisibles = ((self.size().height() - abs (margenSup)) // alturaLinea) + (1 if margenSup < 0 else 0) + 1
     painter.setBrush (Qt.red)
-    l = 0  # Índice de línea actual
+    l        = 0          # Índice de línea actual
+    coordY   = margenSup  # Coordenada y que se comprobará para saber qué línea es
+    posAntes = -2         # Posición encontrada anteriormente, para distinguir cuándo cambia la línea
     while p < len (puntos_ruptura[numProceso]) and l < lineasVisibles:
-      linea = campo_txt.cursorForPosition (QPoint (0, max (0, margenSup) + l * alturaLinea)).block()
+      linea = campo_txt.cursorForPosition (QPoint (0, max (0, coordY))).block()
       numEntrada, posicion = campo_txt._daNumEntradaYLinea (linea)
+      if posicion == posAntes:  # Todavía es la misma línea
+        coordY += alturaLinea
+        continue
+      posAntes = posicion
       if puntos_ruptura[numProceso][p][0] == numEntrada and puntos_ruptura[numProceso][p][2] == posicion:
-        painter.drawEllipse (self.margenHor, margenSup + max (0, (alturaLinea - self.diametro) // 2) + l * alturaLinea, self.diametro, self.diametro)
+        # Buscamos exactamente el primer píxel donde empieza
+        y = coordY
+        for y in range (coordY - 1, max (0, coordY - 2 * alturaLinea), -1):
+          linea = campo_txt.cursorForPosition (QPoint (0, y)).block()
+          if campo_txt._daNumEntradaYLinea (linea)[1] != posicion:
+            break
+        # Dibujamos el marcador de punto de ruptura
+        painter.drawEllipse (self.margenHor, y + (alturaLinea - self.diametro) // 2, self.diametro, self.diametro)
         p += 1
       l += 1
 
