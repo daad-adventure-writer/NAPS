@@ -602,21 +602,24 @@ class CampoTexto (QTextEdit):
     self.barra.update()
 
   def mousePressEvent (self, evento):
-    if evento.button() & Qt.LeftButton or (evento.button() & Qt.RightButton and not self.textCursor().hasSelection()):
-      cursor     = self.cursorForPosition (evento.pos())
-      bloque     = cursor.block()
-      columna    = cursor.positionInBlock()
-      textoLinea = bloque.text()
-      colNueva   = self._daColValida (columna, textoLinea)
-      cursor.setPosition (cursor.position() + (colNueva - columna))
-      self.setTextCursor (cursor)
-      if evento.button() & Qt.LeftButton:
-        if evento.modifiers() & Qt.ControlModifier:  # Puede ser Ctrl+click en un enlace
-          enlace = self.anchorAt (evento.pos())
-          if enlace and enlace[:8] == 'proceso:':
-            self.quitaFormatoEnlace()  # Quitamos el formato anterior
-            pestanyas.setCurrentIndex (int (enlace[8:]))
+    if evento.button() & Qt.LeftButton and evento.modifiers() & Qt.ControlModifier:  # Puede ser Ctrl+click en un enlace
+      enlace = self.anchorAt (evento.pos())
+      if enlace and enlace[:8] == 'proceso:':
+        self.quitaFormatoEnlace()  # Quitamos el formato anterior
+        pestanyas.setCurrentIndex (int (enlace[8:]))
+        return
     super (CampoTexto, self).mousePressEvent (evento)
+
+  def mouseReleaseEvent (self, evento):
+    if not evento.button() & Qt.LeftButton or self.textCursor().hasSelection():
+      return super (CampoTexto, self).mouseReleaseEvent (evento)
+    cursor     = self.cursorForPosition (evento.pos())
+    bloque     = cursor.block()
+    columna    = cursor.positionInBlock()
+    textoLinea = bloque.text()
+    colNueva   = self._daColValida (columna, textoLinea)
+    cursor.setPosition (cursor.position() + (colNueva - columna))
+    self.setTextCursor (cursor)
 
   def quitaFormatoEnlace (self):
     """Quita el formato de enlace a la posición del cursor actual"""
