@@ -27,6 +27,7 @@ from alto_nivel import *
 from prn_func   import prn
 
 import argparse    # Para procesar argumentos de línea de comandos
+import gettext     # Para localización
 import locale      # Para codificar bien la salida estándar
 import os          # Para curdir, listdir y path
 import subprocess  # Para ejecutar el intérprete
@@ -42,10 +43,6 @@ except:
   from PyQt5.QtGui     import *
   from PyQt5.QtWidgets import *
   vers_pyqt = 5
-
-
-# TODO: Hacerlo internacionalizable:
-# http://www.riverbankcomputing.co.uk/static/Docs/PyQt4/html/qcoreapplication.html#translate
 
 
 dlg_abrir       = None  # Diálogo de abrir fichero
@@ -128,6 +125,24 @@ nombres_necesarios = (('acciones',          dict),
                       ('vocabulario',       list))
 
 
+# Preparativos para la localización de textos
+
+def traduceConGettext (cadena):
+  return unicode (gettext.gettext (cadena).decode ('utf8'))
+
+if os.name == 'nt':
+  import locale
+  if not os.getenv ('LANG') and not os.getenv ('LANGUAGE'):
+    idioma, codificacion   = locale.getdefaultlocale()
+    os.environ['LANG']     = idioma
+    os.environ['LANGUAGE'] = idioma
+
+gettext.bindtextdomain ('naps', os.path.join (os.path.abspath (os.path.dirname (__file__)), 'locale'))
+gettext.textdomain ('naps')
+_ = traduceConGettext if sys.version_info[0] < 3 else gettext.gettext
+argparse._ = _
+
+
 class BarraIzquierda (QWidget):
   """Barra vertical del margen izquierdo del campo de texto, para puntos de ruptura"""
   anchoBarra = 20  # Ancho en píxeles de esta barra
@@ -138,7 +153,7 @@ class BarraIzquierda (QWidget):
     QWidget.__init__ (self, parent)
 
   def enterEvent (self, evento):
-    selector.statusBar().showMessage ('Añade o elimina puntos de ruptura')
+    selector.statusBar().showMessage (_('Adds or removes breakpoints'))
 
   def leaveEvent (self, evento):
     selector.statusBar().clearMessage()
@@ -304,17 +319,17 @@ class CampoTexto (QTextEdit):
     for accion in contextual.actions():
       if 'Ctrl+V' in accion.text() or 'Ctrl+X' in accion.text() or 'Delete' in accion.text():
         accion.setEnabled (False)
-    menuEliminar = QMenu ('Eliminar', contextual)
-    accionAntes    = QAction ('Añadir entrada &antes',   contextual)
-    accionDespues  = QAction ('Añadir entrada &después', contextual)
-    accionElimEnt  = QAction ('Esta entrada',       selector)  # Necesario poner como padre selector...
-    accionElimTodo = QAction ('Todas las entradas', selector)  # ... para que funcionen los status tips
+    menuEliminar = QMenu (_('Delete'), contextual)
+    accionAntes    = QAction (_('Add entry &before'),   contextual)
+    accionDespues  = QAction (_('Add entry &after'), contextual)
+    accionElimEnt  = QAction (_('This entry'),       selector)  # Necesario poner como padre selector...
+    accionElimTodo = QAction (_('All entries'), selector)       # ... para que funcionen los status tips
     if numEntrada == -1 or self.textCursor().hasSelection():
       menuEliminar.setEnabled (False)
     if self.textCursor().hasSelection():
       accionAntes.setEnabled (False)
       accionDespues.setEnabled (False)
-    accionElimTodo.setStatusTip ('Elimina todas las entradas del proceso')
+    accionElimTodo.setStatusTip (_('Deletes all entries in the process'))
     accionElimEnt.triggered.connect  (lambda: quitaEntradaProceso (numEntrada))
     accionElimTodo.triggered.connect (quitaEntradasProceso)
     accionAntes.triggered.connect    (lambda: nuevaEntradaProceso (numEntrada))
@@ -325,7 +340,7 @@ class CampoTexto (QTextEdit):
     contextual.addAction (accionAntes)
     contextual.addAction (accionDespues)
     contextual.addMenu   (menuEliminar)
-    contextual.addAction ('&Ir a la entrada', irAEntradaProceso, 'Ctrl+G')
+    contextual.addAction (_('&Go to entry'), irAEntradaProceso, 'Ctrl+G')
     contextual.exec_ (evento.globalPos())
 
   def irAEntrada (self, numEntrada):
@@ -470,9 +485,9 @@ class CampoTexto (QTextEdit):
         proceso    = mod_actual.tablas_proceso[numProceso]  # El proceso seleccionado
         entrada    = proceso[1][numEntrada]  # La entrada seleccionada
         if self.overwriteMode() and posicion > 1 and posicion < len (entrada) + 2:
-          dialogo = ModalEntrada (self, 'Elige un condacto:', evento.text(), self.condactosPorCod[entrada[posicion - 2][0]])
+          dialogo = ModalEntrada (self, _('Choose a condact:'), evento.text(), self.condactosPorCod[entrada[posicion - 2][0]])
         else:
-          dialogo = ModalEntrada (self, 'Elige un condacto:', evento.text())
+          dialogo = ModalEntrada (self, _('Choose a condact:'), evento.text())
         dialogo.setComboBoxEditable (True)
         dialogo.setComboBoxItems (sorted (self.condactos.keys()))
         if dialogo.exec_() == QDialog.Accepted:
@@ -578,7 +593,7 @@ class CampoTexto (QTextEdit):
       parametro = str (linea.text()[columna:])
       if ',' in parametro:
         parametro = parametro[: parametro.find (',')]
-      dialogo = ModalEntrada (self, 'Valor del parámetro:', evento.text(), parametro)
+      dialogo = ModalEntrada (self, _('Parameter value:'), evento.text(), parametro)
       dialogo.setInputMode (QInputDialog.IntInput)
       dialogo.setIntRange  (0, 255)
       if dialogo.exec_() == QDialog.Accepted:
@@ -715,7 +730,7 @@ class ManejoInterprete (QThread):
       linea = self.procInterprete.stdout.readline()
       if not linea:
         break  # Ocurre cuando el proceso ha terminado
-      tituloJuego = 'Ejecución ' + mod_actual.NOMBRE_SISTEMA  # Título para la ventana de juego
+      tituloJuego = _('Running %s') % mod_actual.NOMBRE_SISTEMA  # Título para la ventana de juego
       if linea[0] == inicioLista and finLista in linea:  # Si es actualización del estado de la pila, avisamos de ella
         pilaProcs = eval (linea)
         pilas_pendientes.append (pilaProcs)
@@ -731,14 +746,14 @@ class ManejoInterprete (QThread):
         acc100Pasos.setEnabled  (False)
         acc1000Pasos.setEnabled (False)
         accBanderas.setEnabled  (False)
-        tituloJuego += ' - Esperando tecla'
+        tituloJuego += _(' - Waiting for key')
       elif linea[:3] == esTeclaPasos:
         acc1Paso.setEnabled     (True)
         acc10Pasos.setEnabled   (True)
         acc100Pasos.setEnabled  (True)
         acc1000Pasos.setEnabled (True)
         accBanderas.setEnabled  (True)
-        tituloJuego += ' - Parada'
+        tituloJuego += _(' - Stopped')
       if mdi_juego:  # Porque puede no estar lista todavía
         mdi_juego.widget().setWindowTitle (tituloJuego)
     # El proceso ha terminado
@@ -765,7 +780,7 @@ class ModalEntrada (QInputDialog):
     self.textoInicial  = textoInicial
     self.textoOriginal = textoOriginal
     self.setLabelText (etiqueta)
-    self.setWindowTitle ('Modal')
+    self.setWindowTitle (_('Modal'))
     # Si los descomento, no funciona la introducción del valor inicial
     # self.setCancelButtonText ('&Cancelar')
     # self.setOkButtonText ('&Aceptar')
@@ -794,14 +809,14 @@ class ModalEntradaTexto (QDialog):
     layout = QVBoxLayout (self)
     layout.addWidget (self.campo)
     layoutBotones = QHBoxLayout()
-    botonAceptar  = QPushButton ('&Aceptar',  self)
-    botonCancelar = QPushButton ('&Cancelar', self)
+    botonAceptar  = QPushButton (_('&Accept'), self)
+    botonCancelar = QPushButton (_('&Cancel'), self)
     botonAceptar.clicked.connect (self.accept)
     botonCancelar.clicked.connect (self.reject)
     layoutBotones.addWidget (botonAceptar)
     layoutBotones.addWidget (botonCancelar)
     layout.addLayout (layoutBotones)
-    self.setWindowTitle ('Edita el texto')
+    self.setWindowTitle (_('Edit the text'))
 
   def daTexto (self):
     """Devuelve el texto editado"""
@@ -826,8 +841,8 @@ class ModeloTextos (QAbstractTableModel):
   def headerData (self, section, orientation, role):
     if orientation == Qt.Horizontal and role == Qt.DisplayRole:
       if self.listaTextos in (mod_actual.msgs_sys, mod_actual.msgs_sys):
-        return 'Texto del mensaje'
-      return 'Texto de la descripción'
+        return _('Message text')
+      return _('Description text')
     if orientation == Qt.Vertical and role == Qt.DisplayRole:
       return section  # Cuenta el número de mensaje desde 0
     return QAbstractTableModel.headerData (self, section, orientation, role)
@@ -839,7 +854,7 @@ class ModeloVocabulario (QAbstractTableModel):
   """Modelo para la tabla de vocabulario"""
   def __init__ (self, parent):
     QAbstractTableModel.__init__ (self, parent)
-    self.tituloCols = ('Palabra', 'Código', 'Tipo')
+    self.tituloCols = (_('Word'), _('Code'), _('Type'))
     self.tipos      = mod_actual.TIPOS_PAL
 
   def columnCount (self, parent):
@@ -854,9 +869,9 @@ class ModeloVocabulario (QAbstractTableModel):
       # Si llega aquí, es la tercera columna: el tipo
       tipo = mod_actual.vocabulario[index.row()][2]
       if tipo == 255:
-        return 'Reservado'
+        return _('Reserved')
       if tipo > len (self.tipos):
-        return 'Desconocido (' + str (tipo) + ')'
+        return _('Unknown (') + str (tipo) + ')'
       return self.tipos[tipo].replace ('cion', 'ción')
 
   def flags (self, index):
@@ -881,7 +896,7 @@ class PantallaJuego (QMdiSubWindow):
     self.tamInicial = None
     widget = QLabel (self)
     widget.setPixmap (self.pixmap)
-    widget.setWindowTitle ('Ejecución ' + mod_actual.NOMBRE_SISTEMA + ' - Parada')
+    widget.setWindowTitle ((_('Running %s') % mod_actual.NOMBRE_SISTEMA) + _(' - Stopped'))
     self.setOption (QMdiSubWindow.RubberBandResize)
     self.setWidget (widget)
     selector.centralWidget().addSubWindow (self)
@@ -1034,7 +1049,7 @@ def actualizaBanderas (cambiosBanderas):
     if dlg_banderas:
       botonBandera = dlg_banderas.layout().items[numBandera].widget()
       botonBandera.setText (str (numBandera % 100) + ': ' + str (banderas[numBandera]))
-      botonBandera.setToolTip ('Valor de la bandera ' + str (numBandera) + ': ' + str (banderas[numBandera]))
+      botonBandera.setToolTip ((_('Value of flag %d: ') % numBandera) + str (banderas[numBandera]))
   if dlg_banderas:
     dlg_banderas.layout().redibuja()
 
@@ -1186,7 +1201,7 @@ def cargaInfoModulos ():
     try:
       modulo = __import__ (nombre_modulo)
     except SyntaxError as excepcion:
-      prn ('Error al importar el módulo:', excepcion)
+      prn (_('Error when importing module:'), excepcion, file = sys.stderr)
       continue
     # Apaño para que funcione las librerías de DAAD, PAW y SWAN tal y como están (con lista unificada de condactos)
     if comprueba_nombre (modulo, 'condactos', dict) and not comprueba_nombre (modulo, 'acciones', dict):
@@ -1204,8 +1219,8 @@ def cargaInfoModulos ():
         info_importar.append ((nombre_modulo, entrada[0], entrada[1], entrada[2]))
     if comprueba_nombre (modulo, modulo.func_nueva, types.FunctionType):
       info_nueva.append ((nombre_modulo, modulo.func_nueva))
-      accion = QAction ('Base de datos ' + modulo.NOMBRE_SISTEMA, menuBDNueva)
-      accion.setStatusTip ('Crea una nueva base de datos de ' + modulo.NOMBRE_SISTEMA)
+      accion = QAction (_('%s database') % modulo.NOMBRE_SISTEMA, menuBDNueva)
+      accion.setStatusTip (_('Creates a new %s database') % modulo.NOMBRE_SISTEMA)
       accion.triggered.connect (lambda: nuevaBD (len (info_nueva) - 1))
       menuBDNueva.addAction (accion)
     del modulo
@@ -1229,29 +1244,29 @@ def cierraDialogos ():
 def creaAcciones ():
   """Crea las acciones de menú y barra de botones"""
   global acc1Paso, acc10Pasos, acc100Pasos, acc1000Pasos, accAcercaDe, accBanderas, accContadores, accDescLocs, accDescObjs, accDireccs, accExportar, accImportar, accMostrarLoc, accMostrarObj, accMostrarRec, accMostrarSys, accMostrarUsr, accMsgSys, accMsgUsr, accPasoAPaso, accSalir, accTblProcs, accTblVocab
-  acc1Paso      = QAction (icono ('pasos_1'),    '1 paso',     selector)
-  acc10Pasos    = QAction (icono ('pasos_10'),   '10 pasos',   selector)
-  acc100Pasos   = QAction (icono ('pasos_100'),  '100 pasos',  selector)
-  acc1000Pasos  = QAction (icono ('pasos_1000'), '1000 pasos', selector)
-  accAcercaDe   = QAction (icono_ide, '&Acerca de NAPS IDE', selector)
-  accBanderas   = QAction (icono ('banderas'), '&Banderas', selector)
-  accContadores = QAction (icono ('contadores'), '&Contadores', selector)
-  accDescLocs   = QAction (icono ('desc_localidad'), 'Descripciones de &localidades', selector)
-  accDescObjs   = QAction (icono ('desc_objeto'),    'Descripciones de &objetos',     selector)
-  accDireccs    = QAction (icono ('direccion'), '&Direcciones', selector)
-  accExportar   = QAction (icono ('exportar'), '&Exportar', selector)
-  accImportar   = QAction (icono ('importar'), '&Importar', selector)
-  accMostrarLoc = QAction ('Descripciones de &localidades', selector)
-  accMostrarObj = QAction ('Descripciones de &objetos',     selector)
-  accMostrarRec = QAction ('&Recortar al ancho de línea',   selector)
-  accMostrarSys = QAction ('Mensajes de &sistema', selector)
-  accMostrarUsr = QAction ('Mensajes de &usuario', selector)
-  accMsgSys     = QAction (icono ('msg_sistema'), 'Mensajes de &sistema', selector)
-  accMsgUsr     = QAction (icono ('msg_usuario'), 'Mensajes de &usuario', selector)
-  accPasoAPaso  = QAction (icono ('pasoapaso'), '&Paso a paso', selector)
-  accSalir      = QAction (icono ('salir'), '&Salir', selector)
-  accTblProcs   = QAction (icono ('proceso'), '&Tablas', selector)
-  accTblVocab   = QAction (icono ('vocabulario'), '&Tabla', selector)
+  acc1Paso      = QAction (icono ('pasos_1'),    _('1 step'),     selector)
+  acc10Pasos    = QAction (icono ('pasos_10'),   _('10 steps'),   selector)
+  acc100Pasos   = QAction (icono ('pasos_100'),  _('100 steps'),  selector)
+  acc1000Pasos  = QAction (icono ('pasos_1000'), _('1000 steps'), selector)
+  accAcercaDe   = QAction (icono_ide, _('&About NAPS IDE'), selector)
+  accBanderas   = QAction (icono ('banderas'), _('&Flags'), selector)
+  accContadores = QAction (icono ('contadores'), _('&Counters'), selector)
+  accDescLocs   = QAction (icono ('desc_localidad'), _('&Location descriptions'), selector)
+  accDescObjs   = QAction (icono ('desc_objeto'),    _('&Object descriptions'),   selector)
+  accDireccs    = QAction (icono ('direccion'), _('&Movement'), selector)
+  accExportar   = QAction (icono ('exportar'), _('&Export'), selector)
+  accImportar   = QAction (icono ('importar'), _('&Import'), selector)
+  accMostrarLoc = QAction (_('&Location descriptions'), selector)
+  accMostrarObj = QAction (_('&Object descriptions'),  selector)
+  accMostrarRec = QAction (_('&Trim to line width'),    selector)
+  accMostrarSys = QAction (_('&System messages'),       selector)
+  accMostrarUsr = QAction (_('&User messages'),         selector)
+  accMsgSys     = QAction (icono ('msg_sistema'), _('&System messages'), selector)
+  accMsgUsr     = QAction (icono ('msg_usuario'), _('&User messages'),   selector)
+  accPasoAPaso  = QAction (icono ('pasoapaso'), _('&Step by step'), selector)
+  accSalir      = QAction (icono ('salir'), _('&Quit'), selector)
+  accTblProcs   = QAction (icono ('proceso'), _('&Tables'), selector)
+  accTblVocab   = QAction (icono ('vocabulario'), _('&Table'), selector)
   accMostrarLoc.setCheckable (True)
   accMostrarObj.setCheckable (True)
   accMostrarRec.setCheckable (True)
@@ -1286,31 +1301,31 @@ def creaAcciones ():
   acc100Pasos.setShortcut  ('F3')
   acc1000Pasos.setShortcut ('F4')
   accSalir.setShortcut     ('Ctrl+Q')
-  acc1Paso.setStatusTip      ('Ejecuta un paso de la base de datos y después para')
-  acc10Pasos.setStatusTip    ('Ejecuta hasta diez pasos de la base de datos y después para')
-  acc100Pasos.setStatusTip   ('Ejecuta hasta cien pasos de la base de datos y después para')
-  acc1000Pasos.setStatusTip  ('Ejecuta hasta mil pasos de la base de datos y después para')
-  accAcercaDe.setStatusTip   ('Muestra información del programa')
-  accBanderas.setStatusTip   ('Permite consultar y modificar las banderas')
-  accContadores.setStatusTip ('Muestra el número de elementos de cada tipo')
-  accDescLocs.setStatusTip   ('Permite consultar y modificar las descripciones de las localidades')
-  accDescObjs.setStatusTip   ('Permite consultar y modificar las descripciones de los objetos')
-  accDireccs.setStatusTip    ('Permite añadir y editar las palabras de dirección')
-  accExportar.setStatusTip   ('Exporta la base de datos a un fichero')
-  accImportar.setStatusTip   ('Importa una base de datos desde un fichero')
-  accMostrarLoc.setStatusTip ('Mostrar descripciones de localidades cuando los condactos las referencien')
-  accMostrarObj.setStatusTip ('Mostrar descripciones de objetos cuando los condactos los referencien')
-  accMostrarRec.setStatusTip ('Recortar textos a la anchura de línea disponible')
-  accMostrarSys.setStatusTip ('Mostrar texto de mensajes de sistema cuando los condactos los referencien')
-  accMostrarUsr.setStatusTip ('Mostrar texto de mensajes de usuario cuando los condactos los referencien')
-  accMsgSys.setStatusTip     ('Permite consultar y modificar los mensajes de sistema')
-  accMsgUsr.setStatusTip     ('Permite consultar y modificar los mensajes de usuario')
-  accPasoAPaso.setStatusTip  ('Depura la base de datos ejecutándola paso a paso')
-  accSalir.setStatusTip      ('Sale de la aplicación')
-  accTblProcs.setStatusTip   ('Permite consultar y modificar las tablas de proceso')
-  accTblVocab.setStatusTip   ('Permite consultar el vocabulario')
-  accTblProcs.setToolTip ('Tablas de proceso')
-  accTblVocab.setToolTip ('Tabla de vocabulario')
+  acc1Paso.setStatusTip      (_('Runs a step on the database and then it stops'))
+  acc10Pasos.setStatusTip    (_('Runs up to ten steps on the database and then it stops'))
+  acc100Pasos.setStatusTip   (_('Runs up to one hundred steps on the database and then it stops'))
+  acc1000Pasos.setStatusTip  (_('Runs up to one thousand steps on the database and then it stops'))
+  accAcercaDe.setStatusTip   (_('Shows information about the program'))
+  accBanderas.setStatusTip   (_('Allows to check and modify the value of flags'))
+  accContadores.setStatusTip (_('Displays the number of elements of each type'))
+  accDescLocs.setStatusTip   (_('Allows to check and modify location descriptions'))
+  accDescObjs.setStatusTip   (_('Allows to check and modify object descriptions'))
+  accDireccs.setStatusTip    (_('Allows to add and edit movement words'))
+  accExportar.setStatusTip   (_('Exports the database to a file'))
+  accImportar.setStatusTip   (_('Imports the database from a file'))
+  accMostrarLoc.setStatusTip (_('Show location descriptions when condacts reference them'))
+  accMostrarObj.setStatusTip (_('Show object descriptions when condacts reference them'))
+  accMostrarRec.setStatusTip (_('Trim texts to the available line width'))
+  accMostrarSys.setStatusTip (_('Show system messages when condacts reference them'))
+  accMostrarUsr.setStatusTip (_('Show user messages when condacts reference them'))
+  accMsgSys.setStatusTip     (_('Allows to check and modify system messages'))
+  accMsgUsr.setStatusTip     (_('Allows to check and modify user messages'))
+  accPasoAPaso.setStatusTip  (_('Debugs the database running it step by step'))
+  accSalir.setStatusTip      (_('Quits the application'))
+  accTblProcs.setStatusTip   (_('Allows to check and modify the process tables'))
+  accTblVocab.setStatusTip   (_('Allows to check and modify the vocabulary'))
+  accTblProcs.setToolTip (_('Process tables'))
+  accTblVocab.setToolTip (_('Vocabulary table'))
   acc1Paso.triggered.connect      (lambda: ejecutaPasos (0))
   acc10Pasos.triggered.connect    (lambda: ejecutaPasos (1))
   acc100Pasos.triggered.connect   (lambda: ejecutaPasos (2))
@@ -1336,7 +1351,7 @@ def creaAcciones ():
 
 def creaBarraBotones ():
   """Crea la barra de botones"""
-  barraBotones = selector.addToolBar ('Barra de botones')
+  barraBotones = selector.addToolBar (_('Button bar'))
   barraBotones.addAction (accImportar)
   barraBotones.addSeparator()
   barraBotones.addAction (accTblProcs)
@@ -1350,8 +1365,8 @@ def creaBarraBotones ():
 def creaMenus ():
   """Crea y organiza los menús"""
   global menuBDNueva
-  menuBD      = selector.menuBar().addMenu ('&Base de datos')
-  menuBDNueva = QMenu ('&Nueva', menuBD)
+  menuBD      = selector.menuBar().addMenu (_('&Database'))
+  menuBDNueva = QMenu (_('&New'), menuBD)
   menuBDNueva.setIcon (icono ('nueva'))
   menuBD.addMenu   (menuBDNueva)
   menuBD.addAction (accImportar)
@@ -1360,7 +1375,7 @@ def creaMenus ():
   menuBD.addAction (accContadores)
   menuBD.addSeparator()
   menuBD.addAction (accSalir)
-  menuEjecutar = selector.menuBar().addMenu ('&Ejecución')
+  menuEjecutar = selector.menuBar().addMenu (_('&Run'))
   menuEjecutar.addAction (accPasoAPaso)
   menuEjecutar.addSeparator()
   menuEjecutar.addAction (acc1Paso)
@@ -1369,8 +1384,8 @@ def creaMenus ():
   menuEjecutar.addAction (acc1000Pasos)
   menuEjecutar.addSeparator()
   menuEjecutar.addAction (accBanderas)
-  menuProcesos     = selector.menuBar().addMenu ('&Procesos')
-  menuProcsMostrar = QMenu ('&Mostrar textos', menuProcesos)
+  menuProcesos     = selector.menuBar().addMenu (_('&Processes'))
+  menuProcsMostrar = QMenu (_('&Show texts'), menuProcesos)
   menuProcsMostrar.addAction (accMostrarLoc)
   menuProcsMostrar.addAction (accMostrarObj)
   menuProcsMostrar.addAction (accMostrarSys)
@@ -1380,16 +1395,16 @@ def creaMenus ():
   menuProcesos.addAction (accTblProcs)
   menuProcesos.addSeparator()
   menuProcesos.addMenu (menuProcsMostrar)
-  menuTextos = selector.menuBar().addMenu ('&Textos')
+  menuTextos = selector.menuBar().addMenu (_('&Texts'))
   menuTextos.addAction (accDescLocs)
   menuTextos.addAction (accDescObjs)
   menuTextos.addSeparator()
   menuTextos.addAction (accMsgSys)
   menuTextos.addAction (accMsgUsr)
-  menuVocabulario = selector.menuBar().addMenu ('&Vocabulario')
+  menuVocabulario = selector.menuBar().addMenu (_('&Vocabulary'))
   menuVocabulario.addAction (accDireccs)
   menuVocabulario.addAction (accTblVocab)
-  menuAyuda = selector.menuBar().addMenu ('&Ayuda')
+  menuAyuda = selector.menuBar().addMenu (_('&Help'))
   menuAyuda.addAction (accAcercaDe)
 
 def creaSelector ():
@@ -1434,15 +1449,15 @@ def dialogoImportaBD ():
   for modulo, funcion, extensiones, descripcion in info_importar:
     filtro.append (descripcion + ' (*.' + ' *.'.join (extensiones) + ')')
     extSoportadas.update (extensiones)
-  filtro.append ('Todos los formatos soportados (*.' + ' *.'.join (sorted (extSoportadas)) + ')')
+  filtro.append (_('All supported formats (*.') + ' *.'.join (sorted (extSoportadas)) + ')')
   if not dlg_abrir:  # Diálogo no creado aún
-    dlg_abrir = QFileDialog (selector, 'Importar base de datos', os.curdir, ';;'.join (sorted (filtro)))
+    dlg_abrir = QFileDialog (selector, _('Import database'), os.curdir, ';;'.join (sorted (filtro)))
     dlg_abrir.setFileMode  (QFileDialog.ExistingFile)
-    dlg_abrir.setLabelText (QFileDialog.LookIn,   'Lugares')
-    dlg_abrir.setLabelText (QFileDialog.FileName, '&Nombre:')
-    dlg_abrir.setLabelText (QFileDialog.FileType, 'Filtro:')
-    dlg_abrir.setLabelText (QFileDialog.Accept,   '&Abrir')
-    dlg_abrir.setLabelText (QFileDialog.Reject,   '&Cancelar')
+    dlg_abrir.setLabelText (QFileDialog.LookIn,   _('Places'))
+    dlg_abrir.setLabelText (QFileDialog.FileName, _('&Name:'))
+    dlg_abrir.setLabelText (QFileDialog.FileType, _('Filter:'))
+    dlg_abrir.setLabelText (QFileDialog.Accept,   _('&Open'))
+    dlg_abrir.setLabelText (QFileDialog.Reject,   _('&Cancel'))
     dlg_abrir.setOption    (QFileDialog.DontUseNativeDialog)
   dlg_abrir.selectNameFilter (filtro[len (filtro) - 1])  # Elegimos el filtro de todos los formatos soportados
   if dlg_abrir.exec_():  # No se ha cancelado
@@ -1458,16 +1473,16 @@ def dialogoImportaBD ():
 
 def editaBandera (numBandera):
   """Permite editar el valor de una bandera"""
-  dialogo = ModalEntrada (dlg_banderas, 'Valor de la bandera ' + str (numBandera) + ':', str (banderas[numBandera]))
+  dialogo = ModalEntrada (dlg_banderas, _('Value of flag %d: ') % numBandera, str (banderas[numBandera]))
   dialogo.setInputMode   (QInputDialog.IntInput)
   dialogo.setIntRange    (0, 255)
-  dialogo.setWindowTitle ('Editar')
+  dialogo.setWindowTitle (_('Edit'))
   if dialogo.exec_() == QDialog.Accepted:
     if dialogo.intValue() != banderas[numBandera]:
       banderas[numBandera] = dialogo.intValue()
       botonBandera = dlg_banderas.layout().items[numBandera].widget()
       botonBandera.setText (str (numBandera % 100) + ': ' + str (banderas[numBandera]))
-      botonBandera.setToolTip ('Valor de la bandera ' + str (numBandera) + ': ' + str (banderas[numBandera]))
+      botonBandera.setToolTip ((_('Value of flag %d: ') % numBandera) + str (banderas[numBandera]))
       dlg_banderas.layout().redibuja()
       if sys.version_info[0] < 3:
         proc_interprete.stdin.write ('#' + str (numBandera) + '=' + str (banderas[numBandera]) + '\n')
@@ -1505,25 +1520,25 @@ def editaVocabulario (indice):
   numFila  = indice.row()
   palVocab = mod_actual.vocabulario[numFila]
   if indice.column() == 0:  # Palabra
-    dialogo = ModalEntrada (dlg_vocabulario, 'Texto de la palabra:', palVocab[0])
-    dialogo.setWindowTitle ('Editar')
+    dialogo = ModalEntrada (dlg_vocabulario, _('Text of the word:'), palVocab[0])
+    dialogo.setWindowTitle (_('Edit'))
     if dialogo.exec_() == QDialog.Accepted:
       nuevaPal = (str (dialogo.textValue())[:mod_actual.LONGITUD_PAL].lower(), ) + palVocab[1:]
   elif indice.column() == 1:  # Código
-    dialogo = ModalEntrada (dlg_vocabulario, 'Código de la palabra:', str (palVocab[1]))
+    dialogo = ModalEntrada (dlg_vocabulario, _('Code of the word:'), str (palVocab[1]))
     dialogo.setInputMode   (QInputDialog.IntInput)
     dialogo.setIntRange    (0, 255)
-    dialogo.setWindowTitle ('Editar')
+    dialogo.setWindowTitle (_('Edit'))
     if dialogo.exec_() == QDialog.Accepted:
       nuevaPal = (palVocab[0], dialogo.intValue(), palVocab[2])
   else:  # indice.column() == 2:  # Tipo
-    tiposPalabra = {255: 'Reservado'}
+    tiposPalabra = {255: _('Reserved')}
     for i in range (len (mod_actual.TIPOS_PAL)):
       tiposPalabra[i] = mod_actual.TIPOS_PAL[i].replace ('cion', 'ción')
-    dialogo = ModalEntrada (dlg_vocabulario, 'Tipo de palabra:', tiposPalabra[palVocab[2]])
+    dialogo = ModalEntrada (dlg_vocabulario, _('Type of the word:'), tiposPalabra[palVocab[2]])
     dialogo.setComboBoxEditable (True)
     dialogo.setComboBoxItems    (sorted (tiposPalabra.values()))
-    dialogo.setWindowTitle      ('Editar')
+    dialogo.setWindowTitle      (_('Edit'))
     if dialogo.exec_() == QDialog.Accepted and dialogo.textValue() in tiposPalabra.values():
       nuevaPal = (palVocab[0], palVocab[1],
                   list (tiposPalabra.keys())[list (tiposPalabra.values()).index (dialogo.textValue())])
@@ -1581,14 +1596,13 @@ def exportaBD ():
     filtro = []
     for funcion, extensiones, descripcion in info_exportar:
       filtro.append (descripcion + ' (*.' + ' *.'.join (extensiones) + ')')
-    dlg_guardar = QFileDialog (selector, 'Exportar base de datos', os.curdir,
-        ';;'.join (filtro))
+    dlg_guardar = QFileDialog (selector, _('Export database'), os.curdir, ';;'.join (filtro))
     dlg_guardar.setAcceptMode (QFileDialog.AcceptSave)
-    dlg_guardar.setLabelText  (QFileDialog.LookIn,   'Lugares')
-    dlg_guardar.setLabelText  (QFileDialog.FileName, '&Nombre:')
-    dlg_guardar.setLabelText  (QFileDialog.FileType, 'Filtro:')
-    dlg_guardar.setLabelText  (QFileDialog.Accept,   '&Guardar')
-    dlg_guardar.setLabelText  (QFileDialog.Reject,   '&Cancelar')
+    dlg_guardar.setLabelText  (QFileDialog.LookIn,   'Places')
+    dlg_guardar.setLabelText  (QFileDialog.FileName, '&Name:')
+    dlg_guardar.setLabelText  (QFileDialog.FileType, 'Filter:')
+    dlg_guardar.setLabelText  (QFileDialog.Accept,   '&Save')
+    dlg_guardar.setLabelText  (QFileDialog.Reject,   '&Cancel')
     dlg_guardar.setOption     (QFileDialog.DontConfirmOverwrite)
     dlg_guardar.setOption     (QFileDialog.DontUseNativeDialog)
   if dlg_guardar.exec_():  # No se ha cancelado
@@ -1599,20 +1613,20 @@ def exportaBD ():
       nombreFichero += extension
     if os.path.isfile (nombreFichero):
       dlgSiNo = QMessageBox (selector)
-      dlgSiNo.addButton ('&Sí', QMessageBox.YesRole)
-      dlgSiNo.addButton ('&No', QMessageBox.NoRole)
+      dlgSiNo.addButton (_('&Yes'), QMessageBox.YesRole)
+      dlgSiNo.addButton (_('&No'), QMessageBox.NoRole)
       dlgSiNo.setIcon (QMessageBox.Warning)
-      dlgSiNo.setWindowTitle ('Sobreescritura')
-      dlgSiNo.setText ('Ya existe un fichero con ruta y nombre:\n\n' + nombreFichero)
-      dlgSiNo.setInformativeText ('\n¿Quieres sobreescribirlo?')
+      dlgSiNo.setWindowTitle (_('Overwrite'))
+      dlgSiNo.setText (_('A file already exists with path and name:\n\n') + nombreFichero)
+      dlgSiNo.setInformativeText (_('\nDo you want to overwrite it?'))
       if dlgSiNo.exec_() != 0:  # No se ha pulsado el botón Sí
         return
     selector.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
     try:
       fichero = open (nombreFichero, 'w')
     except IOError as excepcion:
-      muestraFallo ('No se puede abrir el fichero:\n' + nombreFichero,
-                    'Causa:\n' + excepcion.args[1])
+      muestraFallo (_('Unable to open the file:\n') + nombreFichero,
+                    _('Cause:\n') + excepcion.args[1])
       selector.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
       return
     mod_actual.__dict__[info_exportar[indiceFiltro][0]] (fichero)
@@ -1630,12 +1644,12 @@ def importaBD (nombreFicheroBD, indiceFuncion = None, nombreFicheroGfx = None):
   try:
     fichero = open (nombreFicheroBD, 'rb')
   except IOError as excepcion:
-    muestraFallo ('No se puede abrir el fichero:\n' + nombreFicheroBD,
-                  'Causa:\n' + excepcion.args[1])
+    muestraFallo (_('Unable to open the file:\n' + nombreFicheroBD),
+                  _('Cause:\n') + excepcion.args[1])
     return
   if '.' not in nombreFicheroBD:
-    muestraFallo ('No se puede importar una base datos de:\n' + nombreFicheroBD,
-                  'Causa:\nNo tiene extensión')
+    muestraFallo (_('Unable to import a database from:\n' + nombreFicheroBD),
+                  _('Cause:\nThe file lacks an extension'))
     return
   modulos = []  # Módulos que soportan la extensión, junto con su función de carga
   if indiceFuncion != None:
@@ -1647,8 +1661,8 @@ def importaBD (nombreFicheroBD, indiceFuncion = None, nombreFicheroGfx = None):
       if extension in extensiones:
         modulos.append ((modulo, funcion))
     if not modulos:
-      muestraFallo ('No se puede importar una base datos de:\n' + nombreFicheroBD,
-                    'Causa:\nExtensión no reconocida')
+      muestraFallo (_('Unable to import a database from:\n') + nombreFicheroBD,
+                    _('Cause:\nUnknown extension'))
       return
   # Importamos la BD y damos acceso al módulo a funciones del IDE
   hayFallo = True
@@ -1667,8 +1681,8 @@ def importaBD (nombreFicheroBD, indiceFuncion = None, nombreFicheroGfx = None):
     fichero.seek (0)
   fichero.close()
   if hayFallo:
-    muestraFallo ('No se puede importar una base datos de:\n' +
-                  nombreFicheroBD, 'Causa:\nFormato de fichero incompatible o base de datos corrupta')
+    muestraFallo (_('Unable to import a database from:\n') +
+                  nombreFicheroBD, _('Cause:\nIncompatible file format or corrupted database'))
     mod_actual = None
     return
   nombre_fich_bd  = nombreFicheroBD
@@ -1692,7 +1706,7 @@ def imprimeCabecera (verbo, nombre, numEntrada, numProceso):
   else:
     campo_txt.setTextColor (QColor (255, 0, 0))  # Color rojo
     if (numProceso, verbo, tipo_verbo) not in pals_no_existen:
-      muestraFallo ('Verbo no existente', 'Verbo de código ' + str (verbo) + ' no encontrado en el vocabulario')
+      muestraFallo (_('Non-existent verb'), _('Verb with code %d not found in the vocabulary') % verbo)
       pals_no_existen.append ((numProceso, verbo, tipo_verbo))
     campo_txt.insertPlainText (str (verbo).center (5))
     campo_txt.setTextColor (QColor (200, 200, 200))  # Color gris claro
@@ -1706,7 +1720,7 @@ def imprimeCabecera (verbo, nombre, numEntrada, numProceso):
   else:
     campo_txt.setTextColor (QColor (255, 0, 0))  # Color rojo
     if (numProceso, nombre, tipo_nombre) not in pals_no_existen:
-      muestraFallo ('Nombre no existente', 'Nombre de código ' + str (nombre) + ' no encontrado en el vocabulario')
+      muestraFallo (_('Non-existent noun'), _('Noun with code %d not found in the vocabulary') % nombre)
       pals_no_existen.append ((numProceso, nombre, tipo_nombre))
     campo_txt.insertPlainText (str (nombre).center (5).rstrip())
   campo_txt.setFontItalic (False)  # Cursiva desactivada
@@ -1736,7 +1750,7 @@ def imprimeCondacto (condacto, parametros, inalcanzable = False, nuevaLinea = Tr
       nombre    = 'DEBUG'
   else:  # No debería ocurrir
     if not inalcanzable:
-      prn ('FIXME: Condacto', condacto, 'no reconocido por la librería', file = sys.stderr)
+      prn (_('FIXME: Condact %d not recognized by the library') % condacto, file = sys.stderr)
       campo_txt.setTextColor (QColor (255, 0, 0))  # Color rojo
     nombre      = str (condacto)
     tiposParams = '?' * len (parametros)
@@ -1784,7 +1798,7 @@ def imprimeCondacto (condacto, parametros, inalcanzable = False, nuevaLinea = Tr
           formato.setAnchor (True)
           formato.setAnchorHref ('proceso:' + str (parametro))
           formato.setFontUnderline (True)
-          formato.setToolTip ('Haz Ctrl+click aquí para abrir el proceso ' + str (parametro))
+          formato.setToolTip (_('Do Ctrl+click here to open process %d') % parametro)
       if formato:
         parametro = str (parametro)
         campo_txt.insertPlainText (' ' * (4 - len (parametro)))
@@ -1823,10 +1837,10 @@ def irAEntradaProceso ():
   """Mueve el cursor a la entrada del proceso actual que elija el usuario"""
   numProceso = pestanyas.currentIndex()
   proceso    = mod_actual.tablas_proceso[numProceso]  # El proceso seleccionado
-  dialogo    = ModalEntrada (dlg_procesos, 'Número de entrada:', '')
+  dialogo    = ModalEntrada (dlg_procesos, _('Entry number:'), '')
   dialogo.setInputMode   (QInputDialog.IntInput)
   dialogo.setIntRange    (0, len (proceso[0]) - 1)
-  dialogo.setWindowTitle ('Ir a')
+  dialogo.setWindowTitle (_('Go to'))
   if dialogo.exec_() == QDialog.Accepted:
     campo_txt.irAEntrada (dialogo.intValue())
     campo_txt.centraLineaCursor()
@@ -1838,15 +1852,15 @@ def muestraAcercaDe ():
     # Cogeremos sólo los números de la versión de Python
     fin = sys.version.find (' (')
     dlg_acerca_de = QMessageBox (selector)
-    dlg_acerca_de.addButton ('&Aceptar', QMessageBox.AcceptRole)
+    dlg_acerca_de.addButton (_('&Accept'), QMessageBox.AcceptRole)
     dlg_acerca_de.setIconPixmap (icono_ide.pixmap (96))
     dlg_acerca_de.setText ('NAPS: The New Age PAW-like System\n' +
-        'Entorno de desarrollo integrado (IDE)\n' +
+        _('Integrated Development Environment (IDE)\n') +
         'Copyright © 2010, 2018-2024 José Manuel Ferrer Ortiz')
-    dlg_acerca_de.setInformativeText ('Versión de PyQt: ' +
-        PYQT_VERSION_STR + '\nVersión de Qt: ' + QT_VERSION_STR +
-        '\nVersión de Python: ' + sys.version[:fin])
-    dlg_acerca_de.setWindowTitle ('Acerca de NAPS IDE')
+    dlg_acerca_de.setInformativeText (_('PyQt version: ') +
+        PYQT_VERSION_STR + _('\nQt version: ') + QT_VERSION_STR +
+        _('\nPython version: ') + sys.version[:fin])
+    dlg_acerca_de.setWindowTitle (_('About NAPS IDE'))
   dlg_acerca_de.exec_()
 
 def muestraBanderas ():
@@ -1866,10 +1880,10 @@ def muestraBanderas ():
     botonBandera = QPushButton (str (b % 100) + ': ' + str (banderas[b]), dlg_banderas)
     botonBandera.clicked.connect (lambda estado, numBandera = b: editaBandera (numBandera))
     botonBandera.setStyleSheet (estilo_fila_par)
-    botonBandera.setToolTip ('Valor de la bandera ' + str (b) + ': ' + str (banderas[b]))
+    botonBandera.setToolTip ((_('Value of flag %d: ') % b) + str (banderas[b]))
     layout.addWidget (botonBandera)
   dlg_banderas.setLayout      (layout)
-  dlg_banderas.setWindowTitle ('Banderas')
+  dlg_banderas.setWindowTitle (_('Flags'))
   mdi_banderas = selector.centralWidget().addSubWindow (dlg_banderas)
   mdi_banderas.setOption (QMdiSubWindow.RubberBandResize)
   dlg_banderas.show()
@@ -1879,12 +1893,12 @@ def muestraContadores ():
   global dlg_contadores
   if not dlg_contadores:  # Diálogo no creado aún
     dlg_contadores = QMessageBox (selector)
-    dlg_contadores.addButton ('&Aceptar', QMessageBox.AcceptRole)
+    dlg_contadores.addButton (_('&Accept'), QMessageBox.AcceptRole)
     num_palabras = len (mod_actual.vocabulario)
-    dlg_contadores.setText ('Procesos: ' + str (len (mod_actual.tablas_proceso))
-      + ' tablas\nVocabulario: ' + str (num_palabras) + ' palabra' + \
+    dlg_contadores.setText (_('Processes: ') + str (len (mod_actual.tablas_proceso))
+      + _(' tables\nVocabulary: ') + str (num_palabras) + _(' word') + \
       ('s' * (num_palabras > 1)))
-    dlg_contadores.setWindowTitle ('Contadores')
+    dlg_contadores.setWindowTitle (_('Counters'))
   dlg_contadores.exec_()
 
 def muestraDescLocs ():
@@ -1900,9 +1914,9 @@ def muestraFallo (mensaje, detalle):
   global dlg_fallo
   if not dlg_fallo:  # Diálogo no creado aún
     dlg_fallo = QMessageBox (selector)
-    dlg_fallo.addButton ('&Aceptar', QMessageBox.AcceptRole)
+    dlg_fallo.addButton (_('&Accept'), QMessageBox.AcceptRole)
     dlg_fallo.setIcon (QMessageBox.Warning)
-    dlg_fallo.setWindowTitle ('Fallo')
+    dlg_fallo.setWindowTitle (_('Failure'))
   dlg_fallo.setText (mensaje)
   dlg_fallo.setInformativeText (detalle)
   dlg_fallo.exec_()
@@ -1939,7 +1953,7 @@ def muestraProcesos ():
     if 'NOMBRES_PROCS' in mod_actual.__dict__ and numero < len (mod_actual.NOMBRES_PROCS):
       titulo = mod_actual.NOMBRES_PROCS[numero]
     else:
-      titulo = 'Proceso ' + str_numero
+      titulo = _('Process ') + str_numero
     if num_procesos < 6:  # Hay pocos procesos, espacio de sobra
       pestanyas.addTab (titulo)
     else:
@@ -1955,7 +1969,7 @@ def muestraProcesos ():
   campo_txt.setPalette         (paleta)
   campo_txt.setUndoRedoEnabled (False)
   dlg_procesos.setLayout      (layout)
-  dlg_procesos.setWindowTitle ('Tablas de proceso')
+  dlg_procesos.setWindowTitle (_('Process tables'))
   mdi_procesos = selector.centralWidget().addSubWindow (dlg_procesos)
   mdi_procesos.setOption (QMdiSubWindow.RubberBandResize)
   dlg_procesos.showMaximized()
@@ -1974,7 +1988,7 @@ def muestraTextos (dialogo, listaTextos, tipoTextos, subventanaMdi):
   dialogo = QTableView (selector)
   dialogo.horizontalHeader().setStretchLastSection(True)
   dialogo.setModel (ModeloTextos (dialogo, listaTextos))
-  titulo = ('Mensaj' if tipoTextos[0] == 'm' else 'Descripcion') + 'es de ' + tipoTextos[5:]
+  titulo = {'desc_localidades': _('Location descriptions'), 'desc_objetos': _('Object descriptions'), 'msgs_sistema': _('System messages'), 'msgs_usuario': _('User messages')}[tipoTextos]
   dialogo.setWindowTitle (titulo)
   subventanaMdi = selector.centralWidget().addSubWindow (dialogo)
   if tipoTextos == 'desc_localidades':
@@ -2013,7 +2027,7 @@ def muestraVistaVocab ():
   dlg_vocabulario = QTableView (selector)
   dlg_vocabulario.setModel (ModeloVocabulario (dlg_vocabulario))
   # dlg_vocabulario.setHorizontalHeaderLabels (('Palabra', 'Número', 'Tipo'))
-  dlg_vocabulario.setWindowTitle ('Vocabulario')
+  dlg_vocabulario.setWindowTitle (_('Vocabulary'))
   dlg_vocabulario.activated.connect     (nuevaFilaVocabulario)
   dlg_vocabulario.doubleClicked.connect (editaVocabulario)
   mdi_vocabulario = selector.centralWidget().addSubWindow (dlg_vocabulario)
@@ -2029,7 +2043,7 @@ def nuevaBD (posicion):
   selector.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
   mod_actual = __import__ (info_nueva[posicion][0])
   mod_actual.__dict__[info_nueva[posicion][1]]()
-  postCarga ('Sin nombre')
+  postCarga (_('Untitled'))
 
 def nuevaEntradaProceso (posicion):
   """Añade una entrada de proceso vacía en la posición dada como parámetro"""
@@ -2079,27 +2093,27 @@ def nuevaFilaVocabulario (indice):
     pass
   nuevaPal = []  # Entrada de vocabulario a añadir
   # Obtenemos el texto de la palabra
-  dialogo = ModalEntrada (dlg_vocabulario, 'Texto de la palabra:', '')
-  dialogo.setWindowTitle ('Añadir')
+  dialogo = ModalEntrada (dlg_vocabulario, _('Text of the word:'), '')
+  dialogo.setWindowTitle (_('Add'))
   if dialogo.exec_() != QDialog.Accepted:
     return
   nuevaPal.append (str (dialogo.textValue())[:mod_actual.LONGITUD_PAL].lower())
   # Obtenemos el código de la palabra
-  dialogo = ModalEntrada (dlg_vocabulario, 'Código de la palabra:', '')
+  dialogo = ModalEntrada (dlg_vocabulario, _('Code of the word:'), '')
   dialogo.setInputMode   (QInputDialog.IntInput)
   dialogo.setIntRange    (0, 255)
-  dialogo.setWindowTitle ('Añadir')
+  dialogo.setWindowTitle (_('Add'))
   if dialogo.exec_() != QDialog.Accepted:
     return
   nuevaPal.append (dialogo.intValue())
   # Obtenemos el tipo de la palabra
-  tiposPalabra = {255: 'Reservado'}
+  tiposPalabra = {255: _('Reserved')}
   for i in range (len (mod_actual.TIPOS_PAL)):
     tiposPalabra[i] = mod_actual.TIPOS_PAL[i]
-  dialogo = ModalEntrada (dlg_vocabulario, 'Tipo de palabra:', '')
+  dialogo = ModalEntrada (dlg_vocabulario, _('Type of the word:'), '')
   dialogo.setComboBoxEditable (True)
   dialogo.setComboBoxItems    (sorted (tiposPalabra.values()))
-  dialogo.setWindowTitle      ('Añadir')
+  dialogo.setWindowTitle      (_('Add'))
   if dialogo.exec_() != QDialog.Accepted or dialogo.textValue() not in tiposPalabra.values():
     return
   nuevaPal.append (list (tiposPalabra.keys())[list (tiposPalabra.values()).index (dialogo.textValue())])
@@ -2209,17 +2223,18 @@ creaSelector()
 selector.showMaximized()
 cargaInfoModulos()
 
-argsParser = argparse.ArgumentParser (sys.argv[0], description = 'Entorno de Desarrollo Integrado para Quill/PAWS/SWAN/DAAD en Python')
-argsParser.add_argument ('-ne', '--no-entry-end', action = 'store_true', help = 'omitir condactos en entradas de proceso detrás de los que cambian el flujo de ejecución incondicionalmente')
-argsParser.add_argument ('-r', '--run', action = 'store_true', help = 'ejecutar base_de_datos por pasos directamente')
-argsParser.add_argument ('bbdd',     metavar = 'base_de_datos',         nargs = '?', help = 'base de datos, snapshot, o código fuente de Quill/PAWS/SWAN/DAAD a ejecutar')
-argsParser.add_argument ('graficos', metavar = 'bd_o_carpeta_gráficos', nargs = '?', help = 'base de datos gráfica o carpeta de la que tomar las imágenes (con nombre pic###.png)')
+argsParser = argparse.ArgumentParser (sys.argv[0], description = _('Integrated Development Environment for Quill/PAWS/SWAN/DAAD in Python'))
+argsParser.add_argument ('-ne', '--no-entry-end', action = 'store_true', help = _('omit condacts in process entries behind condacts that unconditionally change execution flow'))
+argsParser.add_argument ('-r', '--run', action = 'store_true', help = _("directly run 'database' step by step"))
+argsParser.add_argument ('bbdd',     metavar = _('database'),              nargs = '?', help = _('Quill/PAWS/SWAN/DAAD database, snapshot, or source code to run'))
+argsParser.add_argument ('graficos', metavar = _('db_or_graphics_folder'), nargs = '?', help = _('graphic database or folder to take images from (with name pic###.png)'))
 args = argsParser.parse_args()
 
 if args.bbdd:
   if args.graficos and not os.path.exists (args.graficos):
-    muestraFallo ('Ruta inexistente',
-                  'No existe ningún fichero ni carpeta con la ruta dada desde la línea de comandos para gráficos:\n\n' + (args.graficos.decode ('utf8') if sys.version_info[0] < 3 else args.graficos))
+    muestraFallo (_('Inexistent path'),
+                  _("There's no file and no folder with the path given from the command line for graphics:\n\n")
+                  + (args.graficos.decode ('utf8') if sys.version_info[0] < 3 else args.graficos))
     args.graficos = None
   if args.graficos:
     todoBien = importaBD (args.bbdd, nombreFicheroGfx = args.graficos)

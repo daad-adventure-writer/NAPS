@@ -1,67 +1,87 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
-# Copyright (C) 2008-2010, 2013, 2018-2023 José Manuel Ferrer Ortiz <jmfo1982@gmail.com>
+# Copyright (C) 2008-2010, 2013, 2018-2024 José Manuel Ferrer Ortiz <jmfo1982@gmail.com>
 # This file is distributed under the same license as the NAPS package.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 23.11\n"
+"Project-Id-Version: 24.04\n"
 "Report-Msgid-Bugs-To: jmfo1982@gmail.com\n"
-"POT-Creation-Date: 2023-11-28 23:29+0100\n"
-"PO-Revision-Date: 2023-11-28 19:41+0100\n"
+"POT-Creation-Date: 2024-03-31 15:15+0200\n"
+"PO-Revision-Date: 2024-03-31 15:21+0200\n"
 "Last-Translator: José Manuel Ferrer Ortiz <jmfo1982@gmail.com>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: edita_bd_pics.py:63
+#: /usr/lib/python2.7/argparse.py:294 /usr/lib/python3.6/argparse.py:304
+msgid "usage: "
+msgstr "Uso: "
+
+#: /usr/lib/python2.7/argparse.py:1601 /usr/lib/python3.6/argparse.py:1646
+msgid "positional arguments"
+msgstr "parámetros posicionales"
+
+#: /usr/lib/python2.7/argparse.py:1602 /usr/lib/python3.6/argparse.py:1647
+msgid "optional arguments"
+msgstr "parámetros opcionales"
+
+#: /usr/lib/python2.7/argparse.py:1617 /usr/lib/python3.6/argparse.py:1662
+msgid "show this help message and exit"
+msgstr "mostrar esta ayuda y terminar"
+
+#: /usr/lib/python2.7/argparse.py:1707 /usr/lib/python3.6/argparse.py:1745
+msgid "unrecognized arguments: %s"
+msgstr "parámetros desconocidos: %s"
+
+#: edita_bd_pics.py:72
 msgid "BMP images"
 msgstr "Imágenes BMP"
 
-#: edita_bd_pics.py:63
+#: edita_bd_pics.py:72
 msgid "PNG images"
 msgstr "Imágenes PNG"
 
-#: edita_bd_pics.py:80
+#: edita_bd_pics.py:89
 msgid "&Delete image"
 msgstr "E&liminar imagen"
 
-#: edita_bd_pics.py:81
+#: edita_bd_pics.py:90
 msgid "&Export image"
 msgstr "&Exportar imagen"
 
-#: edita_bd_pics.py:82
+#: edita_bd_pics.py:91
 msgid "&Replace image"
 msgstr "&Sustituir imagen"
 
-#: edita_bd_pics.py:83
+#: edita_bd_pics.py:92
 msgid "Replace image &preserving palette"
 msgstr "Sustituir imagen &conservando paleta"
 
-#: edita_bd_pics.py:93
+#: edita_bd_pics.py:102
 msgid "&Add image"
 msgstr "&Añadir imagen"
 
-#: edita_bd_pics.py:103 edita_bd_pics.py:142 edita_bd_pics.py:202
-#: edita_bd_pics.py:356
+#: edita_bd_pics.py:112 edita_bd_pics.py:151 edita_bd_pics.py:211
+#: edita_bd_pics.py:455 ide_pyqt.py:1616
 msgid "&Yes"
 msgstr "&Sí"
 
-#: edita_bd_pics.py:104 edita_bd_pics.py:143 edita_bd_pics.py:203
-#: edita_bd_pics.py:357
+#: edita_bd_pics.py:113 edita_bd_pics.py:152 edita_bd_pics.py:212
+#: edita_bd_pics.py:456 ide_pyqt.py:1617
 msgid "&No"
 msgstr ""
 
-#: edita_bd_pics.py:106
+#: edita_bd_pics.py:115
 msgid "Delete image"
 msgstr "Eliminar imagen"
 
-#: edita_bd_pics.py:107 edita_bd_pics.py:206
+#: edita_bd_pics.py:116 edita_bd_pics.py:215
 #, python-format
 msgid "Image #%d isn't used by any other resource"
 msgstr "La imagen %d no es utilizada por ningún otro recurso"
 
-#: edita_bd_pics.py:108
+#: edita_bd_pics.py:117
 msgid ""
 "\n"
 "Are you sure you want to delete it?"
@@ -69,39 +89,39 @@ msgstr ""
 "\n"
 "¿Seguro que quieres eliminarla?"
 
-#: edita_bd_pics.py:122
+#: edita_bd_pics.py:131
 msgid "Export image"
 msgstr "Exportar imagen"
 
-#: edita_bd_pics.py:124 edita_bd_pics.py:340 edita_bd_pics.py:382
-#: edita_bd_pics.py:406 edita_bd_pics.py:546
+#: edita_bd_pics.py:133 edita_bd_pics.py:439 edita_bd_pics.py:481
+#: edita_bd_pics.py:505 edita_bd_pics.py:640 ide_pyqt.py:1456
 msgid "Places"
 msgstr "Lugares"
 
-#: edita_bd_pics.py:125 edita_bd_pics.py:341 edita_bd_pics.py:383
-#: edita_bd_pics.py:407 edita_bd_pics.py:547
+#: edita_bd_pics.py:134 edita_bd_pics.py:440 edita_bd_pics.py:482
+#: edita_bd_pics.py:506 edita_bd_pics.py:641 ide_pyqt.py:1457
 msgid "&Name:"
 msgstr "&Nombre:"
 
-#: edita_bd_pics.py:126 edita_bd_pics.py:342 edita_bd_pics.py:384
-#: edita_bd_pics.py:408 edita_bd_pics.py:548
+#: edita_bd_pics.py:135 edita_bd_pics.py:441 edita_bd_pics.py:483
+#: edita_bd_pics.py:507 edita_bd_pics.py:642 ide_pyqt.py:1458
 msgid "Filter:"
 msgstr "Filtro:"
 
-#: edita_bd_pics.py:127 edita_bd_pics.py:343
+#: edita_bd_pics.py:136 edita_bd_pics.py:442
 msgid "&Save"
 msgstr "&Guardar"
 
-#: edita_bd_pics.py:128 edita_bd_pics.py:344 edita_bd_pics.py:386
-#: edita_bd_pics.py:410 edita_bd_pics.py:550
+#: edita_bd_pics.py:137 edita_bd_pics.py:443 edita_bd_pics.py:485
+#: edita_bd_pics.py:509 edita_bd_pics.py:644 ide_pyqt.py:813 ide_pyqt.py:1460
 msgid "&Cancel"
 msgstr "&Cancelar"
 
-#: edita_bd_pics.py:145 edita_bd_pics.py:359
+#: edita_bd_pics.py:154 edita_bd_pics.py:458 ide_pyqt.py:1619
 msgid "Overwrite"
 msgstr "Sobreescritura"
 
-#: edita_bd_pics.py:146 edita_bd_pics.py:360
+#: edita_bd_pics.py:155 edita_bd_pics.py:459 ide_pyqt.py:1620
 msgid ""
 "A file already exists with path and name:\n"
 "\n"
@@ -109,7 +129,7 @@ msgstr ""
 "Ya existe un fichero con ruta y nombre:\n"
 "\n"
 
-#: edita_bd_pics.py:147 edita_bd_pics.py:361
+#: edita_bd_pics.py:156 edita_bd_pics.py:460 ide_pyqt.py:1621
 msgid ""
 "\n"
 "Do you want to overwrite it?"
@@ -117,15 +137,15 @@ msgstr ""
 "\n"
 "¿Quieres sobreescribirlo?"
 
-#: edita_bd_pics.py:164
+#: edita_bd_pics.py:173
 msgid "Unable to open image from file:\n"
 msgstr "No se puede abrir la imagen del fichero:\n"
 
-#: edita_bd_pics.py:167
+#: edita_bd_pics.py:176
 msgid "Invalid dimensions"
 msgstr "Dimensiones inválidas"
 
-#: edita_bd_pics.py:167
+#: edita_bd_pics.py:176
 #, python-format
 msgid ""
 "The chosen image (%s) has invalid dimensions, both its width and its height "
@@ -134,11 +154,11 @@ msgstr ""
 "La imagen elegida (%s) tiene dimensiones inválidas, tanto su ancho como su "
 "alto debería ser mayor que cero"
 
-#: edita_bd_pics.py:170
+#: edita_bd_pics.py:179
 msgid "Excessive image height"
 msgstr "Altura de imagen excesiva"
 
-#: edita_bd_pics.py:170
+#: edita_bd_pics.py:179
 #, python-format
 msgid ""
 "The chosen image (%(fileName)s) has a height of %(imageHeight)d pixels, "
@@ -149,11 +169,11 @@ msgstr ""
 "mientras que el modo %(graphicMode)s de la base de datos gráfica sólo "
 "soporta hasta %(maxHeight)d"
 
-#: edita_bd_pics.py:173
+#: edita_bd_pics.py:182
 msgid "Excessive image width"
 msgstr "Anchura de imagen excesiva"
 
-#: edita_bd_pics.py:173
+#: edita_bd_pics.py:182
 #, python-format
 msgid ""
 "The chosen image (%(fileName)s) has a width of %(imageWidth)d pixels, while "
@@ -164,11 +184,11 @@ msgstr ""
 "mientras que el modo %(graphicMode)s de la base de datos gráfica sólo "
 "soporta hasta %(maxWidth)d"
 
-#: edita_bd_pics.py:176
+#: edita_bd_pics.py:185
 msgid "Incorrect image height"
 msgstr "Altura de imagen incorrecta"
 
-#: edita_bd_pics.py:176
+#: edita_bd_pics.py:185
 #, python-format
 msgid ""
 "The chosen image (%(fileName)s) has a height of %(imageHeight)d pixels, when "
@@ -177,11 +197,11 @@ msgstr ""
 "La imagen elegida (%(fileName)s) tiene %(imageHeight)d píxeles de alto, "
 "cuando debería ser múltiplo de 8"
 
-#: edita_bd_pics.py:179
+#: edita_bd_pics.py:188
 msgid "Incorrect image width"
 msgstr "Anchura de imagen incorrecta"
 
-#: edita_bd_pics.py:179
+#: edita_bd_pics.py:188
 #, python-format
 msgid ""
 "The chosen image (%(fileName)s) has a width of %(imageWidth)d pixels, when "
@@ -190,11 +210,11 @@ msgstr ""
 "La imagen elegida (%(fileName)s) tiene %(imageWidth)d píxeles de ancho, "
 "cuando debería ser múltiplo de 8"
 
-#: edita_bd_pics.py:199
+#: edita_bd_pics.py:208
 msgid "High number of colors"
 msgstr "Número de colores elevado"
 
-#: edita_bd_pics.py:199
+#: edita_bd_pics.py:208
 #, python-format
 msgid ""
 "The chosen image (%(fileName)s) uses %(colorCount)d different colors, while "
@@ -205,11 +225,11 @@ msgstr ""
 "mientras que el modo %(graphicMode)s de la base de datos gráfica sólo "
 "soporta %(maxColorCount)d"
 
-#: edita_bd_pics.py:205
+#: edita_bd_pics.py:214
 msgid "Replace image"
 msgstr "Sustituir imagen"
 
-#: edita_bd_pics.py:207
+#: edita_bd_pics.py:216
 msgid ""
 "\n"
 "Are you sure you want to replace it with the image from the chosen file?"
@@ -217,11 +237,11 @@ msgstr ""
 "\n"
 "¿Seguro que quieres sustituirla por la imagen del fichero elegido?"
 
-#: edita_bd_pics.py:216
+#: edita_bd_pics.py:225
 msgid "Trimmed palette"
 msgstr "Paleta recortada"
 
-#: edita_bd_pics.py:216
+#: edita_bd_pics.py:225
 #, python-format
 msgid ""
 "The format of the graphic database supports variable palette, the first %d "
@@ -230,59 +250,59 @@ msgstr ""
 "El formato de base de datos gráfica soporta paleta variable, se tomará como "
 "paleta los primeros %d colores de la imagen"
 
-#: edita_bd_pics.py:287
+#: edita_bd_pics.py:375
 msgid "&Export graphic DB"
 msgstr "&Exportar BD gráfica"
 
-#: edita_bd_pics.py:288
+#: edita_bd_pics.py:376
 msgid "&Export all"
 msgstr "&Exportar todo"
 
-#: edita_bd_pics.py:289
+#: edita_bd_pics.py:377
 msgid "&Add/replace images"
 msgstr "&Añadir/sustituir imágenes"
 
-#: edita_bd_pics.py:290
+#: edita_bd_pics.py:378
 msgid "Add/replace images &preserving palette"
 msgstr "Añadir/sustituir imágenes &conservando paleta"
 
-#: edita_bd_pics.py:291
+#: edita_bd_pics.py:379
 msgid "&Import graphic DB"
 msgstr "&Importar BD gráfica"
 
-#: edita_bd_pics.py:292
+#: edita_bd_pics.py:380 ide_pyqt.py:1267
 msgid "&Quit"
 msgstr "&Salir"
 
-#: edita_bd_pics.py:302
+#: edita_bd_pics.py:390
 msgid "Ctrl+Q"
 msgstr ""
 
-#: edita_bd_pics.py:303
+#: edita_bd_pics.py:391
 msgid "&File"
 msgstr "&Archivo"
 
-#: edita_bd_pics.py:308
+#: edita_bd_pics.py:396
 msgid "&Mass operations"
 msgstr "&Operaciones en masa"
 
-#: edita_bd_pics.py:318
+#: edita_bd_pics.py:407 edita_bd_pics.py:603
 msgid "Graphic database editor"
 msgstr "Editor de bases de datos gráficas"
 
-#: edita_bd_pics.py:327
+#: edita_bd_pics.py:426
 msgid "DAAD graphic databases for CGA (*.cga)"
 msgstr "Bases de datos gráficas DAAD para CGA (*.cga)"
 
-#: edita_bd_pics.py:330
+#: edita_bd_pics.py:429
 msgid "DAAD graphic databases for EGA (*.ega)"
 msgstr "Bases de datos gráficas DAAD para EGA (*.ega)"
 
-#: edita_bd_pics.py:333
+#: edita_bd_pics.py:432
 msgid "DAAD graphic databases for PCW (*.dat *.pcw)"
 msgstr "Bases de datos gráficas DAAD para PCW (*.dat *.pcw)"
 
-#: edita_bd_pics.py:336
+#: edita_bd_pics.py:435
 msgid ""
 "DAAD v3 graphic databases for Amiga/PC (*.dat);;DAAD v3 graphic databases "
 "for Atari ST/STE (*.dat)"
@@ -290,31 +310,32 @@ msgstr ""
 "Bases de datos gráficas DAAD v3 para Amiga/PC (*.dat);;Bases de datos "
 "gráficas DAAD v3 para Atari ST/STE (*.dat)"
 
-#: edita_bd_pics.py:338
+#: edita_bd_pics.py:437
 msgid "Export graphic database"
 msgstr "Exportar base de datos gráfica"
 
-#: edita_bd_pics.py:368 edita_bd_pics.py:441
+#: edita_bd_pics.py:467 edita_bd_pics.py:540 ide_pyqt.py:1628 ide_pyqt.py:1647
 msgid "Unable to open the file:\n"
 msgstr "No se puede abrir el fichero:\n"
 
-#: edita_bd_pics.py:380
+#: edita_bd_pics.py:479
 msgid "Folder to export to"
 msgstr "Carpeta donde exportar"
 
-#: edita_bd_pics.py:385 edita_bd_pics.py:409 edita_bd_pics.py:549
+#: edita_bd_pics.py:484 edita_bd_pics.py:508 edita_bd_pics.py:643
+#: ide_pyqt.py:1459
 msgid "&Open"
 msgstr "&Abrir"
 
-#: edita_bd_pics.py:404
+#: edita_bd_pics.py:503
 msgid "Import graphic database"
 msgstr "Importar base de datos gráfica"
 
-#: edita_bd_pics.py:404
+#: edita_bd_pics.py:503
 msgid "DAAD graphic databases (*.cga *.dat *.ega *.pcw)"
 msgstr "Bases de datos gráficas DAAD (*.cga *.dat *.ega *.pcw)"
 
-#: edita_bd_pics.py:420
+#: edita_bd_pics.py:519
 msgid ""
 "Each selected file will be tried to be loaded as an image, and its image "
 "will be applied to the corresponding resources with all the numbers found on "
@@ -335,11 +356,11 @@ msgstr ""
 "\"lugar 1, 7 y 28.png\" \"imagen 28 (1).7.bmp\" la aplicarán sobre los "
 "recursos 1, 7 y 28"
 
-#: edita_bd_pics.py:430
+#: edita_bd_pics.py:529
 msgid "Invalid number"
 msgstr "Número inválido"
 
-#: edita_bd_pics.py:430
+#: edita_bd_pics.py:529
 #, python-format
 msgid ""
 "File name \"%(fileName)s\" contains a number %(resourceNumber)d that is "
@@ -350,39 +371,584 @@ msgstr ""
 "que es inválido como recurso, por lo que ese número se ignorará. Y si el "
 "nombre sólo tiene ese número, el fichero se ignorará"
 
-#: edita_bd_pics.py:439
+#: edita_bd_pics.py:538
 msgid "Loading of one or more resources in the graphic database failed:\n"
 msgstr ""
 "Ha fallado la carga de uno o varios recursos en la base de datos gráfica:\n"
 
-#: edita_bd_pics.py:521
+#: edita_bd_pics.py:615 ide_pyqt.py:812 ide_pyqt.py:1855 ide_pyqt.py:1896
+#: ide_pyqt.py:1917
 msgid "&Accept"
 msgstr "&Aceptar"
 
-#: edita_bd_pics.py:524
+#: edita_bd_pics.py:618 ide_pyqt.py:1919
 msgid "Failure"
 msgstr "Fallo"
 
-#: edita_bd_pics.py:526
+#: edita_bd_pics.py:620
 msgid "Information"
 msgstr "Información"
 
-#: edita_bd_pics.py:528
+#: edita_bd_pics.py:622
 msgid "Warning"
 msgstr "Advertencia"
 
-#: edita_bd_pics.py:531
+#: edita_bd_pics.py:625 ide_pyqt.py:1629 ide_pyqt.py:1648
 msgid "Cause:\n"
 msgstr "Causa:\n"
 
-#: edita_bd_pics.py:543
+#: edita_bd_pics.py:637
 msgid "All supported images (*."
 msgstr "Todas las imágenes soportadas (*."
 
-#: edita_bd_pics.py:545 edita_bd_pics.py:557
+#: edita_bd_pics.py:639 edita_bd_pics.py:651
 msgid "Open image"
 msgstr "Abrir imagen"
 
-#: edita_bd_pics.py:554
+#: edita_bd_pics.py:648
 msgid "Open images"
 msgstr "Abrir imágenes"
+
+#: ide_pyqt.py:156
+msgid "Adds or removes breakpoints"
+msgstr "Añade o elimina puntos de ruptura"
+
+#: ide_pyqt.py:322
+msgid "Delete"
+msgstr "Eliminar"
+
+#: ide_pyqt.py:323
+msgid "Add entry &before"
+msgstr "Añadir entrada &antes"
+
+#: ide_pyqt.py:324
+msgid "Add entry &after"
+msgstr "Añadir entrada &después"
+
+#: ide_pyqt.py:325
+msgid "This entry"
+msgstr "Esta entrada"
+
+#: ide_pyqt.py:326
+msgid "All entries"
+msgstr "Todas las entradas"
+
+#: ide_pyqt.py:332
+msgid "Deletes all entries in the process"
+msgstr "Elimina todas las entradas del proceso"
+
+#: ide_pyqt.py:343
+msgid "&Go to entry"
+msgstr "&Ir a la entrada"
+
+#: ide_pyqt.py:488 ide_pyqt.py:490
+msgid "Choose a condact:"
+msgstr "Elige un condacto:"
+
+#: ide_pyqt.py:596
+msgid "Parameter value:"
+msgstr "Valor del parámetro:"
+
+#: ide_pyqt.py:733 ide_pyqt.py:899
+#, python-format
+msgid "Running %s"
+msgstr "Ejecución %s"
+
+#: ide_pyqt.py:749
+msgid " - Waiting for key"
+msgstr " - Esperando tecla"
+
+#: ide_pyqt.py:756 ide_pyqt.py:899
+msgid " - Stopped"
+msgstr " - Parada"
+
+#: ide_pyqt.py:783
+msgid "Modal"
+msgstr ""
+
+#: ide_pyqt.py:819
+msgid "Edit the text"
+msgstr "Edita el texto"
+
+#: ide_pyqt.py:844
+msgid "Message text"
+msgstr "Texto del mensaje"
+
+#: ide_pyqt.py:845
+msgid "Description text"
+msgstr "Texto de la descripción"
+
+#: ide_pyqt.py:857
+msgid "Word"
+msgstr "Palabra"
+
+#: ide_pyqt.py:857
+msgid "Code"
+msgstr "Código"
+
+#: ide_pyqt.py:857
+msgid "Type"
+msgstr "Tipo"
+
+#: ide_pyqt.py:872 ide_pyqt.py:1535 ide_pyqt.py:2110
+msgid "Reserved"
+msgstr "Reservado"
+
+#: ide_pyqt.py:874
+msgid "Unknown ("
+msgstr "Desconocido ("
+
+#: ide_pyqt.py:1052 ide_pyqt.py:1476 ide_pyqt.py:1485 ide_pyqt.py:1883
+#, python-format
+msgid "Value of flag %d: "
+msgstr "Valor de la bandera %d: "
+
+#: ide_pyqt.py:1204
+msgid "Error when importing module:"
+msgstr "Error al importar el módulo:"
+
+#: ide_pyqt.py:1222
+#, python-format
+msgid "%s database"
+msgstr "Base de datos %s"
+
+#: ide_pyqt.py:1223
+#, python-format
+msgid "Creates a new %s database"
+msgstr "Crea una nueva base de datos de %s"
+
+#: ide_pyqt.py:1247
+msgid "1 step"
+msgstr "1 paso"
+
+#: ide_pyqt.py:1248
+msgid "10 steps"
+msgstr "10 pasos"
+
+#: ide_pyqt.py:1249
+msgid "100 steps"
+msgstr "100 pasos"
+
+#: ide_pyqt.py:1250
+msgid "1000 steps"
+msgstr "1000 pasos"
+
+#: ide_pyqt.py:1251
+msgid "&About NAPS IDE"
+msgstr "&Acerca de NAPS IDE"
+
+#: ide_pyqt.py:1252
+msgid "&Flags"
+msgstr "&Banderas"
+
+#: ide_pyqt.py:1253
+msgid "&Counters"
+msgstr "&Contadores"
+
+#: ide_pyqt.py:1254 ide_pyqt.py:1259
+msgid "&Location descriptions"
+msgstr "Descripciones de &localidades"
+
+#: ide_pyqt.py:1255 ide_pyqt.py:1260
+msgid "&Object descriptions"
+msgstr "Descripciones de &objetos"
+
+#: ide_pyqt.py:1256
+msgid "&Movement"
+msgstr "&Direcciones"
+
+#: ide_pyqt.py:1257
+msgid "&Export"
+msgstr "&Exportar"
+
+#: ide_pyqt.py:1258
+msgid "&Import"
+msgstr "&Importar"
+
+#: ide_pyqt.py:1261
+msgid "&Trim to line width"
+msgstr "&Recortar al ancho de línea"
+
+#: ide_pyqt.py:1262 ide_pyqt.py:1264
+msgid "&System messages"
+msgstr "Mensajes de &sistema"
+
+#: ide_pyqt.py:1263 ide_pyqt.py:1265
+msgid "&User messages"
+msgstr "Mensajes de &usuario"
+
+#: ide_pyqt.py:1266
+msgid "&Step by step"
+msgstr "&Paso a paso"
+
+#: ide_pyqt.py:1268
+msgid "&Tables"
+msgstr "&Tablas"
+
+#: ide_pyqt.py:1269
+msgid "&Table"
+msgstr "&Tabla"
+
+#: ide_pyqt.py:1304
+msgid "Runs a step on the database and then it stops"
+msgstr "Ejecuta un paso de la base de datos y después para"
+
+#: ide_pyqt.py:1305
+msgid "Runs up to ten steps on the database and then it stops"
+msgstr "Ejecuta hasta diez pasos de la base de datos y después para"
+
+#: ide_pyqt.py:1306
+msgid "Runs up to one hundred steps on the database and then it stops"
+msgstr "Ejecuta hasta cien pasos de la base de datos y después para"
+
+#: ide_pyqt.py:1307
+msgid "Runs up to one thousand steps on the database and then it stops"
+msgstr "Ejecuta hasta mil pasos de la base de datos y después para"
+
+#: ide_pyqt.py:1308
+msgid "Shows information about the program"
+msgstr "Muestra información acerca del programa"
+
+#: ide_pyqt.py:1309
+msgid "Allows to check and modify the value of flags"
+msgstr "Permite consultar y modificar las banderas"
+
+#: ide_pyqt.py:1310
+msgid "Displays the number of elements of each type"
+msgstr "Muestra el número de elementos de cada tipo"
+
+#: ide_pyqt.py:1311
+msgid "Allows to check and modify location descriptions"
+msgstr "Permite consultar y modificar las descripciones de las localidades"
+
+#: ide_pyqt.py:1312
+msgid "Allows to check and modify object descriptions"
+msgstr "Permite consultar y modificar las descripciones de los objetos"
+
+#: ide_pyqt.py:1313
+msgid "Allows to add and edit movement words"
+msgstr "Permite añadir y editar las palabras de dirección"
+
+#: ide_pyqt.py:1314
+msgid "Exports the database to a file"
+msgstr "Exporta la base de datos a un fichero"
+
+#: ide_pyqt.py:1315
+msgid "Imports the database from a file"
+msgstr "Importa una base de datos desde un fichero"
+
+#: ide_pyqt.py:1316
+msgid "Show location descriptions when condacts reference them"
+msgstr ""
+"Mostrar descripciones de localidades cuando los condactos las referencien"
+
+#: ide_pyqt.py:1317
+msgid "Show object descriptions when condacts reference them"
+msgstr "Mostrar descripciones de objetos cuando los condactos los referencien"
+
+#: ide_pyqt.py:1318
+msgid "Trim texts to the available line width"
+msgstr "Recortar textos a la anchura de línea disponible"
+
+#: ide_pyqt.py:1319
+msgid "Show system messages when condacts reference them"
+msgstr ""
+"Mostrar texto de mensajes de sistema cuando los condactos los referencien"
+
+#: ide_pyqt.py:1320
+msgid "Show user messages when condacts reference them"
+msgstr ""
+"Mostrar texto de mensajes de usuario cuando los condactos los referencien"
+
+#: ide_pyqt.py:1321
+msgid "Allows to check and modify system messages"
+msgstr "Permite consultar y modificar los mensajes de sistema"
+
+#: ide_pyqt.py:1322
+msgid "Allows to check and modify user messages"
+msgstr "Permite consultar y modificar los mensajes de usuario"
+
+#: ide_pyqt.py:1323
+msgid "Debugs the database running it step by step"
+msgstr "Depura la base de datos ejecutándola paso a paso"
+
+#: ide_pyqt.py:1324
+msgid "Quits the application"
+msgstr "Sale de la aplicación"
+
+#: ide_pyqt.py:1325
+msgid "Allows to check and modify the process tables"
+msgstr "Permite consultar y modificar las tablas de proceso"
+
+#: ide_pyqt.py:1326
+msgid "Allows to check and modify the vocabulary"
+msgstr "Permite consultar y modificar el vocabulario"
+
+#: ide_pyqt.py:1327 ide_pyqt.py:1972
+msgid "Process tables"
+msgstr "Tablas de proceso"
+
+#: ide_pyqt.py:1328
+msgid "Vocabulary table"
+msgstr "Tabla de vocabulario"
+
+#: ide_pyqt.py:1354
+msgid "Button bar"
+msgstr "Barra de botones"
+
+#: ide_pyqt.py:1368
+msgid "&Database"
+msgstr "&Base de datos"
+
+#: ide_pyqt.py:1369
+msgid "&New"
+msgstr "&Nueva"
+
+#: ide_pyqt.py:1378
+msgid "&Run"
+msgstr "&Ejecución"
+
+#: ide_pyqt.py:1387
+msgid "&Processes"
+msgstr "&Procesos"
+
+#: ide_pyqt.py:1388
+msgid "&Show texts"
+msgstr "&Mostrar textos"
+
+#: ide_pyqt.py:1398
+msgid "&Texts"
+msgstr "&Textos"
+
+#: ide_pyqt.py:1404
+msgid "&Vocabulary"
+msgstr "&Vocabulario"
+
+#: ide_pyqt.py:1407
+msgid "&Help"
+msgstr "&Ayuda"
+
+#: ide_pyqt.py:1452
+msgid "All supported formats (*."
+msgstr "Todos los formatos soportados (*."
+
+#: ide_pyqt.py:1454
+msgid "Import database"
+msgstr "Importar base de datos"
+
+#: ide_pyqt.py:1479 ide_pyqt.py:1524 ide_pyqt.py:1531 ide_pyqt.py:1541
+msgid "Edit"
+msgstr "Editar"
+
+#: ide_pyqt.py:1523 ide_pyqt.py:2096
+msgid "Text of the word:"
+msgstr "Texto de la palabra:"
+
+#: ide_pyqt.py:1528 ide_pyqt.py:2102
+msgid "Code of the word:"
+msgstr "Código de la palabra:"
+
+#: ide_pyqt.py:1538 ide_pyqt.py:2113
+msgid "Type of the word:"
+msgstr "Tipo de palabra:"
+
+#: ide_pyqt.py:1599
+msgid "Export database"
+msgstr "Exportar base de datos"
+
+#: ide_pyqt.py:1651 ide_pyqt.py:1664 ide_pyqt.py:1684
+msgid "Unable to import a database from:\n"
+msgstr "No se puede importar una base datos de:\n"
+
+#: ide_pyqt.py:1652
+msgid ""
+"Cause:\n"
+"The file lacks an extension"
+msgstr ""
+"Causa:\n"
+"El fichero no tiene extensión"
+
+#: ide_pyqt.py:1665
+msgid ""
+"Cause:\n"
+"Unknown extension"
+msgstr ""
+"Causa:\n"
+"Extensión no reconocida"
+
+#: ide_pyqt.py:1685
+msgid ""
+"Cause:\n"
+"Incompatible file format or corrupted database"
+msgstr ""
+"Causa:\n"
+"Formato de fichero incompatible o base de datos corrupta"
+
+#: ide_pyqt.py:1709
+msgid "Non-existent verb"
+msgstr "Verbo no existente"
+
+#: ide_pyqt.py:1709
+#, python-format
+msgid "Verb with code %d not found in the vocabulary"
+msgstr "Verbo de código %d no encontrado en el vocabulario"
+
+#: ide_pyqt.py:1723
+msgid "Non-existent noun"
+msgstr "Nombre no existente"
+
+#: ide_pyqt.py:1723
+#, python-format
+msgid "Noun with code %d not found in the vocabulary"
+msgstr "Nombre de código %d no encontrado en el vocabulario"
+
+#: ide_pyqt.py:1753
+#, python-format
+msgid "FIXME: Condact %d not recognized by the library"
+msgstr "FIXME: Condacto %d no reconocido por la librería"
+
+#: ide_pyqt.py:1801
+#, python-format
+msgid "Do Ctrl+click here to open process %d"
+msgstr "Do Ctrl+click here to open process %d"
+
+#: ide_pyqt.py:1840
+msgid "Entry number:"
+msgstr "Entry number:"
+
+#: ide_pyqt.py:1843
+msgid "Go to"
+msgstr "Ir a"
+
+#: ide_pyqt.py:1858
+msgid "Integrated Development Environment (IDE)\n"
+msgstr "Entorno de desarrollo integrado (IDE)\n"
+
+#: ide_pyqt.py:1860
+msgid "PyQt version: "
+msgstr "Versión de PyQt: "
+
+#: ide_pyqt.py:1861
+msgid ""
+"\n"
+"Qt version: "
+msgstr ""
+"\n"
+"Versión de Qt: "
+
+#: ide_pyqt.py:1862
+msgid ""
+"\n"
+"Python version: "
+msgstr ""
+"\n"
+"Versión de Python: "
+
+#: ide_pyqt.py:1863
+msgid "About NAPS IDE"
+msgstr "Acerca de NAPS IDE"
+
+#: ide_pyqt.py:1886
+msgid "Flags"
+msgstr "Banderas"
+
+#: ide_pyqt.py:1898
+msgid "Processes: "
+msgstr "Procesos: "
+
+#: ide_pyqt.py:1899
+msgid ""
+" tables\n"
+"Vocabulary: "
+msgstr ""
+" tablas\n"
+"Vocabulario: "
+
+#: ide_pyqt.py:1899
+msgid " word"
+msgstr " palabra"
+
+#: ide_pyqt.py:1901
+msgid "Counters"
+msgstr "Contadores"
+
+#: ide_pyqt.py:1956
+msgid "Process "
+msgstr "Proceso "
+
+#: ide_pyqt.py:1991
+msgid "Location descriptions"
+msgstr "Descripciones de localidades"
+
+#: ide_pyqt.py:1991
+msgid "Object descriptions"
+msgstr "Descripciones de objetos"
+
+#: ide_pyqt.py:1991
+msgid "System messages"
+msgstr "Mensajes de sistema"
+
+#: ide_pyqt.py:1991
+msgid "User messages"
+msgstr "Mensajes de usuario"
+
+#: ide_pyqt.py:2030
+msgid "Vocabulary"
+msgstr "Vocabulario"
+
+#: ide_pyqt.py:2046
+msgid "Untitled"
+msgstr "Sin nombre"
+
+#: ide_pyqt.py:2097 ide_pyqt.py:2105 ide_pyqt.py:2116
+msgid "Add"
+msgstr "Añadir"
+
+#: ide_pyqt.py:2226
+msgid "Integrated Development Environment for Quill/PAWS/SWAN/DAAD in Python"
+msgstr "Entorno de Desarrollo Integrado para Quill/PAWS/SWAN/DAAD en Python"
+
+#: ide_pyqt.py:2227
+msgid ""
+"omit condacts in process entries behind condacts that unconditionally change "
+"execution flow"
+msgstr ""
+"omitir condactos en entradas de proceso detrás de los que cambian el flujo "
+"de ejecución incondicionalmente"
+
+#: ide_pyqt.py:2228
+msgid "directly run 'database' step by step"
+msgstr "ejecutar base_de_datos por pasos directamente"
+
+#: ide_pyqt.py:2229
+msgid "database"
+msgstr "base_de_datos"
+
+#: ide_pyqt.py:2229
+msgid "Quill/PAWS/SWAN/DAAD database, snapshot, or source code to run"
+msgstr ""
+"base de datos, snapshot, o código fuente de Quill/PAWS/SWAN/DAAD a ejecutar"
+
+#: ide_pyqt.py:2230
+msgid "db_or_graphics_folder"
+msgstr "bd_o_carpeta_gráficos"
+
+#: ide_pyqt.py:2230
+msgid "graphic database or folder to take images from (with name pic###.png)"
+msgstr ""
+"base de datos gráfica o carpeta de la que tomar las imágenes (con nombre "
+"pic###.png)"
+
+#: ide_pyqt.py:2235
+msgid "Inexistent path"
+msgstr "Ruta inexistente"
+
+#: ide_pyqt.py:2236
+msgid ""
+"There's no file and no folder with the path given from the command line for "
+"graphics:\n"
+"\n"
+msgstr ""
+"No existe ningún fichero ni carpeta con la ruta dada desde la línea de "
+"comandos para gráficos:\n"
+"\n"
