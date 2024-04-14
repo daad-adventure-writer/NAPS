@@ -1094,7 +1094,7 @@ def actualizaPosProcesos ():
         condacto = entrada[pilaAnterior[-1][2]]
         imprimeCondacto (*condacto, nuevaLinea = False)
     # Marcamos la línea ejecutándose actualmente
-    if len (pila_procs[-1]) > 1:
+    if len (pila_procs[-1]) > 1 and (proc_interprete or pilas_pendientes):
       campo_txt.irAEntradaYCondacto (pila_procs[-1][1], pila_procs[-1][2])
       cursor = campo_txt.textCursor()
       cursor.movePosition (QTextCursor.EndOfBlock)
