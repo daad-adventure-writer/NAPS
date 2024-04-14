@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 24.04\n"
 "Report-Msgid-Bugs-To: jmfo1982@gmail.com\n"
-"POT-Creation-Date: 2024-03-31 15:15+0200\n"
-"PO-Revision-Date: 2024-03-31 15:21+0200\n"
+"POT-Creation-Date: 2024-03-31 15:15+0100\n"
+"PO-Revision-Date: 2024-04-14 12:08+0100\n"
 "Last-Translator: José Manuel Ferrer Ortiz <jmfo1982@gmail.com>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
@@ -810,11 +810,11 @@ msgstr "FIXME: Condacto %d no reconocido por la librería"
 #: ide_pyqt.py:1801
 #, python-format
 msgid "Do Ctrl+click here to open process %d"
-msgstr "Do Ctrl+click here to open process %d"
+msgstr "Haz Ctrl+click aquí para abrir el proceso %d"
 
 #: ide_pyqt.py:1840
 msgid "Entry number:"
-msgstr "Entry number:"
+msgstr "Número de entrada:"
 
 #: ide_pyqt.py:1843
 msgid "Go to"
