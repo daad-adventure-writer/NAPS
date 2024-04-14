@@ -97,8 +97,9 @@ IDS_LOCS = {
 conversion_teclas = {Qt.Key_Escape: 27, Qt.Key_Down: 80, Qt.Key_End: 79, Qt.Key_Home: 71, Qt.Key_Left: 75, Qt.Key_Right: 77, Qt.Key_Up: 72}
 
 # Estilos CSS para el diálogo de banderas
-estilo_fila_impar = 'QPushButton {border: 0; margin-right: 2px; padding: 0; background: #ddd}'
-estilo_fila_par   = 'QPushButton {border: 0; margin-right: 2px; padding: 0}'
+estilo_banderas   = 'QPushButton {border: 0; margin-right: 2px; text-align: left; %s}'
+estilo_fila_impar = 'background: #ddd'
+estilo_fila_par   = ''
 
 
 # Funciones de exportación e importación, con sus módulos, extensiones y descripciones
@@ -1021,21 +1022,39 @@ class VFlowLayout (QLayout):
     return self.parent().size()
 
   def organizaLayout (self, dimensiones):
-    anchoCol = 0
-    colEsPar = True
-    x        = 0
-    y        = 0
+    # En la primera iteración, aplicamos la hoja de estilo a cada botón y calculamos el ancho máximo de cada columna, y el número de botones por columna
+    anchoCol  = 0   # Ancho máxima de la columna actual
+    anchoCols = []  # Ancho máxima de cada columna
+    colEsPar  = True
+    x         = 0
+    y         = 0
+    tamCol    = 0   # Cuántos botones hay como máximo en una columna
     for item in self.items:
       if y + item.sizeHint().height() > dimensiones.height():  # Sobrepasará por abajo
+        anchoCols.append (anchoCol)
         x       += anchoCol
         y        = 0
         anchoCol = item.sizeHint().width()
         colEsPar = not colEsPar
       else:
         anchoCol = max (anchoCol, item.sizeHint().width())
+        if x == 0:
+          tamCol += 1
       item.setGeometry (QRect (QPoint (x, y), item.sizeHint()))
-      item.widget().setStyleSheet (estilo_fila_par if colEsPar else estilo_fila_impar)
+      item.widget().setStyleSheet (estilo_banderas % (estilo_fila_par if colEsPar else estilo_fila_impar))
       y += item.sizeHint().height()
+    if y > 0:
+      anchoCols.append (anchoCol)
+    # En la segunda iteración, aplicamos a cada botón el ancho máximo de su columna
+    colActual  = 0
+    itemsEnCol = 0
+    for item in self.items:
+      if itemsEnCol == tamCol:
+        colActual += 1
+        itemsEnCol = 1
+      else:
+        itemsEnCol += 1
+      item.widget().setMinimumSize (QSize (anchoCols[colActual], item.sizeHint().height()))
 
   def redibuja (self):
     self.tamAntes = None
@@ -1883,6 +1902,7 @@ def muestraBanderas ():
     botonBandera.setToolTip ((_('Value of flag %d: ') % b) + str (banderas[b]))
     layout.addWidget (botonBandera)
   dlg_banderas.setLayout      (layout)
+  dlg_banderas.setStyleSheet  ('QPushButton {padding: 0}')  # Para limitar ancho de columnas del diálogo
   dlg_banderas.setWindowTitle (_('Flags'))
   mdi_banderas = selector.centralWidget().addSubWindow (dlg_banderas)
   mdi_banderas.setOption (QMdiSubWindow.RubberBandResize)
