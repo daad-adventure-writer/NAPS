@@ -1143,6 +1143,7 @@ def actualizaPosProcesos ():
       actualizaVentanaJuego()
       anchoJuego = mdi_juego.frameGeometry().width()
       # Colocamos el diálogo de procesos a la derecha del de juego, tomando todo el alto disponible
+      mdi_juego.move (0, 0)
       mdi_procesos.resize (selector.centralWidget().width() - anchoJuego, selector.centralWidget().height())
       mdi_procesos.move (anchoJuego, 0)
       muestraBanderas()
