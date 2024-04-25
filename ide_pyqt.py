@@ -98,7 +98,8 @@ conversion_teclas = {Qt.Key_Escape: 27, Qt.Key_Down: 80, Qt.Key_End: 79, Qt.Key_
 
 # Estilos CSS para el diálogo de banderas
 estilo_banderas   = 'QPushButton {border: 0; margin-right: 2px; text-align: left; %s}'
-estilo_fila_impar = 'background: #ddd'
+estilo_cambiada   = 'color: #0f0'
+estilo_fila_impar = 'background: #ddd; '
 estilo_fila_par   = ''
 
 
@@ -1041,7 +1042,8 @@ class VFlowLayout (QLayout):
         if x == 0:
           tamCol += 1
       item.setGeometry (QRect (QPoint (x, y), item.sizeHint()))
-      item.widget().setStyleSheet (estilo_banderas % (estilo_fila_par if colEsPar else estilo_fila_impar))
+      botonBandera = item.widget()
+      botonBandera.setStyleSheet (estilo_banderas % ((estilo_fila_par if colEsPar else estilo_fila_impar) + (estilo_cambiada if '\n' in botonBandera.toolTip() else '')))
       y += item.sizeHint().height()
     if y > 0:
       anchoCols.append (anchoCol)
@@ -1063,12 +1065,27 @@ class VFlowLayout (QLayout):
 def actualizaBanderas (cambiosBanderas):
   """Actualiza el valor de las banderas"""
   global banderas
-  for numBandera in cambiosBanderas:
-    banderas[numBandera] = cambiosBanderas[numBandera]
-    if dlg_banderas:
+  if cambiosBanderas:
+    for numBandera in range (mod_actual.NUM_BANDERAS):
+      if dlg_banderas:
+        botonBandera = dlg_banderas.layout().items[numBandera].widget()
+        if numBandera in cambiosBanderas:
+          if estilo_cambiada not in botonBandera.styleSheet():
+            botonBandera.setStyleSheet (botonBandera.styleSheet()[:-1] + estilo_cambiada + ' }')
+          botonBandera.setText (str (numBandera % 100) + ': ' + str (cambiosBanderas[numBandera]))
+          botonBandera.setToolTip ((_('Value of flag %d: ') % numBandera) + str (cambiosBanderas[numBandera]) + _('\nPrevious value: ') + str (banderas[numBandera]))
+        else:
+          if estilo_cambiada in botonBandera.styleSheet():
+            botonBandera.setStyleSheet (botonBandera.styleSheet().replace (estilo_cambiada, ''))
+          botonBandera.setToolTip ((_('Value of flag %d: ') % numBandera) + str (banderas[numBandera]))
+      if numBandera in cambiosBanderas:
+        banderas[numBandera] = cambiosBanderas[numBandera]
+  elif dlg_banderas:  # No cambiaron las banderas
+    for numBandera in range (mod_actual.NUM_BANDERAS):
       botonBandera = dlg_banderas.layout().items[numBandera].widget()
-      botonBandera.setText (str (numBandera % 100) + ': ' + str (banderas[numBandera]))
-      botonBandera.setToolTip ((_('Value of flag %d: ') % numBandera) + str (banderas[numBandera]))
+      if '\n' in botonBandera.toolTip():
+        botonBandera.setStyleSheet (botonBandera.styleSheet().replace (estilo_cambiada, ''))
+        botonBandera.setToolTip ((_('Value of flag %d: ') % numBandera) + str (banderas[numBandera]))
   if dlg_banderas:
     dlg_banderas.layout().redibuja()
 

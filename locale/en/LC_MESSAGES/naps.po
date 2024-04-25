@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 24.04\n"
 "Report-Msgid-Bugs-To: jmfo1982@gmail.com\n"
-"POT-Creation-Date: 2024-03-31 15:15+0200\n"
-"PO-Revision-Date: 2024-03-31 15:23+0200\n"
+"POT-Creation-Date: 2024-04-25 18:52+0200\n"
+"PO-Revision-Date: 2024-04-25 19:14+0200\n"
 "Last-Translator: José Manuel Ferrer Ortiz <jmfo1982@gmail.com>\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -31,6 +31,7 @@ msgid "show this help message and exit"
 msgstr ""
 
 #: /usr/lib/python2.7/argparse.py:1707 /usr/lib/python3.6/argparse.py:1745
+#, python-format
 msgid "unrecognized arguments: %s"
 msgstr "parámetros desconocidos: %s"
 
@@ -63,12 +64,12 @@ msgid "&Add image"
 msgstr ""
 
 #: edita_bd_pics.py:112 edita_bd_pics.py:151 edita_bd_pics.py:211
-#: edita_bd_pics.py:455 ide_pyqt.py:1616
+#: edita_bd_pics.py:455 ide_pyqt.py:1653
 msgid "&Yes"
 msgstr ""
 
 #: edita_bd_pics.py:113 edita_bd_pics.py:152 edita_bd_pics.py:212
-#: edita_bd_pics.py:456 ide_pyqt.py:1617
+#: edita_bd_pics.py:456 ide_pyqt.py:1654
 msgid "&No"
 msgstr ""
 
@@ -92,17 +93,17 @@ msgid "Export image"
 msgstr ""
 
 #: edita_bd_pics.py:133 edita_bd_pics.py:439 edita_bd_pics.py:481
-#: edita_bd_pics.py:505 edita_bd_pics.py:640 ide_pyqt.py:1456
+#: edita_bd_pics.py:505 edita_bd_pics.py:640 ide_pyqt.py:1493
 msgid "Places"
 msgstr ""
 
 #: edita_bd_pics.py:134 edita_bd_pics.py:440 edita_bd_pics.py:482
-#: edita_bd_pics.py:506 edita_bd_pics.py:641 ide_pyqt.py:1457
+#: edita_bd_pics.py:506 edita_bd_pics.py:641 ide_pyqt.py:1494
 msgid "&Name:"
 msgstr ""
 
 #: edita_bd_pics.py:135 edita_bd_pics.py:441 edita_bd_pics.py:483
-#: edita_bd_pics.py:507 edita_bd_pics.py:642 ide_pyqt.py:1458
+#: edita_bd_pics.py:507 edita_bd_pics.py:642 ide_pyqt.py:1495
 msgid "Filter:"
 msgstr ""
 
@@ -111,21 +112,21 @@ msgid "&Save"
 msgstr ""
 
 #: edita_bd_pics.py:137 edita_bd_pics.py:443 edita_bd_pics.py:485
-#: edita_bd_pics.py:509 edita_bd_pics.py:644 ide_pyqt.py:813 ide_pyqt.py:1460
+#: edita_bd_pics.py:509 edita_bd_pics.py:644 ide_pyqt.py:815 ide_pyqt.py:1497
 msgid "&Cancel"
 msgstr ""
 
-#: edita_bd_pics.py:154 edita_bd_pics.py:458 ide_pyqt.py:1619
+#: edita_bd_pics.py:154 edita_bd_pics.py:458 ide_pyqt.py:1656
 msgid "Overwrite"
 msgstr ""
 
-#: edita_bd_pics.py:155 edita_bd_pics.py:459 ide_pyqt.py:1620
+#: edita_bd_pics.py:155 edita_bd_pics.py:459 ide_pyqt.py:1657
 msgid ""
 "A file already exists with path and name:\n"
 "\n"
 msgstr ""
 
-#: edita_bd_pics.py:156 edita_bd_pics.py:460 ide_pyqt.py:1621
+#: edita_bd_pics.py:156 edita_bd_pics.py:460 ide_pyqt.py:1658
 msgid ""
 "\n"
 "Do you want to overwrite it?"
@@ -245,7 +246,7 @@ msgstr ""
 msgid "&Import graphic DB"
 msgstr ""
 
-#: edita_bd_pics.py:380 ide_pyqt.py:1267
+#: edita_bd_pics.py:380 ide_pyqt.py:1304
 msgid "&Quit"
 msgstr ""
 
@@ -287,7 +288,7 @@ msgstr ""
 msgid "Export graphic database"
 msgstr ""
 
-#: edita_bd_pics.py:467 edita_bd_pics.py:540 ide_pyqt.py:1628 ide_pyqt.py:1647
+#: edita_bd_pics.py:467 edita_bd_pics.py:540 ide_pyqt.py:1665 ide_pyqt.py:1684
 msgid "Unable to open the file:\n"
 msgstr ""
 
@@ -296,7 +297,7 @@ msgid "Folder to export to"
 msgstr ""
 
 #: edita_bd_pics.py:484 edita_bd_pics.py:508 edita_bd_pics.py:643
-#: ide_pyqt.py:1459
+#: ide_pyqt.py:1496
 msgid "&Open"
 msgstr ""
 
@@ -336,12 +337,12 @@ msgstr ""
 msgid "Loading of one or more resources in the graphic database failed:\n"
 msgstr ""
 
-#: edita_bd_pics.py:615 ide_pyqt.py:812 ide_pyqt.py:1855 ide_pyqt.py:1896
-#: ide_pyqt.py:1917
+#: edita_bd_pics.py:615 ide_pyqt.py:814 ide_pyqt.py:1892 ide_pyqt.py:1935
+#: ide_pyqt.py:1956
 msgid "&Accept"
 msgstr ""
 
-#: edita_bd_pics.py:618 ide_pyqt.py:1919
+#: edita_bd_pics.py:618 ide_pyqt.py:1958
 msgid "Failure"
 msgstr ""
 
@@ -353,7 +354,7 @@ msgstr ""
 msgid "Warning"
 msgstr ""
 
-#: edita_bd_pics.py:625 ide_pyqt.py:1629 ide_pyqt.py:1648
+#: edita_bd_pics.py:625 ide_pyqt.py:1666 ide_pyqt.py:1685
 msgid "Cause:\n"
 msgstr ""
 
@@ -369,521 +370,528 @@ msgstr ""
 msgid "Open images"
 msgstr ""
 
-#: ide_pyqt.py:156
+#: ide_pyqt.py:158
 msgid "Adds or removes breakpoints"
 msgstr ""
 
-#: ide_pyqt.py:322
+#: ide_pyqt.py:324
 msgid "Delete"
 msgstr ""
 
-#: ide_pyqt.py:323
+#: ide_pyqt.py:325
 msgid "Add entry &before"
 msgstr ""
 
-#: ide_pyqt.py:324
+#: ide_pyqt.py:326
 msgid "Add entry &after"
 msgstr ""
 
-#: ide_pyqt.py:325
+#: ide_pyqt.py:327
 msgid "This entry"
 msgstr ""
 
-#: ide_pyqt.py:326
+#: ide_pyqt.py:328
 msgid "All entries"
 msgstr ""
 
-#: ide_pyqt.py:332
+#: ide_pyqt.py:334
 msgid "Deletes all entries in the process"
 msgstr ""
 
-#: ide_pyqt.py:343
+#: ide_pyqt.py:345
 msgid "&Go to entry"
 msgstr ""
 
-#: ide_pyqt.py:488 ide_pyqt.py:490
+#: ide_pyqt.py:490 ide_pyqt.py:492
 msgid "Choose a condact:"
 msgstr ""
 
-#: ide_pyqt.py:596
+#: ide_pyqt.py:598
 msgid "Parameter value:"
 msgstr ""
 
-#: ide_pyqt.py:733 ide_pyqt.py:899
+#: ide_pyqt.py:735 ide_pyqt.py:901
 #, python-format
 msgid "Running %s"
 msgstr ""
 
-#: ide_pyqt.py:749
+#: ide_pyqt.py:751
 msgid " - Waiting for key"
 msgstr ""
 
-#: ide_pyqt.py:756 ide_pyqt.py:899
+#: ide_pyqt.py:758 ide_pyqt.py:901
 msgid " - Stopped"
 msgstr ""
 
-#: ide_pyqt.py:783
+#: ide_pyqt.py:785
 msgid "Modal"
 msgstr ""
 
-#: ide_pyqt.py:819
+#: ide_pyqt.py:821
 msgid "Edit the text"
 msgstr ""
 
-#: ide_pyqt.py:844
+#: ide_pyqt.py:846
 msgid "Message text"
 msgstr ""
 
-#: ide_pyqt.py:845
+#: ide_pyqt.py:847
 msgid "Description text"
 msgstr ""
 
-#: ide_pyqt.py:857
+#: ide_pyqt.py:859
 msgid "Word"
 msgstr ""
 
-#: ide_pyqt.py:857
+#: ide_pyqt.py:859
 msgid "Code"
 msgstr ""
 
-#: ide_pyqt.py:857
+#: ide_pyqt.py:859
 msgid "Type"
 msgstr ""
 
-#: ide_pyqt.py:872 ide_pyqt.py:1535 ide_pyqt.py:2110
+#: ide_pyqt.py:874 ide_pyqt.py:1572 ide_pyqt.py:2149
 msgid "Reserved"
 msgstr ""
 
-#: ide_pyqt.py:874
+#: ide_pyqt.py:876
 msgid "Unknown ("
 msgstr ""
 
-#: ide_pyqt.py:1052 ide_pyqt.py:1476 ide_pyqt.py:1485 ide_pyqt.py:1883
+#: ide_pyqt.py:1076 ide_pyqt.py:1080 ide_pyqt.py:1088 ide_pyqt.py:1513
+#: ide_pyqt.py:1522 ide_pyqt.py:1921
 #, python-format
 msgid "Value of flag %d: "
 msgstr ""
 
-#: ide_pyqt.py:1204
+#: ide_pyqt.py:1076
+msgid ""
+"\n"
+"Previous value: "
+msgstr ""
+
+#: ide_pyqt.py:1241
 msgid "Error when importing module:"
 msgstr ""
 
-#: ide_pyqt.py:1222
+#: ide_pyqt.py:1259
 #, python-format
 msgid "%s database"
 msgstr ""
 
-#: ide_pyqt.py:1223
+#: ide_pyqt.py:1260
 #, python-format
 msgid "Creates a new %s database"
 msgstr ""
 
-#: ide_pyqt.py:1247
+#: ide_pyqt.py:1284
 msgid "1 step"
 msgstr ""
 
-#: ide_pyqt.py:1248
+#: ide_pyqt.py:1285
 msgid "10 steps"
 msgstr ""
 
-#: ide_pyqt.py:1249
+#: ide_pyqt.py:1286
 msgid "100 steps"
 msgstr ""
 
-#: ide_pyqt.py:1250
+#: ide_pyqt.py:1287
 msgid "1000 steps"
 msgstr ""
 
-#: ide_pyqt.py:1251
+#: ide_pyqt.py:1288
 msgid "&About NAPS IDE"
 msgstr ""
 
-#: ide_pyqt.py:1252
+#: ide_pyqt.py:1289
 msgid "&Flags"
 msgstr ""
 
-#: ide_pyqt.py:1253
+#: ide_pyqt.py:1290
 msgid "&Counters"
 msgstr ""
 
-#: ide_pyqt.py:1254 ide_pyqt.py:1259
+#: ide_pyqt.py:1291 ide_pyqt.py:1296
 msgid "&Location descriptions"
 msgstr ""
 
-#: ide_pyqt.py:1255 ide_pyqt.py:1260
+#: ide_pyqt.py:1292 ide_pyqt.py:1297
 msgid "&Object descriptions"
 msgstr ""
 
-#: ide_pyqt.py:1256
+#: ide_pyqt.py:1293
 msgid "&Movement"
 msgstr ""
 
-#: ide_pyqt.py:1257
+#: ide_pyqt.py:1294
 msgid "&Export"
 msgstr ""
 
-#: ide_pyqt.py:1258
+#: ide_pyqt.py:1295
 msgid "&Import"
 msgstr ""
 
-#: ide_pyqt.py:1261
+#: ide_pyqt.py:1298
 msgid "&Trim to line width"
 msgstr ""
 
-#: ide_pyqt.py:1262 ide_pyqt.py:1264
+#: ide_pyqt.py:1299 ide_pyqt.py:1301
 msgid "&System messages"
 msgstr ""
 
-#: ide_pyqt.py:1263 ide_pyqt.py:1265
+#: ide_pyqt.py:1300 ide_pyqt.py:1302
 msgid "&User messages"
 msgstr ""
 
-#: ide_pyqt.py:1266
+#: ide_pyqt.py:1303
 msgid "&Step by step"
 msgstr ""
 
-#: ide_pyqt.py:1268
+#: ide_pyqt.py:1305
 msgid "&Tables"
 msgstr ""
 
-#: ide_pyqt.py:1269
+#: ide_pyqt.py:1306
 msgid "&Table"
 msgstr ""
 
-#: ide_pyqt.py:1304
+#: ide_pyqt.py:1341
 msgid "Runs a step on the database and then it stops"
 msgstr ""
 
-#: ide_pyqt.py:1305
+#: ide_pyqt.py:1342
 msgid "Runs up to ten steps on the database and then it stops"
 msgstr ""
 
-#: ide_pyqt.py:1306
+#: ide_pyqt.py:1343
 msgid "Runs up to one hundred steps on the database and then it stops"
 msgstr ""
 
-#: ide_pyqt.py:1307
+#: ide_pyqt.py:1344
 msgid "Runs up to one thousand steps on the database and then it stops"
 msgstr ""
 
-#: ide_pyqt.py:1308
+#: ide_pyqt.py:1345
 msgid "Shows information about the program"
 msgstr ""
 
-#: ide_pyqt.py:1309
+#: ide_pyqt.py:1346
 msgid "Allows to check and modify the value of flags"
 msgstr ""
 
-#: ide_pyqt.py:1310
+#: ide_pyqt.py:1347
 msgid "Displays the number of elements of each type"
 msgstr ""
 
-#: ide_pyqt.py:1311
+#: ide_pyqt.py:1348
 msgid "Allows to check and modify location descriptions"
 msgstr ""
 
-#: ide_pyqt.py:1312
+#: ide_pyqt.py:1349
 msgid "Allows to check and modify object descriptions"
 msgstr ""
 
-#: ide_pyqt.py:1313
+#: ide_pyqt.py:1350
 msgid "Allows to add and edit movement words"
 msgstr ""
 
-#: ide_pyqt.py:1314
+#: ide_pyqt.py:1351
 msgid "Exports the database to a file"
 msgstr ""
 
-#: ide_pyqt.py:1315
+#: ide_pyqt.py:1352
 msgid "Imports the database from a file"
 msgstr ""
 
-#: ide_pyqt.py:1316
+#: ide_pyqt.py:1353
 msgid "Show location descriptions when condacts reference them"
 msgstr ""
 
-#: ide_pyqt.py:1317
+#: ide_pyqt.py:1354
 msgid "Show object descriptions when condacts reference them"
 msgstr ""
 
-#: ide_pyqt.py:1318
+#: ide_pyqt.py:1355
 msgid "Trim texts to the available line width"
 msgstr ""
 
-#: ide_pyqt.py:1319
+#: ide_pyqt.py:1356
 msgid "Show system messages when condacts reference them"
 msgstr ""
 
-#: ide_pyqt.py:1320
+#: ide_pyqt.py:1357
 msgid "Show user messages when condacts reference them"
 msgstr ""
 
-#: ide_pyqt.py:1321
+#: ide_pyqt.py:1358
 msgid "Allows to check and modify system messages"
 msgstr ""
 
-#: ide_pyqt.py:1322
+#: ide_pyqt.py:1359
 msgid "Allows to check and modify user messages"
 msgstr ""
 
-#: ide_pyqt.py:1323
+#: ide_pyqt.py:1360
 msgid "Debugs the database running it step by step"
 msgstr ""
 
-#: ide_pyqt.py:1324
+#: ide_pyqt.py:1361
 msgid "Quits the application"
 msgstr ""
 
-#: ide_pyqt.py:1325
+#: ide_pyqt.py:1362
 msgid "Allows to check and modify the process tables"
 msgstr ""
 
-#: ide_pyqt.py:1326
+#: ide_pyqt.py:1363
 msgid "Allows to check and modify the vocabulary"
 msgstr ""
 
-#: ide_pyqt.py:1327 ide_pyqt.py:1972
+#: ide_pyqt.py:1364 ide_pyqt.py:2011
 msgid "Process tables"
 msgstr ""
 
-#: ide_pyqt.py:1328
+#: ide_pyqt.py:1365
 msgid "Vocabulary table"
 msgstr ""
 
-#: ide_pyqt.py:1354
+#: ide_pyqt.py:1391
 msgid "Button bar"
 msgstr ""
 
-#: ide_pyqt.py:1368
+#: ide_pyqt.py:1405
 msgid "&Database"
 msgstr ""
 
-#: ide_pyqt.py:1369
+#: ide_pyqt.py:1406
 msgid "&New"
 msgstr ""
 
-#: ide_pyqt.py:1378
+#: ide_pyqt.py:1415
 msgid "&Run"
 msgstr ""
 
-#: ide_pyqt.py:1387
+#: ide_pyqt.py:1424
 msgid "&Processes"
 msgstr ""
 
-#: ide_pyqt.py:1388
+#: ide_pyqt.py:1425
 msgid "&Show texts"
 msgstr ""
 
-#: ide_pyqt.py:1398
+#: ide_pyqt.py:1435
 msgid "&Texts"
 msgstr ""
 
-#: ide_pyqt.py:1404
+#: ide_pyqt.py:1441
 msgid "&Vocabulary"
 msgstr ""
 
-#: ide_pyqt.py:1407
+#: ide_pyqt.py:1444
 msgid "&Help"
 msgstr ""
 
-#: ide_pyqt.py:1452
+#: ide_pyqt.py:1489
 msgid "All supported formats (*."
 msgstr ""
 
-#: ide_pyqt.py:1454
+#: ide_pyqt.py:1491
 msgid "Import database"
 msgstr ""
 
-#: ide_pyqt.py:1479 ide_pyqt.py:1524 ide_pyqt.py:1531 ide_pyqt.py:1541
+#: ide_pyqt.py:1516 ide_pyqt.py:1561 ide_pyqt.py:1568 ide_pyqt.py:1578
 msgid "Edit"
 msgstr ""
 
-#: ide_pyqt.py:1523 ide_pyqt.py:2096
+#: ide_pyqt.py:1560 ide_pyqt.py:2135
 msgid "Text of the word:"
 msgstr ""
 
-#: ide_pyqt.py:1528 ide_pyqt.py:2102
+#: ide_pyqt.py:1565 ide_pyqt.py:2141
 msgid "Code of the word:"
 msgstr ""
 
-#: ide_pyqt.py:1538 ide_pyqt.py:2113
+#: ide_pyqt.py:1575 ide_pyqt.py:2152
 msgid "Type of the word:"
 msgstr ""
 
-#: ide_pyqt.py:1599
+#: ide_pyqt.py:1636
 msgid "Export database"
 msgstr ""
 
-#: ide_pyqt.py:1651 ide_pyqt.py:1664 ide_pyqt.py:1684
+#: ide_pyqt.py:1688 ide_pyqt.py:1701 ide_pyqt.py:1721
 msgid "Unable to import a database from:\n"
 msgstr ""
 
-#: ide_pyqt.py:1652
+#: ide_pyqt.py:1689
 msgid ""
 "Cause:\n"
 "The file lacks an extension"
 msgstr ""
 
-#: ide_pyqt.py:1665
+#: ide_pyqt.py:1702
 msgid ""
 "Cause:\n"
 "Unknown extension"
 msgstr ""
 
-#: ide_pyqt.py:1685
+#: ide_pyqt.py:1722
 msgid ""
 "Cause:\n"
 "Incompatible file format or corrupted database"
 msgstr ""
 
-#: ide_pyqt.py:1709
+#: ide_pyqt.py:1746
 msgid "Non-existent verb"
 msgstr ""
 
-#: ide_pyqt.py:1709
+#: ide_pyqt.py:1746
 #, python-format
 msgid "Verb with code %d not found in the vocabulary"
 msgstr ""
 
-#: ide_pyqt.py:1723
+#: ide_pyqt.py:1760
 msgid "Non-existent noun"
 msgstr ""
 
-#: ide_pyqt.py:1723
+#: ide_pyqt.py:1760
 #, python-format
 msgid "Noun with code %d not found in the vocabulary"
 msgstr ""
 
-#: ide_pyqt.py:1753
+#: ide_pyqt.py:1790
 #, python-format
 msgid "FIXME: Condact %d not recognized by the library"
 msgstr ""
 
-#: ide_pyqt.py:1801
+#: ide_pyqt.py:1838
 #, python-format
 msgid "Do Ctrl+click here to open process %d"
 msgstr ""
 
-#: ide_pyqt.py:1840
+#: ide_pyqt.py:1877
 msgid "Entry number:"
 msgstr ""
 
-#: ide_pyqt.py:1843
+#: ide_pyqt.py:1880
 msgid "Go to"
 msgstr ""
 
-#: ide_pyqt.py:1858
+#: ide_pyqt.py:1895
 msgid "Integrated Development Environment (IDE)\n"
 msgstr ""
 
-#: ide_pyqt.py:1860
+#: ide_pyqt.py:1897
 msgid "PyQt version: "
 msgstr ""
 
-#: ide_pyqt.py:1861
+#: ide_pyqt.py:1898
 msgid ""
 "\n"
 "Qt version: "
 msgstr ""
 
-#: ide_pyqt.py:1862
+#: ide_pyqt.py:1899
 msgid ""
 "\n"
 "Python version: "
 msgstr ""
 
-#: ide_pyqt.py:1863
+#: ide_pyqt.py:1900
 msgid "About NAPS IDE"
 msgstr ""
 
-#: ide_pyqt.py:1886
+#: ide_pyqt.py:1925
 msgid "Flags"
 msgstr ""
 
-#: ide_pyqt.py:1898
+#: ide_pyqt.py:1937
 msgid "Processes: "
 msgstr ""
 
-#: ide_pyqt.py:1899
+#: ide_pyqt.py:1938
 msgid ""
 " tables\n"
 "Vocabulary: "
 msgstr ""
 
-#: ide_pyqt.py:1899
+#: ide_pyqt.py:1938
 msgid " word"
 msgstr ""
 
-#: ide_pyqt.py:1901
+#: ide_pyqt.py:1940
 msgid "Counters"
 msgstr ""
 
-#: ide_pyqt.py:1956
+#: ide_pyqt.py:1995
 msgid "Process "
 msgstr ""
 
-#: ide_pyqt.py:1991
+#: ide_pyqt.py:2030
 msgid "Location descriptions"
 msgstr ""
 
-#: ide_pyqt.py:1991
+#: ide_pyqt.py:2030
 msgid "Object descriptions"
 msgstr ""
 
-#: ide_pyqt.py:1991
+#: ide_pyqt.py:2030
 msgid "System messages"
 msgstr ""
 
-#: ide_pyqt.py:1991
+#: ide_pyqt.py:2030
 msgid "User messages"
 msgstr ""
 
-#: ide_pyqt.py:2030
+#: ide_pyqt.py:2069
 msgid "Vocabulary"
 msgstr ""
 
-#: ide_pyqt.py:2046
+#: ide_pyqt.py:2085
 msgid "Untitled"
 msgstr ""
 
-#: ide_pyqt.py:2097 ide_pyqt.py:2105 ide_pyqt.py:2116
+#: ide_pyqt.py:2136 ide_pyqt.py:2144 ide_pyqt.py:2155
 msgid "Add"
 msgstr ""
 
-#: ide_pyqt.py:2226
+#: ide_pyqt.py:2265
 msgid "Integrated Development Environment for Quill/PAWS/SWAN/DAAD in Python"
 msgstr ""
 
-#: ide_pyqt.py:2227
+#: ide_pyqt.py:2266
 msgid ""
 "omit condacts in process entries behind condacts that unconditionally change "
 "execution flow"
 msgstr ""
 
-#: ide_pyqt.py:2228
+#: ide_pyqt.py:2267
 msgid "directly run 'database' step by step"
 msgstr ""
 
-#: ide_pyqt.py:2229
+#: ide_pyqt.py:2268
 msgid "database"
 msgstr ""
 
-#: ide_pyqt.py:2229
+#: ide_pyqt.py:2268
 msgid "Quill/PAWS/SWAN/DAAD database, snapshot, or source code to run"
 msgstr ""
 
-#: ide_pyqt.py:2230
+#: ide_pyqt.py:2269
 msgid "db_or_graphics_folder"
 msgstr ""
 
-#: ide_pyqt.py:2230
+#: ide_pyqt.py:2269
 msgid "graphic database or folder to take images from (with name pic###.png)"
 msgstr ""
 
-#: ide_pyqt.py:2235
+#: ide_pyqt.py:2274
 msgid "Inexistent path"
 msgstr ""
 
-#: ide_pyqt.py:2236
+#: ide_pyqt.py:2275
 msgid ""
 "There's no file and no folder with the path given from the command line for "
 "graphics:\n"

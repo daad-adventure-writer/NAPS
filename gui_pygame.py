@@ -914,8 +914,7 @@ def imprime_banderas (banderas):
       if banderas[numBandera] != banderas_antes[numBandera]:
         cambiosBanderas[numBandera] = banderas[numBandera]
         banderas_antes[numBandera]  = banderas[numBandera]
-    if cambiosBanderas:
-      prn ('flg', cambiosBanderas)
+    prn ('flg', cambiosBanderas)
     return
   cifrasBandera = 2
   if NUM_BANDERAS > 50:
