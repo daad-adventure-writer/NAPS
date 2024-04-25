@@ -1899,11 +1899,12 @@ def muestraBanderas ():
   for b in range (mod_actual.NUM_BANDERAS):
     botonBandera = QPushButton (str (b % 100) + ': ' + str (banderas[b]), dlg_banderas)
     botonBandera.clicked.connect (lambda estado, numBandera = b: editaBandera (numBandera))
+    botonBandera.setObjectName ('bandera')
     botonBandera.setStyleSheet (estilo_fila_par)
     botonBandera.setToolTip ((_('Value of flag %d: ') % b) + str (banderas[b]))
     layout.addWidget (botonBandera)
   dlg_banderas.setLayout      (layout)
-  dlg_banderas.setStyleSheet  ('QPushButton {padding: 0}')  # Para limitar ancho de columnas del diálogo
+  dlg_banderas.setStyleSheet  ('QPushButton#bandera {padding: 0}')  # Para limitar ancho de columnas del diálogo
   dlg_banderas.setWindowTitle (_('Flags'))
   mdi_banderas = selector.centralWidget().addSubWindow (dlg_banderas)
   mdi_banderas.setOption (QMdiSubWindow.RubberBandResize)
