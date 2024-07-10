@@ -582,6 +582,8 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
     prn ('Error de codificación en el código fuente, que debe usar codificación cp437:', e, file = sys.stderr, sep = '\n')
   except Exception as e:
     prn ('Error imprevisto:', e, file = sys.stderr, sep = '\n')
+    import traceback
+    traceback.print_exc()
   return False
 
 def comprueba_nombre (modulo, nombre, tipo):
