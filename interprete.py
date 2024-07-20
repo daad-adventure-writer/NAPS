@@ -695,7 +695,7 @@ None: pasa al siguiente condacto"""
   condacto = libreria.condactos[codigo]
   firma    = ('a' if condacto[2] else 'c') + str (condacto[1] if type (condacto[1]) == int else len (condacto[1])) + '_' + condacto[0]
   funcion  = busca_condacto (firma)
-  if indirecto:
+  if indirecto and parametros:
     parametros = [banderas[parametros[0]]] + parametros[1:]
   valor = funcion (*parametros)  # El * saca los parámetros de la lista
   if condacto[2] == False:  # El condacto es una condición
