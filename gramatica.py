@@ -455,7 +455,7 @@ def analizaCadena (cadena, reglaEntrada, condicionY = True, posEnCadena = 0):
     if not condicionY:
       nuevaPosEnCadena = posEnCadena  # Hacemos backtracking para intentar con la siguiente regla
   if condicionY:
-    if nivelAnidacion == 0 and nuevaPosEnCadena < len (cadena):
+    if nivelAnidacion == 0 and nuevaPosEnCadena < len (cadena) and cadena[nuevaPosEnCadena:].strip():  # Queda algo al final sin procesar
       return errorAC, posErrorAC, []
     return '', nuevaPosEnCadena, arbolDatos  # Todo encajó
   # Era una condición O donde nada encajó
