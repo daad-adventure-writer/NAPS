@@ -472,7 +472,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
             continue  # Continuamos aunque sólo debería estar vacía como mucho la última entrada
           indireccion = 0  # Tomará valor 128 cuando el condacto se use con indirección
           encajesNombre, posicionCondacto = arbolCondacto[posNombre][0]
-          nombre = encajesNombre[0]
+          nombre = encajesNombre[0].upper()
           if nombre not in datosCondactos:
             raise TabError ('Condacto de nombre %s inexistente', nombre, posicionCondacto)
           parametros = []

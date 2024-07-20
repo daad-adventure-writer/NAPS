@@ -58,7 +58,7 @@ terminales = {
   'car·cter [':         re.compile ('(\[)'),
   'car·cter ]':         re.compile ('(\])'),
   'etiqueta':           re.compile ('\$([A-Za-z—][0-9A-Za-z—]*)'),
-  'nombre de condacto': re.compile ('([A-Z][0-9A-Z]*)'),
+  'nombre de condacto': re.compile ('([A-Z][0-9A-Z]*)', re.IGNORECASE),
   'HERE':               re.compile ('(HERE)'),
 }
 
