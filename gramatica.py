@@ -460,7 +460,9 @@ def analizaCadena (cadena, reglaEntrada, condicionY = True, posEnCadena = 0):
     return '', nuevaPosEnCadena, arbolDatos  # Todo encajó
   # Era una condición O donde nada encajó
   if type (reglaEntrada[0]) == str:  # Porque podría ser una lista como en la regla entrada de objeto
-    errorAC    = ', o '.join (reglaEntrada)
+    errorAC = ''
+    for e in range (len (reglaEntrada)):
+      errorAC += (', ' if e else '') + ('o ' if e == len (reglaEntrada) - 1 else '') + reglaEntrada[e].rstrip ('>')
     posErrorAC = posEnCadena
   return errorAC, posErrorAC, []
 
