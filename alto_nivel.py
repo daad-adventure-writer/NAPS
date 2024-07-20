@@ -585,7 +585,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
         numLinea = posicion[0]
         if len (e.args) == 3:
           numColumna = posicion[1]
-      elif type (posicion) == int:
+      elif type (posicion) == int and posicion != 999999999:
         codigoHastaError = lineasCodigoUnidas[:posicion]
         numLinea         = codigoHastaError.count ('\n') + 1
         ultimaNL         = codigoHastaError.rfind ('\n')

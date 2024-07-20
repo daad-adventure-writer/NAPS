@@ -435,13 +435,17 @@ def analizaCadena (cadena, reglaEntrada, condicionY = True, posEnCadena = 0):
           if algunEncaje and not condicionY:
             return '', nuevaPosEnCadena, arbolDatos
         else:
-          return 'Elemento de regla desconocido: ' + entrada, None, []
+          errorAC    = 'Gramática inválida, elemento de regla desconocido: ' + entrada
+          posErrorAC = 999999999
+          return errorAC, posErrorAC, []
         continue
     elif entrada == None and not condicionY:
       # prn ('Encaja regla vacía (opcional)')
       return '', posEnCadena, arbolDatos
     else:
-      return 'Tipo de regla desconocido: ' + type (entrada), None, []
+      errorAC    = 'Gramática inválida, tipo de regla desconocido: ' + type (entrada)
+      posErrorAC = 999999999
+      return errorAC, posErrorAC, []
     if (algunResultado or opcional) and not condicionY:
       return '', nuevaPosEnCadena, arbolDatos
     if not algunResultado and condicionY:
