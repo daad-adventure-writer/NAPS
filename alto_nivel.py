@@ -471,10 +471,10 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
           if not arbolCondacto:
             continue  # Continuamos aunque sólo debería estar vacía como mucho la última entrada
           indireccion = 0  # Tomará valor 128 cuando el condacto se use con indirección
-          encajesNombre, posicion = arbolCondacto[posNombre][0]
+          encajesNombre, posicionCondacto = arbolCondacto[posNombre][0]
           nombre = encajesNombre[0]
           if nombre not in datosCondactos:
-            raise TabError ('Condacto de nombre %s inexistente', nombre, posicion)
+            raise TabError ('Condacto de nombre %s inexistente', nombre, posicionCondacto)
           parametros = []
           for arbolParametro in arbolCondacto[posParametro]:
             if arbolParametro:  # XXX: sólo debería estar vacía como mucho la última entrada
@@ -538,7 +538,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
           versionAntes = version
           if version:
             if not datosCondactos[nombre][version - 1]:
-              raise TabError ('Condacto de nombre %s inexistente en DAAD versión %d (asumida por condactos anteriores)', (nombre, version), condacto.meta)
+              raise TabError ('Condacto de nombre %s inexistente en DAAD versión %d (asumida por condactos anteriores)', (nombre, version), posicionCondacto)
             # La comprobación del número de parámetros se hace abajo
             entrada.append ((datosCondactos[nombre][version - 1][0] + indireccion, parametros))
           else:
@@ -550,7 +550,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
                 requerido = len (datosCondactos[nombre][0][1])
               else:
                 requerido = ' o '.join (sorted ((len (datosCondactos[nombre][0][1]), len (datosCondactos[nombre][1][1]))))
-              raise TabError ('El condacto %s requiere %d parámetro%s', (nombre, requerido, '' if requerido == 1 else 's'), condacto.meta)
+              raise TabError ('El condacto %s requiere %d parámetro%s', (nombre, requerido, '' if requerido == 1 else 's'), posicionCondacto)
             # Fijamos versión de DAAD si el condacto con ese número de parámetros sólo está en una
             elif len (datosCondactos[nombre][0][1]) != len (datosCondactos[nombre][1][1]):
               version = 1 if len (parametros) == len (datosCondactos[nombre][0][1]) else 2
@@ -561,7 +561,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
           # Comprobamos el número de parámetros
           if version and len (parametros) != len (datosCondactos[nombre][version - 1][1]):
             requerido = len (datosCondactos[nombre][version - 1][1])
-            raise TabError ('El condacto %s requiere %d parámetro%s en DAAD versión %d (asumida por %s)', (nombre, requerido, '' if requerido == 1 else 's', version, 'condactos anteriores' if version == versionAntes else ('este mismo condacto, que sólo existe en la versión ' + str (version))), condacto.meta)
+            raise TabError ('El condacto %s requiere %d parámetro%s en DAAD versión %d (asumida por %s)', (nombre, requerido, '' if requerido == 1 else 's', version, 'condactos anteriores' if version == versionAntes else ('este mismo condacto, que sólo existe en la versión ' + str (version))), posicionCondacto)
         entradas.append (entrada)
       tablas_proceso.append ((cabeceras, entradas))
       numProceso += 1
