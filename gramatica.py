@@ -15,7 +15,7 @@ from prn_func import prn
 NULLWORD = ['_']
 
 terminales = {
-  'carácter de NULLWORD':   None,  # Se completará al procesar la entrada de NULLWORD
+  'carácter de NULLWORD':   re.compile ('(_)'),  # Puede cambiar al procesar la entrada de NULLWORD
   'espacio en blanco':      re.compile ('[ \t]+'),
   'número entero':          re.compile ('([+\-]?[0-9]+)'),
   'número entero positivo': re.compile ('([0-9]+)'),
