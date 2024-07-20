@@ -27,6 +27,8 @@ from prn_func import prn
 import os
 import sys
 
+import gramatica
+
 
 validar = False  # Si queremos validar el funcionamiento correcto del código
 
@@ -45,11 +47,6 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
   - Recibe como segundo parámetro la longitud del fichero abierto
   - Devuelve False si ha ocurrido algún error"""
   global erExpresiones, erSimbolo, simbolos
-  try:
-    import lark
-  except:
-    prn ('Para poder importar código fuente, se necesita la librería Lark', 'versión <1.0' if sys.version_info[0] < 3 else '', file = sys.stderr)
-    return False
   try:
     import re
     codigoSCE    = fichero.read().replace (b'\r\n', b'\n').rstrip (b'\x1a').decode ('cp437')
@@ -154,9 +151,9 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
               sys.exit()
           ficheroPrueba.close()
     # Procesamos las demás directivas de preprocesador
-    erExpresiones = re.compile ('([^ +-]+|[+-])')          # Expresión regular para partir expresiones de #define
-    erPartirPals  = re.compile ('[ \t]+([^ \t]+)')         # Expresión regular para partir por palabras
-    erSimbolo     = re.compile ('[A-Z_a-z][0-9A-Z_a-z]*')  # Expresión regular para detectar etiquetas de símbolos
+    erExpresiones = re.compile ('([^ +-]+|[+-])')    # Expresión regular para partir expresiones de #define
+    erPartirPals  = re.compile ('[ \t]+([^ \t]+)')   # Expresión regular para partir por palabras
+    erSimbolo     = gramatica.terminales['símbolo']  # Expresión regular para detectar etiquetas de símbolos
     simbolos      = {'AMIGA': 0, 'C40': 0, 'C42': 0, 'C53': 1, 'CBM64': 0, 'CGA': 0, 'COLS': 53, 'CPC': 0, 'DEBUG': 0, 'DRAW': 0, 'EGA': 0, 'ENGLISH': 0, 'MSX': 0, 'PC': 1, 'PCW': 0, 'S48': 0, 'SP3': 0, 'SPANISH': 1, 'SPE': 0, 'ST': 0, 'VGA': 1}
     lineasCodigo  = codigoSCE.split ('\n')
     bloqueOrigen  = 0  # Número de bloque de la línea actual en origenLineas
@@ -234,32 +231,31 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
         lineasCodigo[numLinea] = ';NAPS;' + lineasCodigo[numLinea]  # Ya procesada esta línea
       else:
         raise TabError ('una directiva de preprocesador válida', (), (numLinea + 1, 1))
-    parserSCE = lark.Lark.open ('gramatica_sce.lark', __file__, propagate_positions = True)
-    arbolSCE  = parserSCE.parse ('\n'.join (lineasCodigo))
+    lineasCodigoUnidas = '\n'.join (lineasCodigo)
+    error, posicion, arbolSCE = gramatica.analizaCadena (lineasCodigoUnidas, 'código fuente SCE genérico')
+    if error:
+      raise TabError (error, (), posicion)
     # Cargamos cada tipo de textos
-    for idSeccion, listaCadenas in (('stx', msgs_sys), ('mtx', msgs_usr), ('otx', desc_objs), ('ltx', desc_locs)):
-      for seccion in arbolSCE.find_data (idSeccion):
-        numEntrada = 0
-        for entrada in seccion.find_data (idSeccion + 'textentry'):
-          if type (entrada.children[0]) == lark.tree.Tree:
-            numero = daValorExpresion (entrada.children[0].children)
-          else:
-            numero = int (entrada.children[0])
+    for idSeccion, listaCadenas in (('STX', msgs_sys), ('MTX', msgs_usr), ('OTX', desc_objs), ('LTX', desc_locs)):
+      nombreEntrada = 'entrada de ' + idSeccion
+      nombreSeccion = 'sección '    + idSeccion
+      posSeccion    = gramatica.reglas['código fuente SCE genérico'].index (nombreSeccion)
+      posEntrada    = gramatica.reglas[nombreSeccion].index (nombreEntrada + '*')
+      posNumero     = gramatica.reglas[nombreEntrada].index ('carácter /') + 1
+      posLineas     = gramatica.reglas[nombreEntrada].index ('línea de texto*')
+      numEntrada = 0
+      for entrada in arbolSCE[0][0][posSeccion][0][posEntrada]:
+        if entrada:  # XXX: sólo debería estar vacía como mucho la última entrada
+          numero, posicion = daValorArbolNumero (entrada[posNumero])
           if numero != numEntrada:
-            raise TabError ('número de entrada %d en lugar de %d', (numEntrada, numero), entrada.meta)
+            raise TabError ('número de entrada %d en lugar de %d', (numEntrada, numero), posicion)
           lineas = []
-          for lineaTexto in entrada.children[1:]:
-            if lineaTexto.type == 'COMMENT':
-              continue  # Omitimos comentarios reconocidos por la gramática
-            linea = str (lineaTexto)
-            # El primer carácter siempre será \n
-            if not lineas and linea[:2] == '\n;':
+          for lineaTexto in entrada[posLineas]:
+            linea = lineaTexto[0][0]
+            if not lineas and linea[:1] == ';':
               continue  # Omitimos comentarios iniciales
-            linea = linea[1:].replace ('\\b', '\x0b').replace ('\\k', '\x0c').replace ('\\s', ' ').replace ('\\\\', '\\')
+            linea = linea.replace ('\\b', '\x0b').replace ('\\k', '\x0c').replace ('\\s', ' ').replace ('\\\\', '\\')
             lineas.append (linea)
-          # Evitamos tomar nueva línea antes de comentario final como línea de texto en blanco
-          if lineas and not linea and codigoSCE[lineaTexto.start_pos + 1] == ';':
-            del lineas[-1]
           for l in range (len (lineas) - 1, 0, -1):
             if lineas[l][:1] == ';':
               del lineas[l]  # Eliminamos comentarios finales
@@ -272,19 +268,26 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
               cadena += ('' if cadena[-1:] in ('\n', '') else ' ') + linea
             else:
               cadena += '\n'
-          listaCadenas.append (cadena)
+          listaCadenas.append (str (cadena))  # Con str para que no sean cadenas unicode en Python 2, y así se pueda ejecutar translate sobre ellas
           numEntrada += 1
     # Cargamos el vocabulario
-    adjetivos     = {'_': 255}
+    adjetivos     = {gramatica.NULLWORD[0]: 255}
     adverbios     = {}
-    nombres       = {'_': 255}
+    nombres       = {gramatica.NULLWORD[0]: 255}
     preposiciones = {}
-    verbos        = {'_': 255}
+    verbos        = {gramatica.NULLWORD[0]: 255}
     tipoParametro = {'j': (adjetivos, 'adjetivo'), 'n': (nombres, 'nombre'), 'r': (preposiciones, 'preposición'), 'v': (adverbios, 'adverbio'), 'V': (verbos, 'verbo')}
-    for seccion in arbolSCE.find_data ('vocentry'):
-      palabra = str (seccion.children[0])[:LONGITUD_PAL].lower()
-      codigo  = int (seccion.children[1])
-      tipo    = tipos_pal_dict[str (seccion.children[2].children[0]).lower()]
+    posSeccion = gramatica.reglas['código fuente SCE genérico'].index ('sección VOC')
+    posEntrada = gramatica.reglas['sección VOC'].index ('entrada de vocabulario*')
+    posPalabra = gramatica.reglas['entrada de vocabulario'].index ('palabra de vocabulario')
+    posCodigo  = gramatica.reglas['entrada de vocabulario'].index ('número entero positivo')
+    posTipo    = gramatica.reglas['entrada de vocabulario'].index ('tipo de palabra de vocabulario')
+    for entrada in arbolSCE[0][0][posSeccion][0][posEntrada]:
+      if not entrada:
+        continue  # Continuamos aunque sólo debería estar vacía como mucho la última entrada
+      palabra = entrada[posPalabra][0][0][0][:LONGITUD_PAL].lower()
+      codigo  = int (entrada[posCodigo][0][0][0])
+      tipo    = tipos_pal_dict[entrada[posTipo][0][0][0].lower()]
       vocabulario.append ((palabra, codigo, tipo))
       # Dejamos preparados diccionarios de códigos de palabra para verbos, nombres y adjetivos
       if tipo == 0:
@@ -300,88 +303,91 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
       elif tipo == 4:
         preposiciones[palabra] = codigo
     # Cargamos las conexiones entre localidades
+    posSeccion  = gramatica.reglas['código fuente SCE genérico'].index ('sección CON')
+    posGrupo    = gramatica.reglas['sección CON'].index ('grupo de conexión*')
+    posLocOrig  = gramatica.reglas['grupo de conexión'].index ('carácter /') + 1
+    posConexion = gramatica.reglas['grupo de conexión'].index ('entrada de conexión*')
+    posVerbo    = gramatica.reglas['entrada de conexión'].index ('palabra de vocabulario')
+    posLocDest  = gramatica.reglas['entrada de conexión'].index ('expresión')
     numEntrada = 0
-    for seccion in arbolSCE.find_data ('conentry'):
-      if seccion.children[0].type == 'UINT':
-        numero = int (seccion.children[0])
-      else:  # Es un símbolo
-        simbolo = str (seccion.children[0])
-        if simbolo in simbolos:
-          numero = simbolos[simbolo]
-        else:
-          raise TabError ('un símbolo ya definido', (), seccion.children[0])
+    for entrada in arbolSCE[0][0][posSeccion][0][posGrupo]:
+      if not entrada:
+        continue  # Continuamos aunque sólo debería estar vacía como mucho la última entrada
+      numero, posicion = daValorArbolNumero (entrada[posLocOrig])
       if numero != numEntrada:
-        raise TabError ('número de localidad %d en lugar de %d', (numEntrada, numero), seccion.meta)
+        raise TabError ('número de localidad %d en lugar de %d', (numEntrada, numero), posicion)
       salidas = []
-      for conexion in seccion.find_data ('conitem'):
-        verbo = str (conexion.children[0].children[0])[:LONGITUD_PAL].lower()
+      for conexion in entrada[posConexion]:
+        if not conexion:
+          continue  # Continuamos aunque sólo debería estar vacía como mucho la última entrada
+        encajesVerbo, posicion = conexion[posVerbo][0]
+        verbo = encajesVerbo[0][:LONGITUD_PAL].lower()
         if verbo not in verbos:
-          raise TabError ('una palabra de vocabulario de tipo verbo', (), conexion.children[0])
-        if conexion.children[1].type == 'UINT':
-          destino = int (conexion.children[1])
-        else:  # Es un símbolo
-          simbolo = str (conexion.children[1])
-          if simbolo in simbolos:
-            destino = simbolos[simbolo]
-          else:
-            raise TabError ('un símbolo ya definido', (), conexion.children[1])
+          raise TabError ('una palabra de vocabulario de tipo verbo', (), posicion)
+        destino, posicion = daValorArbolExpresion (conexion[posLocDest])
         if destino >= len (desc_locs):
-          raise TabError ('número de localidad entre 0 y %d', len (desc_locs) - 1, conexion.children[1])
+          raise TabError ('número de localidad entre 0 y %d', len (desc_locs) - 1, posicion)
         salidas.append ((verbos[verbo], destino))
       conexiones.append (salidas)
       numEntrada += 1
     if numEntrada != len (desc_locs):
-      raise TabError ('el mismo número de entradas de conexión (%d) que de descripciones de localidades (%d)', (numEntrada, len (desc_locs)))
+      raise TabError ('el mismo número de entradas de conexión (hay %d) que de descripciones de localidades (hay %d)', (numEntrada, len (desc_locs)))
     # Cargamos datos de los objetos
+    posSeccion = gramatica.reglas['código fuente SCE genérico'].index ('sección OBJ')
+    posEntrada = gramatica.reglas['sección OBJ'].index ('entrada de objeto*')
+    posNumero  = gramatica.reglas['entrada de objeto'].index ('carácter /') + 1
+    posLocIni  = posNumero + 2
+    posPeso    = gramatica.reglas['entrada de objeto'].index ('número entero positivo')
+    posResto   = len (gramatica.reglas['entrada de objeto']) - 1
+    posEspacio = gramatica.reglas['atributo'].index ('espacio en blanco')
+    posNombre  = -4  # Dónde está la palabra del nombre del objeto en la lista del resto de la entrada de objeto
     numEntrada = 0
-    for seccion in arbolSCE.find_data ('objentry'):
-      if seccion.children[0].type == 'UINT':
-        numero = int (seccion.children[0])
-      else:  # Es un símbolo
-        simbolo = str (seccion.children[0])
-        if simbolo not in simbolos:
-          raise TabError ('un símbolo ya definido', (), seccion.children[0])
-        numero = simbolos[simbolo]
+    for entrada in arbolSCE[0][0][posSeccion][0][posEntrada]:
+      if not entrada:
+        continue  # Continuamos aunque sólo debería estar vacía como mucho la última entrada
+      numero, posicion = daValorArbolNumero (entrada[posNumero])
       if numero != numEntrada:
-        raise TabError ('número de objeto %d en lugar de %d', (numEntrada, numero), seccion.meta)
+        raise TabError ('número de objeto %d en lugar de %d', (numEntrada, numero), posicion)
       # Cargamos la localidad inicial del objeto
-      if seccion.children[1].children:
-        localidad = seccion.children[1].children[0]
-        if localidad.type == 'INT':
-          locs_iniciales.append (int (localidad))
-        elif localidad.type == 'SYMBOL':
-          simbolo = str (localidad)
-          if simbolo not in simbolos:
-            raise TabError ('un símbolo ya definido', (), localidad)
-          locs_iniciales.append (simbolos[simbolo])
+      for opcion in entrada[posLocIni]:
+        if not opcion:
+          continue
+        if type (opcion[0][0][0]) == list:  # Es una expresión
+          localidad, posicion = daValorArbolExpresion (opcion)
+        elif opcion[0][0][0] == gramatica.NULLWORD[0]:
+          localidad = 252
         else:  # Valor no numérico (p.ej. CARRIED)
-          locs_iniciales.append (IDS_LOCS[str (localidad)])
-      else:
-        locs_iniciales.append (252)
+          localidad = IDS_LOCS[opcion[0][0][0]]
+      locs_iniciales.append (localidad)
       # Cargamos el peso del objeto
-      entero = seccion.children[2]
-      peso   = int (entero)
+      encajesPeso, posicion = entrada[posPeso][0]
+      peso = int (encajesPeso[0])
       if peso < 0 or peso > 63:
-        raise TabError ('valor de peso del objeto %d entre 0 y 63', numEntrada, entero)
+        raise TabError ('valor de peso del objeto %d entre 0 y 63', numEntrada, posicion)
       # Cargamos los atributos del objeto
+      if entrada[posResto][0]:
+        numAtributos = 2
+        restoEntrada = entrada[posResto][0]
+      else:
+        numAtributos = 18
+        restoEntrada = entrada[posResto][1]
       valorAttrs = ''
-      for atributo in seccion.find_data ('attr'):
-        valorAttrs += '1' if atributo.children else '0'
-      if len (valorAttrs) > 18:
-        raise TabError ('Número de atributos para el objeto %d excesivo, NAPS sólo soporta hasta 18', numEntrada, entero, 1)
-      # Soportamos entre 2 y 18 atributos dejando a cero los que no se indiquen
-      valorAttrs += '0' * (18 - len (valorAttrs))
+      for arbolAtributo in restoEntrada[:numAtributos]:
+        arbolAtributo = arbolAtributo[0][1 - posEspacio][0] if arbolAtributo[0][1 - posEspacio][0] else arbolAtributo[0][1 - posEspacio][1]
+        valorAttrs   += '1' if arbolAtributo[0][0][0] == 'Y' else '0'
       atributos.append (peso + ((valorAttrs[0] == '1') << 6) + ((valorAttrs[1] == '1') << 7))
       atributos_extra.append (int (valorAttrs[2:], 2))
       # Cargamos el vocabulario del objeto
       palabras = []
-      for word in seccion.find_data ('word'):
-        palabra = str (word.children[0])[:LONGITUD_PAL].lower() if word.children else '_'
+      for posPalabra in range (posNombre, posNombre + 3, 2):
+        arbolPalabra = restoEntrada[posPalabra][0][0] if restoEntrada[posPalabra][0][0] else restoEntrada[posPalabra][0][1]
+        encajesPalabra, posicion = arbolPalabra[0]
+        palabra = encajesPalabra[0][:LONGITUD_PAL].lower()
         palabras.append (palabra)
         if len (palabras) == 1 and palabra not in nombres:
           break  # Para conservar la posición de la primera palabra inexistente
       if palabras[0] not in nombres or palabras[1] not in adjetivos:
-        raise TabError ('una palabra de vocabulario de tipo %s', 'adjetivo' if len (palabras) > 1 else 'nombre', word.meta)
+        raise TabError ('una palabra de vocabulario de tipo %s', 'adjetivo' if len (palabras) > 1 else 'nombre', posicion)
       nombres_objs.append ((nombres[palabras[0]], adjetivos[palabras[1]]))
       numEntrada += 1
     if numEntrada != len (desc_objs):
@@ -402,64 +408,88 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
         else:
           datosCondactos[condacto[0]][condacto[4] - 1] = datosCondacto
     # Cargamos las tablas de proceso
+    posSeccion   = gramatica.reglas['código fuente SCE genérico'].index ('sección PRO+')
+    posNumero    = gramatica.reglas['sección PRO'].index ('expresión')
+    posEntrada   = gramatica.reglas['sección PRO'].index ('entrada de proceso*')
+    posEtiqueta  = gramatica.reglas['entrada de proceso'].index ('línea de etiqueta?')
+    posVerbo     = gramatica.reglas['entrada de proceso'].index ('palabra')
+    posCondacto  = gramatica.reglas['entrada de proceso'].index ('condacto en misma línea?')
+    posCondactos = gramatica.reglas['entrada de proceso'].index ('condacto*')
+    posNombre    = gramatica.reglas['condacto'].index ('nombre de condacto')
+    posParametro = gramatica.reglas['condacto'].index ('parámetro*')
+    assert gramatica.reglas['condacto en misma línea'][:3] == gramatica.reglas['condacto'][:3]
     numProceso = 0
     version    = 0  # Versión de DAAD necesaria, 0 significa compatibilidad con ambas
-    for seccion in arbolSCE.find_data ('pro'):
-      entero = seccion.children[0]
-      if type (entero) == lark.tree.Tree:
-        numero = daValorExpresion (entero.children)
-      else:
-        numero = int (entero)
+    for seccion in arbolSCE[0][0][posSeccion]:
+      if not seccion:
+        continue  # Continuamos aunque sólo debería estar vacía como mucho la última entrada
+      numero, posicion = daValorArbolExpresion (seccion[posNumero])
       if numero != numProceso:
-        raise TabError ('número de proceso %d en lugar de %d', (numProceso, numero), entero)
+        raise TabError ('número de proceso %d en lugar de %d', (numProceso, numero), posicion)
       # Guardamos las posiciones de las etiquetas de entrada
       etiquetas  = {}
       numEntrada = 0
-      for procentry in seccion.find_data ('procentry'):
-        for label in procentry.find_data ('label'):
-          if label.children:
-            etiquetas[label.children[0][1:]] = numEntrada
+      for arbolEntrada in seccion[posEntrada]:
+        if not arbolEntrada:
+          continue  # Continuamos aunque sólo debería estar vacía como mucho la última entrada
+        if arbolEntrada[posEtiqueta][0]:  # Tiene etiqueta
+          encajesEtiqueta, posicion = arbolEntrada[posEtiqueta][0][0][0]
+          etiqueta = encajesEtiqueta[0]
+          if etiqueta in etiquetas:
+            raise TabError ('Etiqueta %s ya existente para el proceso %d', (etiqueta, numero), posicion)
+          etiquetas[etiqueta] = numEntrada
         numEntrada += 1
       # Cargamos cada entrada del proceso
       cabeceras = []
       entradas  = []
-      for procentry in seccion.find_data ('procentry'):
+      for arbolEntrada in seccion[posEntrada]:
+        if not arbolEntrada:
+          continue  # Continuamos aunque sólo debería estar vacía como mucho la última entrada
         palabras = []
-        for word in procentry.find_data ('word'):
-          palabra = str (word.children[0])[:LONGITUD_PAL].lower() if word.children else '_'
+        for posPalabra in range (posVerbo, posVerbo + 3, 2):
+          arbolPalabra = arbolEntrada[posPalabra][0][0] if arbolEntrada[posPalabra][0][0] else arbolEntrada[posPalabra][0][1]
+          encajesPalabra, posicion = arbolPalabra[0]
+          palabra = encajesPalabra[0][:LONGITUD_PAL].lower()
           palabras.append (palabra)
           if len (palabras) == 1 and palabra not in verbos:
             break  # Para conservar la posición de la primera palabra inexistente
         if palabras[0] not in verbos or palabras[1] not in nombres:
-          raise TabError ('una palabra de vocabulario de tipo %s', 'nombre' if len (palabras) > 1 else 'verbo', word.meta)
+          raise TabError ('una palabra de vocabulario de tipo %s', 'nombre' if len (palabras) > 1 else 'verbo', posicion)
         cabeceras.append ((verbos[palabras[0]], nombres[palabras[1]]))
+        # Juntamos en una lista el condacto en la misma línea si hay, y los condactos posteriores si los hay
+        arbolCondactos = []
+        if arbolEntrada[posCondacto][0]:
+          arbolCondactos.append (arbolEntrada[posCondacto][0])
+        if arbolEntrada[posCondactos]:
+          arbolCondactos.extend (arbolEntrada[posCondactos])
         entrada = []
-        for condacto in procentry.find_data ('condact'):
+        for arbolCondacto in arbolCondactos:
+          if not arbolCondacto:
+            continue  # Continuamos aunque sólo debería estar vacía como mucho la última entrada
           indireccion = 0  # Tomará valor 128 cuando el condacto se use con indirección
-          nombre = str (condacto.children[0])
+          encajesNombre, posicion = arbolCondacto[posNombre][0]
+          nombre = encajesNombre[0]
           if nombre not in datosCondactos:
-            raise TabError ('Condacto de nombre %s inexistente', nombre, condacto.meta)
+            raise TabError ('Condacto de nombre %s inexistente', nombre, posicion)
           parametros = []
-          for param in condacto.find_data ('param'):
-            if param.children:
-              parametro = param.children[0]
-              if type (parametro) == lark.tree.Tree:
-                if str (parametro.data) == 'expression':  # Es una expresión
-                  parametros.append (daValorExpresion (parametro.children))
-                else:  # Es una regla de indirección
-                  if not condactos_nuevos:
-                    raise TabError ('Este sistema no soporta indirección de parámetros', (), parametro.meta)
-                  if parametros:
-                    raise TabError ('Sólo se soporta indirección en el primer parámetro', (), parametro.meta)
-                  indireccion = 128
-                  valor = parametro.children[0]
-                  if type (valor) == lark.tree.Tree:  # Es una expresión
-                    parametros.append (daValorExpresion (valor.children))
-                  else:  # Es un entero
-                    parametros.append (int (valor))
-              elif parametro.type == 'INT':
-                parametros.append (int (parametro))
-              elif parametro.type == 'VOCWORD':
+          for arbolParametro in arbolCondacto[posParametro]:
+            if arbolParametro:  # XXX: sólo debería estar vacía como mucho la última entrada
+              o      = len (arbolParametro[1]) - 1
+              opcion = arbolParametro[1][o]
+              if o == 2:  # Es una regla de indirección
+                if not condactos_nuevos:
+                  raise TabError ('Este sistema no soporta indirección de parámetros', (), opcion[0][0][0][1])
+                if parametros:
+                  raise TabError ('Sólo se soporta indirección en el primer parámetro', (), opcion[0][0][0][1])
+                indireccion = 128
+                parametros.append (daValorArbolExpresion (opcion[0][1])[0])
+              elif o == 0:  # Es una expresión
+                valor, posicion = daValorArbolExpresion (opcion, False)
+                if valor == None:
+                  o = 1  # Considerarlo como palabra de vocabulario, CARRIED, HERE o WORN
+                else:
+                  parametros.append (valor)
+              if o == 1:  # Es una palabra (de vocabulario o NULLWORD)
                 # TODO: tolerar esto en caso que la palabra del parámetro sea única en el vocabulario
                 if version:
                   if not datosCondactos[nombre][version - 1]:
@@ -473,36 +503,33 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
                       palabraAdmitida = True
                       break
                 if not palabraAdmitida:
-                  # Podría ser una expresión en lugar de una palabra de vocabulario
-                  simbolo = str (parametro)
-                  if simbolo in simbolos:
-                    parametros.append (simbolos[simbolo])
-                  elif '+' in simbolo or '-' in simbolo:  # Parece ser una expresión
-                    parametros.append (daValorExpresion (simbolo, parametro.line, parametro.column))
-                  else:
-                    raise TabError ('El condacto %s no admite una palabra de vocabulario como parámetro aquí', nombre, parametro)
-                if palabraAdmitida:
-                  # Salvo SYNONYM, los condactos con este tipo de parámetro sólo tienen uno de igual tipo en ambas versiones de DAAD
-                  palabra      = str (parametro)[:LONGITUD_PAL].lower()
-                  letraTipoPal = datosCondactos[nombre][1][1][len (parametros)]
-                  listaVocab, tipoPalabra = tipoParametro[letraTipoPal]
-                  if palabra not in listaVocab:
-                    raise TabError ('una palabra de vocabulario de tipo %s', tipoPalabra, parametro)
-                  parametros.append (listaVocab[palabra])
-              elif parametro.type == 'LABEL':
-                etiqueta = str (parametro[1:])
+                  if len (arbolParametro[1]) == 1:  # Se había llegado aquí desde el caso anterior, habiéndose considerado ya como expresión, sin éxito
+                    if opcion[0][0][0][0][0][0][0] in IDS_LOCS:  # CARRIED, HERE o WORN
+                      parametros.append (IDS_LOCS[opcion[0][0][0][0][0][0][0]])
+                      continue
+                    raise TabError ('un símbolo ya definido', (), posicion)
+                  raise TabError ('El condacto %s no admite una palabra de vocabulario como parámetro aquí', nombre, opcion[0][0][0][1])
+                # Salvo SYNONYM, los condactos con este tipo de parámetro sólo tienen uno de igual tipo en ambas versiones de DAAD
+                encajesPalabra, posicion = opcion[0][0][0] if len (arbolParametro[1]) > 1 else opcion[0][0][0][0][0]
+                palabra      = encajesPalabra[0][:LONGITUD_PAL].lower()
+                letraTipoPal = datosCondactos[nombre][1][1][len (parametros)]
+                listaVocab, tipoPalabra = tipoParametro[letraTipoPal]
+                if palabra not in listaVocab:
+                  raise TabError ('una palabra de vocabulario de tipo %s', tipoPalabra, posicion)
+                parametros.append (listaVocab[palabra])
+              elif o == 3:  # Es una etiqueta
+                encajesEtiqueta, posicion = opcion[0]
+                etiqueta = encajesEtiqueta[0]
                 if etiqueta not in etiquetas:
-                  raise TabError ('una etiqueta existente en este proceso', (), parametro)
+                  raise TabError ('una etiqueta existente en este proceso', (), posicion)
                 salto = etiquetas[etiqueta] - len (entradas) - 1
                 if salto < -127 or salto > 128:
-                  raise TabError ('una etiqueta más cercana', (), parametro)
+                  raise TabError ('una etiqueta más cercana', (), posicion)
                 if salto < 0:
                   salto += 256
                 parametros.append (salto)
-              else:  # Valores preestablecidos (p.ej. CARRIED)
-                parametros.append (IDS_LOCS[str (parametro)])
-            else:
-              parametros.append (255)  # Es _
+              elif o == 4:  # Es un número entero (negativo o se habría detectado como expresión)
+                parametros.append (int (opcion[0][0][0]))
           # Detectamos incompatibilidades por requerirse versiones de DAAD diferentes
           versionAntes = version
           if version:
@@ -538,42 +565,34 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
       condactos.update (condactos_nuevos)
       nueva_version.append (True)
     return
-  except (TabError, lark.UnexpectedCharacters, lark.UnexpectedInput) as e:
+  except TabError as e:
     detalles      = ''
     numColumna    = None
     numLinea      = None
     textoPosicion = ''
-    if type (e) == TabError:  # Es un error detectado por NAPS
-      descripcion   = e.args[0]
-      paramsFormato = e.args[1]
-      if descripcion[0].islower():
-        descripcion = 'Se esperaba ' + descripcion
-      descripcion = descripcion % paramsFormato
-      if len (e.args) > 2:
-        posicion = e.args[2]
-        numLinea = posicion[0] if type (posicion) == tuple else posicion.line
+    descripcion   = e.args[0]
+    paramsFormato = e.args[1]
+    if descripcion[0] == '/' or descripcion[0].islower() or descripcion[1].isupper():
+      descripcion = 'Se esperaba ' + descripcion
+    descripcion = descripcion % paramsFormato
+    if len (e.args) > 2:
+      posicion = e.args[2]
+      if type (posicion) == tuple:
+        numLinea = posicion[0]
         if len (e.args) == 3:
-          numColumna = posicion[1] if type (posicion) == tuple else posicion.column
-    else:  # Es un error detectado por la librería Lark
-      descripcion = str (e)
-      posLineaCol = descripcion.find (', at line ')
-      if posLineaCol > -1:  # El mensaje de error indica la línea del error
-        inicioDetalles = descripcion.find ('\n', posLineaCol)
-        if inicioDetalles > -1:  # El mensaje de error tiene más de una línea
-          detalles    = descripcion[inicioDetalles:]
-          descripcion = descripcion[:inicioDetalles]
-        lineaColLark = descripcion[posLineaCol + 10:].split()
-        descripcion  = descripcion[:posLineaCol]
-        numLinea     = int (lineaColLark[0])
-        if len (lineaColLark) > 2 and lineaColLark[1] == 'col':  # El mensaje de error indica la columna del error
-          numColumna = lineaColLark[2]
+          numColumna = posicion[1]
+      elif type (posicion) == int:
+        codigoHastaError = lineasCodigoUnidas[:posicion]
+        numLinea         = codigoHastaError.count ('\n') + 1
+        ultimaNL         = codigoHastaError.rfind ('\n')
+        numColumna       = posicion - (ultimaNL if numLinea > 1 else 0)
     if numLinea != None:  # Disponemos del número de línea del error
       # Buscamos el bloque de origenLineas donde está la línea del error
       o = 0
       while o < len (origenLineas) and numLinea > (origenLineas[o][0] + origenLineas[o][2]):
         o += 1
       inicioCod, inicioFich, numLineas, rutaFichero, nivelIndent = origenLineas[o]
-      textoPosicion  = ', en línea ' + str (inicioFich + numLinea - inicioCod)
+      textoPosicion = (';' if ',' in descripcion else ',') + ' en línea ' + str (inicioFich + numLinea - inicioCod)
       if numColumna != None:
         textoPosicion += ' columna ' + str (numColumna)
       textoPosicion += ' de ' + rutaFichero
@@ -594,6 +613,73 @@ def comprueba_nombre (modulo, nombre, tipo):
 
 
 # Funciones auxiliares que sólo se usan en este módulo
+
+def daValorArbolExpresion (arbolExpresion, errorSimbolo = True):
+  """Evalúa y devuelve el valor de un arbol de expresión, compuesta por símbolos, operadores y/o números; y la posición en el código fuente donde empieza
+
+  errorSimbolo indica si se desea producir excepción si la expresión no tiene operaciones y no existe símbolo con el nombre contenido en la expresión, o por el contrario se devuelve None como valor
+  """
+  global posOperadorEnOperacion, posSimboloEnEnteroOSimbolo, posSimboloEnOperacion
+  try:
+    posOperadorEnOperacion
+  except:
+    posOperadorEnOperacion = gramatica.reglas['operación'].index ('operador')
+    posSimboloEnOperacion  = gramatica.reglas['operación'].index ('entero positivo o símbolo')
+  arbolEnteroOSimbolo, arbolOperaciones = arbolExpresion[0]
+  if arbolEnteroOSimbolo[0][0] == []:  # Ocurre con enteros detectados como expresión
+    enteroComoExpresion = True
+    arbolEnteroOSimbolo = arbolEnteroOSimbolo[0]
+  else:
+    enteroComoExpresion = False
+  arbolEnteroOSimbolo = arbolEnteroOSimbolo[0] if arbolEnteroOSimbolo[0] else arbolEnteroOSimbolo[1]
+  if type (arbolEnteroOSimbolo[0][0]) == tuple:  # Ocurre así en las expresiones genéricas (las que no impiden ningún símbolo específico)
+    if enteroComoExpresion:
+      arbolEnteroOSimbolo = arbolEnteroOSimbolo[0]
+    else:
+      arbolEnteroOSimbolo = arbolEnteroOSimbolo[0][0]
+  listaEncajes, posicionInicio = arbolEnteroOSimbolo
+  if arbolEnteroOSimbolo[0][0].isnumeric():
+    valorExpr = int (listaEncajes[0])
+  else:
+    if listaEncajes[0] in simbolos:
+      valorExpr = simbolos[listaEncajes[0]]
+    else:
+      if errorSimbolo or arbolOperaciones[0]:
+        raise TabError ('un símbolo ya definido', (), posicionInicio)
+      return None, posicionInicio
+  for arbolOperacion in arbolOperaciones:
+    if not arbolOperacion:
+      continue  # Continuamos aunque sólo debería estar vacía como mucho la última entrada
+    listaEncajes, posicion = arbolOperacion[posOperadorEnOperacion][0]
+    operador = listaEncajes[0][0]
+    arbolEnteroOSimbolo = arbolOperacion[posSimboloEnOperacion][0]
+    if arbolEnteroOSimbolo[0]:  # Tiene valor la primera posición
+      arbolEnteroOSimbolo = arbolEnteroOSimbolo[0]
+    else:
+      arbolEnteroOSimbolo = arbolEnteroOSimbolo[1]
+    if arbolEnteroOSimbolo[0][0][0].isnumeric():  # Es un entero
+      numero = int (arbolEnteroOSimbolo[0][0][0])
+    else:
+      listaEncajes, posicion = arbolEnteroOSimbolo[0]
+      if listaEncajes[0] in simbolos:
+        numero = simbolos[listaEncajes[0]]
+      else:
+        raise TabError ('un símbolo ya definido', (), posicion)
+    if operador == '+':  # Ya teníamos valor y operador
+      valorExpr += numero
+    else:
+      valorExpr -= numero
+  return valorExpr, posicionInicio
+
+def daValorArbolNumero (arbolNumero):
+    """Devuelve el valor entero resultante a partir de un árbol con un valor entero, símbolo o expresión; y la posición en el código fuente donde empieza"""
+    arbolNumero = arbolNumero[0] if arbolNumero[0] else arbolNumero[1]
+    if type (arbolNumero[0][0][0]) == tuple:  # Es una expresión
+      numero, posicion = daValorArbolExpresion (arbolNumero)
+    else:  # Es un entero
+      numero   = int (arbolNumero[0][0][0])
+      posicion = arbolNumero[0][1]
+    return numero, posicion
 
 def daValorExpresion (exprOpartesExpr, numLinea = None, colInicial = None):
   """Evalúa y devuelve el valor de una expresión compuesta por símbolos, operadores y/o números"""

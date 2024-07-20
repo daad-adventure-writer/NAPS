@@ -24,7 +24,6 @@ Intérprete PAW-like
 
 - Python versión 2.X superior a 2.5, ó 3.X superior a 3.2
 - Recomendado: PyGame versión 1.X ó 2.X (necesario para que tenga interfaz gráfica)
-- Opcional: Lark versión 0.X para Python 2.X, o cualquiera para Python 3.X (necesario para importar código fuente SCE)
 - Opcional: PyQt versión 4.X ó 5.X (necesario para el diálogo de elección de fichero o carpeta que se desea ejecutar)
 
 **Modo de uso básico:**
@@ -75,7 +74,6 @@ Entorno de desarrollo integrado (IDE)
 
 - Python versión 2.X superior a 2.5, ó 3.X superior a 3.2
 - PyQt versión 4.X ó 5.X
-- Opcional: Lark versión 0.X para Python 2.X, o cualquiera para Python 3.X (necesario para importar código fuente SCE)
 
 **Modo de uso básico:**
 
@@ -127,7 +125,6 @@ Nótese que no es necesario instalar nada en Windows para utilizar NAPS, porque 
 3. Ejecutar allí estos comandos:
    - pip install pygame
    - pip install pyqt5
-   - pip install lark
 
 
 Agradecimientos
