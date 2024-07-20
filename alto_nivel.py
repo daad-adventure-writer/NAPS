@@ -156,7 +156,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
     erSimbolo     = gramatica.terminales['símbolo']  # Expresión regular para detectar etiquetas de símbolos
     simbolos      = {'AMIGA': 0, 'C40': 0, 'C42': 0, 'C53': 1, 'CBM64': 0, 'CGA': 0, 'COLS': 53, 'CPC': 0, 'DEBUG': 0, 'DRAW': 0, 'EGA': 0, 'ENGLISH': 0, 'MSX': 0, 'PC': 1, 'PCW': 0, 'S48': 0, 'SP3': 0, 'SPANISH': 1, 'SPE': 0, 'ST': 0, 'VGA': 1}
     lineasCodigo  = codigoSCE.split ('\n')
-    bloqueOrigen  = 0  # Número de bloque de la línea actual en origenLineas
+    bloqueOrigen  = 0  # Número de bloque en origenLineas de la línea actual
     for numLinea in range (len (lineasCodigo)):
       if numLinea == origenLineas[bloqueOrigen][0] + origenLineas[bloqueOrigen][2]:
         bloqueOrigen += 1
@@ -206,7 +206,10 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
           satisfecho = simbolos[simbolo]
           if negado:
             satisfecho = not satisfecho
+          bloqueCond = bloqueOrigen  # Número de bloque en origenLineas de la línea condicional
           for numLineaCond in range (numLinea + 1, len (lineasCodigo)):
+            if numLineaCond == origenLineas[bloqueCond][0] + origenLineas[bloqueCond][2]:
+              bloqueCond += 1
             lineaCond = lineasCodigo[numLineaCond].lstrip()
             nivelCond = len (lineasCodigo[numLineaCond]) - len (lineaCond)  # Nivel de indentación/anidación de esta línea
             if nivelCond == nivelDirect:
@@ -218,7 +221,8 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
                 satisfecho = not satisfecho
                 continue
             if satisfecho:  # Se cumple la condición de la directiva #if
-              if lineaCond[:1] != '#' and lineasCodigo[numLineaCond][:1] == ' ':  # No es directiva y empieza por espacio
+              if (lineaCond[:1] != '#' and lineasCodigo[numLineaCond][:1] == ' ' and  # No es directiva y empieza por espacio
+                  origenLineas[bloqueCond][3] == origenLineas[bloqueOrigen][3]):  # Es una línea del mismo fichero que la directiva if
                 # Quitamos un nivel de indentación para que se pueda procesar correctamente la sintaxis de la línea
                 lineasCodigo[numLineaCond] = lineasCodigo[numLineaCond][1:]
             else:  # No se cumple la condición de la directiva #if
