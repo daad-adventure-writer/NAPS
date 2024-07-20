@@ -230,7 +230,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
           raise TabError ('un símbolo ya definido', (), (numLinea + 1, 4 + encajesLinea[0].start (1)))
         lineasCodigo[numLinea] = ';NAPS;' + lineasCodigo[numLinea]  # Ya procesada la línea de la directiva #if
       elif lineaCodigo[:5].lower() == '#echo':
-        prn (lineaCodigo[6:])
+        prn (lineaCodigo[6:], file = sys.stderr)
         lineasCodigo[numLinea] = ';NAPS;' + lineasCodigo[numLinea]  # Ya procesada esta línea
       else:
         raise TabError ('una directiva de preprocesador válida', (), (numLinea + 1, 1))
