@@ -44,6 +44,8 @@ terminales = {
   'símbolo que no sea LTX': re.compile ('(?!LTX)([A-Z_a-z][0-9A-Z_a-z]*)'),
   'símbolo que no sea MTX': re.compile ('(?!MTX)([A-Z_a-z][0-9A-Z_a-z]*)'),
   'símbolo que no sea OTX': re.compile ('(?!OTX)([A-Z_a-z][0-9A-Z_a-z]*)'),
+  'cadena de texto entre comillas dobles':  re.compile ('"(.*)"'),
+  'cadena de texto entre comillas simples': re.compile ("'(.*)'"),
   # De la sección CON
   '/CON':                   re.compile ('(/CON)'),
   'símbolo que no sea OBJ': re.compile ('(?!OBJ)([A-Z_a-z][0-9A-Z_a-z]*)'),
@@ -55,11 +57,15 @@ terminales = {
   'carácter Y':             re.compile ('(Y)'),
   # De la sección PRO
   '/PRO':               re.compile ('(/PRO)'),
+  'carácter @':         re.compile ('(@)'),
   'carácter [':         re.compile ('(\[)'),
   'carácter ]':         re.compile ('(\])'),
   'etiqueta':           re.compile ('\$([A-Za-zÑ][0-9A-Za-zÑ]*)'),
   'nombre de condacto': re.compile ('([A-Z][0-9A-Z]*)', re.IGNORECASE),
+  'signo mayor que':    re.compile ('(>)'),
   'HERE':               re.compile ('(HERE)'),
+  # Marcador de fin de código en formato DSF
+  '/END':               re.compile ('(/END)'),
 }
 
 # Listas [] implican condición Y, tuplas () implican condición O. En estas últimas se puede usar None para volver opcional la regla padre
@@ -77,6 +83,20 @@ reglas = {
     'sección OBJ',
     'sección PRO+',
   ],
+  'código fuente DSF': [
+    'fin de línea opcionalmente tras espacio en blanco y/o comentario*',
+    'sección CTL en formato DSF?',
+    'sección TOK?',
+    'sección VOC',
+    'sección STX en formato DSF',
+    'sección MTX en formato DSF',
+    'sección OTX en formato DSF',
+    'sección LTX en formato DSF',
+    'sección CON',
+    'sección OBJ',
+    'sección PRO en formato DSF+',
+    '/END',
+  ],
   'sección CTL': [
     '/CTL',
     'fin de línea opcionalmente tras espacio en blanco y/o comentario+',
@@ -86,6 +106,15 @@ reglas = {
   ],
   'opción DBDRIVE': [
     'DBDRIVE',
+    'fin de línea opcionalmente tras espacio en blanco y/o comentario+',
+  ],
+  'sección CTL en formato DSF': [
+    '/CTL',
+    'fin de línea opcionalmente tras espacio en blanco y/o comentario+',
+    'opción NULLWORD?',
+  ],
+  'opción NULLWORD': [
+    'NULLWORD',
     'fin de línea opcionalmente tras espacio en blanco y/o comentario+',
   ],
   'sección TOK': [
@@ -121,10 +150,29 @@ reglas = {
     'fin de línea opcionalmente tras espacio en blanco y/o comentario',
     'línea de texto*',
   ],
+  'sección STX en formato DSF': [
+    '/STX',
+    'fin de línea opcionalmente tras espacio en blanco y/o comentario+',
+    'entrada de STX en formato DSF*'
+  ],
+  'entrada de STX en formato DSF': [
+    'carácter /',
+    (
+      'número entero positivo',
+      'expresión que no sea MTX',
+    ),
+    'espacio en blanco',
+    'cadena de texto entre comillas',
+    'fin de línea opcionalmente tras espacio en blanco y/o comentario+',
+  ],
   'expresión que no sea MTX': [
     'símbolo que no sea MTX',
     'operación*',
   ],
+  'cadena de texto entre comillas': (
+    'cadena de texto entre comillas dobles',
+    'cadena de texto entre comillas simples',
+  ),
   'sección MTX': [
     '/MTX',
     'fin de línea opcionalmente tras espacio en blanco y/o comentario+',
@@ -138,6 +186,21 @@ reglas = {
     ),
     'fin de línea opcionalmente tras espacio en blanco y/o comentario',
     'línea de texto*',
+  ],
+  'sección MTX en formato DSF': [
+    '/MTX',
+    'fin de línea opcionalmente tras espacio en blanco y/o comentario+',
+    'entrada de MTX en formato DSF*'
+  ],
+  'entrada de MTX en formato DSF': [
+    'carácter /',
+    (
+      'número entero positivo',
+      'expresión que no sea OTX',
+    ),
+    'espacio en blanco',
+    'cadena de texto entre comillas',
+    'fin de línea opcionalmente tras espacio en blanco y/o comentario+',
   ],
   'expresión que no sea OTX': [
     'símbolo que no sea OTX',
@@ -157,6 +220,21 @@ reglas = {
     'fin de línea opcionalmente tras espacio en blanco y/o comentario',
     'línea de texto*',
   ],
+  'sección OTX en formato DSF': [
+    '/OTX',
+    'fin de línea opcionalmente tras espacio en blanco y/o comentario+',
+    'entrada de OTX en formato DSF*'
+  ],
+  'entrada de OTX en formato DSF': [
+    'carácter /',
+    (
+      'número entero positivo',
+      'expresión que no sea LTX',
+    ),
+    'espacio en blanco',
+    'cadena de texto entre comillas',
+    'fin de línea opcionalmente tras espacio en blanco y/o comentario+',
+  ],
   'expresión que no sea LTX': [
     'símbolo que no sea LTX',
     'operación*',
@@ -174,6 +252,21 @@ reglas = {
     ),
     'fin de línea opcionalmente tras espacio en blanco y/o comentario',
     'línea de texto*',
+  ],
+  'sección LTX en formato DSF': [
+    '/LTX',
+    'fin de línea opcionalmente tras espacio en blanco y/o comentario+',
+    'entrada de LTX en formato DSF*'
+  ],
+  'entrada de LTX en formato DSF': [
+    'carácter /',
+    (
+      'número entero positivo',
+      'expresión que no sea CON',
+    ),
+    'espacio en blanco',
+    'cadena de texto entre comillas',
+    'fin de línea opcionalmente tras espacio en blanco y/o comentario+',
   ],
   'expresión que no sea CON': [
     'símbolo que no sea CON',
@@ -313,6 +406,40 @@ reglas = {
     'parámetro*',
     'fin de línea opcionalmente tras espacio en blanco y/o comentario+',
   ],
+  'sección PRO en formato DSF': [
+    'espacio en blanco?',
+    '/PRO',
+    'espacio en blanco',
+    'expresión',
+    'fin de línea opcionalmente tras espacio en blanco y/o comentario+',
+    'entrada de proceso en formato DSF*',
+  ],
+  'entrada de proceso en formato DSF': [
+    'línea de etiqueta?',
+    'espacio en blanco?',
+    'signo mayor que',
+    (
+      'fin de línea opcionalmente tras espacio en blanco y/o comentario',
+      'espacio en blanco',
+    ),
+    'palabra',  # Verbo
+    'espacio en blanco',
+    'palabra',  # Nombre
+    'condacto en misma línea en formato DSF?',
+    'fin de línea opcionalmente tras espacio en blanco y/o comentario+',
+    'condacto en formato DSF*'
+  ],
+  'condacto en misma línea en formato DSF': [
+    'espacio en blanco',
+    'nombre de condacto',
+    'parámetro en formato DSF*',
+  ],
+  'condacto en formato DSF': [
+    'espacio en blanco',
+    'nombre de condacto',
+    'parámetro en formato DSF*',
+    'fin de línea opcionalmente tras espacio en blanco y/o comentario+',
+  ],
   'línea de etiqueta': [
     'etiqueta',
     'fin de línea opcionalmente tras espacio en blanco y/o comentario+',
@@ -338,6 +465,24 @@ reglas = {
     'carácter [',
     'expresión',
     'carácter ]',
+  ],
+  'parámetro en formato DSF': [
+    'espacio en blanco?',
+    (  # Mantener este orden o adaptar código de procesado de parámetros en alto_nivel
+      'expresión>',
+      'palabra',
+      'indirección en formato DSF',
+      'etiqueta',
+      'número entero',  # Para capturar números negativos
+      'cadena de texto entre comillas',
+      'CARRIED',  # Se listan aquí los siguientes aunque encajarán como expresión, como si fueran símbolos
+      'HERE',
+      'WORN',
+    ),
+  ],
+  'indirección en formato DSF': [
+    'carácter @',
+    'expresión',
   ],
 }
 

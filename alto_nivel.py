@@ -39,8 +39,8 @@ tipos_pal_dict = {'verb': 0, 'adverb': 1, 'noun': 2, 'adjective': 3, 'prepositio
 IDS_LOCS = {'WORN': 253, 'CARRIED': 254, 'HERE': 255}
 
 
-def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, condactos, condactos_nuevos, conexiones, desc_locs, desc_objs, locs_iniciales, msgs_usr, msgs_sys, nombres_objs, nueva_version, num_objetos, tablas_proceso, vocabulario):
-  """Carga la base de datos desde el código fuente SCE del fichero de entrada, con y sobre las variables pasadas como parámetro
+def carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, condactos, condactos_nuevos, conexiones, desc_locs, desc_objs, locs_iniciales, msgs_usr, msgs_sys, nombres_objs, nueva_version, num_objetos, tablas_proceso, vocabulario):
+  """Carga la base de datos desde el código fuente SCE o DSF del fichero de entrada, con y sobre las variables pasadas como parámetro
 
   Para compatibilidad con el IDE:
   - Recibe como primer parámetro un fichero abierto
@@ -49,20 +49,21 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
   global erExpresiones, erSimbolo, simbolos
   try:
     import re
-    codigoSCE    = fichero.read().replace (b'\r\n', b'\n').rstrip (b'\x1a').decode ('cp437')
-    origenLineas = [[0, 0, codigoSCE.count ('\n') + 1, fichero.name, 0]]  # Inicio en código, inicio en fichero, nº líneas, ruta, nivel indentanción
+    formato      = os.path.splitext (fichero.name)[1][1:].lower()  # Formato del código fuente, con valores posibles 'sce' o 'dsf'
+    codigoFuente = fichero.read().replace (b'\r\n', b'\n').rstrip (b'\x1a').decode ('cp437' if formato == 'sce' else 'iso-8859-1')
+    origenLineas = [[0, 0, codigoFuente.count ('\n') + 1, fichero.name, 0]]  # Inicio en código, inicio en fichero, nº líneas, ruta, nivel indentanción
     # Procesamos carga de ficheros externos con directivas de preprocesador /LNK e #include
     # TODO: extraer el código común con abreFichXMessages, a función en bajo_nivel
     encaje = True
     erLnk  = re.compile ('\n(/LNK|[ \t]*#include)[ \t]+([^ \n\t]+)', re.IGNORECASE)
     while encaje:
-      encaje = erLnk.search (codigoSCE)
+      encaje = erLnk.search (codigoFuente)
       if not encaje:
         break
       directiva  = encaje.group (1)
       nombreFich = encaje.group (2).lower().replace ('\\', os.sep)
       if '.' not in nombreFich:
-        nombreFich += '.sce'
+        nombreFich += '.' + formato
       # Buscamos el fichero con independencia de mayúsculas y minúsculas
       rutaCarpeta = os.path.join (os.path.dirname (fichero.name), os.path.dirname (nombreFich))
       nombreFich  = os.path.basename (nombreFich)
@@ -81,7 +82,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
         prn (causa, 'por la directiva de preprocesador', directiva, encaje.group (2), file = sys.stderr)
         return False
       codigoIncluir = ficheroLnk.read().replace (b'\r\n', b'\n').rstrip (b'\x1a').decode ('cp437')
-      lineaInicio   = codigoSCE[:encaje.start (0) + 1].count ('\n')  # Línea donde estaba la directiva, contando desde 0
+      lineaInicio   = codigoFuente[:encaje.start (0) + 1].count ('\n')  # Línea donde estaba la directiva, contando desde 0
       lineasIncluir = codigoIncluir.count ('\n') + 1  # Número de líneas del fichero a incluir
       restante      = ''  # Código restante detrás de la directiva
       # Buscamos el bloque de origenLineas donde está la línea de la directiva
@@ -106,13 +107,13 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
         lineasRestantes     = origenLineas[o][2] - (lineaInicio + 1 - origenLineas[o][0])
         origenLineas[o][2] -= lineasRestantes + 1  # Reducimos longitud del bloque, el resto irá en otro
         # FIXME: caso cuando la directiva está en la primera línea del bloque
-        nlTrasDirectiva     = codigoSCE.find ('\n', encaje.end (0))
+        nlTrasDirectiva     = codigoFuente.find ('\n', encaje.end (0))
         if nlTrasDirectiva > -1:  # Hay más código detrás de la directiva
-          restante = codigoSCE[nlTrasDirectiva + (1 if codigoIncluir[-1] == '\n' else 0):]
+          restante = codigoFuente[nlTrasDirectiva + (1 if codigoIncluir[-1] == '\n' else 0):]
       # Añadimos bloque del fichero que se incluye
       if codigoIncluir[-1] == '\n':  # La última línea del fichero a incluir es en blanco
         lineasIncluir -= 1
-      nivelIncluir = nivelDirectiva + codigoSCE.find ('#', encaje.start (0) + 1) - (encaje.start (0) + 1)  # Nivel de indentación del fichero a incluir
+      nivelIncluir = nivelDirectiva + codigoFuente.find ('#', encaje.start (0) + 1) - (encaje.start (0) + 1)  # Nivel de indentación del fichero a incluir
       origenLineas.append ([lineaInicio, 0, lineasIncluir, os.path.normpath (ficheroLnk.name), nivelIncluir])
       # Añadimos los bloques posteriores
       if len (directiva) > 4:  # Es una directiva include
@@ -125,11 +126,11 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
       erDirect = re.compile ('\n([ \t]*)#')  # Expresión regular para detectar directivas de preprocesador con #
       if nivelIncluir:
         codigoIncluir = erDirect.sub ('\n' + (' ' * nivelIncluir) + '\g<1>#', codigoIncluir)
-      codigoSCE = codigoSCE[:encaje.start (0) + 1] + codigoIncluir + restante
+      codigoFuente = codigoFuente[:encaje.start (0) + 1] + codigoIncluir + restante
       ficheroLnk.close()
-      # Comprobamos que las líneas de codigoSCE corresponden con las líneas de los ficheros según origenLineas
+      # Comprobamos que las líneas de codigoFuente corresponden con las líneas de los ficheros según origenLineas
       if validar:
-        lineasCodigo = codigoSCE.split ('\n')
+        lineasCodigo = codigoFuente.split ('\n')
         for inicioCod, inicioFich, numLineas, rutaFichero, nivelIndent in origenLineas:
           ficheroPrueba = open (rutaFichero, 'rb')
           lineasFichero = ficheroPrueba.read().replace (b'\r\n', b'\n').rstrip (b'\x1a').decode ('cp437').split ('\n')
@@ -155,7 +156,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
     erPartirPals  = re.compile ('[ \t]+([^ \t]+)')   # Expresión regular para partir por palabras
     erSimbolo     = gramatica.terminales['símbolo']  # Expresión regular para detectar etiquetas de símbolos
     simbolos      = {'AMIGA': 0, 'C40': 0, 'C42': 0, 'C53': 1, 'CBM64': 0, 'CGA': 0, 'COLS': 53, 'CPC': 0, 'DEBUG': 0, 'DRAW': 0, 'EGA': 0, 'ENGLISH': 0, 'MSX': 0, 'PC': 1, 'PCW': 0, 'S48': 0, 'SP3': 0, 'SPANISH': 1, 'SPE': 0, 'ST': 0, 'VGA': 1}
-    lineasCodigo  = codigoSCE.split ('\n')
+    lineasCodigo  = codigoFuente.split ('\n')
     bloqueOrigen  = 0  # Número de bloque en origenLineas de la línea actual
     for numLinea in range (len (lineasCodigo)):
       if numLinea == origenLineas[bloqueOrigen][0] + origenLineas[bloqueOrigen][2]:
@@ -236,42 +237,50 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
       else:
         raise TabError ('una directiva de preprocesador válida', (), (numLinea + 1, 1))
     lineasCodigoUnidas = '\n'.join (lineasCodigo)
-    error, posicion, arbolSCE = gramatica.analizaCadena (lineasCodigoUnidas, 'código fuente SCE genérico')
+    reglaEntrada       = 'código fuente ' + formato.upper() + (' genérico' if formato == 'sce' else '')
+    error, posicion, arbolCodigo = gramatica.analizaCadena (lineasCodigoUnidas, reglaEntrada)
     if error:
       raise TabError (error, (), posicion)
     # Cargamos cada tipo de textos
+    sufijoFormato = ' en formato DSF' if formato == 'dsf' else ''
     for idSeccion, listaCadenas in (('STX', msgs_sys), ('MTX', msgs_usr), ('OTX', desc_objs), ('LTX', desc_locs)):
-      nombreEntrada = 'entrada de ' + idSeccion
-      nombreSeccion = 'sección '    + idSeccion
-      posSeccion    = gramatica.reglas['código fuente SCE genérico'].index (nombreSeccion)
+      nombreEntrada = 'entrada de ' + idSeccion + sufijoFormato
+      nombreSeccion = 'sección '    + idSeccion + sufijoFormato
+      posSeccion    = gramatica.reglas[reglaEntrada].index (nombreSeccion)
       posEntrada    = gramatica.reglas[nombreSeccion].index (nombreEntrada + '*')
       posNumero     = gramatica.reglas[nombreEntrada].index ('carácter /') + 1
-      posLineas     = gramatica.reglas[nombreEntrada].index ('línea de texto*')
+      posLineas     = gramatica.reglas[nombreEntrada].index ('línea de texto*' if formato == 'sce' else 'cadena de texto entre comillas')
       numEntrada = 0
-      for entrada in arbolSCE[0][0][posSeccion][0][posEntrada]:
+      for entrada in arbolCodigo[0][0][posSeccion][0][posEntrada]:
         if entrada:  # XXX: sólo debería estar vacía como mucho la última entrada
           numero, posicion = daValorArbolNumero (entrada[posNumero])
           if numero != numEntrada:
             raise TabError ('número de entrada %d en lugar de %d', (numEntrada, numero), posicion)
-          lineas = []
-          for lineaTexto in entrada[posLineas]:
-            linea = lineaTexto[0][0]
-            if not lineas and linea[:1] == ';':
-              continue  # Omitimos comentarios iniciales
-            linea = linea.replace ('\\b', '\x0b').replace ('\\k', '\x0c').replace ('\\s', ' ').replace ('\\\\', '\\')
-            lineas.append (linea)
-          for l in range (len (lineas) - 1, 0, -1):
-            if lineas[l][:1] == ';':
-              del lineas[l]  # Eliminamos comentarios finales
-            else:
-              break
-          # Unimos las cadenas como corresponde
-          cadena = ''
-          for linea in lineas:
-            if linea:
-              cadena += ('' if cadena[-1:] in ('\n', '') else ' ') + linea
-            else:
-              cadena += '\n'
+          if formato == 'sce':
+            lineas = []
+            for lineaTexto in entrada[posLineas]:
+              linea = lineaTexto[0][0]
+              if not lineas and linea[:1] == ';':
+                continue  # Omitimos comentarios iniciales
+              linea = linea.replace ('\\b', '\x0b').replace ('\\k', '\x0c').replace ('\\s', ' ').replace ('\\\\', '\\')
+              lineas.append (linea)
+            for l in range (len (lineas) - 1, 0, -1):
+              if lineas[l][:1] == ';':
+                del lineas[l]  # Eliminamos comentarios finales
+              else:
+                break
+            # Unimos las cadenas como corresponde
+            cadena = ''
+            for linea in lineas:
+              if linea:
+                cadena += ('' if cadena[-1:] in ('\n', '') else ' ') + linea
+              else:
+                cadena += '\n'
+          else:  # Es formato DSF
+            cadena = entrada[posLineas][0][0][0][0][0] if entrada[posLineas][0][0] else entrada[posLineas][0][1][0][0][0]
+            # XXX: ver si #b lo convierte DRC en espacio
+            cadena = cadena.replace ('#b', '\x0b').replace ('#e', '¤').replace ('#k', '\x0c').replace ('#n', '\n').replace ('#s', ' ').replace ('##', '#')
+            cadena = cadena.replace ('\\b', '\x0b').replace ('\\k', '\x0c').replace ('\\s', ' ').replace ('\\\\', '\\')
           listaCadenas.append (str (cadena))  # Con str para que no sean cadenas unicode en Python 2, y así se pueda ejecutar translate sobre ellas
           numEntrada += 1
     # Cargamos el vocabulario
@@ -281,12 +290,12 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
     preposiciones = {}
     verbos        = {gramatica.NULLWORD[0]: 255}
     tipoParametro = {'j': (adjetivos, 'adjetivo'), 'n': (nombres, 'nombre'), 'r': (preposiciones, 'preposición'), 'v': (adverbios, 'adverbio'), 'V': (verbos, 'verbo')}
-    posSeccion = gramatica.reglas['código fuente SCE genérico'].index ('sección VOC')
+    posSeccion = gramatica.reglas[reglaEntrada].index ('sección VOC')
     posEntrada = gramatica.reglas['sección VOC'].index ('entrada de vocabulario*')
     posPalabra = gramatica.reglas['entrada de vocabulario'].index ('palabra de vocabulario')
     posCodigo  = gramatica.reglas['entrada de vocabulario'].index ('número entero positivo')
     posTipo    = gramatica.reglas['entrada de vocabulario'].index ('tipo de palabra de vocabulario')
-    for entrada in arbolSCE[0][0][posSeccion][0][posEntrada]:
+    for entrada in arbolCodigo[0][0][posSeccion][0][posEntrada]:
       if not entrada:
         continue  # Continuamos aunque sólo debería estar vacía como mucho la última entrada
       palabra = entrada[posPalabra][0][0][0][:LONGITUD_PAL].lower()
@@ -307,14 +316,14 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
       elif tipo == 4:
         preposiciones[palabra] = codigo
     # Cargamos las conexiones entre localidades
-    posSeccion  = gramatica.reglas['código fuente SCE genérico'].index ('sección CON')
+    posSeccion  = gramatica.reglas[reglaEntrada].index ('sección CON')
     posGrupo    = gramatica.reglas['sección CON'].index ('grupo de conexión*')
     posLocOrig  = gramatica.reglas['grupo de conexión'].index ('carácter /') + 1
     posConexion = gramatica.reglas['grupo de conexión'].index ('entrada de conexión*')
     posVerbo    = gramatica.reglas['entrada de conexión'].index ('palabra de vocabulario')
     posLocDest  = gramatica.reglas['entrada de conexión'].index ('expresión')
     numEntrada = 0
-    for entrada in arbolSCE[0][0][posSeccion][0][posGrupo]:
+    for entrada in arbolCodigo[0][0][posSeccion][0][posGrupo]:
       if not entrada:
         continue  # Continuamos aunque sólo debería estar vacía como mucho la última entrada
       numero, posicion = daValorArbolNumero (entrada[posLocOrig])
@@ -337,7 +346,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
     if numEntrada != len (desc_locs):
       raise TabError ('el mismo número de entradas de conexión (hay %d) que de descripciones de localidades (hay %d)', (numEntrada, len (desc_locs)))
     # Cargamos datos de los objetos
-    posSeccion = gramatica.reglas['código fuente SCE genérico'].index ('sección OBJ')
+    posSeccion = gramatica.reglas[reglaEntrada].index ('sección OBJ')
     posEntrada = gramatica.reglas['sección OBJ'].index ('entrada de objeto*')
     posNumero  = gramatica.reglas['entrada de objeto'].index ('carácter /') + 1
     posLocIni  = posNumero + 2
@@ -346,7 +355,7 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
     posEspacio = gramatica.reglas['atributo'].index ('espacio en blanco')
     posNombre  = -4  # Dónde está la palabra del nombre del objeto en la lista del resto de la entrada de objeto
     numEntrada = 0
-    for entrada in arbolSCE[0][0][posSeccion][0][posEntrada]:
+    for entrada in arbolCodigo[0][0][posSeccion][0][posEntrada]:
       if not entrada:
         continue  # Continuamos aunque sólo debería estar vacía como mucho la última entrada
       numero, posicion = daValorArbolNumero (entrada[posNumero])
@@ -411,20 +420,24 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
           datosCondactos[condacto[0]] = (datosCondacto, datosCondacto)
         else:
           datosCondactos[condacto[0]][condacto[4] - 1] = datosCondacto
+    if condactos_nuevos:  # Sólo para DAAD
+      datosCondactos['DEBUG'] = ((220, ''), (220, ''))  # NEWTEXT con indirección
     # Cargamos las tablas de proceso
-    posSeccion   = gramatica.reglas['código fuente SCE genérico'].index ('sección PRO+')
-    posNumero    = gramatica.reglas['sección PRO'].index ('expresión')
-    posEntrada   = gramatica.reglas['sección PRO'].index ('entrada de proceso*')
-    posEtiqueta  = gramatica.reglas['entrada de proceso'].index ('línea de etiqueta?')
-    posVerbo     = gramatica.reglas['entrada de proceso'].index ('palabra')
-    posCondacto  = gramatica.reglas['entrada de proceso'].index ('condacto en misma línea?')
-    posCondactos = gramatica.reglas['entrada de proceso'].index ('condacto*')
-    posNombre    = gramatica.reglas['condacto'].index ('nombre de condacto')
-    posParametro = gramatica.reglas['condacto'].index ('parámetro*')
-    assert gramatica.reglas['condacto en misma línea'][:3] == gramatica.reglas['condacto'][:3]
+    posSeccion   = gramatica.reglas[reglaEntrada].index ('sección PRO' + sufijoFormato + '+')
+    posNumero    = gramatica.reglas['sección PRO' + sufijoFormato].index ('expresión')
+    posEntrada   = gramatica.reglas['sección PRO' + sufijoFormato].index ('entrada de proceso' + sufijoFormato + '*')
+    posEtiqueta  = gramatica.reglas['entrada de proceso' + sufijoFormato].index ('línea de etiqueta?')
+    posVerbo     = gramatica.reglas['entrada de proceso' + sufijoFormato].index ('palabra')
+    posCondacto  = gramatica.reglas['entrada de proceso' + sufijoFormato].index ('condacto en misma línea' + sufijoFormato + '?')
+    posCondactos = gramatica.reglas['entrada de proceso' + sufijoFormato].index ('condacto' + sufijoFormato + '*')
+    posNombre    = gramatica.reglas['condacto' + sufijoFormato].index ('nombre de condacto')
+    posParametro = gramatica.reglas['condacto' + sufijoFormato].index ('parámetro' + sufijoFormato + '*')
+    assert gramatica.reglas['condacto en misma línea' + sufijoFormato][:3] == gramatica.reglas['condacto' + sufijoFormato][:3]
     numProceso = 0
     version    = 0  # Versión de DAAD necesaria, 0 significa compatibilidad con ambas
-    for seccion in arbolSCE[0][0][posSeccion]:
+    listaCadenasPorPrefijo   = {'D': desc_locs, 'M': msgs_usr, 'S': msgs_sys}  # TODO: XMessages
+    nombreListaCadPorPrefijo = {'D': 'descripciones de localidad', 'M': 'mensajes de usuario', 'S': 'mensajes de sistema'}
+    for seccion in arbolCodigo[0][0][posSeccion]:
       if not seccion:
         continue  # Continuamos aunque sólo debería estar vacía como mucho la última entrada
       numero, posicion = daValorArbolExpresion (seccion[posNumero])
@@ -534,6 +547,17 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
                 parametros.append (salto)
               elif o == 4:  # Es un número entero (negativo o se habría detectado como expresión)
                 parametros.append (int (opcion[0][0][0]))
+              elif o == 5:  # Es una cadena de texto
+                encajesCadena, posicion = opcion[0][0][0]
+                for c in range (len (listaCadenasPorPrefijo[nombre[0]])):
+                  if listaCadenasPorPrefijo[nombre[0]][c] == encajesCadena[0]:
+                    parametros.append (c)
+                    break
+                else:
+                  if len (listaCadenasPorPrefijo[nombre[0]]) == 256:
+                    raise TabError ('La lista de ' + nombreListaCadPorPrefijo[nombre[0]] + ' ya tiene 256 entradas, no cabe esta cadena', (), posicion)
+                  parametros.append (len (listaCadenasPorPrefijo[nombre[0]]))
+                  listaCadenasPorPrefijo[nombre[0]].append (encajesCadena[0])
           # Detectamos incompatibilidades por requerirse versiones de DAAD diferentes
           versionAntes = version
           if version:
@@ -577,6 +601,8 @@ def carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, cond
     descripcion   = e.args[0]
     paramsFormato = e.args[1]
     if descripcion[0] == '/' or descripcion[0].islower() or descripcion[1].isupper():
+      if formato == 'dsf':
+        descripcion = descripcion.replace (' en formato DSF', '')
       descripcion = 'Se esperaba ' + descripcion
     descripcion = descripcion % paramsFormato
     if len (e.args) > 2:

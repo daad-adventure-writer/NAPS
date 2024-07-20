@@ -52,7 +52,8 @@ vocabulario     = []   # Vocabulario
 # Lista de funciones que importan bases de datos desde ficheros, con sus extensiones soportadas y descripción del tipo de fichero
 funcs_exportar = (('guarda_bd', ('ddb',), 'Bases de datos DAAD'), )
 funcs_importar = (('carga_bd',              ('ddb',), 'Bases de datos DAAD'),
-                  ('carga_sce',             ('sce',), 'Código fuente de DAAD tradicional'))
+                  ('carga_codigo_fuente',   ('dsf',), 'Código fuente de DAAD Reborn Compiler'),
+                  ('carga_codigo_fuente',   ('sce',), 'Código fuente de DAAD tradicional'))
 # Función que crea una nueva base de datos (vacía)
 func_nueva = ''
 
@@ -386,14 +387,14 @@ def carga_bd (fichero, longitud):
   except:
     return False
 
-def carga_sce (fichero, longitud):
-  """Carga la base de datos desde el código fuente SCE del fichero de entrada
+def carga_codigo_fuente (fichero, longitud):
+  """Carga la base de datos desde el código fuente SCE o DSF del fichero de entrada
 
   Para compatibilidad con el IDE:
   - Recibe como primer parámetro un fichero abierto
   - Recibe como segundo parámetro la longitud del fichero abierto
   - Devuelve False si ha ocurrido algún error"""
-  retorno = alto_nivel.carga_sce (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, condactos, condactos_nuevos, conexiones, desc_locs, desc_objs, locs_iniciales, msgs_usr, msgs_sys, nombres_objs, nueva_version, num_objetos, tablas_proceso, vocabulario)
+  retorno = alto_nivel.carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, condactos, condactos_nuevos, conexiones, desc_locs, desc_objs, locs_iniciales, msgs_usr, msgs_sys, nombres_objs, nueva_version, num_objetos, tablas_proceso, vocabulario)
   # Liberamos la memoria utilizada para la carga
   import gc
   gc.collect()
