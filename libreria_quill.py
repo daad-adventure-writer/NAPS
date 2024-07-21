@@ -204,10 +204,11 @@ Para compatibilidad con el IDE:
 - Recibe como primer parámetro un fichero abierto
 - Recibe como segundo parámetro la longitud del fichero abierto
 - Devuelve False si ha ocurrido algún error"""
-  global fich_ent, fin_cadena, max_llevables, nueva_linea
+  global carga_desplazamiento, fich_ent, fin_cadena, max_llevables, nueva_linea
+  carga_desplazamiento = carga_desplazamiento2
   # if longitud not in (49179, 131103):  # Tamaño de 48K y de 128K
   if longitud != 49179:
-    return False  # No parece un fichero de imagen de memoria de Spectrum
+    return False  # No parece un fichero de imagen de memoria de Spectrum 48K
   # Detectamos la posición de la cabecera de la base de datos
   bajo_nivel_cambia_ent (fichero)
   fich_ent = fichero

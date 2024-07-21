@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Funciones de apoyo de bajo nivel
-# Copyright (C) 2010, 2013, 2018-2023 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2013, 2018-2024 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -54,7 +54,7 @@ def bajo_nivel_cambia_sal (fichero):
   global fich_sal
   fich_sal = fichero
 
-def carga_desplazamiento (desplazamiento = None):
+def carga_desplazamiento2 (desplazamiento = None):
   """Carga un desplazamiento de 2 bytes en relación con el fichero
 
   desplazamiento (opcional) es la posición en el fichero de donde leerá el desplazamiento"""

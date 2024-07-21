@@ -528,7 +528,8 @@ def cargaVocabulario ():
 
 # Prepara la configuración sobre la plataforma
 def preparaPlataforma ():
-  global carga_int2, conversion, despl_ini, fin_cadena, guarda_int2, nueva_linea, num_abreviaturas, plataforma, version
+  global carga_desplazamiento, carga_int2, conversion, despl_ini, fin_cadena, guarda_int2, nueva_linea, num_abreviaturas, plataforma, version
+  carga_desplazamiento = carga_desplazamiento2
   # Cargamos la versión del formato de base de datos y el identificador de plataforma
   fich_ent.seek (CAB_VERSION)
   version = carga_int1()

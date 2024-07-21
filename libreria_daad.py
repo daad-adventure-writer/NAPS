@@ -1409,7 +1409,8 @@ def guardaVocabulario ():
 
 def preparaPlataforma ():
   """Prepara la configuración sobre la plataforma"""
-  global alinear, carga_int2, despl_ini, guarda_int2, plataforma, tam_cabecera, version, CAB_LONG_FICH
+  global alinear, carga_desplazamiento, carga_int2, despl_ini, guarda_int2, plataforma, tam_cabecera, version, CAB_LONG_FICH
+  carga_desplazamiento = carga_desplazamiento2
   # Cargamos la versión del formato de base de datos
   fich_ent.seek (CAB_VERSION)
   version = carga_int1()
