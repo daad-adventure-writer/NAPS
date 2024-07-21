@@ -206,7 +206,8 @@ def restaura_objetos ():
     if locs_objs[i] in (253, 254):  # De paso, contamos los objetos llevados, y calculamos el peso total
       if locs_objs[i] == 254:
         banderas[1] += 1  # Número de objetos llevados, pero no puestos
-      peso_llevado[0] += da_peso (i)
+      if NUM_ATRIBUTOS[0]:
+        peso_llevado[0] += da_peso (i)
 
 # FIXME: cambiar el intérprete para registrar si se registró alguna acción o no
 def tabla_hizo_algo ():
@@ -1184,7 +1185,7 @@ if __name__ == '__main__':
   elif args.gui not in ('stdio', 'telegram'):
     gui.prepara_topes (53, 25)
 
-  constantes = ('EXT_SAVEGAME', 'LONGITUD_PAL', 'NOMB_COMO_VERB', 'NOMBRE_SISTEMA', 'NUM_BANDERAS', 'PREP_COMO_VERB', 'TIPOS_PAL')
+  constantes = ('EXT_SAVEGAME', 'LONGITUD_PAL', 'NOMB_COMO_VERB', 'NOMBRE_SISTEMA', 'NUM_ATRIBUTOS', 'NUM_BANDERAS', 'PREP_COMO_VERB', 'TIPOS_PAL')
   funciones  = ('actualiza_grafico', 'adapta_msgs_sys', 'busca_condacto', 'busca_conexion', 'cambia_articulo', 'da_peso', 'imprime_mensaje', 'obj_referido', 'parsea_orden', 'prepara_vocabulario', 'restaura_objetos', 'tabla_hizo_algo')
   funcsLib   = ('carga_xmessage', )
   variables  = ('atributos', 'atributos_extra', 'banderas', 'compatibilidad', 'conexiones', 'desc_locs', 'desc_objs', 'doall_activo', 'frases', 'locs_iniciales', 'locs_objs', 'msgs_usr', 'msgs_sys', 'nombres_objs', 'nueva_version', 'num_objetos', 'partida', 'peso_llevado', 'pila_procs', 'tablas_proceso', 'vocabulario')
