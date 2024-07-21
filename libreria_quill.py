@@ -57,7 +57,8 @@ ids_locs = {  0 : 'INICIAL',
 # Funciones que importan bases de datos desde ficheros
 funcs_exportar = ()  # Ninguna, de momento
 funcs_importar = (
-  ('carga_bd', ('sna',), 'Imagen de memoria de ZX 48K con Quill'),
+  ('carga_bd',     ('qql',), 'Bases de datos Quill de Sinclair QL'),
+  ('carga_bd_sna', ('sna',), 'Imagen de memoria de ZX 48K con Quill'),
 )
 # Función que crea una nueva base de datos (vacía)
 func_nueva = 'nueva_bd'
@@ -165,6 +166,9 @@ acciones = {
    8 : ('LOAD',    '',   True),
    9 : ('TURNS',   '',   False),
   10 : ('SCORE',   '',   False),
+  11 : ('CLS',     '',   False),
+  13 : ('AUTOG',   '',   False),
+  14 : ('AUTOD',   '',   False),
   17 : ('PAUSE',   'u',  False),
   21 : ('GOTO',    'l',  False),
   22 : ('MESSAGE', 'm',  False),
@@ -181,6 +185,8 @@ acciones = {
   34 : ('MINUS',   'fu', False),
   35 : ('LET',     'fu', False),
   36 : ('BEEP',    'uu', False),
+  37 : ('RAMSAVE', '',   False),
+  38 : ('RAMLOAD', '',   False),
 }
 
 acciones_flujo = []  # Acciones que cambian el flujo de ejecución incondicionalmente
@@ -198,7 +204,24 @@ def cadena_es_mayor (cadena1, cadena2):
   return cadena1 > cadena2
 
 def carga_bd (fichero, longitud):
-  """Carga la base de datos entera desde el fichero de entrada
+  """Carga la base de datos entera desde el fichero de entrada, en formato de Sinclair QL
+
+Para compatibilidad con el IDE:
+- Recibe como primer parámetro un fichero abierto
+- Recibe como segundo parámetro la longitud del fichero abierto
+- Devuelve False si ha ocurrido algún error"""
+  global carga_desplazamiento, fin_cadena, nueva_linea, plataforma
+  carga_desplazamiento = carga_desplazamiento4  # Así es en las bases de datos de Quill para QL
+  fin_cadena           = 0                      # Así es en las bases de datos de Quill para QL
+  nueva_linea          = 254                    # Así es en las bases de datos de Quill para QL
+  plataforma           = 1                      # Apaño para que el intérprete lo considere como Spectrum
+  bajo_nivel_cambia_endian (le = False)         # Los desplazamientos en las bases de datos de QL son big endian
+  bajo_nivel_cambia_despl  (0)                  # Los desplazamientos son directamente las posiciones en la BD
+  preparaPosCabecera ('qql', 6)
+  return cargaBD (fichero, longitud)
+
+def carga_bd_sna (fichero, longitud):
+  """Carga la base de datos entera desde un fichero de imagen de memoria de Spectrum 48K
 
 Para compatibilidad con el IDE:
 - Recibe como primer parámetro un fichero abierto
@@ -210,12 +233,11 @@ Para compatibilidad con el IDE:
   if longitud != 49179:
     return False  # No parece un fichero de imagen de memoria de Spectrum 48K
   # Detectamos la posición de la cabecera de la base de datos
-  bajo_nivel_cambia_ent (fichero)
-  fich_ent = fichero
   posicion = 0
+  fichero.seek (posicion)
   encajeSec = []
   secuencia = (16, None, 17, None, 18, None, 19, None, 20, None, 21)
-  c = carga_int1 (posicion)
+  c = ord (fichero.read (1))
   while posicion < longitud:
     if secuencia[len (encajeSec)] == None or c == secuencia[len (encajeSec)]:
       encajeSec.append (c)
@@ -224,7 +246,7 @@ Para compatibilidad con el IDE:
     elif encajeSec:
       del encajeSec[:]
       continue  # Empezamos de nuevo desde este caracter
-    c = carga_int1()
+    c = ord (fichero.read (1))
     posicion += 1
   else:
     return False  # Cabecera de la base de datos no encontrada
@@ -233,19 +255,8 @@ Para compatibilidad con el IDE:
   bajo_nivel_cambia_despl  (16357)      # Al menos es así en Hampstead, igual que PAWS
   fin_cadena  = 31  # Igual que PAWS
   nueva_linea = 6
-  try:
-    preparaPosCabecera (posicion)
-    cargaCadenas (CAB_NUM_LOCS,     CAB_POS_LST_POS_LOCS,     desc_locs)
-    cargaCadenas (CAB_NUM_OBJS,     CAB_POS_LST_POS_OBJS,     desc_objs)
-    cargaCadenas (CAB_NUM_MSGS_USR, CAB_POS_LST_POS_MSGS_USR, msgs_usr)
-    cargaCadenas (CAB_NUM_MSGS_SYS, CAB_POS_LST_POS_MSGS_SYS, msgs_sys)
-    cargaConexiones()
-    cargaLocalidadesObjetos()
-    cargaVocabulario()
-    cargaTablasProcesos()
-    max_llevables = carga_int1 (CAB_MAX_LLEVABLES)
-  except:
-    return False
+  preparaPosCabecera ('sna48k', posicion)
+  return cargaBD (fichero, longitud)
 
 def inicializa_banderas (banderas):
   """Inicializa banderas con valores propios de Quill"""
@@ -322,6 +333,29 @@ def nueva_bd ():
 
 
 # Funciones auxiliares que sólo se usan en este módulo
+
+def cargaBD (fichero, longitud):
+  """Carga la base de datos entera desde el fichero de entrada
+
+Para compatibilidad con el IDE:
+- Recibe como primer parámetro un fichero abierto
+- Recibe como segundo parámetro la longitud del fichero abierto
+- Devuelve False si ha ocurrido algún error"""
+  global fich_ent, max_llevables
+  fich_ent = fichero
+  bajo_nivel_cambia_ent (fichero)
+  try:
+    cargaCadenas (CAB_NUM_LOCS,     CAB_POS_LST_POS_LOCS,     desc_locs)
+    cargaCadenas (CAB_NUM_OBJS,     CAB_POS_LST_POS_OBJS,     desc_objs)
+    cargaCadenas (CAB_NUM_MSGS_USR, CAB_POS_LST_POS_MSGS_USR, msgs_usr)
+    cargaCadenas (CAB_NUM_MSGS_SYS, CAB_POS_LST_POS_MSGS_SYS, msgs_sys)
+    cargaConexiones()
+    cargaLocalidadesObjetos()
+    cargaVocabulario()
+    cargaTablasProcesos()
+    max_llevables = carga_int1 (CAB_MAX_LLEVABLES)
+  except:
+    return False
 
 def cargaCadenas (posNumCads, posListaPos, cadenas):
   """Carga un conjunto genérico de cadenas
@@ -450,21 +484,33 @@ def cargaVocabulario ():
     # Quill guarda las palabras en mayúsculas
     vocabulario.append ((''.join (palabra).rstrip().lower(), carga_int1(), 0))
 
-def preparaPosCabecera (inicio):
+def preparaPosCabecera (formato, inicio):
   """Asigna las "constantes" de desplazamientos (offsets/posiciones) en la cabecera"""
   global CAB_MAX_LLEVABLES, CAB_NUM_OBJS, CAB_NUM_LOCS, CAB_NUM_MSGS_USR, CAB_NUM_MSGS_SYS, CAB_POS_EVENTOS, CAB_POS_ESTADO, CAB_POS_LST_POS_OBJS, CAB_POS_LST_POS_LOCS, CAB_POS_LST_POS_MSGS_USR, CAB_POS_LST_POS_MSGS_SYS, CAB_POS_LST_POS_CNXS, CAB_POS_VOCAB, CAB_POS_LOCS_OBJS, CAB_POS_NOMS_OBJS
-  CAB_MAX_LLEVABLES        = inicio + 0   # Número máximo de objetos llevables
-  CAB_NUM_OBJS             = inicio + 1   # Número de objetos
-  CAB_NUM_LOCS             = inicio + 2   # Número de localidades
-  CAB_NUM_MSGS_USR         = inicio + 3   # Número de mensajes de usuario
-  CAB_NUM_MSGS_SYS         = inicio + 4   # Número de mensajes de sistema
-  CAB_POS_EVENTOS          = inicio + 5   # Posición de la tabla de eventos
-  CAB_POS_ESTADO           = inicio + 7   # Posición de la tabla de estado
-  CAB_POS_LST_POS_OBJS     = inicio + 9   # Posición lista de posiciones de objetos
-  CAB_POS_LST_POS_LOCS     = inicio + 11  # Posición lista de posiciones de localidades
-  CAB_POS_LST_POS_MSGS_USR = inicio + 13  # Pos. lista de posiciones de mensajes de usuario
-  CAB_POS_LST_POS_MSGS_SYS = inicio + 15  # Pos. lista de posiciones de mensajes de usuario
-  CAB_POS_LST_POS_CNXS     = inicio + 17  # Posición lista de posiciones de conexiones
-  CAB_POS_VOCAB            = inicio + 19  # Posición del vocabulario
-  CAB_POS_LOCS_OBJS        = inicio + 21  # Posición de localidades iniciales de objetos
-  CAB_POS_NOMS_OBJS        = inicio + 23  # Posición de los nombres de los objetos
+  CAB_MAX_LLEVABLES = inicio + 0   # Número máximo de objetos llevables
+  CAB_NUM_OBJS      = inicio + 1   # Número de objetos
+  CAB_NUM_LOCS      = inicio + 2   # Número de localidades
+  CAB_NUM_MSGS_USR  = inicio + 3   # Número de mensajes de usuario
+  CAB_NUM_MSGS_SYS  = inicio + 4   # Número de mensajes de sistema
+  if formato == 'qql':  # Base de datos para Sinclair QL
+    CAB_POS_EVENTOS          = inicio + 6   # Posición de la tabla de eventos
+    CAB_POS_ESTADO           = inicio + 10  # Posición de la tabla de estado
+    CAB_POS_LST_POS_OBJS     = inicio + 14  # Posición lista de posiciones de objetos
+    CAB_POS_LST_POS_LOCS     = inicio + 18  # Posición lista de posiciones de localidades
+    CAB_POS_LST_POS_MSGS_USR = inicio + 22  # Pos. lista de posiciones de mensajes de usuario
+    CAB_POS_LST_POS_MSGS_SYS = inicio + 26  # Pos. lista de posiciones de mensajes de sistema
+    CAB_POS_LST_POS_CNXS     = inicio + 30  # Posición lista de posiciones de conexiones
+    CAB_POS_VOCAB            = inicio + 34  # Posición del vocabulario
+    CAB_POS_LOCS_OBJS        = inicio + 38  # Posición de localidades iniciales de objetos
+    CAB_POS_NOMS_OBJS        = inicio + 42  # Posición de los nombres de los objetos
+  elif formato == 'sna48k':
+    CAB_POS_EVENTOS          = inicio + 5   # Posición de la tabla de eventos
+    CAB_POS_ESTADO           = inicio + 7   # Posición de la tabla de estado
+    CAB_POS_LST_POS_OBJS     = inicio + 9   # Posición lista de posiciones de objetos
+    CAB_POS_LST_POS_LOCS     = inicio + 11  # Posición lista de posiciones de localidades
+    CAB_POS_LST_POS_MSGS_USR = inicio + 13  # Pos. lista de posiciones de mensajes de usuario
+    CAB_POS_LST_POS_MSGS_SYS = inicio + 15  # Pos. lista de posiciones de mensajes de sistema
+    CAB_POS_LST_POS_CNXS     = inicio + 17  # Posición lista de posiciones de conexiones
+    CAB_POS_VOCAB            = inicio + 19  # Posición del vocabulario
+    CAB_POS_LOCS_OBJS        = inicio + 21  # Posición de localidades iniciales de objetos
+    CAB_POS_NOMS_OBJS        = inicio + 23  # Posición de los nombres de los objetos

@@ -1236,7 +1236,7 @@ if __name__ == '__main__':
         gui.brillo = 1   # Con brillo por defecto
       gui.juego_alto = 48  # @
       gui.juego_bajo = 48
-    elif NOMBRE_SISTEMA in ('QUILL', 'PAWS') and extension == 'sna':  # Quill/PAWS de Spectrum
+    elif NOMBRE_SISTEMA == 'QUILL' or (NOMBRE_SISTEMA == 'PAWS' and extension == 'sna'):  # Quill, o PAWS de Spectrum
       gui.cambia_brillo  = 19
       gui.cambia_flash   = 18
       gui.cambia_inversa = 20
