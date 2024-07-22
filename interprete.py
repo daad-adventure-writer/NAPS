@@ -320,7 +320,7 @@ def inicializa ():
   # FIXME
 
   # Las banderas son puestas a 0, las primeras 248 en el caso de las primeras versiones de DAAD, y todas en los demás
-  for i in range (248 if NOMBRE_SISTEMA == 'DAAD' and not nueva_version else NUM_BANDERAS):
+  for i in range (248 if NOMBRE_SISTEMA == 'DAAD' and not nueva_version else NUM_BANDERAS[0]):
     banderas[i] = 0
   # excepto:
 
@@ -477,7 +477,7 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
   global frases, orden, orden_psi, traza
   # Borramos las banderas de SL actual
   banderasSL = tuple (range (33, 37))
-  if NUM_BANDERAS > 39:
+  if NUM_BANDERAS[0] > 64:
     banderasSL += tuple (range (43, 46))
   for i in banderasSL:
     banderas[i] = 255
@@ -491,7 +491,7 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
       # Si el buffer de input está vacío
       if not orden:
         # se imprime el mensaje que contenga la bandera 42.
-        if NUM_BANDERAS < 40 or banderas[42] == 0:  # Si tiene un valor igual a 0,
+        if NUM_BANDERAS[0] < 256 or banderas[42] == 0:  # En Quill o si tiene un valor igual a 0,
           # los mensajes 2-5 serán seleccionados con una frecuencia de
           # 30:30:30:10, respectivamente
           peticion = random.choice ((2, 2, 2, 3, 3, 3, 4, 4, 4, 5))
@@ -501,7 +501,7 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
       else:
         peticion = ''
       # Quitamos la marca de tiempo muerto
-      if NUM_BANDERAS > 39 and banderas[49] & 128:
+      if NUM_BANDERAS[0] > 64 and banderas[49] & 128:  # De PAWS en adelante
         banderas[49] ^= 128
       # Aunque no lo vea en la Guía Técnica, se imprime el mensaje 33 justo antes de esperar la orden
       if len (msgs_sys) > 32:
@@ -511,7 +511,7 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
       if traza:
         gui.imprime_banderas  (banderas)
         gui.imprime_locs_objs (locs_objs)
-      timeout = [banderas[48]] if NUM_BANDERAS > 39 and (not orden or not banderas[49] & 1) else [0]
+      timeout = [banderas[48]] if NUM_BANDERAS[0] > 64 and (not orden or not banderas[49] & 1) else [0]
 
       ordenObtenida = False
       while not ordenObtenida:
@@ -634,7 +634,7 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
         frase['Adjetivo1'] = banderas[47]
     # Guardamos las palabras de la frase en las banderas correspondientes
     for flagno, tipo in {33: 'Verbo', 34: 'Nombre1', 35: 'Adjetivo1', 36: 'Adverbio', 43: 'Preposicion', 44: 'Nombre2', 45: 'Adjetivo2'}.items():
-      if flagno < NUM_BANDERAS:
+      if flagno < NUM_BANDERAS[0]:  # FIXME: En Quill de Sinclair QL, se deben guardar por encima de las 64 banderas que tiene
         banderas[flagno] = frase[tipo] if frase[tipo] else 255
     if len (TIPOS_PAL) > 1 and frase['Nombre1'] and frase['Nombre1'] >= 50:  # Guardamos pronombres, sólo para nombres considerados no propios (código >= 50)
       banderas[46] = frase['Nombre1']
@@ -662,7 +662,7 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
       del frases[:]  # Dejamos de procesar frases
 
     orden = ''  # Vaciamos ya la orden
-    if NUM_BANDERAS > 39:
+    if NUM_BANDERAS[0] > 64:
       banderas[49] &= 127  # Quitamos el indicador de tiempo muerto vencido
     if not frases:
       gui.borra_orden()
@@ -915,10 +915,15 @@ def imprime_condacto ():
 
 def incrementa_turno ():
   """Incrementa el número de turnos jugados"""
-  banderas[31] += 1  # LSB
-  if banderas[31] > 255:
-    banderas[31]  = 0  # LSB
-    banderas[32] += 1  # MSB
+  banderaTurnosLSB = 31
+  banderaTurnosMSB = 32
+  if NUM_BANDERAS[0] == 64:  # Quill para Sinclair QL
+    banderaTurnosLSB += 30
+    banderaTurnosMSB += 30
+  banderas[banderaTurnosLSB] += 1
+  if banderas[banderaTurnosLSB] > 255:
+    banderas[banderaTurnosLSB]  = 0
+    banderas[banderaTurnosMSB] += 1
 
 def prepara_tabla_proceso (num_tabla):
   """Cambia el flujo de ejecución para que se ejecute la tabla de proceso num_tabla"""
@@ -1296,8 +1301,8 @@ if __name__ == '__main__':
   gui.abre_ventana (traza, args.scale, args.bbdd)
 
   # Preparamos las listas banderas y locs_objs
-  banderas.extend  ([0,] * NUM_BANDERAS)    # Banderas del sistema
-  locs_objs.extend ([0,] * num_objetos[0])  # Localidades de los objetos
+  banderas.extend  ([0,] * NUM_BANDERAS[0])  # Banderas del sistema
+  locs_objs.extend ([0,] * num_objetos[0])   # Localidades de los objetos
 
   # Adaptamos los mensajes de sistema si corresponde, según la interfaz
   adapta_msgs_sys()

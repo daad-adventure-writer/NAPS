@@ -1066,7 +1066,7 @@ def actualizaBanderas (cambiosBanderas):
   """Actualiza el valor de las banderas"""
   global banderas
   if cambiosBanderas:
-    for numBandera in range (mod_actual.NUM_BANDERAS):
+    for numBandera in range (mod_actual.NUM_BANDERAS[0]):
       if dlg_banderas:
         botonBandera = dlg_banderas.layout().items[numBandera].widget()
         if numBandera in cambiosBanderas:
@@ -1081,7 +1081,7 @@ def actualizaBanderas (cambiosBanderas):
       if numBandera in cambiosBanderas:
         banderas[numBandera] = cambiosBanderas[numBandera]
   elif dlg_banderas:  # No cambiaron las banderas
-    for numBandera in range (mod_actual.NUM_BANDERAS):
+    for numBandera in range (mod_actual.NUM_BANDERAS[0]):
       botonBandera = dlg_banderas.layout().items[numBandera].widget()
       if '\n' in botonBandera.toolTip():
         botonBandera.setStyleSheet (botonBandera.styleSheet().replace (estilo_cambiada, ''))
@@ -1604,7 +1604,7 @@ def ejecutaPasos (indicePasos):
 def ejecutaPorPasos ():
   """Ejecuta la base de datos para depuración paso a paso"""
   global banderas, pilas_pendientes, inicio_debug, proc_interprete
-  banderas     = [0] * mod_actual.NUM_BANDERAS  # Inicializamos las banderas
+  banderas     = [0] * mod_actual.NUM_BANDERAS[0]  # Inicializamos las banderas
   inicio_debug = True
   accBanderas.setEnabled  (True)
   accPasoAPaso.setEnabled (False)
@@ -1913,7 +1913,7 @@ def muestraBanderas ():
   # Creamos el diálogo
   dlg_banderas = QWidget (selector)
   layout       = VFlowLayout (dlg_banderas)
-  for b in range (mod_actual.NUM_BANDERAS):
+  for b in range (mod_actual.NUM_BANDERAS[0]):
     botonBandera = QPushButton (str (b % 100) + ': ' + str (banderas[b]), dlg_banderas)
     botonBandera.clicked.connect (lambda estado, numBandera = b: editaBandera (numBandera))
     botonBandera.setObjectName ('bandera')

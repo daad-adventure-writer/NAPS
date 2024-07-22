@@ -63,7 +63,7 @@ INDIRECCION      = False   # El parser no soporta indirección (para el IDE)
 LONGITUD_PAL     = 5       # Longitud máxima para las palabras de vocabulario
 NOMBRE_SISTEMA   = 'PAWS'  # Nombre de este sistema
 NUM_ATRIBUTOS    = [8]     # Número de atributos de objeto
-NUM_BANDERAS     = 256     # Número de banderas del parser
+NUM_BANDERAS     = [256]   # Número de banderas del parser
 NOMB_COMO_VERB   = [20]    # Número de nombres convertibles a verbo
 PREP_COMO_VERB   = 0       # Número de preposiciones convertibles a verbo
 # Nombres de las primeras tablas de proceso (para el IDE)

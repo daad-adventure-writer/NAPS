@@ -108,8 +108,8 @@ MAX_LOCS         = 252      # Número máximo de localidades posible
 MAX_MSGS_USR     = 255      # Número máximo de mensajes de usuario posible
 MAX_PROCS        = 2        # Número máximo de tablas de proceso posible
 NUM_ATRIBUTOS    = [0]      # Número de atributos de objeto
-NUM_BANDERAS     = 39       # Número de banderas del parser, para compatibilidad. XXX: considerar usar constantes para las banderas del sistema
-NUM_BANDERAS_ACC = 33       # Número de banderas del parser accesibles por el programador
+NUM_BANDERAS     = [39]     # Número de banderas del parser, para compatibilidad. TODO: reducirlo con sólo las banderas de sistema que se usan
+NUM_BANDERAS_ACC = [33]     # Número de banderas del parser accesibles por el programador
 NOMBRE_SISTEMA   = 'QUILL'  # Nombre de este sistema
 NOMB_COMO_VERB   = [0]      # Número de nombres convertibles a verbo
 PREP_COMO_VERB   = 0        # Número de preposiciones convertibles a verbo
@@ -217,6 +217,8 @@ Para compatibilidad con el IDE:
   plataforma           = 1                      # Apaño para que el intérprete lo considere como Spectrum
   bajo_nivel_cambia_endian (le = False)         # Los desplazamientos en las bases de datos de QL son big endian
   bajo_nivel_cambia_despl  (0)                  # Los desplazamientos son directamente las posiciones en la BD
+  NUM_BANDERAS[0]     = 64  # TODO: incluirle las banderas de sistema que se usan
+  NUM_BANDERAS_ACC[0] = 64
   preparaPosCabecera ('qql', 6)
   return cargaBD (fichero, longitud)
 

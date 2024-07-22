@@ -160,9 +160,11 @@ def abre_ventana (traza, escalar, bbdd):
   ancho_juego = int (math.ceil ((limite[0] * ancho_caracter) / 8.)) * 8
   resolucion  = (ancho_juego, limite[1] * 8)  # Tamaño de la ventana de juego
   if traza and 'NUM_BANDERAS' in globals():  # Añadiremos espacio para las banderas
-    if NUM_BANDERAS > 50:  # Sistemas desde PAWS en adelante
+    if NUM_BANDERAS[0] > 64:  # Sistemas desde PAWS en adelante
       resolucion = (resolucion[0] + ((5 * 6) + 3) * 8 - 2, 32 * 8)
-    else:  # Sistema Quill
+    elif NUM_BANDERAS[0] == 64:  # Sistema Quill para Sinclair QL
+      resolucion = (resolucion[0] + ((5 * 6) + 3) * (3 + int (math.ceil (float (num_objetos[0]) / limite[1]))), resolucion[1])
+    else:  # Resto de sistemas Quill, con 33 banderas
       resolucion = (resolucion[0] + ((5 * 6) + 3) * (2 + int (math.ceil (float (num_objetos[0]) / limite[1]))), resolucion[1])
   if iniAntes:
     factor_escala = min (factor_escala, factorEscalaMaximo())
@@ -906,28 +908,28 @@ def imprime_banderas (banderas):
   global banderas_antes, banderas_viejas
   if ide:
     if banderas_antes == None:
-      banderas_antes  = [0,] * NUM_BANDERAS
+      banderas_antes  = [0,] * NUM_BANDERAS[0]
       banderas_viejas = banderas  # Guardamos aquí acceso a la lista original, por si el IDE pide modificar alguna
       return
     cambiosBanderas = {}
-    for numBandera in range (NUM_BANDERAS):
+    for numBandera in range (NUM_BANDERAS[0]):
       if banderas[numBandera] != banderas_antes[numBandera]:
         cambiosBanderas[numBandera] = banderas[numBandera]
         banderas_antes[numBandera]  = banderas[numBandera]
     prn ('flg', cambiosBanderas)
     return
   cifrasBandera = 2
-  if NUM_BANDERAS > 50:
+  if NUM_BANDERAS[0] > 64:
     numFilas = 32
   else:
     numFilas = limite[1]
   if banderas_antes == None:
-    banderas_antes  = [0,] * NUM_BANDERAS
-    banderas_viejas = set (range (NUM_BANDERAS))
+    banderas_antes  = [0,] * NUM_BANDERAS[0]
+    banderas_viejas = set (range (NUM_BANDERAS[0]))
     # coloresBanderas = ((0, 192, 192), (96, 192, 96),  (192, 192, 0))   # Colores cálidos
     coloresBanderas = ((0, 192, 192), (64, 128, 192), (128, 64, 192))  # Colores fríos
     # Imprimimos los índices de cada bandera
-    for num in range (NUM_BANDERAS):
+    for num in range (NUM_BANDERAS[0]):
       # Cambiamos el color de impresión cuando se sobrepase cada centena
       if num % 100 == 0:
         fuente_estandar.set_palette ((coloresBanderas[num // 100], (0, 0, 0)))
@@ -939,7 +941,7 @@ def imprime_banderas (banderas):
         ventana.blit (fuente_estandar, (columna + (pos * 6), fila),
                       ((c % 63) * 10, (c // 63) * 10, 6, 8))
   # Imprimimos los valores de las banderas
-  for num in range (NUM_BANDERAS):
+  for num in range (NUM_BANDERAS[0]):
     # Sólo imprimimos cada bandera la primera vez y cuando cambie de color
     if (banderas[num] == banderas_antes[num]) and (num not in banderas_viejas):
       continue
@@ -974,7 +976,7 @@ def imprime_locs_objs (locs_objs):
     locs_objs_antes  = [0,] * num_objetos[0]
     locs_objs_viejas = set (range (num_objetos[0]))
   alias = ({252: 'N', 253: 'W', 254: 'C'}, {252: 'NC', 253: 'WO', 254: 'CA'}, {252: 'NCR', 253: 'WOR', 254: 'CAR'})
-  if NUM_BANDERAS > 50:  # Posición bajo la ventana de juego banderas
+  if NUM_BANDERAS[0] > 64:  # Posición bajo la ventana de juego
     colInicial  = 0
     colFinal    = ancho_juego
     filaInicial = limite[1] * 8
@@ -982,7 +984,7 @@ def imprime_locs_objs (locs_objs):
     # coloresObjetos = ((0, 192, 192), (96, 192, 96),  (192, 192, 0))   # Colores cálidos
     coloresObjetos = ((0, 192, 192), (64, 128, 192), (128, 64, 192))  # Colores fríos
   else:  # Posición a la derecha de las banderas
-    colInicial  = ancho_juego + ((5 * 6) + 3) * 2
+    colInicial  = ancho_juego + ((5 * 6) + 3) * (3 if NUM_BANDERAS[0] == 64 else 2)
     colFinal    = resolucion[0]
     filaInicial = 0
     numFilas    = limite[1]

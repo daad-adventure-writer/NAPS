@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Condactos específicos de SWAN
-# Copyright (C) 2020-2023 José Manuel Ferrer Ortiz
+# Copyright (C) 2020-2024 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -97,7 +97,7 @@ def a0_LOAD ():
   if bien:
     banderasAntes = list (banderas)
     locsObjsAntes = list (locs_objs)
-    numBanderas   = NUM_BANDERAS + 256
+    numBanderas   = NUM_BANDERAS[0] + 256
     try:
       fichero.seek (0, os.SEEK_END)
       if fichero.tell() != numBanderas:  # Comprueba su longitud
@@ -105,12 +105,12 @@ def a0_LOAD ():
       fichero.seek (0)
       leido = struct.unpack (str (numBanderas) + 'B', fichero.read (numBanderas))
       del banderas[:]
-      banderas.extend (leido[:NUM_BANDERAS])
+      banderas.extend (leido[:NUM_BANDERAS[0]])
       if banderas[58] != banderasAntes[58]:
         if libreria.carga_parte (banderas[58]):
           raise Exception ('Ha fallado la carga de la parte requerida por la bandera 58 de la partida guardada')
       del locs_objs[:]
-      locs_objs.extend (leido[NUM_BANDERAS:NUM_BANDERAS + num_objetos[0]])
+      locs_objs.extend (leido[NUM_BANDERAS[0]:NUM_BANDERAS[0] + num_objetos[0]])
       del gui.historial[:]
       actualiza_grafico()
     except:

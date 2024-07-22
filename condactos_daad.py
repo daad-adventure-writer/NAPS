@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Condactos específicos de DAAD
-# Copyright (C) 2010, 2019-2023 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2019-2024 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -153,13 +153,13 @@ def c0_LOAD ():
   if bien:
     try:
       fichero.seek (0, os.SEEK_END)
-      if fichero.tell() == NUM_BANDERAS + 256:  # Comprueba su longitud
+      if fichero.tell() == NUM_BANDERAS[0] + 256:  # Comprueba su longitud
         fichero.seek (0)
         leido = struct.unpack ('512B', fichero.read (512))
         del banderas[:]
-        banderas.extend (leido[:NUM_BANDERAS])
+        banderas.extend (leido[:NUM_BANDERAS[0]])
         del locs_objs[:]
-        locs_objs.extend (leido[NUM_BANDERAS:NUM_BANDERAS + num_objetos[0]])
+        locs_objs.extend (leido[NUM_BANDERAS[0]:NUM_BANDERAS[0] + num_objetos[0]])
         gui.borra_todo()
         del gui.historial[:]
       else:
@@ -215,7 +215,7 @@ def c1_RAMLOAD (flagno):
   for b in range (flagno + 1):
     banderas[b] = partida[b]
   for o in range (num_objetos[0]):
-    locs_objs[o] = partida[o + NUM_BANDERAS]
+    locs_objs[o] = partida[NUM_BANDERAS[0] + o]
   gui.borra_todo()
   del gui.historial[:]
   return True

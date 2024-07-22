@@ -184,15 +184,21 @@ def a0_QUIT ():
     return 3  # Lo mismo que hace DONE
 
 def a0_SCORE ():
-  """Imprime la puntuación, con los mensajes de sistema 21 y 22, y el valor de la bandera 30"""
+  """Imprime la puntuación, con los mensajes de sistema 21 y 22, y el valor de la bandera 30 (60 en Quill para QL)"""
+  banderaPuntos = 30 + (30 if NUM_BANDERAS[0] == 64 else 0)
   gui.imprime_cadena (msgs_sys[21])  # 'Has logrado '
-  gui.imprime_cadena (str (banderas[30]))
+  gui.imprime_cadena (str (banderas[banderaPuntos]))
   gui.imprime_cadena (msgs_sys[22])  # ' puntos.'
 
 def a0_TURNS ():
-  """Imprime el número de turnos, con los mensajes de sistema 17 a 20, y el valor de las banderas 31 y 32"""
+  """Imprime el número de turnos, con los mensajes de sistema 17 a 20, y el valor de las banderas 31 y 32 (61 y 62 en Quill para QL)"""
+  banderaTurnosLSB = 31
+  banderaTurnosMSB = 32
+  if NUM_BANDERAS[0] == 64:  # Quill para Sinclair QL
+    banderaTurnosLSB += 30
+    banderaTurnosMSB += 30
   gui.imprime_cadena (msgs_sys[17])  # 'Has jugado '
-  turnos = banderas[31] + banderas[32] * 256
+  turnos = banderas[banderaTurnosLSB] + banderas[banderaTurnosMSB] * 256
   gui.imprime_cadena (str (turnos))
   gui.imprime_cadena (msgs_sys[18])  # ' turno'
   if turnos != 1:
