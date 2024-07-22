@@ -336,14 +336,6 @@ def a0_PROTECT ():
     gui.mueve_cursor (gui.cursores[1][0])  # Deja el cursor en la misma columna que estaba
     banderas[41] = gui.cursores[1][1]
 
-def a0_RAMSAVE ():
-  """Guarda el contenido de las banderas y de las localidades de los objetos a memoria"""
-  del partida[:]
-  for bandera in banderas:
-    partida.append (bandera)
-  for loc_obj in locs_objs:
-    partida.append (loc_obj)
-
 def a0_SAVE ():
   """Guarda el contenido de las banderas y de las localidades de los objetos a un fichero"""
   nombreFich = gui.lee_cadena (msgs_sys[60] + msgs_sys[33])

@@ -183,6 +183,24 @@ def a0_QUIT ():
   if respuesta[0].lower() != msgs_sys[30][0].lower():
     return 3  # Lo mismo que hace DONE
 
+def a0_RAMLOAD ():
+  """Carga el contenido de las banderas y de las localidades de los objetos desde memoria"""
+  if not partida:  # No hay partida guardada en memoria
+    return  # TODO: averiguar si imprime algo
+  for b in range (NUM_BANDERAS[0]):
+    banderas[b] = partida[b]
+  for o in range (num_objetos[0]):
+    locs_objs[o] = partida[NUM_BANDERAS[0] + o]
+  del gui.historial[:]
+
+def a0_RAMSAVE ():
+  """Guarda el contenido de las banderas y de las localidades de los objetos a memoria"""
+  del partida[:]
+  for bandera in banderas:
+    partida.append (bandera)
+  for loc_obj in locs_objs:
+    partida.append (loc_obj)
+
 def a0_SCORE ():
   """Imprime la puntuación, con los mensajes de sistema 21 y 22, y el valor de la bandera 30 (60 en Quill para QL)"""
   banderaPuntos = 30 + (30 if NUM_BANDERAS[0] == 64 else 0)
