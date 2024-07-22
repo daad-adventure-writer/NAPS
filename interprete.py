@@ -899,7 +899,7 @@ def imprime_condacto ():
     return
   entrada = tabla[1][num_entrada]
   condacto, parametros = entrada[num_condacto]
-  if condacto > 127:
+  if condacto > 127 and libreria.INDIRECCION:  # Condacto indirecto
     condacto -= 128
     indirecto = True
   else:
