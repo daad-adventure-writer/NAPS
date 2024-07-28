@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Librería para operar con bases de datos gráficas y otros gráficos de mapa de bits
-# Copyright (C) 2008, 2018-2023 José Manuel Ferrer Ortiz
+# Copyright (C) 2008, 2018-2024 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -26,6 +26,11 @@ import os
 import sys
 
 from bajo_nivel import *
+
+
+traza = False  # Si queremos traza del funcionamiento del módulo
+if traza:
+  from prn_func import prn
 
 
 # Paleta de colores por defecto de varios modos gráficos, sin reordenar para textos
@@ -175,11 +180,31 @@ def carga_fuente (fichero):
   alto   = 38 + (0 if longFichero < 3200 else 10)
   imagen = [0] * ancho * alto  # Índices en la paleta de cada píxel en la imagen
   for caracter in range (256 - (16 if longFichero < 3200 else 0)):
-    posPorCol  = (caracter % 63) * 10
+    posPorCol  = (caracter  % 63) * 10
     posPorFila = (caracter // 63) * 10 * ancho
     for fila in range (8):
       b = carga_int1()  # Byte actual
       for indiceBit in range (8):  # Cada bit del byte actual
+        imagen[posPorFila + posPorCol + indiceBit] = 0 if b & (2 ** (7 - indiceBit)) else 1
+      posPorFila += ancho
+  return imagen, paletaBN
+
+def carga_fuente_zx_8 (fichero):
+  """Carga y devuelve una fuente tipográfica de ZX Spectrum de 8x8 junto con su paleta, como índices en la paleta de cada píxel, organizados como en fuente.png"""
+  posicion = detectaFuente8 (fichero)
+  if posicion == None:
+    return [], []
+  bajo_nivel_cambia_ent (fichero)
+  fichero.seek (posicion)
+  ancho  = 628
+  alto   = 48
+  imagen = [0] * ancho * alto  # Índices en la paleta de cada píxel en la imagen
+  for caracter in range (96):
+    posPorCol  = (caracter  % 63) * 10
+    posPorFila = (caracter // 63) * 10 * ancho
+    for fila in range (8):
+      b = carga_int1()  # Fila actual
+      for indiceBit in range (8):  # Cada bit de la fila actual
         imagen[posPorFila + posPorCol + indiceBit] = 0 if b & (2 ** (7 - indiceBit)) else 1
       posPorFila += ancho
   return imagen, paletaBN
@@ -914,6 +939,133 @@ def comprimeImagenPlanar (imagen, anchoFilaEnBits, invertirBits, forzarRLE = Fal
     ocurrencias   = 1
     valorAnterior = valor
   return comprimida, mejores
+
+def detectaFuente8 (fichero):
+  """Detecta con heurísticas la posición de memoria que con mayor probabilidad contiene una fuente de 8x8 en el fichero abierto dado, o None si no detectó ninguna o no pudo descartar hasta quedarse con una sola"""
+  # Cargamos primero todo el contenido del fichero a memoria para buscar allí más rápidamente
+  fichero.seek (0)
+  memoria  = fichero.read()
+  espacio  = b'\x00' * 8  # Secuencia de un carácter de espacio en blanco
+  medioEsp = b'\x00' * 4  # Secuencia de medio carácter de espacio en blanco
+  inicio   = 0      # Posición donde inicia la búsqueda
+  posibles = set()  # Posiciones que la heurística considera posibles
+  posicion = memoria.find (espacio)  # Posición donde se ha encontrado (o no) la secuencia
+
+  # Paso de descarte 1
+  while posicion > -1 and posicion + 768 <= len (memoria):  # En posicion está la secuencia de posible carácter de espacio en blanco
+    # Con heurísticas, averiguamos si hay algo que parece una fuente de 8x8 en posicion
+    inicioComa    = posicion      + 12 * 8  # Posición donde empezaría el carácter ',' en la fuente
+    caracterComa  = memoria[inicioComa:inicioComa + 8]
+    inicioPunto   = inicioComa    +  2 * 8  # Posición donde empezaría el carácter '.' en la fuente
+    caracterPunto = memoria[inicioPunto:inicioPunto + 8]
+    inicioNumeros = inicioPunto   +  2 * 8  # Posición donde empezaría el carácter '0' en la fuente
+    inicioMayusc  = inicioNumeros + 17 * 8  # Posición donde empezaría el carácter 'A' en la fuente
+    inicioMinusc  = inicioMayusc  + 32 * 8  # Posición donde empezaría el carácter 'a' en la fuente
+    if (caracterComa[:4] == medioEsp and caracterPunto[:4] == medioEsp  # La parte superior de la coma y el punto están en blanco
+        and caracterComa != espacio and caracterPunto != espacio):  # Pero su parte inferior no está en blanco
+      # Vemos que no haya caracteres en blanco en las posiciones de los números y letras
+      rangos = ((inicioNumeros, 10), (inicioMayusc, 26), (inicioMinusc, 26))
+      for inicioRango, cuantos in rangos:
+        for inicioCaracter in range (inicioRango, inicioRango + cuantos * 8, 8):
+          if memoria[inicioCaracter:inicioCaracter + 8] == espacio:  # El carácter de esta posición está en blanco
+            break
+        else:
+          continue  # Ninguno estaba en blanco
+        break  # Algún carácter en blanco
+      else:
+        posibles.add (posicion)
+    inicio   = posicion + 1
+    posicion = memoria.find (espacio, inicio)
+  if traza:
+    prn ('Posiciones posibles para fuente de 8x8 en el paso 1:', posibles, file = sys.stderr)
+
+  # Paso de descarte 2
+  if len (posibles) > 1:
+    # Vemos que no haya ningún carácter con pocos píxeles "encendidos" en las posiciones de los números y letras, salvo '1IJTLijlt'
+    import struct
+    for posicion in tuple (posibles):
+      inicioNumeros = posicion      + 16 * 8  # Posición donde empezaría el carácter '0' en la fuente
+      inicioMayusc  = inicioNumeros + 17 * 8  # Posición donde empezaría el carácter 'A' en la fuente
+      inicioMinusc  = inicioMayusc  + 32 * 8  # Posición donde empezaría el carácter 'a' en la fuente
+      rangos = ((inicioNumeros, 1), (inicioNumeros + 2 * 8, 8), (inicioMayusc, 8), (inicioMayusc + 10 * 8, 1), (inicioMayusc + 12 * 8, 7), (inicioMayusc + 20 * 8, 6), (inicioMinusc, 8), (inicioMinusc + 10 * 8, 1), (inicioMinusc + 12 * 8, 7), (inicioMinusc + 20 * 8, 6))
+      for inicioRango, cuantos in rangos:
+        for inicioCaracter in range (inicioRango, inicioRango + cuantos * 8, 8):
+          bits     = bin (struct.unpack ('=Q', memoria[inicioCaracter:inicioCaracter + 8])[0])[2:]
+          bitsAuno = bits.count ('1')
+          # prn ('En posicion', posicion, 'de', idAventura, 'el caracter en', inicioCaracter, 'tiene bits a uno:', bitsAuno)
+          # prn (bits)
+          if bitsAuno < 10:  # Demasiados pocos bits a uno, insuficientes para representar el carácter
+            posibles.remove (posicion)
+            break
+        else:
+          continue  # Todos los caracteres del rango tenían suficientes bits a uno
+        break  # Algún carácter con pocos bits a uno
+    if traza:
+      prn ('Posiciones posibles para fuente de 8x8 en el paso 2:', posibles, file = sys.stderr)
+
+  # Paso de descarte 3
+  if len (posibles) > 1:
+    # Vemos que los caracteres de letras minúsculas que normalmente no sobresalen por arriba (acegmnopqrsuvwxyz) no tengan nada en la primera fila
+    for posicion in tuple (posibles):
+      inicioMinusc = posicion + 65 * 8  # Posición donde empezaría el carácter 'a' en la fuente
+      rangos = ((inicioMinusc, 1), (inicioMinusc + 2 * 8, 1), (inicioMinusc + 4 * 8, 1), (inicioMinusc + 6 * 8, 1), (inicioMinusc + 12 * 8, 7), (inicioMinusc + 20 * 8, 6))
+      for inicioRango, cuantos in rangos:
+        for inicioCaracter in range (inicioRango, inicioRango + cuantos * 8, 8):
+          if memoria[inicioCaracter:inicioCaracter + 1] != b'\x00':
+            posibles.remove (posicion)
+            break
+        else:
+          continue  # Todos los caracteres del rango tenían su primera fila en blanco
+        break  # Algún carácter con algo en su primera fila
+    if traza:
+      prn ('Posiciones posibles para fuente de 8x8 en el paso 3:', posibles, file = sys.stderr)
+
+  # Paso de descarte 4
+  if len (posibles) > 1:
+    # Vemos que los caracteres de letras minúsculas que normalmente no sobresalen por abajo (abcdehiklmnorstuvwx) no tengan nada en la última fila
+    for posicion in tuple (posibles):
+      inicioMinusc = posicion + 65 * 8  # Posición donde empezaría el carácter 'a' en la fuente
+      rangos = ((inicioMinusc, 5), (inicioMinusc + 7 * 8, 2), (inicioMinusc + 10 * 8, 5), (inicioMinusc + 17 * 8, 7))
+      for inicioRango, cuantos in rangos:
+        for inicioCaracter in range (inicioRango, inicioRango + cuantos * 8, 8):
+          if memoria[inicioCaracter + 7:inicioCaracter + 8] != b'\x00':
+            posibles.remove (posicion)
+            break
+        else:
+          continue  # Todos los caracteres del rango tenían su última fila en blanco
+        break  # Algún carácter con algo en su última fila
+    if traza:
+      prn ('Posiciones posibles para fuente de 8x8 en el paso 4:', posibles, file = sys.stderr)
+
+  # Paso de descarte 5
+  if len (posibles) > 1:
+    # Vemos que los caracteres de números y de letras mayúsculas estén centrados verticalmente (que el número de filas vacías arriba no difiere de las de abajo en más de uno)
+    for posicion in tuple (posibles):
+      alineados = 0
+      inicioMayusc = posicion + 33 * 8  # Posición donde empezaría el carácter 'A' en la fuente
+      for inicioCaracter in range (inicioMayusc, inicioMayusc + 26 * 8, 8):
+        blancoArriba = 0  # Filas en blanco en el carácter desde la primera fila en adelante
+        blancoAbajo  = 0  # Filas en blanco en el carácter desde la última fila hacia atrás
+        for numFila in range (0, 4):
+          if memoria[inicioCaracter + numFila:inicioCaracter + numFila + 1] == b'\x00':
+            blancoArriba += 1
+          else:
+            break
+        for numFila in range (7, 3, -1):
+          if memoria[inicioCaracter + numFila:inicioCaracter + numFila + 1] == b'\x00':
+            blancoAbajo += 1
+          else:
+            break
+        if abs (blancoArriba - blancoAbajo) < 2:
+          alineados += 1
+      if alineados < 24:
+        posibles.remove (posicion)
+    if traza:
+      prn ('Posiciones posibles para fuente de 8x8 en el paso 5:', posibles, file = sys.stderr)
+
+  if len (posibles) == 1:
+    return posibles.pop()
+  return None
 
 def generaPaletaEGA (destino = 'paletas'):
   try:

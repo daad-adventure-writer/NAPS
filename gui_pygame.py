@@ -40,13 +40,6 @@ if traza:
 izquierda  = 'ª¡¿«»áéíóúñÑçÇüÜ !"º$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]¯_`abcdefghijklmnopqrstuvwxyz{|}~\x7f\n'
 noEnFuente = {'©': 'c', u'\u2192': '>', u'\u2190': '<'}  # Tabla de conversión de caracteres que no están en la fuente
 
-der = []
-for i in range (len (izquierda)):
-  der.append (chr (i))
-derecha = ''.join (der)
-
-iso8859_15_a_fuente = maketrans (izquierda, derecha)
-
 # Pares de códigos ASCII para teclas pulsadas
 mapeo_unicode    = {}  # Asociación de scan codes con códigos de caracteres iso-8859-15
 teclas_ascii     = {pygame.K_DOWN: (0, 80), pygame.K_LEFT: (0, 75), pygame.K_RIGHT: (0, 77), pygame.K_UP: (0, 72)}
@@ -135,6 +128,7 @@ color_tinta = None             # Color de tinta por defecto
 def abre_ventana (traza, escalar, bbdd):
   """Abre la ventana gráfica de la aplicación"""
   global ancho_juego, escalada, factor_escala, resolucion, ventana
+  preparaConversion()
   if ide:
     if not ventana:
       ancho_juego = int (math.ceil ((limite[0] * ancho_caracter) / 8.)) * 8
@@ -386,6 +380,30 @@ def carga_bd_pics (rutaBDGfx):
     color_tinta = 1  # Ponemos este color de tinta por defecto
   if graficos_bitmap.recursos:
     precargaGraficos()
+
+def carga_fuente_zx (fichero):
+  """Carga una fuente tipográfica de 8x8 de QUILL o PAWS desde el fichero abierto dado con snapshot de ZX Spectrum"""
+  global ancho_caracter, fuente, izquierda
+  if NOMBRE_SISTEMA not in ('QUILL', 'PAWS'):
+    return
+  ancho_caracter = 8
+  izquierda      = '·' * 16 + ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_£abcdefghijklmnopqrstuvwxyz{|}~\x7f\n'
+  for c, convertido in conversion.items():
+    izquierda = izquierda.replace (c, convertido)
+  fuente_zx = pygame.image.load (path.dirname (path.realpath (__file__)) + path.sep + 'fuente_zx_8x8.png')
+  imagen, palImg = graficos_bitmap.carga_fuente_zx_8 (fichero)
+  if not imagen:
+    fuente = fuente_zx
+    fuente.set_palette (((255, 255, 255), (0, 0, 0)))
+    pygame.image.save (fuente, 'fuente_resultante_not_imagen.png')
+    return
+  bufferImg = bytes (bytearray (imagen))
+  fuente = pygame.image.frombuffer (bufferImg, (628, 48), 'P')
+  fuente.set_palette (((0, 0, 0), (255, 255, 255)))
+  # Copiamos caracteres de símbolos gráficos (de la posición 96 a la 111)
+  fuente_zx.set_palette (((0, 0, 0), (255, 255, 255)))
+  fuente.blit (fuente_zx, (330, 10), (330, 10, 160, 8))
+  pygame.image.save (fuente, 'fuente_resultante.png')
 
 def carga_paleta_defecto ():
   """Carga a la paleta por defecto para el modo gráfico"""
@@ -1086,9 +1104,8 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
     prn ('Impresión sobre subventana', elegida, 'en', subventana, 'con topes',
          tope, 'y cursor en', cursor)
   # Convertimos la cadena a posiciones sobre la tipografía
-  if ancho_caracter == 8 or (todo_mayusculas and juego_alto and izquierda[juego_alto] in cadena):  # Se trata de SWAN
+  if NOMBRE_SISTEMA == 'SWAN':
     colores = {}
-    swan    = True
     if ancho_caracter == 6:  # No se ha cargado la tipografía desde fichero
       # En la fuente alta sólo hay letras mayúsculas, así que las demás las ponemos como fuente baja
       juego    = False  # Si la parte actual de la cadena está en juego alto o no
@@ -1118,10 +1135,9 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
         juego
       except:
         juego = 0
-  else:  # No es SWAN o no se cambia entre juego alto y bajo
+  else:  # No es SWAN
     cadena, colores = parseaColores (cadena)
     juego = 0  # Primera posición en la fuente del juego alto, si está en el juego alto, 0 (primera del juego bajo) si no
-    swan  = False
   convertida = cadena.translate (iso8859_15_a_fuente)
   # Dividimos la cadena en líneas
   iniLineas = [0]  # Posición de inicio de cada línea, para colorear
@@ -1130,7 +1146,7 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
   restante  = tope[0] - cursor[0]  # Columnas restantes que quedan en la línea
   for c in range (len (convertida)):
     ordinal = ord (convertida[c])
-    ordOrig = ordinal if swan else ord (cadena[c])
+    ordOrig = ordinal if NOMBRE_SISTEMA == 'SWAN' else ord (cadena[c])
     if ((ordinal == len (izquierda) - 1) or  # Carácter nueva línea (el último)
         ((restante == 0) and (ordinal == 16))):  # Termina la línea con espacio
       lineas.append (''.join (linea))
@@ -1232,7 +1248,9 @@ Los caracteres de linea deben estar convertidos a posiciones en la tipografía"""
     restantes   = ancho_juego - destinoXchr        # Píxeles restantes desde esta posición en la ventana de juego
     if restantes < 1:
       break  # No dibujar más allá del ancho de la ventana de juego
-    c = ord (linea[i]) - (16 if ancho_caracter == 8 else 0)
+    c = ord (linea[i])
+    if ancho_caracter == 8:
+      c -= 16 if c < 128 else 32
     if i + inicioLinea in colores:
       fuente.set_palette (colores[i + inicioLinea])
     # Curioso, aquí fuente tiene dos significados correctos :)
@@ -1480,7 +1498,7 @@ def parseaColores (cadena):
         sigTinta = True
     elif c == tabulador:
       sinColores += chr (127)  # Necesario para que quede sin convertir
-    elif cadena[i] in noEnFuente:
+    elif cadena[i] not in izquierda and cadena[i] in noEnFuente:
       sinColores += noEnFuente[cadena[i]]
     else:
       sinColores += cadena[i]
@@ -1511,6 +1529,15 @@ def precargaGraficosSWAN (gfx):
         prn (e)
       continue
     graficos[numImagen].set_palette (paleta)
+
+def preparaConversion ():
+  """Prepara la variable global iso8859_15_a_fuente para convertir las cadenas de la aventura a posiciones en la fuente"""
+  global iso8859_15_a_fuente
+  der = []
+  for i in range (len (izquierda)):
+    der.append (chr (i))
+  derecha = ''.join (der)
+  iso8859_15_a_fuente = maketrans (izquierda, derecha)
 
 def preparaCursor ():
   """Prepara el cursor con el carácter y color adecuado"""

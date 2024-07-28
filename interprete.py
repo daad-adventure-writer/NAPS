@@ -1172,23 +1172,30 @@ if __name__ == '__main__':
       correcto = False
     if correcto:
       libreria = modulo
-      gui.num_objetos  = libreria.num_objetos
-      gui.NUM_BANDERAS = libreria.NUM_BANDERAS
-      modulo.ruta_bbdd = args.bbdd
+      gui.num_objetos    = libreria.num_objetos
+      gui.NOMBRE_SISTEMA = libreria.NOMBRE_SISTEMA
+      gui.NUM_BANDERAS   = libreria.NUM_BANDERAS
+      modulo.ruta_bbdd   = args.bbdd
       break
     bbdd.seek (0)
     if len (modLibs) > 1:
       prn (file = sys.stderr)
-  bbdd.close()
   if not correcto:
     prn ('Error al tratar de cargar la base de datos: formato incompatible o fichero corrupto', file = sys.stderr)
     sys.exit()
 
   if extension == 'sna' or libreria.plataforma == 1:  # Plataforma ZX Spectrum
-    if args.columns or args.gui not in ('stdio', 'telegram'):
+    if extension == 'sna' and args.gui not in ('stdio', 'telegram'):
+      # Trataremos de cargar fuente tipográfica desde el snapshot
+      gui.conversion = libreria.conversion
+      gui.carga_fuente_zx (bbdd)
+      gui.prepara_topes (args.columns if args.columns else 32, 24)
+    elif args.columns or args.gui not in ('stdio', 'telegram'):
       gui.prepara_topes (args.columns if args.columns else 42, 24)
   elif args.gui not in ('stdio', 'telegram'):
     gui.prepara_topes (53, 25)
+
+  bbdd.close()
 
   constantes = ('EXT_SAVEGAME', 'LONGITUD_PAL', 'NOMB_COMO_VERB', 'NOMBRE_SISTEMA', 'NUM_ATRIBUTOS', 'NUM_BANDERAS', 'PREP_COMO_VERB', 'TIPOS_PAL')
   funciones  = ('actualiza_grafico', 'adapta_msgs_sys', 'busca_condacto', 'busca_conexion', 'cambia_articulo', 'da_peso', 'imprime_mensaje', 'obj_referido', 'parsea_orden', 'prepara_vocabulario', 'restaura_objetos', 'tabla_hizo_algo')

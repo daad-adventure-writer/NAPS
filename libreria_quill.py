@@ -117,6 +117,8 @@ PREP_COMO_VERB   = 0        # Número de preposiciones convertibles a verbo
 NOMBRES_PROCS    = ('Tabla de eventos', 'Tabla de estado')
 TIPOS_PAL        = ('Palabra',)  # Nombres de los tipos de palabra (para el IDE)
 
+conversion = {}  # Tabla de conversión de caracteres
+
 
 # Diccionarios de condactos
 
