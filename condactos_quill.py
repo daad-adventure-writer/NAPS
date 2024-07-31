@@ -269,7 +269,7 @@ def a1_INK (colour):
 def a1_MESSAGE (mesno):
   """Imprime el mensaje de usuario dado por mesno, en los colores actuales, y luego ejecuta una acción NEWLINE"""
   imprime_mensaje (msgs_usr[mesno])
-  gui.imprime_cadena  ('\n')
+  gui.imprime_cadena ('\n')
 
 def a1_PAPER (colour):
   """Cambia el color de fondo/papel al imprimir texto"""
@@ -285,9 +285,33 @@ El teclado se desconecta durante la duración de una pausa"""
   time.sleep (value / 50.)
   gui.redimensiona_ventana()  # Da la oportunidad de manejar eventos de redimensión de ventana
 
+def a1_REMOVE (objno):
+  """Si el objeto no está puesto, imprime MS32. Si se superaría el máximo de objetos llevables, imprime MS24. En caso de una de estas condiciones de fallo, termina con DONE. En caso contrario (éxito), mueve el objeto al inventario (254), e incrementa la bandera 1"""
+  if locs_objs[objno] != 253:
+    imprime_mensaje (msgs_sys[32])
+  elif banderas[1] >= banderas[37]:
+    imprime_mensaje (msgs_sys[24])
+  else:
+    banderas[1]      = min (banderas[1] + 1, 255)
+    locs_objs[objno] = 254
+    return
+  return a0_DONE()
+
 def a1_SET (flagno):
   """Pone el valor de la bandera flagno a 255"""
   banderas[flagno] = 255
+
+def a1_WEAR (objno):
+  """Si el objeto está puesto, imprime MS29. Si el objeto no se lleva, imprime MS28. En caso de una de estas condiciones de fallo, termina con DONE. En caso contrario (éxito), mueve el objeto a puestos (253), y decrementa la bandera 1"""
+  if locs_objs[objno] == 253:
+    imprime_mensaje (msgs_sys[29])
+  elif locs_objs[objno] != 254:
+    imprime_mensaje (msgs_sys[28])
+  else:
+    banderas[1]      = max (0, banderas[1] - 1)
+    locs_objs[objno] = 253
+    return
+  return a0_DONE()
 
 
 def a2_BEEP (duration, pitch):
