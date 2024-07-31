@@ -30,7 +30,7 @@ Intérprete PAW-like
 
 Hacer doble click sobre ``interprete.py`` en caso de tener instalados los requisitos (necesitarás tener instalado también PyQt para utilizar el intérprete de esta manera), o bien sobre ``Intérprete NAPS.bat`` en caso de disponer de la versión portable para Windows de NAPS.
 
-Acto seguido, se mostrará un diálogo pidiendo que selecciones lo que deseas ejecutar, de entre las siguientes opciones: la carpeta donde están contenidos los ficheros del juego, el fichero de base de datos a ejecutar (de PAWS con extensión .PDB, de SWAN con extensión .ADB, o de DAAD con extensión .DDB), el fichero de snapshot (con extensión .SNA) de ZX Spectrum del juego de Quill o PAWS que quieras ejecutar, o bien el fichero de código fuente SCE de PAWS o DAAD que quieras ejecutar.
+Acto seguido, se mostrará un diálogo pidiendo que selecciones lo que deseas ejecutar, de entre las siguientes opciones: la carpeta donde están contenidos los ficheros del juego, el fichero de base de datos a ejecutar (de PAWS con extensión .PDB, de SWAN con extensión .ADB, o de DAAD con extensión .DDB), el fichero de snapshot (con extensión .SNA) de ZX Spectrum del juego de Quill o PAWS que quieras ejecutar, o bien el fichero de código fuente de PAWS o DAAD que quieras ejecutar (en formato SCE para PAWS o DAAD, o bien DSF de DAAD Reborn Compiler).
 
 Si lo que quieres es jugar, siempre que puedas utiliza la primera opción de las mencionadas antes: la de elegir la carpeta donde están los ficheros del juego. Esta es la opción ideal para jugar, la más completa y fidedigna en cuanto a jugabilidad, en la cual el intérprete mostrará la imagen de portada si el juego tiene una, te pedirá elegir parte en caso de que la aventura tenga más de una, cargará y utilizará automáticamente los mejores gráficos disponibles para esa parte, y también la fuente tipográfica que proporcione la aventura. En el sistema SWAN, sólo esta opción permitirá la transición automática transparente entre partes, y sólo con ésta se podrá jugar a las partes de la segunda en adelante, que no funcionan como se espera si se intentan ejecutar directamente.
 
@@ -54,7 +54,7 @@ Ejemplos bajos Linux:
 
 Parámetros:
 
-- ``bd_cf_o_carpeta`` (obligatorio) Base de datos, snapshot SNA, código fuente SCE, o carpeta a ejecutar; de Quill/PAWS/SWAN/DAAD
+- ``bd_cf_o_carpeta`` (obligatorio) Base de datos, snapshot SNA, código fuente, o carpeta a ejecutar; de Quill/PAWS/SWAN/DAAD
 - ``bd_o_carpeta_gráficos`` (opcional) Base de datos gráfica para las imágenes, o carpeta de la que tomarlas (con nombre pic###.png)
 - ``--help`` (opcional) Muestra ayuda sobre los parámetros de línea de comandos
 - ``--columns`` (opcional) Cambia el número de columnas a usar cuando se imita la plataforma Spectrum, desde 32 hasta 42 (valor por defecto en interfaz pygame, en la stdio por defecto es sin límite)
@@ -62,7 +62,7 @@ Parámetros:
 - ``--debug`` (opcional) Ejecuta la base de datos en modo depuración: ejecutando los condactos paso a paso, mientras muestra el valor de las banderas
 - ``--gui`` (opcional) Elige la interfaz gráfica a utilizar. Opciones posibles: pygame (interfaz gráfica con PyGame), stdio (interfaz sólo texto, usando la entrada y salida estándar) y telegram (interfaz para el bot de Telegram)
 - ``--scale`` (opcional) Elige el factor de escalado de la ventana, desde 1 hasta 9, con lo que ampliará todo hasta ese número de veces sin superar la resolución de pantalla. El valor por defecto será el factor máximo dentro de la resolución de pantalla
-- ``--system`` (opcional) Elige el sistema con el que tratar de cargar la base de datos, snapshot SNA, código fuente SCE, o carpeta dado. El funcionamiento por defecto es autodetectar el sistema a utilizar, probando varios en caso necesario
+- ``--system`` (opcional) Elige el sistema con el que tratar de cargar la base de datos, snapshot SNA, código fuente, o carpeta dado. El funcionamiento por defecto es autodetectar el sistema a utilizar, probando varios en caso necesario
 
 
 Entorno de desarrollo integrado (IDE)
@@ -85,7 +85,7 @@ Hacer doble click sobre ``ide_pyqt.py`` en caso de tener instalados los requisit
 
 Parámetros:
 
-- ``bd_o_codigo`` (opcional) Base de datos, snapshot SNA, o código fuente SCE; de Quill/PAWS/SWAN/DAAD a cargar
+- ``bd_o_codigo`` (opcional) Base de datos, snapshot SNA, o código fuente; de Quill/PAWS/SWAN/DAAD a cargar
 - ``bd_o_carpeta_gráficos`` (opcional) Base de datos gráfica que usar para las imágenes al depurar, o carpeta de la que tomarlas (con nombre pic###.png)
 - ``--help`` (opcional) Muestra ayuda sobre los parámetros de línea de comandos
 - ``--no-entry-end`` (opcional) Omite en entradas de proceso los condactos que haya detrás de los que cambian el flujo de ejecución incondicionalmente (como DONE), muy útil para bases de datos compiladas con DRC sin activar el modo clásico, donde no pone marcas de fin de entrada cuando hay algún condacto así, y descarta los condactos que haya después
