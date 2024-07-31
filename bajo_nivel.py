@@ -22,6 +22,8 @@
 # *                                                                           *
 # *****************************************************************************
 
+import os  # Para SEEK_END
+
 from sys import version_info
 
 
@@ -53,6 +55,28 @@ def bajo_nivel_cambia_sal (fichero):
   """Prepara el módulo para escribir en el fichero de salida dado"""
   global fich_sal
   fich_sal = fichero
+
+def busca_secuencia (secuencia):
+  """Busca la secuencia de valores de byte dada y devuelve la posición donde se quedó al encontrarla o None si no se encontró
+
+  secuencia es la lista de valores de byte a buscar. Puede incluir valores None para posiciones que siempre encajarán"""
+  fich_ent.seek (0, os.SEEK_END)
+  longitud = fich_ent.tell()
+  posicion = 0
+  fich_ent.seek (posicion)
+  encajeSec = []  # Secuencia de encajes hasta ahora
+  c = carga_int1()
+  while posicion < longitud:
+    if secuencia[len (encajeSec)] == None or c == secuencia[len (encajeSec)]:
+      encajeSec.append (c)
+      if len (encajeSec) == len (secuencia):  # Secuencia encontrada
+        return posicion
+    elif encajeSec:
+      del encajeSec[:]
+      continue  # Empezamos de nuevo desde este carácter
+    c = carga_int1()
+    posicion += 1
+  return  # No se ha encontrado
 
 def carga_desplazamiento2 (desplazamiento = None):
   """Carga un desplazamiento de 2 bytes en relación con el fichero

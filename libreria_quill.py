@@ -237,22 +237,9 @@ Para compatibilidad con el IDE:
   if longitud != 49179:
     return False  # No parece un fichero de imagen de memoria de Spectrum 48K
   # Detectamos la posición de la cabecera de la base de datos
-  posicion = 0
-  fichero.seek (posicion)
-  encajeSec = []
-  secuencia = (16, None, 17, None, 18, None, 19, None, 20, None, 21)
-  c = ord (fichero.read (1))
-  while posicion < longitud:
-    if secuencia[len (encajeSec)] == None or c == secuencia[len (encajeSec)]:
-      encajeSec.append (c)
-      if len (encajeSec) == len (secuencia):
-        break
-    elif encajeSec:
-      del encajeSec[:]
-      continue  # Empezamos de nuevo desde este caracter
-    c = ord (fichero.read (1))
-    posicion += 1
-  else:
+  bajo_nivel_cambia_ent (fichero)
+  posicion = busca_secuencia ((16, None, 17, None, 18, None, 19, None, 20, None, 21))
+  if posicion == None:
     return False  # Cabecera de la base de datos no encontrada
   posicion += 3
   bajo_nivel_cambia_endian (le = True)  # Al menos es así en ZX Spectrum

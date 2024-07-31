@@ -236,31 +236,19 @@ def carga_bd (fichero, longitud):
   preparaPosCabecera ('pdb')
   return cargaBD (fichero, longitud)
 
-# Carga la base de datos entera desde un fichero de imagen de memoria de Spectrum 48K
-# Para compatibilidad con el IDE:
-# - Recibe como primer parámetro un fichero abierto
-# - Recibe como segundo parámetro la longitud del fichero abierto
-# - Devuelve False si ha ocurrido algún error
 def carga_bd_sna (fichero, longitud):
+  """Carga la base de datos entera desde un fichero de imagen de memoria de Spectrum 48K
+
+Para compatibilidad con el IDE:
+- Recibe como primer parámetro un fichero abierto
+- Recibe como segundo parámetro la longitud del fichero abierto
+- Devuelve False si ha ocurrido algún error"""
   if longitud != 49179:
     return False  # No parece un fichero de imagen de memoria de Spectrum 48K
   # Detectamos la posición de la cabecera de la base de datos
-  posicion = 0
-  fichero.seek (posicion)
-  encajeSec = []
-  secuencia = (16, None, 17, None, 18, None, 19, None, 20, None, 21)
-  c = fichero.read (1)
-  while c:
-    if secuencia[len (encajeSec)] == None or ord (c) == secuencia[len (encajeSec)]:
-      encajeSec.append (c)
-      if len (encajeSec) == len (secuencia):
-        break
-    elif encajeSec:
-      del encajeSec[:]
-      continue  # Empezamos de nuevo desde este caracter
-    c = fichero.read (1)
-    posicion += 1
-  else:
+  bajo_nivel_cambia_ent (fichero)
+  posicion = busca_secuencia ((16, None, 17, None, 18, None, 19, None, 20, None, 21))
+  if posicion == None:
     return False  # Cabecera de la base de datos no encontrada
   preparaPosCabecera ('sna48k', posicion)
   return cargaBD (fichero, longitud)
