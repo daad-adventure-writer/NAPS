@@ -42,7 +42,9 @@ num_objetos    = [0]  # Número de objetos (en lista para pasar por referencia)
 tablas_proceso = []   # Tablas de proceso (la de estado y la de eventos)
 vocabulario    = []   # Vocabulario
 
-max_llevables = 0
+despl_ini     = 0  # Desplazamiento inicial para cargar desde memoria
+max_llevables = 0  # Número máximo de objetos que puede llevar el jugador
+pos_msgs_sys  = 0  # Posición de los mensajes de sistema en versiones de Quill sin lista de posiciones para ellos
 
 # Identificadores (para hacer el código más legible) predefinidos
 ids_locs = {  0 : 'INICIAL',
@@ -155,7 +157,8 @@ condiciones = {
   15 : ('LT',      'fu'),
 }
 
-# Diccionario de acciones
+# Diccionarios de acciones
+
 acciones = {
    0 : ('INVEN',   '',   True),
    1 : ('DESC',    '',   True),
@@ -168,15 +171,20 @@ acciones = {
    8 : ('LOAD',    '',   True),
    9 : ('TURNS',   '',   False),
   10 : ('SCORE',   '',   False),
-  11 : ('CLS',     '',   False),
-  13 : ('AUTOG',   '',   False),
-  14 : ('AUTOD',   '',   False),
-  17 : ('PAUSE',   'u',  False),
-  21 : ('GOTO',    'l',  False),
-  22 : ('MESSAGE', 'm',  False),
+  11 : ('PAUSE',   'u',  False),
+  12 : ('GOTO',    'l',  False),
+  13 : ('MESSAGE', 'm',  False),
+  14 : ('REMOVE',  'o',  False),
+  15 : ('GET',     'o',  False),
+  16 : ('DROP',    'o',  False),
+  17 : ('WEAR',    'o',  False),
+  18 : ('DESTROY', 'o',  False),
+  19 : ('CREATE',  'o',  False),
+  21 : ('SET',     'f',  False),
+  22 : ('CLEAR',   'f',  False),
   23 : ('REMOVE',  'o',  False),
   24 : ('GET',     'o',  False),
-  25 : ('DROP',    'o',  False),
+  25 : ('LET',     'fu', False),
   26 : ('WEAR',    'o',  False),
   27 : ('DESTROY', 'o',  False),
   28 : ('CREATE',  'o',  False),
@@ -189,6 +197,17 @@ acciones = {
   36 : ('BEEP',    'uu', False),
   37 : ('RAMSAVE', '',   False),
   38 : ('RAMLOAD', '',   False),
+}
+
+# Reemplazo de acciones en nuevas versiones de Quill
+acciones_nuevas = {
+  11 : ('CLS',     '',  False),
+  13 : ('AUTOG',   '',  False),
+  14 : ('AUTOD',   '',  False),
+  17 : ('PAUSE',   'u', False),
+  21 : ('GOTO',    'l', False),
+  22 : ('MESSAGE', 'm', False),
+  25 : ('DROP',    'o', False),
 }
 
 acciones_flujo = []  # Acciones que cambian el flujo de ejecución incondicionalmente
@@ -231,7 +250,7 @@ Para compatibilidad con el IDE:
 - Recibe como primer parámetro un fichero abierto
 - Recibe como segundo parámetro la longitud del fichero abierto
 - Devuelve False si ha ocurrido algún error"""
-  global carga_desplazamiento, fich_ent, fin_cadena, max_llevables, nueva_linea
+  global carga_desplazamiento, despl_ini, fin_cadena, nueva_linea, pos_msgs_sys
   carga_desplazamiento = carga_desplazamiento2
   # if longitud not in (49179, 131103):  # Tamaño de 48K y de 128K
   if longitud != 49179:
@@ -241,12 +260,24 @@ Para compatibilidad con el IDE:
   posicion = busca_secuencia ((16, None, 17, None, 18, None, 19, None, 20, None, 21))
   if posicion == None:
     return False  # Cabecera de la base de datos no encontrada
-  posicion += 3
+  despl_ini = 16357  # Al menos es así en Hampstead y Manor of Madness, igual que PAWS
   bajo_nivel_cambia_endian (le = True)  # Al menos es así en ZX Spectrum
-  bajo_nivel_cambia_despl  (16357)      # Al menos es así en Hampstead, igual que PAWS
+  bajo_nivel_cambia_despl  (despl_ini)
   fin_cadena  = 31  # Igual que PAWS
   nueva_linea = 6
-  preparaPosCabecera ('sna48k', posicion)
+  posBD = posicion + 3
+  # Detectamos si es una versión vieja de Quill, sin lista de posiciones de mensajes de sistema
+  if busca_secuencia ((0xdd, 0xbe, 0, 0x28, None, 0xdd, 0xbe, 3, 0x28, None, 0xdd, 0x35, 3, 0x3a, None, None, 0xdd, 0xbe, None, 0x28, None, 0xfe, 0xfd, 0x30, None, 0x21)):
+    pos_msgs_sys = carga_int2_le()
+    if pos_msgs_sys:
+      formato = 'sna48k_old'
+    else:
+      formato = 'sna48k'  # No se ha encontrado, por lo que asumimos que no es una versión de Quill vieja
+  preparaPosCabecera (formato, posBD)
+  if formato == 'sna48k':
+    acciones.update (acciones_nuevas)
+    for codigo in acciones_nuevas:
+      condactos[100 + codigo] = acciones_nuevas[codigo][:2] + (True, acciones_nuevas[codigo][2])
   return cargaBD (fichero, longitud)
 
 def inicializa_banderas (banderas):
@@ -339,7 +370,10 @@ Para compatibilidad con el IDE:
     cargaCadenas (CAB_NUM_LOCS,     CAB_POS_LST_POS_LOCS,     desc_locs)
     cargaCadenas (CAB_NUM_OBJS,     CAB_POS_LST_POS_OBJS,     desc_objs)
     cargaCadenas (CAB_NUM_MSGS_USR, CAB_POS_LST_POS_MSGS_USR, msgs_usr)
-    cargaCadenas (CAB_NUM_MSGS_SYS, CAB_POS_LST_POS_MSGS_SYS, msgs_sys)
+    if pos_msgs_sys:
+      cargaMensajesSistema()
+    else:
+      cargaCadenas (CAB_NUM_MSGS_SYS, CAB_POS_LST_POS_MSGS_SYS, msgs_sys)
     cargaConexiones()
     cargaLocalidadesObjetos()
     cargaVocabulario()
@@ -416,6 +450,35 @@ def cargaLocalidadesObjetos ():
   for i in range (num_objetos[0]):
     locs_iniciales.append (carga_int1())
 
+def cargaMensajesSistema ():
+  """Carga los mensajes de sistema desde la posición del primero (en pos_msgs_sys). Usar solamente con versiones de Quill viejas, sin lista de posiciones para los mensajes de sistema"""
+  fich_ent.seek (pos_msgs_sys - despl_ini)  # Nos movemos a la posición del primer mensaje de sistema
+  saltaSiguiente = False  # Si salta el siguiente carácter, como ocurre tras algunos códigos de control
+  while True:
+    algo   = False  # Si hay algo imprimible en la línea
+    cadena = ''
+    ceros  = 0  # Cuenta del número de ceros consecutivos al inicio de la cadena
+    while True:
+      caracter = carga_int1() ^ 255
+      if caracter == fin_cadena:  # Fin de esta cadena
+        break
+      if saltaSiguiente or (caracter in (range (16, 21))):  # Códigos de control
+        cadena += chr (caracter)
+        saltaSiguiente = not saltaSiguiente
+        continue
+      if caracter == 255 and not cadena:
+        ceros += 1
+        if ceros > 20:  # Consideramos esto como marca de fin de mensajes de sistema
+          return
+      elif caracter == nueva_linea:  # Un carácter de nueva línea en la cadena
+        if algo:
+          cadena += '\n'
+        algo = not algo
+      else:
+        algo    = True
+        cadena += chr (caracter)
+    msgs_sys.append (cadena)
+
 def cargaTablasProcesos ():
   """Carga las dos tablas de procesos: la de estado y la de eventos"""
   # Cargamos cada tabla de procesos
@@ -482,8 +545,8 @@ def preparaPosCabecera (formato, inicio):
   CAB_NUM_OBJS      = inicio + 1   # Número de objetos
   CAB_NUM_LOCS      = inicio + 2   # Número de localidades
   CAB_NUM_MSGS_USR  = inicio + 3   # Número de mensajes de usuario
-  CAB_NUM_MSGS_SYS  = inicio + 4   # Número de mensajes de sistema
   if formato == 'qql':  # Base de datos para Sinclair QL
+    CAB_NUM_MSGS_SYS         = inicio + 4   # Número de mensajes de sistema
     CAB_POS_EVENTOS          = inicio + 6   # Posición de la tabla de eventos
     CAB_POS_ESTADO           = inicio + 10  # Posición de la tabla de estado
     CAB_POS_LST_POS_OBJS     = inicio + 14  # Posición lista de posiciones de objetos
@@ -495,6 +558,7 @@ def preparaPosCabecera (formato, inicio):
     CAB_POS_LOCS_OBJS        = inicio + 38  # Posición de localidades iniciales de objetos
     CAB_POS_NOMS_OBJS        = inicio + 42  # Posición de los nombres de los objetos
   elif formato == 'sna48k':
+    CAB_NUM_MSGS_SYS         = inicio + 4   # Número de mensajes de sistema
     CAB_POS_EVENTOS          = inicio + 5   # Posición de la tabla de eventos
     CAB_POS_ESTADO           = inicio + 7   # Posición de la tabla de estado
     CAB_POS_LST_POS_OBJS     = inicio + 9   # Posición lista de posiciones de objetos
@@ -505,3 +569,12 @@ def preparaPosCabecera (formato, inicio):
     CAB_POS_VOCAB            = inicio + 19  # Posición del vocabulario
     CAB_POS_LOCS_OBJS        = inicio + 21  # Posición de localidades iniciales de objetos
     CAB_POS_NOMS_OBJS        = inicio + 23  # Posición de los nombres de los objetos
+  elif formato == 'sna48k_old':
+    CAB_POS_EVENTOS          = inicio + 4   # Posición de la tabla de eventos
+    CAB_POS_ESTADO           = inicio + 6   # Posición de la tabla de estado
+    CAB_POS_LST_POS_OBJS     = inicio + 8   # Posición lista de posiciones de objetos
+    CAB_POS_LST_POS_LOCS     = inicio + 10  # Posición lista de posiciones de localidades
+    CAB_POS_LST_POS_MSGS_USR = inicio + 12  # Pos. lista de posiciones de mensajes de usuario
+    CAB_POS_LST_POS_CNXS     = inicio + 14  # Posición lista de posiciones de conexiones
+    CAB_POS_VOCAB            = inicio + 16  # Posición del vocabulario
+    CAB_POS_LOCS_OBJS        = inicio + 18  # Posición de localidades iniciales de objetos

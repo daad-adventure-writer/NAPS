@@ -149,7 +149,8 @@ def a0_DONE ():
 def a0_END ():
   """Pregunta si se desea volver a empezar (MS13), y si la respuesta empieza por la primera letra del MS31, imprime el MS14 y termina completamente la ejecución de la aventura. Si no, reinicia la aventura"""
   respuesta = gui.lee_cadena (msgs_sys[13] + '>')
-  if respuesta[0].lower() == msgs_sys[31].lower():
+  letraNo   = 'n' if libreria.pos_msgs_sys else msgs_sys[31][0].lower()
+  if respuesta[0].lower() == letraNo:
     gui.imprime_cadena (msgs_sys[14])
     return 7
   return 0
@@ -180,7 +181,8 @@ def a0_QUIT ():
   """Pide confirmación (MS12), y si la respuesta empieza por la primera letra del MS30, continúa. Si no, ejecuta DONE"""
   # FIXME: según el manual, no cambia el flujo incondicionalmente
   respuesta = gui.lee_cadena (msgs_sys[12] + '>')
-  if respuesta[0].lower() != msgs_sys[30][0].lower():
+  letraSi   = 'y' if libreria.pos_msgs_sys else msgs_sys[30][0].lower()
+  if respuesta[0].lower() != letraSi:
     return 3  # Lo mismo que hace DONE
 
 def a0_RAMLOAD ():
@@ -203,10 +205,16 @@ def a0_RAMSAVE ():
 
 def a0_SCORE ():
   """Imprime la puntuación, con los mensajes de sistema 21 y 22, y el valor de la bandera 30 (60 en Quill para QL)"""
+  if NOMBRE_SISTEMA == 'QUILL' and libreria.pos_msgs_sys:  # Primeras versiones de Quill
+    msgCompletado = 19
+    txtPorcentaje = '%'
+  else:
+    msgCompletado = 21
+    txtPorcentaje = msgs_sys[22]
   banderaPuntos = 30 + (30 if NUM_BANDERAS[0] == 64 else 0)
-  gui.imprime_cadena (msgs_sys[21])  # 'Has logrado '
+  gui.imprime_cadena (msgs_sys[msgCompletado])  # 'Has completado el '
   gui.imprime_cadena (str (banderas[banderaPuntos]))
-  gui.imprime_cadena (msgs_sys[22])  # ' puntos.'
+  gui.imprime_cadena (txtPorcentaje)  # '%'
 
 def a0_TURNS ():
   """Imprime el número de turnos, con los mensajes de sistema 17 a 20, y el valor de las banderas 31 y 32 (61 y 62 en Quill para QL)"""
@@ -215,13 +223,19 @@ def a0_TURNS ():
   if NUM_BANDERAS[0] == 64:  # Quill para Sinclair QL
     banderaTurnosLSB += 30
     banderaTurnosMSB += 30
+  if NOMBRE_SISTEMA == 'QUILL' and libreria.pos_msgs_sys:  # Primeras versiones de Quill
+    textoS     = 's'
+    textoPunto = '.'
+  else:
+    textoS     = msgs_sys[19]
+    textoPunto = '.'
   gui.imprime_cadena (msgs_sys[17])  # 'Has jugado '
   turnos = banderas[banderaTurnosLSB] + banderas[banderaTurnosMSB] * 256
   gui.imprime_cadena (str (turnos))
   gui.imprime_cadena (msgs_sys[18])  # ' turno'
   if turnos != 1:
-    gui.imprime_cadena (msgs_sys[19])  # 's'
-  gui.imprime_cadena (msgs_sys[20])  # '.'
+    gui.imprime_cadena (textoS)    # 's'
+  gui.imprime_cadena (textoPunto)  # '.'
 
 
 def a1_BORDER (colour):
@@ -247,11 +261,11 @@ def a1_DESTROY (objno):
 def a1_GET (objno):
   """Si el objeto se lleva (inventario o puesto), imprime MS25. Si el objeto no está presente, imprime MS26. Si se superaría el máximo de objetos llevables, imprime MS27. En caso de una de estas condiciones de fallo, termina con DONE. En caso contrario (éxito), mueve el objeto al inventario (254) e incrementa la bandera 1"""
   if locs_objs[objno] in (253, 254):
-    gui.imprime_cadena (msgs_sys[25])
+    gui.imprime_cadena (msgs_sys[22 if libreria.pos_msgs_sys else 25])
   elif locs_objs[objno] != banderas[38]:
-    gui.imprime_cadena (msgs_sys[26])
+    gui.imprime_cadena (msgs_sys[23 if libreria.pos_msgs_sys else 26])
   elif banderas[1] >= banderas[37]:
-    gui.imprime_cadena (msgs_sys[27])
+    gui.imprime_cadena (msgs_sys[24 if libreria.pos_msgs_sys else 27])
   else:
     banderas[1] += 1
     locs_objs[objno] = 254
@@ -288,9 +302,9 @@ El teclado se desconecta durante la duración de una pausa"""
 def a1_REMOVE (objno):
   """Si el objeto no está puesto, imprime MS32. Si se superaría el máximo de objetos llevables, imprime MS24. En caso de una de estas condiciones de fallo, termina con DONE. En caso contrario (éxito), mueve el objeto al inventario (254), e incrementa la bandera 1"""
   if locs_objs[objno] != 253:
-    imprime_mensaje (msgs_sys[32])
+    imprime_mensaje (msgs_sys[20 if libreria.pos_msgs_sys else 32])
   elif banderas[1] >= banderas[37]:
-    imprime_mensaje (msgs_sys[24])
+    imprime_mensaje (msgs_sys[21 if libreria.pos_msgs_sys else 24])
   else:
     banderas[1]      = min (banderas[1] + 1, 255)
     locs_objs[objno] = 254
@@ -304,9 +318,9 @@ def a1_SET (flagno):
 def a1_WEAR (objno):
   """Si el objeto está puesto, imprime MS29. Si el objeto no se lleva, imprime MS28. En caso de una de estas condiciones de fallo, termina con DONE. En caso contrario (éxito), mueve el objeto a puestos (253), y decrementa la bandera 1"""
   if locs_objs[objno] == 253:
-    imprime_mensaje (msgs_sys[29])
+    imprime_mensaje (msgs_sys[26 if libreria.pos_msgs_sys else 29])
   elif locs_objs[objno] != 254:
-    imprime_mensaje (msgs_sys[28])
+    imprime_mensaje (msgs_sys[25 if libreria.pos_msgs_sys else 28])
   else:
     banderas[1]      = max (0, banderas[1] - 1)
     locs_objs[objno] = 253
