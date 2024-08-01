@@ -1225,7 +1225,8 @@ if __name__ == '__main__':
     modulo.libreria  = libreria
     modulo.ruta_bbdd = args.bbdd
     for constante in ('BANDERA_LLEVABLES', 'BANDERA_LOC_ACTUAL'):
-      modulo.__dict__[constante] = globals()[constante]
+      if constante in globals():
+        modulo.__dict__[constante] = globals()[constante]
     for lista in (constantes, funcsLib, variables):
       for variable in lista:
         if variable in globals():
