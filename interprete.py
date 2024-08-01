@@ -314,7 +314,7 @@ def bucle_paws ():
     elif estado == 5:  # Tablas de respuestas y de conexiones exhaustas, o se terminó con NOTDONE
       tiempoTimeout = banderas[48] if NOMBRE_SISTEMA != 'QUILL' and banderas[49] & 2 else 0
       if not proceso_acc:  # No se ha ejecutado ninguna "acción"
-        if banderas[BANDERA_VERBO] >= 14:  # No es verbo de dirección
+        if banderas[BANDERA_VERBO] >= (13 if NOMBRE_SISTEMA == 'QUILL' else 14):  # No es verbo de dirección
           gui.imprime_cadena (msgs_sys[8], tiempo = tiempoTimeout)  # No puedes hacer eso
         elif NOMBRE_SISTEMA in ('QUILL', 'PAWS'):  # Ni SWAN ni DAAD imprimen este mensaje por sí mismos
           gui.imprime_cadena (msgs_sys[7], tiempo = tiempoTimeout)  # No puedes ir por ahí
