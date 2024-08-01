@@ -1148,7 +1148,7 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
     ordinal = ord (convertida[c])
     ordOrig = ordinal if NOMBRE_SISTEMA == 'SWAN' else ord (cadena[c])
     if ((ordinal == len (izquierda) - 1) or  # Carácter nueva línea (el último)
-        ((restante == 0) and (ordinal == 16))):  # Termina la línea con espacio
+        (partir_espacio and restante == 0 and ordinal == 16)):  # Termina la línea con espacio
       lineas.append (''.join (linea))
       iniLineas.append (iniLineas[-1] + len (linea) + (1 if (ordinal == len (izquierda) - 1) else 0))
       linea    = []
@@ -1178,8 +1178,8 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
       linea.append (chr (ordinal + juego))
       restante -= 1
     else:  # Hay que partir la línea, desde el último carácter de espacio
-      for i in range (len (linea) - 1, -1, -1):  # Desde el final al inicio
-        if partir_espacio and ord (linea[i]) == 16:  # Este carácter es un espacio
+      for i in range (len (linea) - 1, -1, -1) if partir_espacio else ():  # Desde el final al inicio
+        if ord (linea[i]) == 16:  # Este carácter es un espacio
           lineas.append (''.join (linea[:i + 1]))
           linea = linea[i + 1:]
           iniLineas.append (iniLineas[-1] + i + 1)
