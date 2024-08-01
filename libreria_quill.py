@@ -241,6 +241,9 @@ Para compatibilidad con el IDE:
   NUM_BANDERAS[0]     = 64  # TODO: incluirle las banderas de sistema que se usan
   NUM_BANDERAS_ACC[0] = 64
   preparaPosCabecera ('qql', 6)
+  acciones.update (acciones_nuevas)
+  for codigo in acciones_nuevas:
+    condactos[100 + codigo] = acciones_nuevas[codigo][:2] + (True, acciones_nuevas[codigo][2])
   return cargaBD (fichero, longitud)
 
 def carga_bd_sna (fichero, longitud):
