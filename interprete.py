@@ -58,6 +58,13 @@ frase_guardada = []     # Tendrá valor verdadero cuando se está ejecutando la se
 hay_asterisco  = False  # Si está la palabra '*', 1, 255 en el vocabulario, en sistema PAWS no compilado (con editor)
 
 
+# Constantes (o casi) del intérprete
+
+BANDERA_VERBO      = 33  # Bandera con el verbo de la SL actual
+BANDERA_NOMBRE     = 34  # Bandera con el primer nombre de la SL actual
+BANDERA_LOC_ACTUAL = 38  # Bandera con la localidad actual
+
+
 # Funciones auxiliares para los módulos de condactos
 
 def adapta_msgs_sys ():
@@ -80,7 +87,7 @@ def busca_conexion (locOrigen):
   if locOrigen >= len (conexiones):
     return None
   for verbo, destino in conexiones[locOrigen]:
-    if verbo == banderas[33]:  # Verbo de la SL actual
+    if verbo == banderas[BANDERA_VERBO]:  # Verbo de la SL actual
       return destino
   return None
 
@@ -295,11 +302,11 @@ def bucle_paws ():
       else:
         estado = 5
     elif estado == 4:  # Búsqueda en tabla de conexiones
-      destino = busca_conexion (banderas[38])  # De la localidad actual
+      destino = busca_conexion (banderas[BANDERA_LOC_ACTUAL])  # De la localidad actual
       if destino == None:
         estado = 5
       else:
-        banderas[38] = destino
+        banderas[BANDERA_LOC_ACTUAL] = destino
         estado = 1
         if traza:
           gui.imprime_banderas  (banderas)
@@ -307,7 +314,7 @@ def bucle_paws ():
     elif estado == 5:  # Tablas de respuestas y de conexiones exhaustas, o se terminó con NOTDONE
       tiempoTimeout = banderas[48] if NOMBRE_SISTEMA != 'QUILL' and banderas[49] & 2 else 0
       if not proceso_acc:  # No se ha ejecutado ninguna "acción"
-        if banderas[33] >= 14:  # No es verbo de dirección
+        if banderas[BANDERA_VERBO] >= 14:  # No es verbo de dirección
           gui.imprime_cadena (msgs_sys[8], tiempo = tiempoTimeout)  # No puedes hacer eso
         elif NOMBRE_SISTEMA in ('QUILL', 'PAWS'):  # Ni SWAN ni DAAD imprimen este mensaje por sí mismos
           gui.imprime_cadena (msgs_sys[7], tiempo = tiempoTimeout)  # No puedes ir por ahí
@@ -329,8 +336,8 @@ def inicializa ():
     restaura_objetos()
 
   # La bandera 37, contiene el número máximo de objetos llevados, que se pondrá a 4
-  banderas[37] = 4
   if NOMBRE_SISTEMA != 'QUILL':
+    banderas[37] = 4
     # La bandera 52, lleva el máximo peso permitido, que se pone a 10
     banderas[52] = 10
     # Las banderas 46 y 47, que llevan el pronombre actual, que se pondrán a 255
@@ -394,15 +401,15 @@ def describe_localidad ():
   else:
     actualiza_grafico()
 
-    if desc_locs[banderas[38]]:  # la bandera 38 contiene la localidad actual
-      gui.imprime_cadena (desc_locs[banderas[38]], tiempo = banderas[48] if NOMBRE_SISTEMA != 'QUILL' and banderas[49] & 2 else 0)
+    if desc_locs[banderas[BANDERA_LOC_ACTUAL]]:
+      gui.imprime_cadena (desc_locs[banderas[BANDERA_LOC_ACTUAL]], tiempo = banderas[48] if NOMBRE_SISTEMA != 'QUILL' and banderas[49] & 2 else 0)
 
     # Lista objetos presentes en QUILL
     if NOMBRE_SISTEMA == 'QUILL':
       gui.imprime_cadena ('\n')
       alguno = False
       for objno in range (num_objetos[0]):
-        if locs_objs[objno] == banderas[38]:
+        if locs_objs[objno] == banderas[BANDERA_LOC_ACTUAL]:
           if not alguno:
             gui.imprime_cadena (msgs_sys[1] + '\n')
             alguno = True
@@ -447,7 +454,7 @@ def actualiza_grafico ():
       if gui.elegida == 2:  # Justo antes de describir esta localidad sí había gráfico
         gui.mueve_cursor (gui.cursores[2][0], gui.cursores[2][1] + 10)  # Recuperamos el cursor a la posición equivalente a pantalla completa
   else:
-    gui.dibuja_grafico (banderas[38], True)
+    gui.dibuja_grafico (banderas[BANDERA_LOC_ACTUAL], True)
 
 def obtener_orden ():
   """Hace lo que dice la guía técnica de PAWS, páginas 8 y 9: 5.- COGER LA FRASE
@@ -476,9 +483,10 @@ def prepara_orden (espaciar = False, psi = False, mensajesInvalida = True):
 Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
   global frases, orden, orden_psi, traza
   # Borramos las banderas de SL actual
-  banderasSL = tuple (range (33, 37))
-  if NUM_BANDERAS[0] > 64:
-    banderasSL += tuple (range (43, 46))
+  if NUM_BANDERAS[0] > 70:  # De PAWS en adelante
+    banderasSL = {BANDERA_VERBO: 'Verbo', BANDERA_NOMBRE: 'Nombre1', 35: 'Adjetivo1', 36: 'Adverbio', 43: 'Preposicion', 44: 'Nombre2', 45: 'Adjetivo2'}
+  else:  # Quill
+    banderasSL = {BANDERA_VERBO: 'Verbo', BANDERA_NOMBRE: 'Nombre1'}
   for i in banderasSL:
     banderas[i] = 255
   # Si no hay órdenes ya parseadas pendientes de ejecutar
@@ -501,17 +509,17 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
       else:
         peticion = ''
       # Quitamos la marca de tiempo muerto
-      if NUM_BANDERAS[0] > 64 and banderas[49] & 128:  # De PAWS en adelante
+      if NUM_BANDERAS[0] > 70 and banderas[49] & 128:  # De PAWS en adelante
         banderas[49] ^= 128
       # Aunque no lo vea en la Guía Técnica, se imprime el mensaje 33 justo antes de esperar la orden
-      if len (msgs_sys) > 32:
+      if NUM_BANDERAS[0] > 70 and len (msgs_sys) > 32:
         peticion += msgs_sys[33]
       elif args.gui != 'telegram':
         peticion += '>'  # Prompt de QUILL
       if traza:
         gui.imprime_banderas  (banderas)
         gui.imprime_locs_objs (locs_objs)
-      timeout = [banderas[48]] if NUM_BANDERAS[0] > 64 and (not orden or not banderas[49] & 1) else [0]
+      timeout = [banderas[48]] if NUM_BANDERAS[0] > 70 and (not orden or not banderas[49] & 1) else [0]
 
       ordenObtenida = False
       while not ordenObtenida:
@@ -633,9 +641,8 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
         frase['Nombre1']   = banderas[46]
         frase['Adjetivo1'] = banderas[47]
     # Guardamos las palabras de la frase en las banderas correspondientes
-    for flagno, tipo in {33: 'Verbo', 34: 'Nombre1', 35: 'Adjetivo1', 36: 'Adverbio', 43: 'Preposicion', 44: 'Nombre2', 45: 'Adjetivo2'}.items():
-      if flagno < NUM_BANDERAS[0]:  # FIXME: En Quill de Sinclair QL, se deben guardar por encima de las 64 banderas que tiene
-        banderas[flagno] = frase[tipo] if frase[tipo] else 255
+    for flagno, tipo in banderasSL.items():
+      banderas[flagno] = frase[tipo] if frase[tipo] else 255
     if len (TIPOS_PAL) > 1 and frase['Nombre1'] and frase['Nombre1'] >= 50:  # Guardamos pronombres, sólo para nombres considerados no propios (código >= 50)
       banderas[46] = frase['Nombre1']
       banderas[47] = frase['Adjetivo1'] if frase['Adjetivo1'] else 255
@@ -662,7 +669,7 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
       del frases[:]  # Dejamos de procesar frases
 
     orden = ''  # Vaciamos ya la orden
-    if NUM_BANDERAS[0] > 64:
+    if NUM_BANDERAS[0] > 70:
       banderas[49] &= 127  # Quitamos el indicador de tiempo muerto vencido
     if not frases:
       gui.borra_orden()
@@ -741,7 +748,7 @@ Devuelve True si ha ejecutado DESC o equivalente. False si se debe reiniciar la 
     if numCondacto == -1 and tabla[0]:  # Toca comprobar la cabecera
       cabecera = tabla[0][numEntrada]
       if (NOMBRE_SISTEMA == 'DAAD' or numTabla not in (1, 2)) and (
-          (not hay_asterisco and ((cabecera[0] not in (255, banderas[33])) or (cabecera[1] not in (255, banderas[34])))) or
+          (not hay_asterisco and ((cabecera[0] not in (255, banderas[BANDERA_VERBO])) or (cabecera[1] not in (255, banderas[BANDERA_NOMBRE])))) or
           (hay_asterisco and ((cabecera[0] not in (1, 255, banderas[33])) or (cabecera[1] not in (1, 255, banderas[34]))))):
          cambioFlujo = 6  # No encaja la cabecera
       elif tabla[1][numEntrada]:  # Ha encajado la cabecera, y la entrada tiene algún condacto
@@ -917,7 +924,7 @@ def incrementa_turno ():
   """Incrementa el número de turnos jugados"""
   banderaTurnosLSB = 31
   banderaTurnosMSB = 32
-  if NUM_BANDERAS[0] == 64:  # Quill para Sinclair QL
+  if NUM_BANDERAS[0] == 68:  # Quill para Sinclair QL
     banderaTurnosLSB += 30
     banderaTurnosMSB += 30
   banderas[banderaTurnosLSB] += 1
@@ -1176,6 +1183,9 @@ if __name__ == '__main__':
       gui.NOMBRE_SISTEMA = libreria.NOMBRE_SISTEMA
       gui.NUM_BANDERAS   = libreria.NUM_BANDERAS
       modulo.ruta_bbdd   = args.bbdd
+      for constante in ('BANDERA_LLEVABLES', 'BANDERA_LOC_ACTUAL', 'BANDERA_NOMBRE', 'BANDERA_VERBO'):
+        if constante in libreria.__dict__:
+          globals()[constante] = libreria.__dict__[constante][0]
       break
     bbdd.seek (0)
     if len (modLibs) > 1:
@@ -1214,6 +1224,8 @@ if __name__ == '__main__':
     modulo.gui       = gui
     modulo.libreria  = libreria
     modulo.ruta_bbdd = args.bbdd
+    for constante in ('BANDERA_LLEVABLES', 'BANDERA_LOC_ACTUAL'):
+      modulo.__dict__[constante] = globals()[constante]
     for lista in (constantes, funcsLib, variables):
       for variable in lista:
         if variable in globals():

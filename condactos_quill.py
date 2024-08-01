@@ -40,20 +40,20 @@ def c1_ABSENT (objno):
   """Si el objeto objno no está llevado, ni puesto, ni en la localidad actual"""
   if objno == 255:  # TODO: comprobar si funciona así también en otros sistemas que DAAD
     return True
-  aqui = (254, 253, banderas[38])  # Llevado, puesto y localidad actual, respec.
+  aqui = (254, 253, banderas[BANDERA_LOC_ACTUAL])  # Llevado, puesto y localidad actual, respec.
   return locs_objs[objno] not in aqui
 
 def c1_AT (locno):
   """Si el código de la localidad actual es locno"""
-  return banderas[38] == locno
+  return banderas[BANDERA_LOC_ACTUAL] == locno
 
 def c1_ATGT (locno):
   """Si el código de la localidad actual es mayor que locno"""
-  return banderas[38] > locno
+  return banderas[BANDERA_LOC_ACTUAL] > locno
 
 def c1_ATLT (locno):
   """Si el código de la localidad actual es menor que locno"""
-  return banderas[38] < locno
+  return banderas[BANDERA_LOC_ACTUAL] < locno
 
 def c1_CARRIED (objno):
   """Si el objeto objno está llevado"""
@@ -69,7 +69,7 @@ La documentación original dice menor o igual, pero es una errata"""
 
 def c1_NOTAT (locno):
   """Si el código de la localidad actual es otro distinto al de locno"""
-  return banderas[38] != locno
+  return banderas[BANDERA_LOC_ACTUAL] != locno
 
 def c1_NOTCARR (objno):
   """Si el objeto objno no está llevado"""
@@ -91,7 +91,7 @@ def c1_PRESENT (objno):
   """Si el objeto objno está llevado, o puesto, o en la localidad actual"""
   if objno == 255:  # TODO: comprobar si funciona así también en otros sistemas que DAAD
     return False
-  aqui = (254, 253, banderas[38])  # Llevado, puesto y localidad actual, respec.
+  aqui = (254, 253, banderas[BANDERA_LOC_ACTUAL])  # Llevado, puesto y localidad actual, respec.
   return locs_objs[objno] in aqui
 
 def c1_WORN (objno):
@@ -250,7 +250,7 @@ def a1_CREATE (objno):
   """Cambia la localidad del objeto objno a la localidad actual, y decrementa el número de objetos llevados si objno se estaba llevando"""
   if locs_objs[objno] == 254:  # Llevado
     banderas[1] = max (0, banderas[1] - 1)
-  locs_objs[objno] = banderas[38]
+  locs_objs[objno] = banderas[BANDERA_LOC_ACTUAL]
 
 def a1_DESTROY (objno):
   """Cambia la localidad del objeto objno a 252 (no creado), y decrementa el número de objetos llevados si objno se estaba llevando"""
@@ -262,9 +262,9 @@ def a1_GET (objno):
   """Si el objeto se lleva (inventario o puesto), imprime MS25. Si el objeto no está presente, imprime MS26. Si se superaría el máximo de objetos llevables, imprime MS27. En caso de una de estas condiciones de fallo, termina con DONE. En caso contrario (éxito), mueve el objeto al inventario (254) e incrementa la bandera 1"""
   if locs_objs[objno] in (253, 254):
     gui.imprime_cadena (msgs_sys[22 if libreria.pos_msgs_sys else 25])
-  elif locs_objs[objno] != banderas[38]:
+  elif locs_objs[objno] != banderas[BANDERA_LOC_ACTUAL]:
     gui.imprime_cadena (msgs_sys[23 if libreria.pos_msgs_sys else 26])
-  elif banderas[1] >= banderas[37]:
+  elif banderas[1] >= banderas[BANDERA_LLEVABLES]:
     gui.imprime_cadena (msgs_sys[24 if libreria.pos_msgs_sys else 27])
   else:
     banderas[1] += 1
@@ -274,7 +274,7 @@ def a1_GET (objno):
 
 def a1_GOTO (locno):
   """Cambia la localidad actual al número dado por locno"""
-  banderas[38] = locno
+  banderas[BANDERA_LOC_ACTUAL] = locno
 
 def a1_INK (colour):
   """Cambia el color de la letra al imprimir texto"""
@@ -303,7 +303,7 @@ def a1_REMOVE (objno):
   """Si el objeto no está puesto, imprime MS32. Si se superaría el máximo de objetos llevables, imprime MS24. En caso de una de estas condiciones de fallo, termina con DONE. En caso contrario (éxito), mueve el objeto al inventario (254), e incrementa la bandera 1"""
   if locs_objs[objno] != 253:
     imprime_mensaje (msgs_sys[20 if libreria.pos_msgs_sys else 32])
-  elif banderas[1] >= banderas[37]:
+  elif banderas[1] >= banderas[BANDERA_LLEVABLES]:
     imprime_mensaje (msgs_sys[21 if libreria.pos_msgs_sys else 24])
   else:
     banderas[1]      = min (banderas[1] + 1, 255)

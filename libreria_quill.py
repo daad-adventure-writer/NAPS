@@ -104,13 +104,17 @@ nuevos_sys = (
 
 # Constantes que se exportan (fuera del paquete)
 
+BANDERA_VERBO      = [33]   # Bandera con el verbo de la SL actual
+BANDERA_NOMBRE     = [34]   # Bandera con el primer nombre de la SL actual
+BANDERA_LLEVABLES  = [35]   # Bandera con el número máximo de objetos llevables
+BANDERA_LOC_ACTUAL = [36]   # Bandera con la localidad actual
 INDIRECCION      = False    # El parser no soporta indirección (para el IDE)
 LONGITUD_PAL     = 4        # Longitud máxima para las palabras de vocabulario
 MAX_LOCS         = 252      # Número máximo de localidades posible
 MAX_MSGS_USR     = 255      # Número máximo de mensajes de usuario posible
 MAX_PROCS        = 2        # Número máximo de tablas de proceso posible
 NUM_ATRIBUTOS    = [0]      # Número de atributos de objeto
-NUM_BANDERAS     = [39]     # Número de banderas del parser, para compatibilidad. TODO: reducirlo con sólo las banderas de sistema que se usan
+NUM_BANDERAS     = [37]     # Número de banderas del parser (de usuario y de sistema)
 NUM_BANDERAS_ACC = [33]     # Número de banderas del parser accesibles por el programador
 NOMBRE_SISTEMA   = 'QUILL'  # Nombre de este sistema
 NOMB_COMO_VERB   = [0]      # Número de nombres convertibles a verbo
@@ -238,8 +242,12 @@ Para compatibilidad con el IDE:
   plataforma           = 1                      # Apaño para que el intérprete lo considere como Spectrum
   bajo_nivel_cambia_endian (le = False)         # Los desplazamientos en las bases de datos de QL son big endian
   bajo_nivel_cambia_despl  (0)                  # Los desplazamientos son directamente las posiciones en la BD
-  NUM_BANDERAS[0]     = 64  # TODO: incluirle las banderas de sistema que se usan
-  NUM_BANDERAS_ACC[0] = 64
+  BANDERA_VERBO[0]      = 64
+  BANDERA_NOMBRE[0]     = 65
+  BANDERA_LLEVABLES[0]  = 66
+  BANDERA_LOC_ACTUAL[0] = 67
+  NUM_BANDERAS[0]       = 68
+  NUM_BANDERAS_ACC[0]   = 64
   preparaPosCabecera ('qql', 6)
   acciones.update (acciones_nuevas)
   for codigo in acciones_nuevas:
@@ -286,7 +294,7 @@ Para compatibilidad con el IDE:
 def inicializa_banderas (banderas):
   """Inicializa banderas con valores propios de Quill"""
   # Banderas de sistema, no accesibles directamente, en posición estándar de PAWS
-  banderas[37] = max_llevables
+  banderas[BANDERA_LLEVABLES[0]] = max_llevables
 
 def escribe_secs_ctrl (cadena):
   """Devuelve la cadena dada convirtiendo la representación de secuencias de control en sus códigos"""
