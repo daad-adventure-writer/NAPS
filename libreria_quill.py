@@ -137,8 +137,10 @@ conversion = {}  # Tabla de conversión de caracteres
 # % : Porcentaje (percent), de 1 a 99 (TODO: comprobar si sirven 0 y 100)
 # f : Número de bandera (flagno), de 0 a NUM_BANDERAS_ACC - 1
 # l : Número de localidad (locno), de 0 a num_localidades - 1
+# L : Número de localidad (locno+), de 0 a num_localidades - 1, ó 252-255
 # m : Número de mensaje de usuario (mesno), de 0 a num_msgs_usuario - 1
 # o : Número de objeto (objno), de 0 a num_objetos - 1
+# s : Número de mensaje de sistema (sysno), de 0 a num_msgs_sistema - 1
 # u : Valor (value) entero sin signo, de 0 a 255
 
 # Diccionario de condiciones
@@ -194,6 +196,7 @@ acciones = {
   27 : ('DESTROY', 'o',  False),
   28 : ('CREATE',  'o',  False),
   29 : ('SWAP',    'oo', False),
+  30 : ('PLACE',   'oL', False),
   31 : ('SET',     'f',  False),
   32 : ('CLEAR',   'f',  False),
   33 : ('PLUS',    'fu', False),
@@ -202,20 +205,27 @@ acciones = {
   36 : ('BEEP',    'uu', False),
   37 : ('RAMSAVE', '',   False),
   38 : ('RAMLOAD', '',   False),
+  39 : ('SYSMESS', 's',  False),
 }
 
 # Reemplazo de acciones en nuevas versiones de Quill
 acciones_nuevas = {
   11 : ('CLS',     '',  False),
+  12 : ('DROPALL', '',  False),
   13 : ('AUTOG',   '',  False),
   14 : ('AUTOD',   '',  False),
+  15 : ('AUTOW',   '',  False),
+  16 : ('AUTOR',   '',  False),
   17 : ('PAUSE',   'u', False),
+  18 : ('PAPER',   'u', False),
+  19 : ('INK',     'u', False),
+  20 : ('BORDER',  'u', False),
   21 : ('GOTO',    'l', False),
   22 : ('MESSAGE', 'm', False),
   23 : ('REMOVE',  'o', False),
   24 : ('GET',     'o', False),
-  26 : ('WEAR',    'o', False),
   25 : ('DROP',    'o', False),
+  26 : ('WEAR',    'o', False),
 }
 
 acciones_flujo = []  # Acciones que cambian el flujo de ejecución incondicionalmente
