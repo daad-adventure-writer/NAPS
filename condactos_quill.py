@@ -258,6 +258,19 @@ def a1_DESTROY (objno):
     banderas[1] = max (0, banderas[1] - 1)
   locs_objs[objno] = 252
 
+def a1_DROP (objno):
+  """Si el objeto se lleva puesto y se lleva el máximo número de objetos, imprime MS24 y termina con DONE. Si el objeto no está llevado ni puesto, imprime MS28 y hace DONE. En caso contrario (éxito), mueve el objeto a la localidad actual y decrementa la bandera 1 si el objeto estaba llevado"""
+  if locs_objs[objno] == 253 and banderas[1] >= banderas[BANDERA_LLEVABLES]:  # Puesto y llevando el máximo de objetos
+    imprime_mensaje (msgs_sys[21 if libreria.pos_msgs_sys else 24])
+  elif locs_objs[objno] not in (253, 254):  # Ni llevado ni puesto
+    imprime_mensaje (msgs_sys[25 if libreria.pos_msgs_sys else 28])
+  else:
+    return
+  return 3  # Lo mismo que hace DONE
+  if locs_objs[objno] == 254:  # Lo llevaba
+    banderas[1] = max (0, banderas[1] - 1)
+  locs_objs[objno] = banderas[BANDERA_LOC_ACTUAL]
+
 def a1_GET (objno):
   """Si el objeto se lleva (inventario o puesto), imprime MS25. Si el objeto no está presente, imprime MS26. Si se superaría el máximo de objetos llevables, imprime MS27. En caso de una de estas condiciones de fallo, termina con DONE. En caso contrario (éxito), mueve el objeto al inventario (254) e incrementa la bandera 1"""
   if locs_objs[objno] in (253, 254):
