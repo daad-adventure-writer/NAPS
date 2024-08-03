@@ -29,6 +29,21 @@ import time    # Para sleep
 from prn_func import prn
 
 
+# Funciones auxiliares
+
+def accionAUTO (accion):
+  """Realiza las comprobaciones comunes a las acciones AUTO* y, si pasan todas, ejecuta la acción dada. Si no, muestra el MS8 y termina con DONE"""
+  if accion not in (a1_REMOVE, a1_WEAR) or banderas[BANDERA_NOMBRE] >= 200:
+    # Buscamos un objeto con esa palabra asignada
+    for objeto in range (len (nombres_objs)):
+      nombre, adjetivo = nombres_objs[objeto]
+      if nombre == banderas[BANDERA_NOMBRE]:
+        return accion (objeto)
+  # Si llega aquí, no se ha encontrado o no se podía vestir/desvestir
+  gui.imprime_cadena (msgs_sys[8])
+  return 3  # Lo mismo que hace DONE
+
+
 # Los nombres de las funciones que implementan los condactos son Xn_*, siendo:
 # X: 'c' ó 'a', según si son condiciones o acciones, respectivamente
 # n: el número de parámetros
@@ -130,9 +145,21 @@ def a0_ANYKEY ():
   gui.borra_pantalla (True)          # Borra el texto escrito
   gui.elige_subventana (subvActual)  # Vuelve a la subventana inicial
 
+def a0_AUTOD ():
+  """Busca la segunda palabra de la orden introducida por el jugador en la tabla de palabras de los objetos. Si la encuentra, ejecuta DROP sobre ese objeto. Si no, imprime el mensaje de sistema 8 y luego ejecuta DONE"""
+  return accionAUTO (a1_DROP)
+
 def a0_AUTOG ():
-  """Busca en la tabla de palabras de los objetos, la segunda palabra de la orden introducida por el jugador. Si se encuentra, ejecuta GET sobre ese objeto. Si no se encuentra ahí, imprime el mensaje de sistema 8 y luego ejecuta DONE"""
-  prn ('FIXME: condacto a0_AUTOG no implementado')  # FIXME
+  """Busca la segunda palabra de la orden introducida por el jugador en la tabla de palabras de los objetos. Si la encuentra, ejecuta GET sobre ese objeto. Si no, imprime el mensaje de sistema 8 y luego ejecuta DONE"""
+  return accionAUTO (a1_GET)
+
+def a0_AUTOR ():
+  """Si el código de la segunda palabra de la orden introducida por el jugador es menor que 200, imprime el mensaje de sistema 8 y termina con DONE. Si no, busca esa segunda palabra de la orden en la tabla de palabras de los objetos. Si la encuentra, ejecuta REMOVE sobre ese objeto. Si no, imprime el mensaje de sistema 8 y luego ejecuta DONE"""
+  return accionAUTO (a1_REMOVE)
+
+def a0_AUTOW ():
+  """Si el código de la segunda palabra de la orden introducida por el jugador es menor que 200, imprime el mensaje de sistema 8 y termina con DONE. Si no, busca esa segunda palabra de la orden en la tabla de palabras de los objetos. Si la encuentra, ejecuta WEAR sobre ese objeto. Si no, imprime el mensaje de sistema 8 y luego ejecuta DONE"""
+  return accionAUTO (a1_WEAR)
 
 def a0_CLS ():
   """Limpia la pantalla a los colores de fondo definidos actualmente, y deja la posición actual de PRINT y de SAVEAT a 0, 0"""
