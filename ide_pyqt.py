@@ -1138,6 +1138,7 @@ def actualizaPosProcesos ():
       if pila_procs[-1][2] > -1:  # Es línea de condacto
         cursor.movePosition (QTextCursor.Left, QTextCursor.KeepAnchor)
       cursor.removeSelectedText()
+      campo_txt.setFontWeight (QFont.Bold)
       campo_txt.setTextBackgroundColor (color_tope_pila)
       if pila_procs[-1][2] == -1:  # Es línea de cabecera
         cabecera = proceso[0][pila_procs[-1][1]]
@@ -1146,6 +1147,7 @@ def actualizaPosProcesos ():
         entrada  = proceso[1][pila_procs[-1][1]]
         condacto = entrada[pila_procs[-1][2]]
         imprimeCondacto (*condacto)
+      campo_txt.setFontWeight (QFont.Normal)
     campo_txt.centraLineaCursor()
   else:
     pestanyas.setCurrentIndex (pila_procs[-1][0])
@@ -1195,10 +1197,15 @@ def cambiaProceso (numero, numEntrada = None):
     if i == numEntrada:
       posicion = campo_txt.textCursor().position()
     if [numero, i, -1] in pila_procs:
-      campo_txt.setTextBackgroundColor (color_tope_pila if pila_procs[-1] == [numero, i, -1] else color_pila)
+      if pila_procs[-1] == [numero, i, -1]:
+        campo_txt.setFontWeight (QFont.Bold)
+        campo_txt.setTextBackgroundColor (color_tope_pila)
+      else:
+        campo_txt.setTextBackgroundColor (color_pila)
     else:
       campo_txt.setTextBackgroundColor (color_base)
     imprimeCabecera (cabeceras[i][0], cabeceras[i][1], i, numero)
+    campo_txt.setFontWeight (QFont.Normal)
     campo_txt.insertPlainText ('\n     ')
     inalcanzable = False  # Marca de código inalcanzable
     for c in range (len (entradas[i])):
@@ -1206,10 +1213,12 @@ def cambiaProceso (numero, numEntrada = None):
       if [numero, i, c] in pila_procs:
         if pila_procs[-1] == [numero, i, c]:
           posicion = campo_txt.textCursor().position()
+          campo_txt.setFontWeight (QFont.Bold)
           campo_txt.setTextBackgroundColor (color_tope_pila)
         else:
           campo_txt.setTextBackgroundColor (color_pila)
       inalcanzable = imprimeCondacto (condacto, parametros, inalcanzable)
+      campo_txt.setFontWeight (QFont.Normal)
       campo_txt.setTextBackgroundColor (color_base)
     campo_txt.insertPlainText ('\n     ')
     if i < (len (cabeceras) - 1):
