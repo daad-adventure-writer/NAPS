@@ -759,12 +759,13 @@ class ManejoInterprete (QThread):
       if mdi_juego:  # Porque puede no estar lista todavía
         mdi_juego.widget().setWindowTitle (tituloJuego)
     # El proceso ha terminado
-    acc1Paso.setEnabled     (False)
-    acc10Pasos.setEnabled   (False)
-    acc100Pasos.setEnabled  (False)
-    acc1000Pasos.setEnabled (False)
-    accBanderas.setEnabled  (False)
-    accPasoAPaso.setEnabled (True)
+    acc1Paso.setEnabled      (False)
+    acc10Pasos.setEnabled    (False)
+    acc100Pasos.setEnabled   (False)
+    acc1000Pasos.setEnabled  (False)
+    accBanderas.setEnabled   (False)
+    accPasoAPaso.setEnabled  (True)
+    menu_BD_nueva.setEnabled (len (info_nueva) > 0)
     proc_interprete = None
     if mdi_juego:
       mdi_juego.close()
@@ -1265,15 +1266,15 @@ def cargaInfoModulos ():
         info_importar.append ((nombre_modulo, entrada[0], entrada[1], entrada[2]))
     if comprueba_nombre (modulo, modulo.func_nueva, types.FunctionType):
       info_nueva.append ((nombre_modulo, modulo.func_nueva))
-      accion = QAction (_('%s database') % modulo.NOMBRE_SISTEMA, menuBDNueva)
+      accion = QAction (_('%s database') % modulo.NOMBRE_SISTEMA, menu_BD_nueva)
       accion.setStatusTip (_('Creates a new %s database') % modulo.NOMBRE_SISTEMA)
       accion.triggered.connect (lambda: nuevaBD (len (info_nueva) - 1))
-      menuBDNueva.addAction (accion)
+      menu_BD_nueva.addAction (accion)
     del modulo
   # Actualizamos las distintas acciones y menús, según corresponda
-  accExportar.setEnabled (False)
-  accImportar.setEnabled (len (info_importar) > 0)
-  menuBDNueva.setEnabled (len (info_nueva) > 0)
+  accExportar.setEnabled   (False)
+  accImportar.setEnabled   (len (info_importar) > 0)
+  menu_BD_nueva.setEnabled (len (info_nueva) > 0)
 
 def cierraDialogos ():
   """Cierra todos los diálogos no modales"""
@@ -1406,15 +1407,15 @@ def creaBarraBotones ():
   barraBotones.addAction (accMsgUsr)
   barraBotones.addAction (accDescLocs)
   barraBotones.addAction (accDescObjs)
-  barraBotones.setIconSize (QSize (16, 16))
+  barraBotones.setIconSize (QSize (16, 16))  # (24, 24)) para SVG
 
 def creaMenus ():
   """Crea y organiza los menús"""
-  global menuBDNueva
-  menuBD      = selector.menuBar().addMenu (_('&Database'))
-  menuBDNueva = QMenu (_('&New'), menuBD)
-  menuBDNueva.setIcon (icono ('nueva'))
-  menuBD.addMenu   (menuBDNueva)
+  global menu_BD_nueva
+  menuBD        = selector.menuBar().addMenu (_('&Database'))
+  menu_BD_nueva = QMenu (_('&New'), menuBD)
+  menu_BD_nueva.setIcon (icono ('nueva'))
+  menuBD.addMenu   (menu_BD_nueva)
   menuBD.addAction (accImportar)
   menuBD.addAction (accExportar)
   menuBD.addSeparator()
@@ -1615,8 +1616,9 @@ def ejecutaPorPasos ():
   global banderas, pilas_pendientes, inicio_debug, proc_interprete
   banderas     = [0] * mod_actual.NUM_BANDERAS[0]  # Inicializamos las banderas
   inicio_debug = True
-  accBanderas.setEnabled  (True)
-  accPasoAPaso.setEnabled (False)
+  accBanderas.setEnabled   (True)
+  accPasoAPaso.setEnabled  (False)
+  menu_BD_nueva.setEnabled (False)
   selector.setCursor (Qt.BusyCursor)  # Puntero de ratón de trabajo en segundo plano
   rutaInterprete = os.path.join (os.path.dirname (os.path.realpath (__file__)), 'interprete.py')
   argumentos     = ['python', rutaInterprete, '--ide', '--system', mod_actual.NOMBRE_SISTEMA.lower(), nombre_fich_bd]
