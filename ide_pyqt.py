@@ -2094,6 +2094,7 @@ def nuevaBD (posicion):
   """Ejecuta la función de índice posicion para crear una nueva base de datos vacía"""
   global mod_actual
   selector.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
+  cierraDialogos()
   mod_actual = __import__ (info_nueva[posicion][0])
   mod_actual.__dict__[info_nueva[posicion][1]]()
   postCarga (_('Untitled'))
