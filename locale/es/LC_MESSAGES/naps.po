@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 24.04\n"
 "Report-Msgid-Bugs-To: jmfo1982@gmail.com\n"
-"POT-Creation-Date: 2024-04-25 18:52+0200\n"
-"PO-Revision-Date: 2024-04-25 19:19+0200\n"
+"POT-Creation-Date: 2024-08-04 12:10+0200\n"
+"PO-Revision-Date: 2024-08-04 12:29+0200\n"
 "Last-Translator: José Manuel Ferrer Ortiz <jmfo1982@gmail.com>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
@@ -378,11 +378,11 @@ msgstr ""
 "Ha fallado la carga de uno o varios recursos en la base de datos gráfica:\n"
 
 #: edita_bd_pics.py:615 ide_pyqt.py:814 ide_pyqt.py:1892 ide_pyqt.py:1935
-#: ide_pyqt.py:1956
+#: ide_pyqt.py:1959
 msgid "&Accept"
 msgstr "&Aceptar"
 
-#: edita_bd_pics.py:618 ide_pyqt.py:1958
+#: edita_bd_pics.py:618 ide_pyqt.py:1961
 msgid "Failure"
 msgstr "Fallo"
 
@@ -491,7 +491,7 @@ msgstr "Código"
 msgid "Type"
 msgstr "Tipo"
 
-#: ide_pyqt.py:874 ide_pyqt.py:1572 ide_pyqt.py:2149
+#: ide_pyqt.py:874 ide_pyqt.py:1572 ide_pyqt.py:2152
 msgid "Reserved"
 msgstr "Reservado"
 
@@ -694,7 +694,7 @@ msgstr "Permite consultar y modificar las tablas de proceso"
 msgid "Allows to check and modify the vocabulary"
 msgstr "Permite consultar y modificar el vocabulario"
 
-#: ide_pyqt.py:1364 ide_pyqt.py:2011
+#: ide_pyqt.py:1364 ide_pyqt.py:1941 ide_pyqt.py:2014
 msgid "Process tables"
 msgstr "Tablas de proceso"
 
@@ -750,15 +750,15 @@ msgstr "Importar base de datos"
 msgid "Edit"
 msgstr "Editar"
 
-#: ide_pyqt.py:1560 ide_pyqt.py:2135
+#: ide_pyqt.py:1560 ide_pyqt.py:2138
 msgid "Text of the word:"
 msgstr "Texto de la palabra:"
 
-#: ide_pyqt.py:1565 ide_pyqt.py:2141
+#: ide_pyqt.py:1565 ide_pyqt.py:2144
 msgid "Code of the word:"
 msgstr "Código de la palabra:"
 
-#: ide_pyqt.py:1575 ide_pyqt.py:2152
+#: ide_pyqt.py:1575 ide_pyqt.py:2155
 msgid "Type of the word:"
 msgstr "Tipo de palabra:"
 
@@ -863,62 +863,58 @@ msgid "Flags"
 msgstr "Banderas"
 
 #: ide_pyqt.py:1937
-msgid "Processes: "
-msgstr "Procesos: "
+msgid "Locations: "
+msgstr "Localidades: "
 
 #: ide_pyqt.py:1938
-msgid ""
-" tables\n"
-"Vocabulary: "
-msgstr ""
-" tablas\n"
-"Vocabulario: "
+msgid "Objects: "
+msgstr "Objetos: "
 
-#: ide_pyqt.py:1938
-msgid " word"
-msgstr " palabra"
-
-#: ide_pyqt.py:1940
-msgid "Counters"
-msgstr "Contadores"
-
-#: ide_pyqt.py:1995
-msgid "Process "
-msgstr "Proceso "
-
-#: ide_pyqt.py:2030
-msgid "Location descriptions"
-msgstr "Descripciones de localidades"
-
-#: ide_pyqt.py:2030
-msgid "Object descriptions"
-msgstr "Descripciones de objetos"
-
-#: ide_pyqt.py:2030
+#: ide_pyqt.py:1939 ide_pyqt.py:2033
 msgid "System messages"
 msgstr "Mensajes de sistema"
 
-#: ide_pyqt.py:2030
+#: ide_pyqt.py:1940 ide_pyqt.py:2033
 msgid "User messages"
 msgstr "Mensajes de usuario"
 
-#: ide_pyqt.py:2069
+#: ide_pyqt.py:1942
+msgid "Vocabulary words: "
+msgstr "Palabras de vocabulario: "
+
+#: ide_pyqt.py:1943
+msgid "Counters"
+msgstr "Contadores"
+
+#: ide_pyqt.py:1998
+msgid "Process "
+msgstr "Proceso "
+
+#: ide_pyqt.py:2033
+msgid "Location descriptions"
+msgstr "Descripciones de localidades"
+
+#: ide_pyqt.py:2033
+msgid "Object descriptions"
+msgstr "Descripciones de objetos"
+
+#: ide_pyqt.py:2072
 msgid "Vocabulary"
 msgstr "Vocabulario"
 
-#: ide_pyqt.py:2085
+#: ide_pyqt.py:2088
 msgid "Untitled"
 msgstr "Sin nombre"
 
-#: ide_pyqt.py:2136 ide_pyqt.py:2144 ide_pyqt.py:2155
+#: ide_pyqt.py:2139 ide_pyqt.py:2147 ide_pyqt.py:2158
 msgid "Add"
 msgstr "Añadir"
 
-#: ide_pyqt.py:2265
+#: ide_pyqt.py:2268
 msgid "Integrated Development Environment for Quill/PAWS/SWAN/DAAD in Python"
 msgstr "Entorno de Desarrollo Integrado para Quill/PAWS/SWAN/DAAD en Python"
 
-#: ide_pyqt.py:2266
+#: ide_pyqt.py:2269
 msgid ""
 "omit condacts in process entries behind condacts that unconditionally change "
 "execution flow"
@@ -926,34 +922,34 @@ msgstr ""
 "omitir condactos en entradas de proceso detrás de los que cambian el flujo "
 "de ejecución incondicionalmente"
 
-#: ide_pyqt.py:2267
+#: ide_pyqt.py:2270
 msgid "directly run 'database' step by step"
 msgstr "ejecutar base_de_datos por pasos directamente"
 
-#: ide_pyqt.py:2268
+#: ide_pyqt.py:2271
 msgid "database"
 msgstr "base_de_datos"
 
-#: ide_pyqt.py:2268
+#: ide_pyqt.py:2271
 msgid "Quill/PAWS/SWAN/DAAD database, snapshot, or source code to run"
 msgstr ""
 "base de datos, snapshot, o código fuente de Quill/PAWS/SWAN/DAAD a ejecutar"
 
-#: ide_pyqt.py:2269
+#: ide_pyqt.py:2272
 msgid "db_or_graphics_folder"
 msgstr "bd_o_carpeta_gráficos"
 
-#: ide_pyqt.py:2269
+#: ide_pyqt.py:2272
 msgid "graphic database or folder to take images from (with name pic###.png)"
 msgstr ""
 "base de datos gráfica o carpeta de la que tomar las imágenes (con nombre "
 "pic###.png)"
 
-#: ide_pyqt.py:2274
+#: ide_pyqt.py:2277
 msgid "Inexistent path"
 msgstr "Ruta inexistente"
 
-#: ide_pyqt.py:2275
+#: ide_pyqt.py:2278
 msgid ""
 "There's no file and no folder with the path given from the command line for "
 "graphics:\n"

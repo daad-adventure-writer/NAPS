@@ -1933,10 +1933,13 @@ def muestraContadores ():
   if not dlg_contadores:  # Diálogo no creado aún
     dlg_contadores = QMessageBox (selector)
     dlg_contadores.addButton (_('&Accept'), QMessageBox.AcceptRole)
-    num_palabras = len (mod_actual.vocabulario)
-    dlg_contadores.setText (_('Processes: ') + str (len (mod_actual.tablas_proceso))
-      + _(' tables\nVocabulary: ') + str (num_palabras) + _(' word') + \
-      ('s' * (num_palabras > 1)))
+    dlg_contadores.setText (
+      _('Locations: ')            + str (len (mod_actual.desc_locs))      + '\n'   + \
+      _('Objects: ')              + str (len (mod_actual.desc_objs))      + '\n'   + \
+      _('System messages') + ': ' + str (len (mod_actual.msgs_sys))       + '\t\n' + \
+      _('User messages')   + ': ' + str (len (mod_actual.msgs_usr))       + '\n'   + \
+      _('Process tables')  + ': ' + str (len (mod_actual.tablas_proceso)) + '\n'   + \
+      _('Vocabulary words: ')     + str (len (mod_actual.vocabulario)))
     dlg_contadores.setWindowTitle (_('Counters'))
   dlg_contadores.exec_()
 

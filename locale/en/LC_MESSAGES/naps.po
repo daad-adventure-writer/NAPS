@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 24.04\n"
 "Report-Msgid-Bugs-To: jmfo1982@gmail.com\n"
-"POT-Creation-Date: 2024-04-25 18:52+0200\n"
-"PO-Revision-Date: 2024-04-25 19:14+0200\n"
+"POT-Creation-Date: 2024-08-04 12:10+0200\n"
+"PO-Revision-Date: 2024-08-04 12:23+0200\n"
 "Last-Translator: José Manuel Ferrer Ortiz <jmfo1982@gmail.com>\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -338,11 +338,11 @@ msgid "Loading of one or more resources in the graphic database failed:\n"
 msgstr ""
 
 #: edita_bd_pics.py:615 ide_pyqt.py:814 ide_pyqt.py:1892 ide_pyqt.py:1935
-#: ide_pyqt.py:1956
+#: ide_pyqt.py:1959
 msgid "&Accept"
 msgstr ""
 
-#: edita_bd_pics.py:618 ide_pyqt.py:1958
+#: edita_bd_pics.py:618 ide_pyqt.py:1961
 msgid "Failure"
 msgstr ""
 
@@ -451,7 +451,7 @@ msgstr ""
 msgid "Type"
 msgstr ""
 
-#: ide_pyqt.py:874 ide_pyqt.py:1572 ide_pyqt.py:2149
+#: ide_pyqt.py:874 ide_pyqt.py:1572 ide_pyqt.py:2152
 msgid "Reserved"
 msgstr ""
 
@@ -649,7 +649,7 @@ msgstr ""
 msgid "Allows to check and modify the vocabulary"
 msgstr ""
 
-#: ide_pyqt.py:1364 ide_pyqt.py:2011
+#: ide_pyqt.py:1364 ide_pyqt.py:1941 ide_pyqt.py:2014
 msgid "Process tables"
 msgstr ""
 
@@ -705,15 +705,15 @@ msgstr ""
 msgid "Edit"
 msgstr ""
 
-#: ide_pyqt.py:1560 ide_pyqt.py:2135
+#: ide_pyqt.py:1560 ide_pyqt.py:2138
 msgid "Text of the word:"
 msgstr ""
 
-#: ide_pyqt.py:1565 ide_pyqt.py:2141
+#: ide_pyqt.py:1565 ide_pyqt.py:2144
 msgid "Code of the word:"
 msgstr ""
 
-#: ide_pyqt.py:1575 ide_pyqt.py:2152
+#: ide_pyqt.py:1575 ide_pyqt.py:2155
 msgid "Type of the word:"
 msgstr ""
 
@@ -808,90 +808,88 @@ msgid "Flags"
 msgstr ""
 
 #: ide_pyqt.py:1937
-msgid "Processes: "
+msgid "Locations: "
 msgstr ""
 
 #: ide_pyqt.py:1938
-msgid ""
-" tables\n"
-"Vocabulary: "
+msgid "Objects: "
 msgstr ""
 
-#: ide_pyqt.py:1938
-msgid " word"
-msgstr ""
-
-#: ide_pyqt.py:1940
-msgid "Counters"
-msgstr ""
-
-#: ide_pyqt.py:1995
-msgid "Process "
-msgstr ""
-
-#: ide_pyqt.py:2030
-msgid "Location descriptions"
-msgstr ""
-
-#: ide_pyqt.py:2030
-msgid "Object descriptions"
-msgstr ""
-
-#: ide_pyqt.py:2030
+#: ide_pyqt.py:1939 ide_pyqt.py:2033
 msgid "System messages"
 msgstr ""
 
-#: ide_pyqt.py:2030
+#: ide_pyqt.py:1940 ide_pyqt.py:2033
 msgid "User messages"
 msgstr ""
 
-#: ide_pyqt.py:2069
+#: ide_pyqt.py:1942
+msgid "Vocabulary words: "
+msgstr ""
+
+#: ide_pyqt.py:1943
+msgid "Counters"
+msgstr ""
+
+#: ide_pyqt.py:1998
+msgid "Process "
+msgstr ""
+
+#: ide_pyqt.py:2033
+msgid "Location descriptions"
+msgstr ""
+
+#: ide_pyqt.py:2033
+msgid "Object descriptions"
+msgstr ""
+
+#: ide_pyqt.py:2072
 msgid "Vocabulary"
 msgstr ""
 
-#: ide_pyqt.py:2085
+#: ide_pyqt.py:2088
 msgid "Untitled"
 msgstr ""
 
-#: ide_pyqt.py:2136 ide_pyqt.py:2144 ide_pyqt.py:2155
+#: ide_pyqt.py:2139 ide_pyqt.py:2147 ide_pyqt.py:2158
 msgid "Add"
 msgstr ""
 
-#: ide_pyqt.py:2265
+#: ide_pyqt.py:2268
 msgid "Integrated Development Environment for Quill/PAWS/SWAN/DAAD in Python"
 msgstr ""
 
-#: ide_pyqt.py:2266
+#: ide_pyqt.py:2269
 msgid ""
 "omit condacts in process entries behind condacts that unconditionally change "
 "execution flow"
 msgstr ""
 
-#: ide_pyqt.py:2267
+#: ide_pyqt.py:2270
 msgid "directly run 'database' step by step"
 msgstr ""
 
-#: ide_pyqt.py:2268
+#: ide_pyqt.py:2271
 msgid "database"
 msgstr ""
 
-#: ide_pyqt.py:2268
+#: ide_pyqt.py:2271
 msgid "Quill/PAWS/SWAN/DAAD database, snapshot, or source code to run"
 msgstr ""
 
-#: ide_pyqt.py:2269
+#: ide_pyqt.py:2272
 msgid "db_or_graphics_folder"
 msgstr ""
 
-#: ide_pyqt.py:2269
+#: ide_pyqt.py:2272
 msgid "graphic database or folder to take images from (with name pic###.png)"
 msgstr ""
 
-#: ide_pyqt.py:2274
+#: ide_pyqt.py:2277
 msgid "Inexistent path"
 msgstr ""
 
-#: ide_pyqt.py:2275
+#: ide_pyqt.py:2278
 msgid ""
 "There's no file and no folder with the path given from the command line for "
 "graphics:\n"
