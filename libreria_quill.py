@@ -408,6 +408,7 @@ Para compatibilidad con el IDE:
     cargaConexiones()
     cargaLocalidadesObjetos()
     cargaVocabulario()
+    cargaNombresObjetos()
     cargaTablasProcesos()
     max_llevables = carga_int1 (CAB_MAX_LLEVABLES)
   except:
@@ -480,6 +481,14 @@ def cargaLocalidadesObjetos ():
   # Cargamos la localidad de cada objeto
   for i in range (num_objetos[0]):
     locs_iniciales.append (carga_int1())
+
+def cargaNombresObjetos ():
+  """Carga los nombres y adjetivos de los objetos"""
+  # Vamos a la posición de los nombres de los objetos
+  fich_ent.seek (carga_desplazamiento (CAB_POS_NOMS_OBJS))
+  # Cargamos el nombre de cada objeto
+  for i in range (num_objetos[0]):
+    nombres_objs.append ((carga_int1(), 255))
 
 def cargaMensajesSistema ():
   """Carga los mensajes de sistema desde la posición del primero (en pos_msgs_sys). Usar solamente con versiones de Quill viejas, sin lista de posiciones para los mensajes de sistema"""
