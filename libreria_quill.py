@@ -249,20 +249,25 @@ Para compatibilidad con el IDE:
 - Recibe como primer parámetro un fichero abierto
 - Recibe como segundo parámetro la longitud del fichero abierto
 - Devuelve False si ha ocurrido algún error"""
-  global carga_desplazamiento, fin_cadena, nueva_linea, plataforma
-  carga_desplazamiento = carga_desplazamiento4  # Así es en las bases de datos de Quill para QL
-  fin_cadena           = 0                      # Así es en las bases de datos de Quill para QL
-  nueva_linea          = 254                    # Así es en las bases de datos de Quill para QL
-  plataforma           = 1                      # Apaño para que el intérprete lo considere como Spectrum
-  bajo_nivel_cambia_endian (le = False)         # Los desplazamientos en las bases de datos de QL son big endian
-  bajo_nivel_cambia_despl  (0)                  # Los desplazamientos son directamente las posiciones en la BD
+  global carga_desplazamiento, despl_ini, fin_cadena, nueva_linea, plataforma
+  carga_desplazamiento  = carga_desplazamiento4  # Así es en las bases de datos de Quill para QL
+  fin_cadena            = 0                      # Así es en las bases de datos de Quill para QL
+  nueva_linea           = 254                    # Así es en las bases de datos de Quill para QL
+  plataforma            = 1                      # Apaño para que el intérprete lo considere como Spectrum
   BANDERA_VERBO[0]      = 64
   BANDERA_NOMBRE[0]     = 65
   BANDERA_LLEVABLES[0]  = 66
   BANDERA_LOC_ACTUAL[0] = 67
   NUM_BANDERAS[0]       = 68
   NUM_BANDERAS_ACC[0]   = 64
-  preparaPosCabecera ('qql', 6)
+  fichero.seek (0)
+  if fichero.read (18) == b']!QDOS File Header':  # Tiene cabecera QDOS puesta por el emulador
+    despl_ini = -30  # Parece ser de 30 bytes en sQLux
+  else:
+    despl_ini = 0  # En QL, los desplazamientos son directamente las posiciones en la BD
+  bajo_nivel_cambia_endian (le = False)  # Los desplazamientos en las bases de datos de QL son big endian
+  bajo_nivel_cambia_despl  (despl_ini)
+  preparaPosCabecera ('qql', -despl_ini + 6)
   acciones.update (acciones_nuevas)
   for codigo in acciones_nuevas:
     condactos[100 + codigo] = acciones_nuevas[codigo][:2] + (True, acciones_nuevas[codigo][2])
@@ -296,6 +301,7 @@ Para compatibilidad con el IDE:
     pos_msgs_sys = carga_int2_le()
     if pos_msgs_sys:
       formato = 'sna48k_old'
+      # TODO: cargar UDGs presentes en este formato, añadiéndolos a la fuente tipográfica
     else:
       formato = 'sna48k'  # No se ha encontrado, por lo que asumimos que no es una versión de Quill vieja
   preparaPosCabecera (formato, posBD)
