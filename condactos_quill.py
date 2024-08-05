@@ -340,9 +340,9 @@ El teclado se desconecta durante la duración de una pausa"""
   gui.redimensiona_ventana()  # Da la oportunidad de manejar eventos de redimensión de ventana
 
 def a1_REMOVE (objno):
-  """Si el objeto no está puesto, imprime MS32. Si se superaría el máximo de objetos llevables, imprime MS24. En caso de una de estas condiciones de fallo, termina con DONE. En caso contrario (éxito), mueve el objeto al inventario (254), e incrementa la bandera 1"""
+  """Si el objeto no está puesto, imprime MS23. Si se superaría el máximo de objetos llevables, imprime MS24. En caso de una de estas condiciones de fallo, termina con DONE. En caso contrario (éxito), mueve el objeto al inventario (254), e incrementa la bandera 1"""
   if locs_objs[objno] != 253:
-    imprime_mensaje (msgs_sys[20 if libreria.pos_msgs_sys else 32])
+    imprime_mensaje (msgs_sys[20 if libreria.pos_msgs_sys else 23])
   elif banderas[1] >= banderas[BANDERA_LLEVABLES]:
     imprime_mensaje (msgs_sys[21 if libreria.pos_msgs_sys else 24])
   else:
