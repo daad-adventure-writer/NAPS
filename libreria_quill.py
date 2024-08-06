@@ -59,9 +59,9 @@ ids_locs = {  0 : 'INICIAL',
 # Funciones que importan bases de datos desde ficheros
 funcs_exportar = ()  # Ninguna, de momento
 funcs_importar = (
-  ('carga_bd',     ('qql',), 'Bases de datos Quill de Sinclair QL'),
-  ('carga_bd_pc',  ('dat',), 'Bases de datos AdventureWriter de PC'),
-  ('carga_bd_sna', ('sna',), 'Imagen de memoria de ZX 48K con Quill'),
+  ('carga_bd',     ('qql',),       'Bases de datos Quill de Sinclair QL'),
+  ('carga_bd_pc',  ('dat', 'exe'), 'Bases de datos AdventureWriter de PC'),
+  ('carga_bd_sna', ('sna',),       'Imagen de memoria de ZX 48K con Quill'),
 )
 # Función que crea una nueva base de datos (vacía)
 func_nueva = 'nueva_bd'
@@ -309,13 +309,15 @@ Para compatibilidad con el IDE:
 - Devuelve False si ha ocurrido algún error"""
   global carga_desplazamiento, despl_ini, fin_cadena, nueva_linea, plataforma
   carga_desplazamiento = carga_desplazamiento2
-  despl_ini   = 6242  # Es así al menos en los ficheros de base de datos (con extensión .dat)
+  extension   = os.path.splitext (fichero.name)[1][1:].lower()
+  despl_ini   = 6242 if extension == 'dat' else -4912
   fin_cadena  = 0
+  inicio      = 0 if extension == 'dat' else 10354
   nueva_linea = ord ('\r')  # FIXME: no sé cuál es, el editor parece no dejar escribir nueva línea
   plataforma  = 0
   bajo_nivel_cambia_endian (le = True)
   bajo_nivel_cambia_despl  (despl_ini)
-  preparaPosCabecera ('pc', 6)
+  preparaPosCabecera ('pc', inicio + 6)
   acciones.update (acciones_pc)
   for codigo in acciones_pc:
     condactos[100 + codigo] = acciones_pc[codigo][:2] + (True, acciones_pc[codigo][2])
