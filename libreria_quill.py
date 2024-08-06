@@ -60,6 +60,7 @@ ids_locs = {  0 : 'INICIAL',
 funcs_exportar = ()  # Ninguna, de momento
 funcs_importar = (
   ('carga_bd',     ('qql',), 'Bases de datos Quill de Sinclair QL'),
+  ('carga_bd_pc',  ('dat',), 'Bases de datos AdventureWriter de PC'),
   ('carga_bd_sna', ('sna',), 'Imagen de memoria de ZX 48K con Quill'),
 )
 # Función que crea una nueva base de datos (vacía)
@@ -273,6 +274,24 @@ Para compatibilidad con el IDE:
     condactos[100 + codigo] = acciones_nuevas[codigo][:2] + (True, acciones_nuevas[codigo][2])
   return cargaBD (fichero, longitud)
 
+def carga_bd_pc (fichero, longitud):
+  """Carga la base de datos entera desde una base de datos de AdventureWriter para IBM PC
+
+Para compatibilidad con el IDE:
+- Recibe como primer parámetro un fichero abierto
+- Recibe como segundo parámetro la longitud del fichero abierto
+- Devuelve False si ha ocurrido algún error"""
+  global carga_desplazamiento, despl_ini, fin_cadena, nueva_linea, plataforma
+  carga_desplazamiento = carga_desplazamiento2
+  despl_ini   = 6242  # Es así al menos en los ficheros de base de datos (con extensión .dat)
+  fin_cadena  = 0
+  nueva_linea = ord ('\r')  # FIXME: no sé cuál es, el editor parece no dejar escribir nueva línea
+  plataforma  = 0
+  bajo_nivel_cambia_endian (le = True)
+  bajo_nivel_cambia_despl  (despl_ini)
+  preparaPosCabecera ('pc', 6)
+  return cargaBD (fichero, longitud)
+
 def carga_bd_sna (fichero, longitud):
   """Carga la base de datos entera desde un fichero de imagen de memoria de Spectrum 48K
 
@@ -415,10 +434,11 @@ Para compatibilidad con el IDE:
       cargaMensajesSistema()
     else:
       cargaCadenas (CAB_NUM_MSGS_SYS, CAB_POS_LST_POS_MSGS_SYS, msgs_sys)
+      if nueva_linea != ord ('\r'):  # Evitamos tratar de cargar los nombres de los objetos en PC, donde no hay
+        cargaNombresObjetos()
     cargaConexiones()
     cargaLocalidadesObjetos()
     cargaVocabulario()
-    cargaNombresObjetos()
     cargaTablasProcesos()
     max_llevables = carga_int1 (CAB_MAX_LLEVABLES)
   except:
@@ -607,7 +627,7 @@ def preparaPosCabecera (formato, inicio):
     CAB_POS_VOCAB            = inicio + 34  # Posición del vocabulario
     CAB_POS_LOCS_OBJS        = inicio + 38  # Posición de localidades iniciales de objetos
     CAB_POS_NOMS_OBJS        = inicio + 42  # Posición de los nombres de los objetos
-  elif formato == 'sna48k':
+  elif formato in ('pc', 'sna48k'):
     CAB_NUM_MSGS_SYS         = inicio + 4   # Número de mensajes de sistema
     CAB_POS_EVENTOS          = inicio + 5   # Posición de la tabla de eventos
     CAB_POS_ESTADO           = inicio + 7   # Posición de la tabla de estado
