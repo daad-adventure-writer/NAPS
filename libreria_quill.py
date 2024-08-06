@@ -312,11 +312,19 @@ Para compatibilidad con el IDE:
   extension   = os.path.splitext (fichero.name)[1][1:].lower()
   despl_ini   = 6242 if extension == 'dat' else -4912
   fin_cadena  = 0
-  inicio      = 0 if extension == 'dat' else 10354
+  inicio      = 0
   nueva_linea = ord ('\r')  # FIXME: no sé cuál es, el editor parece no dejar escribir nueva línea
   plataforma  = 0
   bajo_nivel_cambia_endian (le = True)
+  bajo_nivel_cambia_ent    (fichero)
   bajo_nivel_cambia_despl  (despl_ini)
+  # Detectamos la posición de la cabecera de la base de datos
+  secuencia = os.path.basename (os.path.splitext (fichero.name)[0]).upper().ljust (8) + 'EXE'
+  secuencia = [ord (c) for c in secuencia]
+  posicion  = busca_secuencia (secuencia)
+  if posicion == None:
+    return False  # Cabecera de la base de datos no encontrada
+  inicio = posicion + 34
   preparaPosCabecera ('pc', inicio + 6)
   acciones.update (acciones_pc)
   for codigo in acciones_pc:
