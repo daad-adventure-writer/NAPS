@@ -338,25 +338,45 @@ def inicializa_banderas (banderas):
 def escribe_secs_ctrl (cadena):
   """Devuelve la cadena dada convirtiendo la representación de secuencias de control en sus códigos"""
   convertida = ''
+  inversa    = False  # Texto en inversa
   i = 0
   while i < len (cadena):
     c = cadena[i]
     o = ord (c)
     if c == '\t':
       convertida += '\x06'  # Tabulador
+    elif c == '\\':
+      if cadena[i:i + 9] == '\\INVERSA_':
+        inversa = cadena[i + 9:i + 11] not in ('0', '00')
+        i += 10
+      else:
+        convertida += c
+      # TODO: interpretar el resto de secuencias escapadas con barra invertida (\)
     else:
-      convertida += c
+      if inversa and nueva_linea == ord ('\r'):
+        convertida += chr (o + 128)
+      else:
+        convertida += c
     i += 1
-  # TODO: interpretar las secuencias escapadas con barra invertida (\)
   return convertida
 
 def lee_secs_ctrl (cadena):
   """Devuelve la cadena dada convirtiendo las secuencias de control en una representación imprimible"""
   convertida = ''
+  inversa    = False  # Texto en inversa bajo plataforma PC
   i = 0
   while i < len (cadena):
     c = cadena[i]
     o = ord (c)
+    if o > 127:
+      if not inversa:
+        convertida += '\\INVERSA_01'
+      inversa = True
+      c = chr (o - 128)
+    else:
+      if inversa:
+        convertida += '\\INVERSA_00'
+      inversa = False
     if c == '\n':
       convertida += '\\n'
     elif c == '\x06':  # Tabulador
@@ -380,6 +400,8 @@ def lee_secs_ctrl (cadena):
     else:
       convertida += c
     i += 1
+  if inversa:
+    convertida += '\\INVERSA_00'
   return convertida
 
 def nueva_bd ():
