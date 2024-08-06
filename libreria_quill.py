@@ -229,6 +229,32 @@ acciones_nuevas = {
   26 : ('WEAR',    'o', False),
 }
 
+# Reemplazo de acciones en AdventureWriter para PC
+acciones_pc = {
+  11 : ('CLS',     '',   False),
+  12 : ('DROPALL', '',   False),
+  13 : ('PAUSE',   'u',  False),
+  14 : ('PAPER',   'u',  False),  # Llamada SCREEN
+  15 : ('INK',     'u',  False),  # Llamada TEXT
+  16 : ('BORDER',  'u',  False),
+  17 : ('GOTO',    'l',  False),
+  18 : ('MESSAGE', 'm',  False),
+  19 : ('REMOVE',  'o',  False),
+  20 : ('GET',     'o',  False),
+  21 : ('DROP',    'o',  False),
+  22 : ('WEAR',    'o',  False),
+  23 : ('DESTROY', 'o',  False),
+  24 : ('CREATE',  'o',  False),
+  25 : ('SWAP',    'oo', False),
+  26 : ('PLACE',   'oL', False),
+  27 : ('SET',     'f',  False),
+  28 : ('CLEAR',   'f',  False),
+  29 : ('PLUS',    'fu', False),
+  30 : ('MINUS',   'fu', False),
+  31 : ('LET',     'fu', False),
+  32 : ('BEEP',    'uu', False),  # Llamada SOUND
+}
+
 acciones_flujo = []  # Acciones que cambian el flujo de ejecución incondicionalmente
 condactos      = {}  # Diccionario de condactos
 for codigo in condiciones:
@@ -290,6 +316,9 @@ Para compatibilidad con el IDE:
   bajo_nivel_cambia_endian (le = True)
   bajo_nivel_cambia_despl  (despl_ini)
   preparaPosCabecera ('pc', 6)
+  acciones.update (acciones_pc)
+  for codigo in acciones_pc:
+    condactos[100 + codigo] = acciones_pc[codigo][:2] + (True, acciones_pc[codigo][2])
   return cargaBD (fichero, longitud)
 
 def carga_bd_sna (fichero, longitud):
