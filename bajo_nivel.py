@@ -66,7 +66,7 @@ def busca_secuencia (secuencia):
   fich_ent.seek (posicion)
   encajeSec = []  # Secuencia de encajes hasta ahora
   c = carga_int1()
-  while posicion < longitud:
+  while posicion + 1 < longitud:
     if secuencia[len (encajeSec)] == None or c == secuencia[len (encajeSec)]:
       encajeSec.append (c)
       if len (encajeSec) == len (secuencia):  # Secuencia encontrada
