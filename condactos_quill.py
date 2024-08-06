@@ -394,13 +394,15 @@ Si el resultado excede de 255, la bandera se pone a 255"""
 
 def a2_SWAP (objno1, objno2):
   """Se intercambian las localidades del objeto objno1 y objno2, y se marca objno2 como objeto actualmente referido"""
-  for objno in (objno1, objno2):
-    if locs_objs[objno] in (253, 254):  # Llevado o puesto
-      peso_llevado[0] -= min (peso_llevado[0], da_peso (objno))
+  if NOMBRE_SISTEMA != 'QUILL':
+    for objno in (objno1, objno2):
+      if locs_objs[objno] in (253, 254):  # Llevado o puesto
+        peso_llevado[0] -= min (peso_llevado[0], da_peso (objno))
   locno = locs_objs[objno1]
   locs_objs[objno1] = locs_objs[objno2]
   locs_objs[objno2] = locno
-  obj_referido (objno2)
-  for objno in (objno1, objno2):
-    if locs_objs[objno] in (253, 254):  # Llevado o puesto
-      peso_llevado[0] += da_peso (objno)
+  if NOMBRE_SISTEMA != 'QUILL':
+    obj_referido (objno2)
+    for objno in (objno1, objno2):
+      if locs_objs[objno] in (253, 254):  # Llevado o puesto
+        peso_llevado[0] += da_peso (objno)
