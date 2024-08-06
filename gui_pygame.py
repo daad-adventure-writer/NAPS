@@ -1500,7 +1500,21 @@ def parseaColores (cadena):
       sinColores += chr (127)  # Necesario para que quede sin convertir
     elif cadena[i] not in izquierda and cadena[i] in noEnFuente:
       sinColores += noEnFuente[cadena[i]]
+    elif NOMBRE_SISTEMA == 'QUILL' and c > 127:  # Es un carácter en inversa
+      if not inversa:  # Sólo lo hacemos para el primer carácter consecutivo en inversa
+        color = papel
+        papel = tinta
+        tinta = color
+        colores[len (sinColores)] = (paleta[brillo][tinta], paleta[brillo][papel])  # Color de tinta y papel invertidos
+      inversa     = True
+      sinColores += chr (c - 128)
     else:
+      if inversa and NOMBRE_SISTEMA == 'QUILL':  # Este carácter terminará la impresión en inversa, al no estar en inversa
+        color = papel
+        papel = tinta
+        tinta = color
+        colores[len (sinColores)] = (paleta[brillo][tinta], paleta[brillo][papel])  # Color de tinta y papel invertidos
+        inversa = False
       sinColores += cadena[i]
   if version_info[0] < 3:  # La versión de Python es 2.X
     sinColores = sinColores.encode ('iso-8859-15')
