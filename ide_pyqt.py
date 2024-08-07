@@ -1918,7 +1918,8 @@ def muestraBanderas ():
     # Diálogo ya creado
     try:
       selector.centralWidget().setActiveSubWindow (mdi_banderas)
-      return
+      if selector.centralWidget().activeSubWindow() == mdi_banderas:
+        return  # Diálogo recuperado correctamente
     except RuntimeError:  # Diálogo borrado por Qt
       pass  # Lo crearemos de nuevo
   # Creamos el diálogo
@@ -1988,7 +1989,8 @@ def muestraProcesos ():
   if dlg_procesos and mdi_procesos in selector.centralWidget().subWindowList():  # Diálogo ya creado
     try:
       selector.centralWidget().setActiveSubWindow (mdi_procesos)
-      return
+      if selector.centralWidget().activeSubWindow() == mdi_procesos:
+        return  # Diálogo recuperado correctamente
     except RuntimeError:  # Diálogo borrado por Qt
       pass  # Lo crearemos de nuevo
   # Creamos el diálogo
@@ -2033,7 +2035,8 @@ def muestraTextos (dialogo, listaTextos, tipoTextos, subventanaMdi):
   if dialogo:  # Diálogo ya creado
     try:
       selector.centralWidget().setActiveSubWindow (subventanaMdi)
-      return
+      if selector.centralWidget().activeSubWindow() == subventanaMdi:
+        return  # Diálogo recuperado correctamente
     except RuntimeError:  # Diálogo borrado por Qt
       pass  # Lo crearemos de nuevo
   # Creamos el diálogo
@@ -2072,7 +2075,8 @@ def muestraVistaVocab ():
   if dlg_vocabulario:  # Diálogo ya creado
     try:
       selector.centralWidget().setActiveSubWindow (mdi_vocabulario)
-      return
+      if selector.centralWidget().activeSubWindow() == mdi_vocabulario:
+        return  # Diálogo recuperado correctamente
     except RuntimeError:  # Diálogo borrado por Qt
       pass  # Lo crearemos de nuevo
   # Creamos el diálogo
