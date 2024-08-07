@@ -1671,7 +1671,7 @@ def exportaBD ():
         return
     selector.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
     try:
-      fichero = open (nombreFichero, 'w')
+      fichero = open (nombreFichero, 'wb')
     except IOError as excepcion:
       muestraFallo (_('Unable to open the file:\n') + nombreFichero,
                     _('Cause:\n') + excepcion.args[1])
