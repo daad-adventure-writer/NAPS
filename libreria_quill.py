@@ -289,7 +289,7 @@ Para compatibilidad con el IDE:
   NUM_BANDERAS_ACC[0]   = 64
   fichero.seek (0)
   if fichero.read (18) == b']!QDOS File Header':  # Tiene cabecera QDOS puesta por el emulador
-    despl_ini = -30  # Parece ser de 30 bytes en sQLux
+    despl_ini = -30  # Es de 30 bytes en sQLux
   else:
     despl_ini = 0  # En QL, los desplazamientos son directamente las posiciones en la BD
   bajo_nivel_cambia_endian (le = False)  # Los desplazamientos en las bases de datos de QL son big endian
@@ -488,6 +488,8 @@ Para compatibilidad con el IDE:
   fich_ent = fichero
   bajo_nivel_cambia_ent (fichero)
   try:
+    max_llevables  = carga_int1 (CAB_MAX_LLEVABLES)
+    num_objetos[0] = carga_int1 (CAB_NUM_OBJS)
     cargaCadenas (CAB_NUM_LOCS,     CAB_POS_LST_POS_LOCS,     desc_locs)
     cargaCadenas (CAB_NUM_OBJS,     CAB_POS_LST_POS_OBJS,     desc_objs)
     cargaCadenas (CAB_NUM_MSGS_USR, CAB_POS_LST_POS_MSGS_USR, msgs_usr)
@@ -501,7 +503,6 @@ Para compatibilidad con el IDE:
     cargaLocalidadesObjetos()
     cargaVocabulario()
     cargaTablasProcesos()
-    max_llevables = carga_int1 (CAB_MAX_LLEVABLES)
   except:
     return False
 
@@ -565,8 +566,6 @@ def cargaConexiones ():
 
 def cargaLocalidadesObjetos ():
   """Carga las localidades iniciales de los objetos (dónde está cada uno)"""
-  # Cargamos el número de objetos (no lo tenemos todavía)
-  num_objetos[0] = carga_int1 (CAB_NUM_OBJS)
   # Vamos a la posición de las localidades de los objetos
   fich_ent.seek (carga_desplazamiento (CAB_POS_LOCS_OBJS))
   # Cargamos la localidad de cada objeto
