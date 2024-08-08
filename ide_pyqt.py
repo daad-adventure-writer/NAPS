@@ -1398,16 +1398,17 @@ def creaAcciones ():
 
 def creaBarraBotones ():
   """Crea la barra de botones"""
-  barraBotones = selector.addToolBar (_('Button bar'))
-  barraBotones.addAction (accImportar)
-  barraBotones.addSeparator()
-  barraBotones.addAction (accTblProcs)
-  barraBotones.addAction (accTblVocab)
-  barraBotones.addAction (accMsgSys)
-  barraBotones.addAction (accMsgUsr)
-  barraBotones.addAction (accDescLocs)
-  barraBotones.addAction (accDescObjs)
-  barraBotones.setIconSize (QSize (16, 16))  # (24, 24)) para SVG
+  global barra_botones
+  barra_botones = selector.addToolBar (_('Button bar'))
+  barra_botones.addAction (accImportar)
+  barra_botones.addSeparator()
+  barra_botones.addAction (accTblProcs)
+  barra_botones.addAction (accTblVocab)
+  barra_botones.addAction (accMsgSys)
+  barra_botones.addAction (accMsgUsr)
+  barra_botones.addAction (accDescLocs)
+  barra_botones.addAction (accDescObjs)
+  barra_botones.setIconSize (QSize (16, 16))
 
 def creaMenus ():
   """Crea y organiza los menús"""
@@ -2260,6 +2261,9 @@ def postCarga (nombre):
   accPasoAPaso.setEnabled  (True)
   accTblProcs.setEnabled   (True)
   accTblVocab.setEnabled   (True)
+  # Cambiamos la acción importar de la barra de botones por la de exportar
+  barra_botones.insertAction (accImportar, accExportar)
+  barra_botones.removeAction (accImportar)
   selector.setWindowTitle ('NAPS IDE - ' + nombre + ' (' + mod_actual.NOMBRE_SISTEMA + ')')
   selector.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
 
