@@ -322,10 +322,10 @@ class CampoTexto (QTextEdit):
       if 'Ctrl+V' in accion.text() or 'Ctrl+X' in accion.text() or 'Delete' in accion.text():
         accion.setEnabled (False)
     menuEliminar = QMenu (_('Delete'), contextual)
-    accionAntes    = QAction (_('Add entry &before'),   contextual)
-    accionDespues  = QAction (_('Add entry &after'), contextual)
-    accionElimEnt  = QAction (_('This entry'),       selector)  # Necesario poner como padre selector...
-    accionElimTodo = QAction (_('All entries'), selector)       # ... para que funcionen los status tips
+    accionAntes    = QAction (_('Add entry &before'), contextual)
+    accionDespues  = QAction (_('Add entry &after'),  contextual)
+    accionElimEnt  = QAction (_('This entry'),        selector)  # Necesario poner como padre selector...
+    accionElimTodo = QAction (_('All entries'),       selector)  # ... para que funcionen los status tips
     if numEntrada == -1 or self.textCursor().hasSelection():
       menuEliminar.setEnabled (False)
     if self.textCursor().hasSelection():
@@ -1894,6 +1894,16 @@ def irAEntradaProceso ():
     campo_txt.irAEntrada (dialogo.intValue())
     campo_txt.centraLineaCursor()
 
+def menuContextualVocabulario (punto):
+  """Muestra el menú contextual para la tabla de vocabulario"""
+  contextual  = QMenu (dlg_vocabulario)
+  accionNueva = QAction (_('&Add entry'), contextual)
+  accionNueva.setShortcuts (QKeySequence (Qt.Key_Enter))
+  # accionNueva.triggered.connect (lambda: nuevaFilaVocabulario (dlg_vocabulario.viewport().mapFromGlobal (punto).y()))
+  accionNueva.triggered.connect (lambda: nuevaFilaVocabulario (-1))  # No necesita la fila del click
+  contextual.addAction (accionNueva)
+  contextual.exec_ (dlg_vocabulario.viewport().mapToGlobal (punto))
+
 def muestraAcercaDe ():
   """Muestra el diálogo 'Acerca de'"""
   global dlg_acerca_de
@@ -2085,8 +2095,10 @@ def muestraVistaVocab ():
   dlg_vocabulario = QTableView (selector)
   dlg_vocabulario.setModel (ModeloVocabulario (dlg_vocabulario))
   # dlg_vocabulario.setHorizontalHeaderLabels (('Palabra', 'Número', 'Tipo'))
-  dlg_vocabulario.setWindowTitle (_('Vocabulary'))
-  dlg_vocabulario.activated.connect     (nuevaFilaVocabulario)
+  dlg_vocabulario.setContextMenuPolicy (Qt.CustomContextMenu)
+  dlg_vocabulario.setWindowTitle       (_('Vocabulary'))
+  dlg_vocabulario.activated.connect                  (nuevaFilaVocabulario)
+  dlg_vocabulario.customContextMenuRequested.connect (menuContextualVocabulario)
   dlg_vocabulario.doubleClicked.connect (editaVocabulario)
   mdi_vocabulario = selector.centralWidget().addSubWindow (dlg_vocabulario)
   dlg_vocabulario.showMaximized()
