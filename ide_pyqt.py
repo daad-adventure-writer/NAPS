@@ -2181,16 +2181,19 @@ def nuevaFilaVocabulario (indice):
     return
   nuevaPal.append (dialogo.intValue())
   # Obtenemos el tipo de la palabra
-  tiposPalabra = {255: _('Reserved')}
-  for i in range (len (mod_actual.TIPOS_PAL)):
-    tiposPalabra[i] = mod_actual.TIPOS_PAL[i]
-  dialogo = ModalEntrada (dlg_vocabulario, _('Type of the word:'), '')
-  dialogo.setComboBoxEditable (True)
-  dialogo.setComboBoxItems    (sorted (tiposPalabra.values()))
-  dialogo.setWindowTitle      (_('Add'))
-  if dialogo.exec_() != QDialog.Accepted or dialogo.textValue() not in tiposPalabra.values():
-    return
-  nuevaPal.append (list (tiposPalabra.keys())[list (tiposPalabra.values()).index (dialogo.textValue())])
+  if len (mod_actual.TIPOS_PAL) == 1:
+    nuevaPal.append (0)  # Quill no distingue palabras por tipos y es extremadamente inusual querer añadir una de tipo reservado
+  else:
+    tiposPalabra = {255: _('Reserved')}
+    for i in range (len (mod_actual.TIPOS_PAL)):
+      tiposPalabra[i] = mod_actual.TIPOS_PAL[i]
+    dialogo = ModalEntrada (dlg_vocabulario, _('Type of the word:'), '')
+    dialogo.setComboBoxEditable (True)
+    dialogo.setComboBoxItems    (sorted (tiposPalabra.values()))
+    dialogo.setWindowTitle      (_('Add'))
+    if dialogo.exec_() != QDialog.Accepted or dialogo.textValue() not in tiposPalabra.values():
+      return
+    nuevaPal.append (list (tiposPalabra.keys())[list (tiposPalabra.values()).index (dialogo.textValue())])
   nuevaEntradaVocabulario (tuple (nuevaPal))
 
 def quitaEntradaProceso (posicion):
