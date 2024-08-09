@@ -784,9 +784,9 @@ class ModalEntrada (QInputDialog):
     self.textoOriginal = textoOriginal
     self.setLabelText (etiqueta)
     self.setWindowTitle (_('Modal'))
-    # Si los descomento, no funciona la introducción del valor inicial
-    # self.setCancelButtonText ('&Cancelar')
-    # self.setOkButtonText ('&Aceptar')
+    # En versiones antiguas de Qt, traduciendo los siguientes botones no funcionaba la introducción del valor inicial
+    self.setCancelButtonText (_('&Cancel'))
+    self.setOkButtonText     (_('&Accept'))
 
   def _valorInicial (self):
     combo = self.findChild (QComboBox)
