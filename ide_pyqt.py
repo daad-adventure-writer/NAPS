@@ -2166,9 +2166,12 @@ def nuevaFilaVocabulario (indice):
   # Obtenemos el texto de la palabra
   dialogo = ModalEntrada (dlg_vocabulario, _('Text of the word:'), '')
   dialogo.setWindowTitle (_('Add'))
-  if dialogo.exec_() != QDialog.Accepted:
-    return
-  nuevaPal.append (str (dialogo.textValue())[:mod_actual.LONGITUD_PAL].lower())
+  textoPalabra = ''
+  while not textoPalabra:
+    if dialogo.exec_() != QDialog.Accepted:
+      return
+    textoPalabra = str (dialogo.textValue()).strip()
+  nuevaPal.append (textoPalabra[:mod_actual.LONGITUD_PAL].lower())
   # Obtenemos el código de la palabra
   dialogo = ModalEntrada (dlg_vocabulario, _('Code of the word:'), '')
   dialogo.setInputMode   (QInputDialog.IntInput)
