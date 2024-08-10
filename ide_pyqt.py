@@ -2087,6 +2087,8 @@ def muestraTextos (dialogo, listaTextos, tipoTextos, subventanaMdi):
   dialogo = QTableView (selector)
   dialogo.horizontalHeader().setStretchLastSection(True)
   dialogo.setModel (ModeloTextos (dialogo, listaTextos))
+  atajoPegar = QShortcut (QKeySequence.Paste, dialogo)
+  atajoPegar.activated.connect (lambda: pegaTexto (dialogo, listaTextos))
   titulo = {'desc_localidades': _('Location descriptions'), 'desc_objetos': _('Object descriptions'), 'msgs_sistema': _('System messages'), 'msgs_usuario': _('User messages')}[tipoTextos]
   dialogo.setWindowTitle (titulo)
   subventanaMdi = selector.centralWidget().addSubWindow (dialogo)
@@ -2227,6 +2229,39 @@ def nuevaFilaVocabulario (indice):
       return
     nuevaPal.append (list (tiposPalabra.keys())[list (tiposPalabra.values()).index (dialogo.textValue())])
   nuevaEntradaVocabulario (tuple (nuevaPal))
+
+def pegaTexto (dialogoTextos, listaTextos):
+  """Pega desde el portapapeles sobre un diálogo de textos"""
+  portapapeles = aplicacion.clipboard()
+  if not portapapeles.mimeData().formats().contains ('text/plain'):
+    return
+  destinos = dialogoTextos.selectionModel().selectedIndexes()
+  modelo   = dialogoTextos.model()
+  texto    = str (portapapeles.text())
+  if texto[-1:] == '\n':  # Asumimos que es residuo del programa de hoja de cálculo, LibreOffice/OpenOffice lo dejan, Gnumeric no
+    texto = texto[:-1]
+  textos = texto.split ('\n')
+  for t in range (len (textos)):  # Interpretamos las secuencias de control en los textos
+    textos[t] = mod_actual.escribe_secs_ctrl (textos[t].replace ('\\n', '\n').replace ('\\t', '\t'))
+  if len (destinos) > 1:  # Múltiples filas seleccionadas
+    for d in range (len (destinos)):
+      numFila = destinos[d].row()
+      modelo.beginRemoveRows (QModelIndex(), numFila, numFila)
+      modelo.endRemoveRows()
+      modelo.beginInsertRows (QModelIndex(), numFila, numFila)
+      listaTextos[numFila] = textos[d % len (textos)]
+      modelo.endInsertRows()
+  else:  # Una sola fila seleccionada
+    numFila = destinos[0].row()
+    modelo.beginRemoveRows (QModelIndex(), numFila, min (len (listaTextos) - 1, numFila + len (textos) - 1))
+    modelo.endRemoveRows()
+    modelo.beginInsertRows (QModelIndex(), numFila, numFila + len (textos) - 1)
+    for t in range (len (textos)):
+      if numFila + t >= len (listaTextos):
+        listaTextos.append (textos[t])
+      else:
+        listaTextos[numFila + t] = textos[t]
+    modelo.endInsertRows()
 
 def quitaEntradaProceso (posicion):
   """Quita la entrada de proceso de la posición dada como parámetro"""
