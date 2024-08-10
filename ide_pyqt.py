@@ -477,12 +477,19 @@ class CampoTexto (QTextEdit):
         try:
           self.condactos
         except:
-          self.condactos       = {}  # Información completa de los condactos indexada por nombre
-          self.condactosPorCod = {}  # Nombre de condactos indexado por código
-          for listaCondactos in (mod_actual.acciones, mod_actual.condiciones):
-            for codigo, condacto in listaCondactos.items():
-              self.condactos[condacto[0]]  = condacto + (codigo,)
-              self.condactosPorCod[codigo] = condacto[0]
+          # Construimos variables necesarias para la introducción de condactos
+          self.condactos        = {}     # Información completa de los condactos indexada por nombre
+          self.condactosPorCod  = {}     # Nombre de condactos indexado por código
+          self.listaAcciones    = set()  # Lista de nombres de acciones
+          self.listaCondiciones = set()  # Lista de nombres de condiciones
+          for codigo, condacto in mod_actual.acciones.items():
+            self.listaAcciones.add (condacto[0])
+            self.condactos[condacto[0]]  = condacto + (codigo,)
+            self.condactosPorCod[codigo] = condacto[0]
+          for codigo, condacto in mod_actual.condiciones.items():
+            self.listaCondiciones.add (condacto[0])
+            self.condactos[condacto[0]]  = condacto + (codigo,)
+            self.condactosPorCod[codigo] = condacto[0]
         numProceso = pestanyas.currentIndex()
         proceso    = mod_actual.tablas_proceso[numProceso]  # El proceso seleccionado
         entrada    = proceso[1][numEntrada]  # La entrada seleccionada
@@ -491,10 +498,33 @@ class CampoTexto (QTextEdit):
         else:
           dialogo = ModalEntrada (self, _('Choose a condact:'), evento.text())
         dialogo.setComboBoxEditable (True)
-        dialogo.setComboBoxItems (sorted (self.condactos.keys()))
+        condactosParaCombo = self.condactos.keys()
+        if mod_actual.NOMBRE_SISTEMA == 'QUILL' and len (entrada):
+          # Detectamos los tipos de condactos que pueden ir en esta posición
+          if posicion == 1 or (posicion == 2 and columna == colsValidas[0]):  # Posición antes del inicio de la entrada
+            if entrada[0][0] < 100:                       # Si el primer condacto es una condición...
+              condactosParaCombo = self.listaCondiciones  # ...sólo puede ir una condición en esta posición
+          elif (posicion > len (entrada) + 1) or ((posicion == len (entrada) + 1) and columna == colsValidas[-1]):  # Posición tras el final de la entrada
+            if entrada[-1][0] >= 100:                  # Si el último condacto es una acción...
+              condactosParaCombo = self.listaAcciones  # ...sólo puede ir una acción en esta posición
+          else:  # Posición con algún condacto por delante y por detrás
+            indiceAntes   = posicion - (2 + (1 if columna == colsValidas[0] else 0))   # Índice del condacto anterior a la posición
+            indiceDespues = (posicion - 2) + (1 if columna == colsValidas[-1] else 0)  # Índice del siguiente condacto a la posición
+            # Si la entrada es válida, las dos condiciones siguientes son mutuamente exclusivas
+            if entrada[indiceAntes][0] >= 100:         # Si el condacto anterior es una acción...
+              condactosParaCombo = self.listaAcciones  # ...sólo puede ir una acción en esta posición
+            elif entrada[indiceDespues] < 100:            # Si el siguiente condacto es una condición...
+              condactosParaCombo = self.listaCondiciones  # ...sólo puede ir una condición en esta posición
+          for e in range (len (entrada)):
+            condacto, parametros = entrada[e]
+        dialogo.setComboBoxItems (sorted (condactosParaCombo))
         if dialogo.exec_() == QDialog.Accepted:
           nomCondacto = str (dialogo.textValue()).upper()
-          if nomCondacto in self.condactos:
+          if nomCondacto not in self.condactos:
+            muestraFallo (_('Invalid condact'), _('Condact with name %s not available for this system or platform') % nomCondacto)
+          elif nomCondacto not in condactosParaCombo:
+            muestraFallo (_('Invalid condact'), _('%s cannot be entered on this position') % (_('A condition') if condactosParaCombo == self.listaAcciones else _('An action')))
+          else:
             condacto   = self.condactos[nomCondacto]
             lineaNueva = [condacto[-1], [0] * len (condacto[1])]  # Código y parámetros de la nueva línea
             if posicion > 1:  # Si no añade al inicio de la entrada
