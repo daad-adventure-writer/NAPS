@@ -2259,7 +2259,7 @@ def copiaTexto (dialogoTextos, listaTextos):
 def pegaTexto (dialogoTextos, listaTextos):
   """Pega desde el portapapeles sobre un diálogo de textos"""
   portapapeles = aplicacion.clipboard()
-  if not portapapeles.mimeData().formats().contains ('text/plain'):
+  if 'text/plain' not in portapapeles.mimeData().formats():
     return
   destinos = dialogoTextos.selectionModel().selectedIndexes()
   modelo   = dialogoTextos.model()
