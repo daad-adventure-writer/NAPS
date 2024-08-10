@@ -42,9 +42,10 @@ num_objetos    = [0]  # Número de objetos (en lista para pasar por referencia)
 tablas_proceso = []   # Tablas de proceso (la de estado y la de eventos)
 vocabulario    = []   # Vocabulario
 
-despl_ini     = 0  # Desplazamiento inicial para cargar desde memoria
-max_llevables = 0  # Número máximo de objetos que puede llevar el jugador
-pos_msgs_sys  = 0  # Posición de los mensajes de sistema en versiones de Quill sin lista de posiciones para ellos
+despl_ini     = 0           # Desplazamiento inicial para cargar desde memoria
+max_llevables = 0           # Número máximo de objetos que puede llevar el jugador
+nueva_linea   = ord ('\n')  # Código del carácter de nueva línea
+pos_msgs_sys  = 0           # Posición de los mensajes de sistema en versiones de Quill sin lista de posiciones para ellos
 
 # Identificadores (para hacer el código más legible) predefinidos
 ids_locs = {  0 : 'INICIAL',
@@ -605,7 +606,7 @@ def nueva_bd ():
   # Creamos el objeto 0
   desc_objs.append      ('Descripción del objeto 0, emisor de luz.')
   locs_iniciales.append (ids_locs['NO_CREADOS'])
-  nombres_objs.append   (13)
+  nombres_objs.append   ((13, 255))
   num_objetos[0] = 1
   # Creamos el mensaje de usuario 0
   msgs_usr.append ('Texto del mensaje 0.')
