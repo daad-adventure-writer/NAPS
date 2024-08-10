@@ -2087,8 +2087,10 @@ def muestraTextos (dialogo, listaTextos, tipoTextos, subventanaMdi):
   dialogo = QTableView (selector)
   dialogo.horizontalHeader().setStretchLastSection(True)
   dialogo.setModel (ModeloTextos (dialogo, listaTextos))
-  atajoPegar = QShortcut (QKeySequence.Paste, dialogo)
-  atajoPegar.activated.connect (lambda: pegaTexto (dialogo, listaTextos))
+  atajoCopiar = QShortcut (QKeySequence.Copy,  dialogo)
+  atajoPegar  = QShortcut (QKeySequence.Paste, dialogo)
+  atajoCopiar.activated.connect (lambda: copiaTexto (dialogo, listaTextos))
+  atajoPegar.activated.connect  (lambda: pegaTexto  (dialogo, listaTextos))
   titulo = {'desc_localidades': _('Location descriptions'), 'desc_objetos': _('Object descriptions'), 'msgs_sistema': _('System messages'), 'msgs_usuario': _('User messages')}[tipoTextos]
   dialogo.setWindowTitle (titulo)
   subventanaMdi = selector.centralWidget().addSubWindow (dialogo)
@@ -2229,6 +2231,14 @@ def nuevaFilaVocabulario (indice):
       return
     nuevaPal.append (list (tiposPalabra.keys())[list (tiposPalabra.values()).index (dialogo.textValue())])
   nuevaEntradaVocabulario (tuple (nuevaPal))
+
+def copiaTexto (dialogoTextos, listaTextos):
+  """Copia al portapapeles la selección de un diálogo de textos"""
+  indices = dialogoTextos.selectionModel().selectedIndexes()
+  textoCopiado = ''
+  for indice in indices:
+    textoCopiado += ('\n' if textoCopiado else '') + mod_actual.lee_secs_ctrl (listaTextos[indice.row()])
+  aplicacion.clipboard().setText (textoCopiado)
 
 def pegaTexto (dialogoTextos, listaTextos):
   """Pega desde el portapapeles sobre un diálogo de textos"""
