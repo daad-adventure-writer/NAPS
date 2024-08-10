@@ -483,6 +483,8 @@ class CampoTexto (QTextEdit):
           self.listaAcciones    = set()  # Lista de nombres de acciones
           self.listaCondiciones = set()  # Lista de nombres de condiciones
           for codigo, condacto in mod_actual.acciones.items():
+            if mod_actual.NOMBRE_SISTEMA == 'QUILL':
+              codigo += 100
             self.listaAcciones.add (condacto[0])
             self.condactos[condacto[0]]  = condacto + (codigo,)
             self.condactosPorCod[codigo] = condacto[0]
