@@ -27,6 +27,7 @@ from alto_nivel import *
 from prn_func   import prn
 
 import argparse    # Para procesar argumentos de línea de comandos
+import functools   # Para partial
 import gettext     # Para localización
 import locale      # Para codificar bien la salida estándar
 import os          # Para curdir, listdir y path
@@ -1926,11 +1927,24 @@ def irAEntradaProceso ():
     campo_txt.irAEntrada (dialogo.intValue())
     campo_txt.centraLineaCursor()
 
+def menuContextualTextos (dialogoTextos, listaTextos, punto):
+  """Muestra el menú contextual para un diálogo de textos"""
+  contextual   = QMenu (dialogoTextos)
+  accionCopiar = QAction (_('&Copy'),  contextual)
+  accionPegar  = QAction (_('&Paste'), contextual)
+  accionCopiar.setShortcut (QKeySequence.Copy)
+  accionPegar.setShortcut  (QKeySequence.Paste)
+  accionCopiar.triggered.connect (lambda: copiaTexto (dialogoTextos, listaTextos))
+  accionPegar.triggered.connect  (lambda: pegaTexto  (dialogoTextos, listaTextos))
+  contextual.addAction (accionCopiar)
+  contextual.addAction (accionPegar)
+  contextual.exec_ (dialogoTextos.viewport().mapToGlobal (punto))
+
 def menuContextualVocabulario (punto):
   """Muestra el menú contextual para la tabla de vocabulario"""
   contextual  = QMenu (dlg_vocabulario)
   accionNueva = QAction (_('&Add entry'), contextual)
-  accionNueva.setShortcuts (QKeySequence (Qt.Key_Enter))
+  accionNueva.setShortcut (QKeySequence (Qt.Key_Enter))
   # accionNueva.triggered.connect (lambda: nuevaFilaVocabulario (dlg_vocabulario.viewport().mapFromGlobal (punto).y()))
   accionNueva.triggered.connect (lambda: nuevaFilaVocabulario (-1))  # No necesita la fila del click
   contextual.addAction (accionNueva)
@@ -2086,11 +2100,13 @@ def muestraTextos (dialogo, listaTextos, tipoTextos, subventanaMdi):
   selector.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
   dialogo = QTableView (selector)
   dialogo.horizontalHeader().setStretchLastSection(True)
+  dialogo.setContextMenuPolicy (Qt.CustomContextMenu)
   dialogo.setModel (ModeloTextos (dialogo, listaTextos))
   atajoCopiar = QShortcut (QKeySequence.Copy,  dialogo)
   atajoPegar  = QShortcut (QKeySequence.Paste, dialogo)
   atajoCopiar.activated.connect (lambda: copiaTexto (dialogo, listaTextos))
   atajoPegar.activated.connect  (lambda: pegaTexto  (dialogo, listaTextos))
+  dialogo.customContextMenuRequested.connect (functools.partial (menuContextualTextos, dialogo, listaTextos))
   titulo = {'desc_localidades': _('Location descriptions'), 'desc_objetos': _('Object descriptions'), 'msgs_sistema': _('System messages'), 'msgs_usuario': _('User messages')}[tipoTextos]
   dialogo.setWindowTitle (titulo)
   subventanaMdi = selector.centralWidget().addSubWindow (dialogo)
