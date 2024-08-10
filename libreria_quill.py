@@ -452,6 +452,7 @@ def guarda_bd (bbdd):
   # Guardamos las cabeceras y entradas de las tablas de eventos y de estado
   for t in range (2):
     posicion = carga_desplazamiento4 (fich_sal.seek (42 + t * tamDespl))  # CAB_POS_EVENTOS
+    fich_sal.seek (ocupado + 30)  # Necesario si no hay entradas de proceso
     cabeceras, entradas = tablas_proceso[t]
     e = 0
     while e < len (entradas):
