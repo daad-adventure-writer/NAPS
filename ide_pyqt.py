@@ -840,7 +840,7 @@ class ModalEntradaTexto (QDialog):
   """Modal de entrada de texto multilínea"""
   def __init__ (self, parent, texto):
     QDialog.__init__ (self, parent)
-    self.campo = QPlainTextEdit (daTextoImprimible (texto).replace ('\\n', '\n'), self)
+    self.campo = QPlainTextEdit (daTextoImprimible (texto).replace ('\\n', '\n').replace ('\\t', '\t'), self)
     layout = QVBoxLayout (self)
     layout.addWidget (self.campo)
     layoutBotones = QHBoxLayout()
