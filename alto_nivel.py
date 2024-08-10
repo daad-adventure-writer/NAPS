@@ -389,7 +389,8 @@ def carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, atributos, atributos_e
         arbolAtributo = arbolAtributo[0][1 - posEspacio][0] if arbolAtributo[0][1 - posEspacio][0] else arbolAtributo[0][1 - posEspacio][1]
         valorAttrs   += '1' if arbolAtributo[0][0][0] == 'Y' else '0'
       atributos.append (peso + ((valorAttrs[0] == '1') << 6) + ((valorAttrs[1] == '1') << 7))
-      atributos_extra.append (int (valorAttrs[2:], 2))
+      if valorAttrs[2:]:
+        atributos_extra.append (int (valorAttrs[2:], 2))
       # Cargamos el vocabulario del objeto
       palabras = []
       for posPalabra in range (posNombre, posNombre + 3, 2):
