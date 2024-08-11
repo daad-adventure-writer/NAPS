@@ -78,6 +78,7 @@ color_base      = QColor (10, 10, 10)   # Color de fondo gris oscuro
 color_pila      = QColor (60, 35, 110)  # Color de fondo azul brillante
 color_tope_pila = QColor (35, 40, 110)  # Color de fondo morado oscuro
 inicio_debug    = False  # Para hacer la inicialización de subventanas MDI al lanzar depuración
+modo_claro      = False  # Si se muestra la interfaz en modo claro u oscuro
 pila_procs      = []     # Pila con estado de los procesos en ejecución
 proc_interprete = None   # Proceso del intérprete
 puntos_ruptura  = {}     # Puntos de ruptura donde pausar la ejecución, indexados por proceso
@@ -98,10 +99,10 @@ IDS_LOCS = {
 conversion_teclas = {Qt.Key_Escape: 27, Qt.Key_Down: 80, Qt.Key_End: 79, Qt.Key_Home: 71, Qt.Key_Left: 75, Qt.Key_Right: 77, Qt.Key_Up: 72}
 
 # Estilos CSS para el diálogo de banderas
-estilo_banderas   = 'QPushButton {border: 0; margin-right: 2px; text-align: left; %s}'
+estilo_banderas   = ''
 estilo_cambiada   = 'color: #0f0'
-estilo_fila_impar = 'background: #ddd; '
 estilo_fila_par   = ''
+estilo_fila_impar = ''
 
 
 # Funciones de exportación e importación, con sus módulos, extensiones y descripciones
@@ -188,7 +189,7 @@ class BarraIzquierda (QWidget):
 
   def paintEvent (self, evento):
     painter = QPainter (self)
-    painter.fillRect (evento.rect(), Qt.lightGray)
+    painter.fillRect (evento.rect(), Qt.lightGray if modo_claro else Qt.darkGray)
     numProceso = pestanyas.currentIndex()
     if numProceso not in puntos_ruptura or not puntos_ruptura[numProceso]:
       return
@@ -1494,7 +1495,10 @@ def creaSelector ():
   icono_ide = icono ('ide')
   selector  = QMainWindow()
   selector.resize (630, 460)
-  selector.setCentralWidget (QMdiArea (selector))
+  areaMdi = QMdiArea (selector)
+  if not modo_claro:
+    areaMdi.setBackground (QColor (20, 20, 20))
+  selector.setCentralWidget (areaMdi)
   selector.setWindowIcon    (icono_ide)
   selector.setWindowTitle   ('NAPS IDE')
   creaAcciones()
@@ -1595,7 +1599,7 @@ def editaMsgUsr (indice):
     mod_actual.msgs_usr[indice.row()] = dialogo.daTexto()
 
 def editaVocabulario (indice):
-  """Permite editar una entrada de vocabulario, tras hacer doble click en su tabla"""
+  """Permite editar una entrada de vocabulario, tras hacer doble clic en su tabla"""
   dlg_vocabulario.indiceDobleClick = indice  # Para descartar evento activated posterior
   nuevaPal = None  # Entrada de vocabulario modificada
   numFila  = indice.row()
@@ -2055,6 +2059,7 @@ def muestraProcesos ():
   layout       = QVBoxLayout (dlg_procesos)
   pestanyas    = QTabBar (dlg_procesos)
   campo_txt    = CampoTexto (dlg_procesos)
+  dlg_procesos.setObjectName ('procesos')
   layout.addWidget (pestanyas)
   layout.addWidget (campo_txt)
   layout.setContentsMargins (1, 1, 1, 1)
@@ -2392,16 +2397,29 @@ else:  # Python > 3.3
 
 aplicacion = QApplication (sys.argv)
 
-creaSelector()
-selector.showMaximized()
-cargaInfoModulos()
-
 argsParser = argparse.ArgumentParser (sys.argv[0], description = _('Integrated Development Environment for Quill/PAWS/SWAN/DAAD in Python'))
 argsParser.add_argument ('-ne', '--no-entry-end', action = 'store_true', help = _('omit condacts in process entries behind condacts that unconditionally change execution flow'))
 argsParser.add_argument ('-r', '--run', action = 'store_true', help = _("directly run 'database' step by step"))
+argsParser.add_argument ('--theme', choices = ('dark', 'light'), help = _('choose the color theme to use'))
 argsParser.add_argument ('bbdd',     metavar = _('database'),              nargs = '?', help = _('Quill/PAWS/SWAN/DAAD database, snapshot, or source code to run'))
 argsParser.add_argument ('graficos', metavar = _('db_or_graphics_folder'), nargs = '?', help = _('graphic database or folder to take images from (with name pic###.png)'))
 args = argsParser.parse_args()
+
+if (not args.theme and not modo_claro) or args.theme == 'dark':
+  aplicacion.setStyleSheet ('QHeaderView::section, QListView, QMenuBar::item, QPushButton, QSpinBox, QTabBar::tab, QToolTip, QWidget {background: #000; color: #ddd} QComboBox {border: 1px solid gray; color: #ddd; padding: 2px} QHeaderView::section {border: 1px solid #444; color: #ddd; padding: 0.2em 0.5em} QMenu {border: 1px solid #222} QMenu::item:selected, QPushButton:hover {background: #222; color: #fff} QMenu::item {margin: 5px; padding: 1px 25px} QMenu::item:disabled {color: #777} QMenu::separator {background: #555; height: 2px; margin: 2px} QMdiSubWindow {background: #ccc; color: #000} QPushButton {border: 2px outset #444; border-radius: 5px; min-height: 1.5em; padding: 0 0.5em} QPushButton:disabled {background: #111; border-color: #222; color: #bbb} QPushButton:focus {background: #222; outline: 0} QPushButton:pressed {background: #444} QSpinBox {border: 1px solid #444; border-radius: 3px; padding: 5px 3px} QToolBar {border: 1px solid #333} QTabBar {outline: 0} QTabBar::tab {border: 1px solid #c4c1bd; border-top-left-radius: 5px; border-top-right-radius: 5px; min-height: 1.5em; min-width: 3em} QTabBar::tab:selected {background: #222; border-bottom: 0; font-weight: bold} QTabBar::tab:focus {background: #333} QTableCornerButton::section {background: #444} QToolTip {border: 2px solid #555; border-radius: 3px; padding: 2px} QWidget#procesos {background: #222}')
+  color_base        = QColor (0, 0, 0)  # Color de fondo negro
+  estilo_banderas   = 'QPushButton {border: 0; border-radius: 0; margin-right: 2px; padding: 0; text-align: left; %s}'
+  estilo_fila_impar = 'background: #333; '
+  modo_claro        = False
+else:
+  color_base        = QColor (10, 10, 10)   # Color de fondo gris oscuro
+  estilo_banderas   = 'QPushButton {border: 0; margin-right: 2px; text-align: left; %s}'
+  estilo_fila_impar = 'background: #ddd; '
+  modo_claro        = True
+
+creaSelector()
+selector.showMaximized()
+cargaInfoModulos()
 
 if args.bbdd:
   if args.graficos and not os.path.exists (args.graficos):

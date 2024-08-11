@@ -81,7 +81,7 @@ Hacer doble click sobre ``ide_pyqt.py`` en caso de tener instalados los requisit
 
 **Uso desde línea de comandos:**
 
-``python ide_pyqt.py [-h|--help] [-ne|--no-entry-end] [-r|--run] [bd_o_codigo] [bd_o_carpeta_gráficos]``
+``python ide_pyqt.py [-h|--help] [-ne|--no-entry-end] [-r|--run] [--theme dark|light] [bd_o_codigo] [bd_o_carpeta_gráficos]``
 
 Parámetros:
 
@@ -90,6 +90,7 @@ Parámetros:
 - ``--help`` (opcional) Muestra ayuda sobre los parámetros de línea de comandos
 - ``--no-entry-end`` (opcional) Omite en entradas de proceso los condactos que haya detrás de los que cambian el flujo de ejecución incondicionalmente (como DONE), muy útil para bases de datos compiladas con DRC sin activar el modo clásico, donde no pone marcas de fin de entrada cuando hay algún condacto así, y descarta los condactos que haya después
 - ``--run`` (opcional) Ejecuta la base de datos pasada como parámetro directamente, depurando por pasos
+- ``--theme`` (opcional) Elige el tema de colores para el IDE. Opciones posibles: dark (tema oscuro, opción por defecto), y light (tema claro, con estética clásica)
 
 
 Editor de bases de datos gráficas
@@ -132,7 +133,7 @@ Agradecimientos
 
 La siguiente es una lista de personas que han tenido influencia en el desarrollo de estas herramientas, a las cuales estoy agradecido:
 
-- A Ximo por darme motivación, ideas y recomendaciones para que NAPS sea más amigable, para que funcione en Windows también, y sobre todo por desarrollar la integración de NAPS en EAAD bajo DAAD Ready.
+- A Ximo Company por darme motivación, ideas y recomendaciones para que NAPS sea más amigable, para que funcione en Windows también, y sobre todo por desarrollar la integración de NAPS en EAAD bajo DAAD Ready.
 - A José Luis Cebrián por su apertura para compartir conocimientos sobre el funcionamiento de DAAD, y por su cooperación en detectar comportamiento incorrecto en NAPS que pasé por alto o desconocía cómo solventar, y a menudo indicarme con detalle cómo solucionarlo.
 - A Uto por su ayuda en numerosas ocasiones investigando las "técnicas secretas" de DAAD, muchas veces a base de pruebas reiteradas e ingeniería inversa. Y por ser ejemplo e inspiración como autor prolífico.
 - A dddddd por compartir sus descubrimientos técnicos poco o nada documentados de PAWS, y motivarme para añadir características a NAPS. Fue por él que implementé la interfaz del intérprete para manejarlo por entrada y salida estándar.
