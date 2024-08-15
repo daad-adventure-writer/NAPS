@@ -233,13 +233,13 @@ acciones_nuevas = {
   26 : ('WEAR',    'o', False),
 }
 
-# Reemplazo de acciones en AdventureWriter para PC
-acciones_pc = {
+# Reemplazo de acciones en Commodore 64, y en AdventureWriter para PC
+acciones_c64pc = {
   11 : ('CLS',     '',   False),
   12 : ('DROPALL', '',   False),
   13 : ('PAUSE',   'u',  False),
-  14 : ('PAPER',   'u',  False),  # Llamada SCREEN
-  15 : ('INK',     'u',  False),  # Llamada TEXT
+  14 : ('PAPER',   'u',  False),  # Llamada SCREEN en AdventureWriter para PC
+  15 : ('INK',     'u',  False),  # Llamada TEXT   en AdventureWriter para PC
   16 : ('BORDER',  'u',  False),
   17 : ('GOTO',    'l',  False),
   18 : ('MESSAGE', 'm',  False),
@@ -256,7 +256,7 @@ acciones_pc = {
   29 : ('PLUS',    'fu', False),
   30 : ('MINUS',   'fu', False),
   31 : ('LET',     'fu', False),
-  32 : ('BEEP',    'uu', False),  # Llamada SOUND
+  32 : ('BEEP',    'uu', False),  # Llamada SID en Commodore 64, y SOUND en AdventureWriter para PC
 }
 
 condactos = {}  # Diccionario de condactos
@@ -296,6 +296,10 @@ Para compatibilidad con el IDE:
   plataforma  = 1    # Apaño para que el intérprete lo considere como Spectrum
   bajo_nivel_cambia_despl  (despl_ini)
   preparaPosCabecera ('c64', 6)
+  # Ponemos las acciones correctas para esta plataforma
+  acciones.update (acciones_c64pc)
+  for codigo in acciones_c64pc:
+    condactos[100 + codigo] = acciones_c64pc[codigo][:2] + (True, acciones_c64pc[codigo][2])
   return cargaBD (fichero, longitud)
 
 def carga_bd_pc (fichero, longitud):
@@ -324,9 +328,10 @@ Para compatibilidad con el IDE:
     return False  # Cabecera de la base de datos no encontrada
   inicio = posicion + 34
   preparaPosCabecera ('pc', inicio + 6)
-  acciones.update (acciones_pc)
-  for codigo in acciones_pc:
-    condactos[100 + codigo] = acciones_pc[codigo][:2] + (True, acciones_pc[codigo][2])
+  # Ponemos las acciones correctas para esta plataforma
+  acciones.update (acciones_c64pc)
+  for codigo in acciones_c64pc:
+    condactos[100 + codigo] = acciones_c64pc[codigo][:2] + (True, acciones_c64pc[codigo][2])
   return cargaBD (fichero, longitud)
 
 def carga_bd_ql (fichero, longitud):
@@ -355,6 +360,7 @@ Para compatibilidad con el IDE:
   bajo_nivel_cambia_endian (le = False)  # Los desplazamientos en las bases de datos de QL son big endian
   bajo_nivel_cambia_despl  (despl_ini)
   preparaPosCabecera ('qql', -despl_ini + 6)
+  # Ponemos las acciones correctas para esta plataforma
   acciones.update (acciones_nuevas)
   for codigo in acciones_nuevas:
     condactos[100 + codigo] = acciones_nuevas[codigo][:2] + (True, acciones_nuevas[codigo][2])
@@ -393,6 +399,7 @@ Para compatibilidad con el IDE:
       formato = 'sna48k'  # No se ha encontrado, por lo que asumimos que no es una versión de Quill vieja
   preparaPosCabecera (formato, posBD)
   if formato == 'sna48k':
+    # Ponemos las acciones correctas para esta versión de la plataforma
     acciones.update (acciones_nuevas)
     for codigo in acciones_nuevas:
       condactos[100 + codigo] = acciones_nuevas[codigo][:2] + (True, acciones_nuevas[codigo][2])
