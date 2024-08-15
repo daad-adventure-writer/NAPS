@@ -122,6 +122,8 @@ plats_detectarLE = (0,)                      # Plataformas que podrían ser tanto
 plats_LE         = (1, 2, 3, 7, 13, 14, 15)  # Plataformas que son Little Endian (Spectrum 48K, Commodore 64, Amstrad CPC, Amstrad PCW, PC VGA 256, Commodore Plus/4 y MSX2)
 plats_word       = (0,)                      # Plataformas que no pueden leer words en desplazamientos impares (PC)
 
+guarda_desplazamiento = guarda_desplazamiento2  # Los desplazamientos son todos de 2 bytes
+
 # Tabla de conversión de caracteres, posiciones 16-31 (inclusive)
 daad_a_chr = ('ª', '¡', '¿', '«', '»', 'á', 'é', 'í', 'ó', 'ú', 'ñ', 'Ñ', 'ç', 'Ç', 'ü', 'Ü')
 

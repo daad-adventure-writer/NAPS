@@ -36,15 +36,17 @@ def bajo_nivel_cambia_despl (desplazamiento):
 
 def bajo_nivel_cambia_endian (le):
   """Prepara el "endianismo" del módulo"""
-  global carga_int2, carga_int4, guarda_int2
+  global carga_int2, carga_int4, guarda_int2, guarda_int4
   if le:
     carga_int2  = carga_int2_le
     carga_int4  = carga_int4_le
     guarda_int2 = guarda_int2_le
+    guarda_int4 = guarda_int4_le
   else:
     carga_int2  = carga_int2_be
     carga_int4  = carga_int4_be
     guarda_int2 = guarda_int2_be
+    guarda_int4 = guarda_int4_be
 
 def bajo_nivel_cambia_ent (fichero):
   """Prepara el módulo para leer del fichero de entrada dado"""
@@ -115,9 +117,13 @@ def carga_int4_le ():
   """Carga un entero de tamaño 4 bytes, en formato Little Endian"""
   return ord (fich_ent.read (1)) + (ord (fich_ent.read (1)) << 8) + (ord (fich_ent.read (1)) << 16) + (ord (fich_ent.read (1)) << 24)
 
-def guarda_desplazamiento (entero):
+def guarda_desplazamiento2 (entero):
   """Guarda un desplazamiento (2 bytes) en relación con la memoria"""
   guarda_int2 (entero + despl_ini)
+
+def guarda_desplazamiento4 (entero):
+  """Guarda un desplazamiento (4 bytes) en relación con la memoria"""
+  guarda_int4 (entero + despl_ini)
 
 if version_info[0] < 3:  # Para Python 2
   def guarda_int1 (entero):
