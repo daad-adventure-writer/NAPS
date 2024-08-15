@@ -62,8 +62,8 @@ funcs_exportar = (
   ('guarda_bd', ('qql',), 'Base de datos Quill de Sinclair QL'),
 )
 funcs_importar = (
-  ('carga_bd',     ('qql',),       'Bases de datos Quill de Sinclair QL'),
   ('carga_bd_pc',  ('dat', 'exe'), 'Bases de datos AdventureWriter de PC'),
+  ('carga_bd_ql',  ('qql',),       'Bases de datos Quill de Sinclair QL'),
   ('carga_bd_sna', ('sna',),       'Imagen de memoria de ZX 48K con Quill'),
 )
 # Función que crea una nueva base de datos (vacía)
@@ -272,37 +272,6 @@ def cadena_es_mayor (cadena1, cadena2):
   """Devuelve si la cadena1 es mayor a la cadena2 en el juego de caracteres de este sistema"""
   return cadena1 > cadena2
 
-def carga_bd (fichero, longitud):
-  """Carga la base de datos entera desde el fichero de entrada, en formato de Sinclair QL
-
-Para compatibilidad con el IDE:
-- Recibe como primer parámetro un fichero abierto
-- Recibe como segundo parámetro la longitud del fichero abierto
-- Devuelve False si ha ocurrido algún error"""
-  global carga_desplazamiento, despl_ini, fin_cadena, nueva_linea, plataforma
-  carga_desplazamiento  = carga_desplazamiento4  # Así es en las bases de datos de Quill para QL
-  fin_cadena            = 0                      # Así es en las bases de datos de Quill para QL
-  nueva_linea           = 254                    # Así es en las bases de datos de Quill para QL
-  plataforma            = 1                      # Apaño para que el intérprete lo considere como Spectrum
-  BANDERA_VERBO[0]      = 64
-  BANDERA_NOMBRE[0]     = 65
-  BANDERA_LLEVABLES[0]  = 66
-  BANDERA_LOC_ACTUAL[0] = 67
-  NUM_BANDERAS[0]       = 68
-  NUM_BANDERAS_ACC[0]   = 64
-  fichero.seek (0)
-  if fichero.read (18) == b']!QDOS File Header':  # Tiene cabecera QDOS puesta por el emulador
-    despl_ini = -30  # Es de 30 bytes en sQLux
-  else:
-    despl_ini = 0  # En QL, los desplazamientos son directamente las posiciones en la BD
-  bajo_nivel_cambia_endian (le = False)  # Los desplazamientos en las bases de datos de QL son big endian
-  bajo_nivel_cambia_despl  (despl_ini)
-  preparaPosCabecera ('qql', -despl_ini + 6)
-  acciones.update (acciones_nuevas)
-  for codigo in acciones_nuevas:
-    condactos[100 + codigo] = acciones_nuevas[codigo][:2] + (True, acciones_nuevas[codigo][2])
-  return cargaBD (fichero, longitud)
-
 def carga_bd_pc (fichero, longitud):
   """Carga la base de datos entera desde una base de datos de AdventureWriter para IBM PC
 
@@ -332,6 +301,37 @@ Para compatibilidad con el IDE:
   acciones.update (acciones_pc)
   for codigo in acciones_pc:
     condactos[100 + codigo] = acciones_pc[codigo][:2] + (True, acciones_pc[codigo][2])
+  return cargaBD (fichero, longitud)
+
+def carga_bd_ql (fichero, longitud):
+  """Carga la base de datos entera desde el fichero de entrada, en formato de Sinclair QL
+
+Para compatibilidad con el IDE:
+- Recibe como primer parámetro un fichero abierto
+- Recibe como segundo parámetro la longitud del fichero abierto
+- Devuelve False si ha ocurrido algún error"""
+  global carga_desplazamiento, despl_ini, fin_cadena, nueva_linea, plataforma
+  carga_desplazamiento  = carga_desplazamiento4  # Así es en las bases de datos de Quill para QL
+  fin_cadena            = 0                      # Así es en las bases de datos de Quill para QL
+  nueva_linea           = 254                    # Así es en las bases de datos de Quill para QL
+  plataforma            = 1                      # Apaño para que el intérprete lo considere como Spectrum
+  BANDERA_VERBO[0]      = 64
+  BANDERA_NOMBRE[0]     = 65
+  BANDERA_LLEVABLES[0]  = 66
+  BANDERA_LOC_ACTUAL[0] = 67
+  NUM_BANDERAS[0]       = 68
+  NUM_BANDERAS_ACC[0]   = 64
+  fichero.seek (0)
+  if fichero.read (18) == b']!QDOS File Header':  # Tiene cabecera QDOS puesta por el emulador
+    despl_ini = -30  # Es de 30 bytes en sQLux
+  else:
+    despl_ini = 0  # En QL, los desplazamientos son directamente las posiciones en la BD
+  bajo_nivel_cambia_endian (le = False)  # Los desplazamientos en las bases de datos de QL son big endian
+  bajo_nivel_cambia_despl  (despl_ini)
+  preparaPosCabecera ('qql', -despl_ini + 6)
+  acciones.update (acciones_nuevas)
+  for codigo in acciones_nuevas:
+    condactos[100 + codigo] = acciones_nuevas[codigo][:2] + (True, acciones_nuevas[codigo][2])
   return cargaBD (fichero, longitud)
 
 def carga_bd_sna (fichero, longitud):
