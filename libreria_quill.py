@@ -31,6 +31,7 @@ from prn_func   import *
 # Sólo se usará este módulo de condactos
 mods_condactos = ('condactos_quill',)
 
+colores_inicio = []   # Colores iniciales: tinta, papel y borde
 conexiones     = []   # Listas de conexiones de cada localidad
 desc_locs      = []   # Descripciones de las localidades
 desc_objs      = []   # Descripciones de los objetos
@@ -294,7 +295,12 @@ Para compatibilidad con el IDE:
   fin_cadena  = 0
   nueva_linea = 141  # El 13 también podría ser, pero tal vez no se use
   plataforma  = 1    # Apaño para que el intérprete lo considere como Spectrum
-  bajo_nivel_cambia_despl  (despl_ini)
+  bajo_nivel_cambia_despl (despl_ini)
+  # Cargamos los colores iniciales
+  fichero.seek (3)
+  colores_inicio.append (carga_int1())  # Color de tinta
+  colores_inicio.append (carga_int1())  # Color de papel
+  colores_inicio.append (carga_int1())  # Color de borde
   preparaPosCabecera ('c64', 6)
   # Ponemos las acciones correctas para esta plataforma
   acciones.update (acciones_c64pc)
@@ -327,6 +333,11 @@ Para compatibilidad con el IDE:
   if posicion == None:
     return False  # Cabecera de la base de datos no encontrada
   inicio = posicion + 34
+  # Cargamos los colores iniciales
+  fichero.seek (inicio + 3)
+  colores_inicio.append (carga_int1())  # Color de tinta
+  colores_inicio.append (carga_int1())  # Color de papel
+  colores_inicio.append (carga_int1())  # Color de borde
   preparaPosCabecera ('pc', inicio + 6)
   # Ponemos las acciones correctas para esta plataforma
   acciones.update (acciones_c64pc)
@@ -359,6 +370,13 @@ Para compatibilidad con el IDE:
     despl_ini = 0  # En QL, los desplazamientos son directamente las posiciones en la BD
   bajo_nivel_cambia_endian (le = False)  # Los desplazamientos en las bases de datos de QL son big endian
   bajo_nivel_cambia_despl  (despl_ini)
+  # Cargamos los colores iniciales
+  bajo_nivel_cambia_ent (fichero)
+  fichero.seek (-despl_ini + 2)
+  colores_inicio.append (carga_int1())  # Color de tinta
+  colores_inicio.append (carga_int1())  # Color de papel
+  fichero.read (1)  # Ancho del borde
+  colores_inicio.append (carga_int1())  # Color de borde
   preparaPosCabecera ('qql', -despl_ini + 6)
   # Ponemos las acciones correctas para esta plataforma
   acciones.update (acciones_nuevas)
@@ -388,6 +406,13 @@ Para compatibilidad con el IDE:
   bajo_nivel_cambia_despl  (despl_ini)
   fin_cadena  = 31  # Igual que PAWS
   nueva_linea = 6
+  # Cargamos los colores iniciales
+  fichero.seek (posicion - 9)
+  colores_inicio.append (ord (fichero.read (1)))  # Color de tinta
+  fichero.read (1)
+  colores_inicio.append (ord (fichero.read (1)))  # Color de papel
+  fichero.read (7)
+  colores_inicio.append (ord (fichero.read (1)))  # Color de borde
   posBD = posicion + 3
   # Detectamos si es una versión vieja de Quill, sin lista de posiciones de mensajes de sistema
   if busca_secuencia ((0xdd, 0xbe, 0, 0x28, None, 0xdd, 0xbe, 3, 0x28, None, 0xdd, 0x35, 3, 0x3a, None, None, 0xdd, 0xbe, None, 0x28, None, 0xfe, 0xfd, 0x30, None, 0x21)):
@@ -431,10 +456,10 @@ def guarda_bd (bbdd):
   # Guardamos la cabecera de Quill
   guarda_int1 (0)  # ¿Plataforma?
   guarda_int1 (1)  # ¿Versión del formato?
-  guarda_int1 (7)  # Color de tinta
-  guarda_int1 (1)  # Color de papel
+  guarda_int1 (colores_inicio[0])  # Color de tinta
+  guarda_int1 (colores_inicio[1])  # Color de papel
   guarda_int1 (2)  # Anchura del borde
-  guarda_int1 (7)  # Color del borde
+  guarda_int1 (colores_inicio[2])  # Color del borde
   guarda_int1 (max_llevables)
   guarda_int1 (num_objetos[0])
   guarda_int1 (numLocs)
@@ -890,10 +915,10 @@ def guardaVocabulario ():
 def preparaPosCabecera (formato, inicio):
   """Asigna las "constantes" de desplazamientos (offsets/posiciones) en la cabecera"""
   global CAB_MAX_LLEVABLES, CAB_NUM_OBJS, CAB_NUM_LOCS, CAB_NUM_MSGS_USR, CAB_NUM_MSGS_SYS, CAB_POS_EVENTOS, CAB_POS_ESTADO, CAB_POS_LST_POS_OBJS, CAB_POS_LST_POS_LOCS, CAB_POS_LST_POS_MSGS_USR, CAB_POS_LST_POS_MSGS_SYS, CAB_POS_LST_POS_CNXS, CAB_POS_VOCAB, CAB_POS_LOCS_OBJS, CAB_POS_NOMS_OBJS
-  CAB_MAX_LLEVABLES = inicio + 0   # Número máximo de objetos llevables
-  CAB_NUM_OBJS      = inicio + 1   # Número de objetos
-  CAB_NUM_LOCS      = inicio + 2   # Número de localidades
-  CAB_NUM_MSGS_USR  = inicio + 3   # Número de mensajes de usuario
+  CAB_MAX_LLEVABLES = inicio + 0  # Número máximo de objetos llevables
+  CAB_NUM_OBJS      = inicio + 1  # Número de objetos
+  CAB_NUM_LOCS      = inicio + 2  # Número de localidades
+  CAB_NUM_MSGS_USR  = inicio + 3  # Número de mensajes de usuario
   if formato == 'qql':  # Base de datos para Sinclair QL
     CAB_NUM_MSGS_SYS         = inicio + 4   # Número de mensajes de sistema
     CAB_POS_EVENTOS          = inicio + 6   # Posición de la tabla de eventos
