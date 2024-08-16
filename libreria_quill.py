@@ -434,17 +434,18 @@ def guarda_bd (bbdd):
   """Almacena la base de datos entera en el fichero de salida, para Sinclair QL, replicando el formato original"""
   global fich_sal, guarda_desplazamiento
   fich_sal   = bbdd
+  desplIni   = -30              # Porque añadiremos la cabecera para QDOS
   numLocs    = len (desc_locs)  # Número de localidades
   numMsgsUsr = len (msgs_usr)   # Número de mensajes de usuario
   numMsgsSys = len (msgs_sys)   # Número de mensajes de sistema
   tamDespl   = 4                # Tamaño en bytes de las posiciones
-  bajo_nivel_cambia_despl  (-30)  # Porque añadiremos la cabecera para QDOS
+  bajo_nivel_cambia_despl  (desplIni)
   bajo_nivel_cambia_endian (le = False)
   bajo_nivel_cambia_ent    (bbdd)
   bajo_nivel_cambia_sal    (bbdd)
   # guardaInt2 = guarda_int2_be
   guardaInt4            = guarda_int4_be
-  guarda_desplazamiento = guarda_int4_be  # TODO: en bajo_nivel poner guarda_desplazamiento2 y guarda_desplazamiento4
+  guarda_desplazamiento = guarda_desplazamiento4
   # Guardamos la cabecera para QDOS (al menos la usa el emulador sQLux)
   fich_sal.write (b']!QDOS File Header')
   guarda_int1 (0)   # Reservado
@@ -467,29 +468,29 @@ def guarda_bd (bbdd):
   guarda_int1 (numMsgsSys)
   guarda_int1 (0)  # Relleno
   # Estas dos posiciones no están calculadas aún
-  guardaInt4 (0)   # Posición de las cabeceras de la tabla de eventos
-  guardaInt4 (0)   # Posición de las cabeceras de la tabla de estado
-  ocupado = 60  # Espacio ocupado hasta ahora (el tamaño de la cabecera de Quill)
-  guardaInt4 (ocupado)  # Posición de la lista de posiciones de las descripciones de los objetos
+  guarda_desplazamiento (-desplIni)  # Posición de las cabeceras de la tabla de eventos
+  guarda_desplazamiento (-desplIni)  # Posición de las cabeceras de la tabla de estado
+  ocupado = 60 - desplIni  # Espacio ocupado hasta ahora (el tamaño de la cabecera de Quill)
+  guarda_desplazamiento (ocupado)  # Posición de la lista de posiciones de las descripciones de los objetos
   ocupado += num_objetos[0] * tamDespl
-  guardaInt4 (ocupado)  # Posición de la lista de posiciones de las descripciones de las localidades
+  guarda_desplazamiento (ocupado)  # Posición de la lista de posiciones de las descripciones de las localidades
   ocupado += numLocs * tamDespl
-  guardaInt4 (ocupado)  # Posición de la lista de posiciones de los mensajes de usuario
+  guarda_desplazamiento (ocupado)  # Posición de la lista de posiciones de los mensajes de usuario
   ocupado += numMsgsUsr * tamDespl
-  guardaInt4 (ocupado)  # Posición de la lista de posiciones de los mensajes de sistema
+  guarda_desplazamiento (ocupado)  # Posición de la lista de posiciones de los mensajes de sistema
   ocupado += numMsgsSys * tamDespl
-  guardaInt4 (ocupado)  # Posición de la lista de posiciones de las conexiones
+  guarda_desplazamiento (ocupado)  # Posición de la lista de posiciones de las conexiones
   ocupado += numLocs * tamDespl
   # Las siguientes tres posiciones se conocerán más adelante
-  guardaInt4 (0)      # Posición del vocabulario
-  guardaInt4 (0)      # Posición de las localidades de los objetos
-  guardaInt4 (0)      # Posición de los nombres de los objetos
-  guardaInt4 (0)      # Siguiente posición tras la base de datos
-  guardaInt4 (65536)  # Siguiente posición tras la base de datos más grande posible
+  guarda_desplazamiento (-desplIni)         # Posición del vocabulario
+  guarda_desplazamiento (-desplIni)         # Posición de las localidades de los objetos
+  guarda_desplazamiento (-desplIni)         # Posición de los nombres de los objetos
+  guarda_desplazamiento (-desplIni)         # Siguiente posición tras la base de datos
+  guarda_desplazamiento (65536 - desplIni)  # Siguiente posición tras la base de datos más grande posible
   fich_sal.seek (42)    # CAB_POS_EVENTOS
-  guardaInt4 (ocupado)  # Posición de las cabeceras de la tabla de eventos
+  guarda_desplazamiento (ocupado)  # Posición de las cabeceras de la tabla de eventos
   ocupado += (len (tablas_proceso[0][0]) + 1) * (2 + tamDespl)
-  guardaInt4 (ocupado)  # Posición de las cabeceras de la tabla de estado
+  guarda_desplazamiento (ocupado)  # Posición de las cabeceras de la tabla de estado
   ocupado += (len (tablas_proceso[1][0]) + 1) * (2 + tamDespl)
   fich_sal.seek (90)  # Justo tras la cabecera de Quill
   # Guardamos las posiciones de las descripciones de los objetos
@@ -505,22 +506,22 @@ def guarda_bd (bbdd):
     guarda_desplazamiento (ocupado)
     ocupado += (tamDespl * len (conexiones[l])) + 1
   fich_sal.seek (70)    # CAB_POS_VOCAB
-  guardaInt4 (ocupado)  # Posición del vocabulario
+  guarda_desplazamiento (ocupado)  # Posición del vocabulario
   ocupado += (len (vocabulario) * (LONGITUD_PAL + 1)) + LONGITUD_PAL
   # Guardamos las cabeceras y entradas de las tablas de eventos y de estado
   for t in range (2):
     posicion = carga_desplazamiento4 (fich_sal.seek (42 + t * tamDespl))  # CAB_POS_EVENTOS
-    fich_sal.seek (ocupado + 30)  # Necesario si no hay entradas de proceso
+    fich_sal.seek (ocupado)  # Necesario si no hay entradas de proceso
     cabeceras, entradas = tablas_proceso[t]
     e = 0
     while e < len (entradas):
       # Guardamos la cabecera de la entrada
       fich_sal.seek (posicion + e * (2 + tamDespl))
-      guarda_int1 (cabeceras[e][0])  # Palabra 1 (normalmente verbo)
-      guarda_int1 (cabeceras[e][1])  # Palabra 2 (normalmente nombre)
-      guardaInt4  (ocupado)          # Posición de la entrada
+      guarda_int1 (cabeceras[e][0])    # Palabra 1 (normalmente verbo)
+      guarda_int1 (cabeceras[e][1])    # Palabra 2 (normalmente nombre)
+      guarda_desplazamiento (ocupado)  # Posición de la entrada
       # Guardamos el contenido de la entrada
-      fich_sal.seek (ocupado + 30)
+      fich_sal.seek (ocupado)
       algunaAccion = False
       for condacto, parametros in entradas[e]:
         if condacto >= 100:
@@ -539,8 +540,8 @@ def guarda_bd (bbdd):
     guarda_int1 (255)  # Fin de acciones y entrada
     # Guardamos la cabecera de entrada vacía final
     fich_sal.seek (posicion + e * (2 + tamDespl))
-    guarda_int2_be (0)        # Marca de fin
-    guardaInt4     (ocupado)  # Posición de la entrada de relleno
+    guarda_int2_be (0)               # Marca de fin
+    guarda_desplazamiento (ocupado)  # Posición de la entrada de relleno
     ocupado += 2
   # Guardamos los textos de la aventura
   fich_sal.seek (carga_desplazamiento4 (90))  # Vamos a la posición de la descripción del objeto 0
@@ -555,18 +556,18 @@ def guarda_bd (bbdd):
   # Guardamos el vocabulario
   guardaVocabulario()
   # Guardamos las localidades iniciales de los objetos
-  fich_sal.seek (74)    # CAB_POS_LOCS_OBJS
-  guardaInt4 (ocupado)  # Posición de las localidades iniciales de los objetos
-  fich_sal.seek (ocupado + 30)
+  fich_sal.seek (74)  # CAB_POS_LOCS_OBJS
+  guarda_desplazamiento (ocupado)  # Posición de las localidades iniciales de los objetos
+  fich_sal.seek (ocupado)
   for localidad in locs_iniciales:
     guarda_int1 (localidad)
   guarda_int1 (255)  # Fin de la lista de localidades iniciales de los objetos
   ocupado += num_objetos[0] + 1
   # Guardamos los nombres de los objetos
-  fich_sal.seek (78)    # CAB_POS_LOCS_OBJS
-  guardaInt4 (ocupado)  # Posición de los nombres de los objetos
-  guardaInt4 (ocupado + num_objetos[0] + 1)  # Siguiente posición tras la base de datos
-  fich_sal.seek (ocupado + 30)
+  fich_sal.seek (78)  # CAB_POS_LOCS_OBJS
+  guarda_desplazamiento (ocupado)                       # Posición de los nombres de los objetos
+  guarda_desplazamiento (ocupado + num_objetos[0] + 1)  # Siguiente posición tras la base de datos
+  fich_sal.seek (ocupado)
   for nombre, adjetivo in nombres_objs:
     guarda_int1 (nombre)
   guarda_int1 (0)  # Fin de la lista de nombres de los objetos
