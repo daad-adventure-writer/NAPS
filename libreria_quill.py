@@ -910,6 +910,7 @@ def guardaVocabulario ():
   guarda_int1 (0)  # Fin del vocabulario
 
 def preparaPosCabecera (formato, inicio):
+  # type: (str, int) -> None
   """Asigna las "constantes" de desplazamientos (offsets/posiciones) en la cabecera"""
   global CAB_MAX_LLEVABLES, CAB_NUM_OBJS, CAB_NUM_LOCS, CAB_NUM_MSGS_USR, CAB_NUM_MSGS_SYS, CAB_POS_EVENTOS, CAB_POS_ESTADO, CAB_POS_LST_POS_OBJS, CAB_POS_LST_POS_LOCS, CAB_POS_LST_POS_MSGS_USR, CAB_POS_LST_POS_MSGS_SYS, CAB_POS_LST_POS_CNXS, CAB_POS_VOCAB, CAB_POS_LOCS_OBJS, CAB_POS_NOMS_OBJS
   CAB_MAX_LLEVABLES = inicio + 0  # Número máximo de objetos llevables
