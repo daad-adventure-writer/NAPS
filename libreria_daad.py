@@ -1128,6 +1128,7 @@ def guarda_bd_ (bbdd):
 
 def guarda_bd (bbdd):
   """Almacena la base de datos entera en el fichero de salida, por orden de conveniencia"""
+  # TODO: detectar cuando se sobrepasa el máximo valor representable en 16 bits para ocupado
   global abreviaturas, fich_sal
   longMin = 999999
   for maxAbrev in range (3, 30):
@@ -1321,15 +1322,15 @@ def guarda_bd (bbdd):
   guarda_desplazamiento (ocupado)
 
 def guardaDescLocs (posInicial = 0):
-  """Guarda la sección de descripciones de las localidades sobre el fichero de salida, y devuelve cuántos bytes ocupa la sección, y las posiciones de cada descripción incluyendo posInicial"""
+  """Guarda la sección de descripciones de las localidades sobre el fichero de salida, y devuelve cuántos bytes ocupa la sección, y las posiciones de cada descripción desde posInicial"""
   return guardaMsgs (desc_locs, desc_locs_abrev, posInicial)
 
 def guardaDescObjs (posInicial = 0):
-  """Guarda la sección de descripciones de los objetos sobre el fichero de salida, y devuelve cuántos bytes ocupa la sección, y las posiciones de cada descripción incluyendo posInicial"""
+  """Guarda la sección de descripciones de los objetos sobre el fichero de salida, y devuelve cuántos bytes ocupa la sección, y las posiciones de cada descripción desde posInicial"""
   return guardaMsgs (desc_objs, desc_objs_abrev, posInicial)
 
 def guardaMsgs (msgs, msgsAbrev, posInicial = 0):
-  """Guarda una sección de mensajes sobre el fichero de salida, y devuelve cuántos bytes ocupa la sección, y las posiciones de cada mensaje incluyendo posInicial"""
+  """Guarda una sección de mensajes sobre el fichero de salida, y devuelve cuántos bytes ocupa la sección, y las posiciones de cada mensaje desde posInicial"""
   ocupado    = 0
   posiciones = []
   if abreviaturas and msgsAbrev:
@@ -1345,11 +1346,11 @@ def guardaMsgs (msgs, msgsAbrev, posInicial = 0):
   return ocupado, posiciones
 
 def guardaMsgsSys (posInicial = 0):
-  """Guarda la sección de mensajes de sistema sobre el fichero de salida, y devuelve cuántos bytes ocupa la sección, y las posiciones de cada mensaje incluyendo posInicial"""
+  """Guarda la sección de mensajes de sistema sobre el fichero de salida, y devuelve cuántos bytes ocupa la sección, y las posiciones de cada mensaje desde posInicial"""
   return guardaMsgs (msgs_sys, msgs_sys_abrev, posInicial)
 
 def guardaMsgsUsr (posInicial = 0):
-  """Guarda la sección de mensajes de usuario sobre el fichero de salida, y devuelve cuántos bytes ocupa la sección, y las posiciones de cada mensaje incluyendo posInicial"""
+  """Guarda la sección de mensajes de usuario sobre el fichero de salida, y devuelve cuántos bytes ocupa la sección, y las posiciones de cada mensaje desde posInicial"""
   return guardaMsgs (msgs_usr, msgs_usr_abrev, posInicial)
 
 def guardaPosDescLocs (pos):

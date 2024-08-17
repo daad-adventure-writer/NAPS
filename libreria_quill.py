@@ -60,7 +60,8 @@ ids_locs = {  0 : 'INICIAL',
 
 # Funciones que importan bases de datos desde ficheros
 funcs_exportar = (
-  ('guarda_bd', ('qql',), 'Base de datos Quill de Sinclair QL'),
+  ('guarda_bd_c64', ('prg',), 'Base de datos Quill de Commodore 64'),
+  ('guarda_bd_ql',  ('qql',), 'Base de datos Quill de Sinclair QL'),
 )
 funcs_importar = (
   ('carga_bd_c64', ('prg',),       'Bases de datos Quill de Commodore 64'),
@@ -271,6 +272,8 @@ for codigo in acciones:
 
 petscii = ''.join (('%c' % c for c in range (65))) + 'abcdefghijklmnopqrstuvwxyz' + ''.join (('%c' % c for c in range (91, 96))) + '\xc0ABCDEFGHIJKLMNOPQRSTUVWXYZ' + ''.join (('%c' % c for c in range (219, 224) + range (128, 193))) + 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' + ''.join (('%c' % c for c in range (219, 224) + range (160, 192)))
 petscii_a_ascii = maketrans (''.join (('%c' % c for c in range (256))), petscii)
+ascii_para_petscii = ''.join (('%c' % c for c in range (65) + range (193, 219) + range (91, 97))) + 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' + ''.join (('%c' % c for c in range (123, 256)))
+ascii_a_petscii = maketrans (''.join (('%c' % c for c in range (256))), ascii_para_petscii)
 
 
 # Funciones que utiliza el IDE o el intérprete directamente
@@ -430,22 +433,127 @@ Para compatibilidad con el IDE:
       condactos[100 + codigo] = acciones_nuevas[codigo][:2] + (True, acciones_nuevas[codigo][2])
   return cargaBD (fichero, longitud)
 
-def guarda_bd (bbdd):
+def guarda_bd_c64 (bbdd):
+  """Almacena la base de datos entera en el fichero de salida, para Commodore 64, replicando el formato original"""
+  global fich_sal, guarda_desplazamiento
+  fich_sal     = bbdd
+  desplIniFich = 2                # Posición donde empieza la BD en el fichero
+  desplIniMem  = 2048             # Posición donde se cargará en memoria la BD
+  numLocs      = len (desc_locs)  # Número de localidades
+  numMsgsUsr   = len (msgs_usr)   # Número de mensajes de usuario
+  numMsgsSys   = len (msgs_sys)   # Número de mensajes de sistema
+  tamCabecera  = 31               # Tamaño en bytes de la cabecera de Quill
+  tamDespl     = 2                # Tamaño en bytes de las posiciones
+  bajo_nivel_cambia_despl  (desplIniMem)
+  bajo_nivel_cambia_endian (le = True)
+  bajo_nivel_cambia_sal    (bbdd)
+  guarda_desplazamiento = guarda_desplazamiento2
+  guarda_desplazamiento (0)  # Desplazamiento donde se cargará en memoria la BD
+  preparaPosCabecera ('c64', desplIniFich + 4)
+  # Guardamos la cabecera de Quill
+  guarda_int1 (0)  # ¿Plataforma?
+  guarda_int1 (colores_inicio[0])  # Color de tinta
+  guarda_int1 (colores_inicio[1])  # Color de papel
+  guarda_int1 (colores_inicio[2])  # Color del borde
+  guarda_int1 (max_llevables)
+  guarda_int1 (num_objetos[0])
+  guarda_int1 (numLocs)
+  guarda_int1 (numMsgsUsr)
+  guarda_int1 (numMsgsSys)
+  ocupado = tamCabecera  # Espacio ocupado hasta ahora
+  # Guardamos las entradas y cabeceras de las tablas de eventos y de estado
+  fich_sal.seek (desplIniFich + ocupado)
+  for t in range (2):
+    cabeceras, entradas = tablas_proceso[t]
+    # Guardamos el contenido de las entradas
+    posiciones = []  # Posición de cada entrada
+    for entrada in entradas:
+      posiciones.append (ocupado)
+      algunaAccion = False
+      for condacto, parametros in entrada:
+        if condacto >= 100:
+          if not algunaAccion:
+            guarda_int1 (255)  # Fin de condiciones
+          algunaAccion = True
+        guarda_int1 (condacto - (100 if algunaAccion else 0))
+        for parametro in parametros:
+          guarda_int1 (parametro)
+        ocupado += 1 + len (parametros)
+      guarda_int1 (255)  # Fin de acciones y entrada
+      ocupado += 2  # Las marcas de fin de condiciones y acciones
+    # Guardamos la posición de la cabecera de la tabla
+    fich_sal.seek (CAB_POS_EVENTOS + t * tamDespl)
+    guarda_desplazamiento (ocupado)
+    # Guardamos las cabeceras de las entradas
+    fich_sal.seek (desplIniFich + ocupado)
+    for e in range (len (entradas)):
+      guarda_int1 (cabeceras[e][0])          # Palabra 1 (normalmente verbo)
+      guarda_int1 (cabeceras[e][1])          # Palabra 2 (normalmente nombre)
+      guarda_desplazamiento (posiciones[e])  # Posición de la entrada
+      ocupado += 2 + tamDespl
+    guarda_int1 (0)  # Marca de fin de cabecera de tabla
+    ocupado += 1
+  # Guardamos los textos de la aventura y sus posiciones
+  for posCabecera, mensajes in ((CAB_POS_LST_POS_OBJS, desc_objs), (CAB_POS_LST_POS_LOCS, desc_locs), (CAB_POS_LST_POS_MSGS_USR, msgs_usr), (CAB_POS_LST_POS_MSGS_SYS, msgs_sys)):
+    posPrimerMsg = ocupado
+    ocupado += guardaMsgs (mensajes, finCadena = 0, nuevaLinea = 141, conversion = ascii_a_petscii)
+    fich_sal.seek (posCabecera)
+    guarda_desplazamiento (ocupado)  # Posición de la lista de posiciones de este tipo de mensajes
+    fich_sal.seek (desplIniFich + ocupado)
+    guardaPosMsgs (mensajes, posPrimerMsg)
+    ocupado += len (mensajes) * tamDespl
+  # Guardamos las conexiones de las localidades
+  posiciones = []  # Posición de las conexiones de cada localidad
+  for lista in conexiones:
+    posiciones.append (ocupado)
+    for conexion in lista:
+      guarda_int1 (conexion[0])
+      guarda_int1 (conexion[1])
+    guarda_int1 (255)  # Fin de las conexiones de esta localidad
+    ocupado += len (lista) * 2 + 1
+  fich_sal.seek (CAB_POS_LST_POS_CNXS)
+  guarda_desplazamiento (ocupado)  # Posición de las conexiones
+  fich_sal.seek (desplIniFich + ocupado)
+  for posicion in posiciones:
+    guarda_desplazamiento (posicion)
+  ocupado += len (posiciones) * tamDespl
+  # Guardamos el vocabulario
+  fich_sal.seek (CAB_POS_VOCAB)
+  guarda_desplazamiento (ocupado)  # Posición del vocabulario
+  fich_sal.seek (desplIniFich + ocupado)
+  guardaVocabulario (ascii_a_petscii)
+  ocupado += (len (vocabulario) + 1) * (LONGITUD_PAL + 1)
+  # Guardamos las localidades iniciales de los objetos
+  fich_sal.seek (CAB_POS_LOCS_OBJS)
+  guarda_desplazamiento (ocupado)  # Posición de las localidades iniciales de los objetos
+  fich_sal.seek (desplIniFich + ocupado)
+  for localidad in locs_iniciales:
+    guarda_int1 (localidad)
+  guarda_int1 (255)  # Fin de la lista de localidades iniciales de los objetos
+  ocupado += len (locs_iniciales) + 1
+  # Guardamos los últimos valores de la cabecera
+  fich_sal.seek (CAB_POS_NOMS_OBJS)
+  guarda_desplazamiento (ocupado)  # Posición justo detrás de la base de datos
+  guarda_desplazamiento (33023)    # Posición justo detrás de la base de datos si esta fuera de tamaño máximo
+
+def guarda_bd_ql (bbdd):
   """Almacena la base de datos entera en el fichero de salida, para Sinclair QL, replicando el formato original"""
   global fich_sal, guarda_desplazamiento
-  fich_sal   = bbdd
-  desplIni   = -30              # Porque añadiremos la cabecera para QDOS
-  numLocs    = len (desc_locs)  # Número de localidades
-  numMsgsUsr = len (msgs_usr)   # Número de mensajes de usuario
-  numMsgsSys = len (msgs_sys)   # Número de mensajes de sistema
-  tamDespl   = 4                # Tamaño en bytes de las posiciones
-  bajo_nivel_cambia_despl  (desplIni)
+  fich_sal     = bbdd
+  desplIniFich = 30               # Posición donde empieza la BD en el fichero
+  desplIni     = -desplIniFich    # Para descontar la cabecera para QDOS
+  numLocs      = len (desc_locs)  # Número de localidades
+  numMsgsUsr   = len (msgs_usr)   # Número de mensajes de usuario
+  numMsgsSys   = len (msgs_sys)   # Número de mensajes de sistema
+  tamCabecera  = 60               # Tamaño en bytes de la cabecera de Quill
+  tamDespl     = 4                # Tamaño en bytes de las posiciones
+  bajo_nivel_cambia_despl  (desplIni)  # Posición donde se cargará en memoria la BD
   bajo_nivel_cambia_endian (le = False)
   bajo_nivel_cambia_ent    (bbdd)
   bajo_nivel_cambia_sal    (bbdd)
-  # guardaInt2 = guarda_int2_be
   guardaInt4            = guarda_int4_be
   guarda_desplazamiento = guarda_desplazamiento4
+  preparaPosCabecera ('qql', desplIniFich + 6)
   # Guardamos la cabecera para QDOS (al menos la usa el emulador sQLux)
   fich_sal.write (b']!QDOS File Header')
   guarda_int1 (0)   # Reservado
@@ -470,7 +578,7 @@ def guarda_bd (bbdd):
   # Estas dos posiciones no están calculadas aún
   guarda_desplazamiento (-desplIni)  # Posición de las cabeceras de la tabla de eventos
   guarda_desplazamiento (-desplIni)  # Posición de las cabeceras de la tabla de estado
-  ocupado = 60 - desplIni  # Espacio ocupado hasta ahora (el tamaño de la cabecera de Quill)
+  ocupado = tamCabecera - desplIni  # Espacio ocupado hasta ahora
   guarda_desplazamiento (ocupado)  # Posición de la lista de posiciones de las descripciones de los objetos
   ocupado += num_objetos[0] * tamDespl
   guarda_desplazamiento (ocupado)  # Posición de la lista de posiciones de las descripciones de las localidades
@@ -487,12 +595,12 @@ def guarda_bd (bbdd):
   guarda_desplazamiento (-desplIni)         # Posición de los nombres de los objetos
   guarda_desplazamiento (-desplIni)         # Siguiente posición tras la base de datos
   guarda_desplazamiento (65536 - desplIni)  # Siguiente posición tras la base de datos más grande posible
-  fich_sal.seek (42)    # CAB_POS_EVENTOS
+  fich_sal.seek (CAB_POS_EVENTOS)
   guarda_desplazamiento (ocupado)  # Posición de las cabeceras de la tabla de eventos
   ocupado += (len (tablas_proceso[0][0]) + 1) * (2 + tamDespl)
   guarda_desplazamiento (ocupado)  # Posición de las cabeceras de la tabla de estado
   ocupado += (len (tablas_proceso[1][0]) + 1) * (2 + tamDespl)
-  fich_sal.seek (90)  # Justo tras la cabecera de Quill
+  fich_sal.seek (desplIniFich + tamCabecera)  # Justo tras la cabecera de Quill
   # Guardamos las posiciones de las descripciones de los objetos
   ocupado += guardaPosMsgs (desc_objs, ocupado)
   # Guardamos las posiciones de las descripciones de las localidades
@@ -505,12 +613,12 @@ def guarda_bd (bbdd):
   for l in range (numLocs):
     guarda_desplazamiento (ocupado)
     ocupado += (tamDespl * len (conexiones[l])) + 1
-  fich_sal.seek (70)    # CAB_POS_VOCAB
+  fich_sal.seek (CAB_POS_VOCAB)
   guarda_desplazamiento (ocupado)  # Posición del vocabulario
   ocupado += (len (vocabulario) * (LONGITUD_PAL + 1)) + LONGITUD_PAL
   # Guardamos las cabeceras y entradas de las tablas de eventos y de estado
   for t in range (2):
-    posicion = carga_desplazamiento4 (fich_sal.seek (42 + t * tamDespl))  # CAB_POS_EVENTOS
+    posicion = carga_desplazamiento4 (fich_sal.seek (CAB_POS_EVENTOS + t * tamDespl))
     fich_sal.seek (ocupado)  # Necesario si no hay entradas de proceso
     cabeceras, entradas = tablas_proceso[t]
     e = 0
@@ -544,7 +652,7 @@ def guarda_bd (bbdd):
     guarda_desplazamiento (ocupado)  # Posición de la entrada de relleno
     ocupado += 2
   # Guardamos los textos de la aventura
-  fich_sal.seek (carga_desplazamiento4 (90))  # Vamos a la posición de la descripción del objeto 0
+  fich_sal.seek (carga_desplazamiento4 (desplIniFich + tamCabecera))  # Vamos a la posición de la descripción del objeto 0
   for mensajes in (desc_objs, desc_locs, msgs_usr, msgs_sys):
     guardaMsgs (mensajes, finCadena = 0, nuevaLinea = 254)
   # Guardamos las listas de conexiones de cada localidad
@@ -556,7 +664,7 @@ def guarda_bd (bbdd):
   # Guardamos el vocabulario
   guardaVocabulario()
   # Guardamos las localidades iniciales de los objetos
-  fich_sal.seek (74)  # CAB_POS_LOCS_OBJS
+  fich_sal.seek (CAB_POS_LOCS_OBJS)
   guarda_desplazamiento (ocupado)  # Posición de las localidades iniciales de los objetos
   fich_sal.seek (ocupado)
   for localidad in locs_iniciales:
@@ -564,7 +672,7 @@ def guarda_bd (bbdd):
   guarda_int1 (255)  # Fin de la lista de localidades iniciales de los objetos
   ocupado += num_objetos[0] + 1
   # Guardamos los nombres de los objetos
-  fich_sal.seek (78)  # CAB_POS_LOCS_OBJS
+  fich_sal.seek (CAB_POS_NOMS_OBJS)
   guarda_desplazamiento (ocupado)                       # Posición de los nombres de los objetos
   guarda_desplazamiento (ocupado + num_objetos[0] + 1)  # Siguiente posición tras la base de datos
   fich_sal.seek (ocupado)
@@ -872,8 +980,10 @@ def cargaVocabulario ():
     # Quill guarda las palabras en mayúsculas
     vocabulario.append ((palabra.lower(), carga_int1(), 0))
 
-def guardaCadena (cadena, finCadena, nuevaLinea):
+def guardaCadena (cadena, finCadena, nuevaLinea, conversion = None):
   """Guarda una cadena en el formato de Quill"""
+  if conversion:
+    cadena = cadena.translate (conversion)
   for caracter in cadena:
     if caracter == '\n':
       caracter = nuevaLinea
@@ -882,10 +992,13 @@ def guardaCadena (cadena, finCadena, nuevaLinea):
     guarda_int1 (caracter ^ 255)
   guarda_int1 (finCadena ^ 255)  # Fin de cadena
 
-def guardaMsgs (msgs, finCadena, nuevaLinea):
-  """Guarda una sección de mensajes sobre el fichero de salida"""
+def guardaMsgs (msgs, finCadena, nuevaLinea, conversion = None):
+  """Guarda una sección de mensajes sobre el fichero de salida, y devuelve cuántos bytes ocupa la sección"""
+  ocupado = 0
   for mensaje in msgs:
-    guardaCadena (mensaje, finCadena, nuevaLinea)
+    guardaCadena (mensaje, finCadena, nuevaLinea, conversion)
+    ocupado += len (mensaje) + 1
+  return ocupado
 
 def guardaPosMsgs (msgs, pos):
   """Guarda una sección de posiciones de mensajes sobre el fichero de salida, y devuelve cuántos bytes en total ocupan estos mensajes
@@ -898,13 +1011,16 @@ def guardaPosMsgs (msgs, pos):
     ocupado += len (msgs[i]) + 1
   return ocupado
 
-def guardaVocabulario ():
+def guardaVocabulario (conversion = None):
   """Guarda la sección de vocabulario sobre el fichero de salida"""
   for palabra in vocabulario:
     # Rellenamos el texto de la palabra con espacios al final
-    cadena = palabra[0].ljust (LONGITUD_PAL)
+    cadena = palabra[0].upper()
+    if conversion:
+      cadena = cadena.translate (conversion)
+    cadena = cadena.ljust (LONGITUD_PAL)
     for caracter in cadena:
-      caracter = ord (caracter.upper())
+      caracter = ord (caracter)
       guarda_int1 (caracter ^ 255)
     guarda_int1 (palabra[1])  # Código de la palabra
   guarda_int1 (0)  # Fin del vocabulario
