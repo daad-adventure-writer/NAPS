@@ -71,11 +71,12 @@ def busca_secuencia (secuencia):
   secuencia es la lista de valores de byte a buscar. Puede incluir valores None para posiciones que siempre encajarán"""
   fich_ent.seek (0, os.SEEK_END)
   longitud = fich_ent.tell()
-  posicion = 0
+  if posicion >= longitud:
+    return
   fich_ent.seek (posicion)
   encajeSec = []  # Secuencia de encajes hasta ahora
   c = carga_int1()
-  while posicion + 1 < longitud:
+  while True:
     if secuencia[len (encajeSec)] is None or c == secuencia[len (encajeSec)]:
       encajeSec.append (c)
       if len (encajeSec) == len (secuencia):  # Secuencia encontrada
@@ -83,9 +84,10 @@ def busca_secuencia (secuencia):
     elif encajeSec:
       del encajeSec[:]
       continue  # Empezamos de nuevo desde este carácter
+    if posicion + 1 == longitud:
+      return  # No se ha encontrado
     c = carga_int1()
     posicion += 1
-  return  # No se ha encontrado
 
 def carga_desplazamiento2 (desplazamiento = None):
   # type: (int) -> int
