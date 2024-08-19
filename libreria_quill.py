@@ -498,12 +498,21 @@ def guarda_bd (bbdd):
   guarda_int1 (numMsgsSys)
   if formato == 'qql':
     guarda_int1 (0)  # Relleno
-  # TODO: se debe eliminar entradas de proceso vacías, el código de guardado de tablas de proceso no contempla que no haya acciones ni condiciones, y los editores de Quill no las permiten, de todos modos
+  # Eliminamos entradas de proceso vacías, los editores de Quill no las permiten y el código de guardado de tablas de proceso no contempla que no haya acciones ni condiciones
+  tablasLimpias = []
+  for cabeceras, entradas in tablas_proceso:
+    cabecerasLimpias = []
+    entradasLimpias  = []
+    for e in range (len (entradas)):
+      if entradas[e]:
+        cabecerasLimpias.append (cabeceras[e])
+        entradasLimpias.append  (entradas[e])
+    tablasLimpias.append ((cabecerasLimpias, entradasLimpias))
   # Guardamos la posición de las cabeceras de las tablas de eventos y estado
   ocupado = tamCabecera  # Espacio ocupado hasta ahora
   for t in range (2):
     guarda_desplazamiento (ocupado)
-    ocupado += (len (tablas_proceso[t][0]) * (2 + tamDespl)) + 1
+    ocupado += (len (tablasLimpias[t][0]) * (2 + tamDespl)) + 1
   # Guardamos la posición de la lista de posiciones de las descripciones de los objetos
   guarda_desplazamiento (ocupado)
   ocupado += num_objetos[0] * tamDespl
@@ -558,7 +567,7 @@ def guarda_bd (bbdd):
   assert areasYaEscritas[1][1] == desplIniFich + tamCabecera
   fich_sal.seek (desplIniFich + tamCabecera)
   for t in range (2):
-    cabeceras, entradas = tablas_proceso[t]
+    cabeceras, entradas = tablasLimpias[t]
     for e in range (len (entradas)):
       guarda_int1 (cabeceras[e][0])  # Palabra 1 (normalmente verbo)
       guarda_int1 (cabeceras[e][1])  # Palabra 2 (normalmente nombre)
