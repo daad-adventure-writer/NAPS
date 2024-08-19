@@ -60,6 +60,8 @@ ids_locs = {  0 : 'INICIAL',
 
 # Funciones que importan bases de datos desde ficheros
 funcs_exportar = (
+  ('guarda_bd',     ('prg',), 'Base de datos Quill optimizada de Commodore 64'),
+  ('guarda_bd',     ('qql',), 'Base de datos Quill optimizada de Sinclair QL'),
   ('guarda_bd_c64', ('prg',), 'Base de datos Quill de Commodore 64'),
   ('guarda_bd_ql',  ('qql',), 'Base de datos Quill de Sinclair QL'),
 )
@@ -433,6 +435,209 @@ Para compatibilidad con el IDE:
       condactos[100 + codigo] = acciones_nuevas[codigo][:2] + (True, acciones_nuevas[codigo][2])
   return cargaBD (fichero, longitud)
 
+def guarda_bd (bbdd):
+  """Almacena la base de datos entera en el fichero de salida, de forma optimizada"""
+  global fich_sal, guarda_desplazamiento
+  extension = os.path.splitext (bbdd.name)[1][1:].lower()
+  formato   = 'c64' if extension == 'prg' else extension
+  areasYaEscritas = []  # Áreas del fichero ya escritas, para deduplicar datos ya existentes en la base de datos
+  fich_sal     = bbdd
+  conversion   = None             # Conversión de juego de caracteres
+  desplIniFich = 0                # Posición donde empieza la BD en el fichero
+  desplIniMem  = 0                # Posición donde se cargará en memoria la BD
+  numLocs      = len (desc_locs)  # Número de localidades
+  numMsgsUsr   = len (msgs_usr)   # Número de mensajes de usuario
+  numMsgsSys   = len (msgs_sys)   # Número de mensajes de sistema
+  tamCabecera  = 0                # Tamaño en bytes de la cabecera de Quill
+  tamDespl     = 2                # Tamaño en bytes de las posiciones
+  tamMaxBD     = 65536            # Tamaño máximo de base de datos
+  bajo_nivel_cambia_despl (desplIniMem)
+  bajo_nivel_cambia_ent   (bbdd)
+  bajo_nivel_cambia_sal   (bbdd)
+  if formato == 'c64':
+    conversion   = ascii_a_petscii
+    desplIniFich = 2
+    desplIniMem  = 2048
+    tamCabecera  = 31
+    tamMaxBD     = 35071
+    guarda_desplazamiento = guarda_desplazamiento2
+    bajo_nivel_cambia_despl  (desplIniMem)
+    bajo_nivel_cambia_endian (le = True)
+    preparaPosCabecera (formato, desplIniFich + 4)
+    # Guardamos la cabecera de Commodore 64
+    guarda_desplazamiento (0)  # Desplazamiento donde se cargará en memoria la BD
+  else:  # formato == 'qql'
+    desplIniFich = 30
+    tamCabecera  = 60
+    tamDespl     = 4
+    guardaInt4            = guarda_int4_be
+    guarda_desplazamiento = guarda_desplazamiento4
+    bajo_nivel_cambia_endian (le = False)
+    preparaPosCabecera (formato, desplIniFich + 6)
+    # Guardamos la cabecera para QDOS (al menos la usa el emulador sQLux)
+    fich_sal.write (b']!QDOS File Header')
+    guarda_int1 (0)   # Reservado
+    guarda_int1 (15)  # Longitud de la cabecera de QDOS en palabras de 16 bits
+    guarda_int1 (0)   # Tipo de acceso de fichero
+    guarda_int1 (72)  # Tipo de fichero
+    guardaInt4  (0)   # Longitud de datos
+    guardaInt4  (0)   # Reservado
+  # Guardamos la cabecera de Quill
+  guarda_int1 (0)  # ¿Plataforma?
+  if formato == 'qql':
+    guarda_int1 (1)  # ¿Versión del formato?
+  guarda_int1 (colores_inicio[0])  # Color de tinta
+  guarda_int1 (colores_inicio[1])  # Color de papel
+  if formato == 'qql':
+    guarda_int1 (2)  # Anchura del borde
+  guarda_int1 (colores_inicio[2])  # Color del borde
+  guarda_int1 (max_llevables)
+  guarda_int1 (num_objetos[0])
+  guarda_int1 (numLocs)
+  guarda_int1 (numMsgsUsr)
+  guarda_int1 (numMsgsSys)
+  if formato == 'qql':
+    guarda_int1 (0)  # Relleno
+  # TODO: se debe eliminar entradas de proceso vacías, el código de guardado de tablas de proceso no contempla que no haya acciones ni condiciones, y los editores de Quill no las permiten, de todos modos
+  # Guardamos la posición de las cabeceras de las tablas de eventos y estado
+  ocupado = tamCabecera  # Espacio ocupado hasta ahora
+  for t in range (2):
+    guarda_desplazamiento (ocupado)
+    ocupado += (len (tablas_proceso[t][0]) * (2 + tamDespl)) + 1
+  # Guardamos la posición de la lista de posiciones de las descripciones de los objetos
+  guarda_desplazamiento (ocupado)
+  ocupado += num_objetos[0] * tamDespl
+  # Guardamos la posición de la lista de posiciones de las descripciones de las localidades
+  guarda_desplazamiento (ocupado)
+  ocupado += numLocs * tamDespl
+  # Guardamos la posición de la lista de posiciones de los mensajes de usuario
+  guarda_desplazamiento (ocupado)
+  ocupado += numMsgsUsr * tamDespl
+  # Guardamos la posición de la lista de posiciones de los mensajes de sistema
+  guarda_desplazamiento (ocupado)
+  ocupado += numMsgsSys * tamDespl
+  # Guardamos la posición de la lista de posiciones de las conexiones
+  guarda_desplazamiento (ocupado)
+  ocupado += numLocs * tamDespl
+  # Guardamos la posición del vocabulario
+  guarda_desplazamiento (ocupado)
+  tamVocab = (len (vocabulario) * (LONGITUD_PAL + 1)) + 1
+  ocupado += tamVocab
+  # Guardamos la posición de las localidades iniciales de los objetos
+  guarda_desplazamiento (ocupado)
+  ocupado += numLocs + 1
+  if formato == 'qql':
+    # Guardamos la posición de los nombres de los objetos
+    guarda_desplazamiento (ocupado)
+    ocupado += num_objetos[0] + 1
+    areasYaEscritas = [(desplIniFich, CAB_POS_NOMS_OBJS + tamDespl)]
+  else:
+    areasYaEscritas = [(desplIniFich, CAB_POS_NOMS_OBJS)]
+  # Dejamos espacio para la posición siguiente tras la base de datos
+  guarda_desplazamiento (-desplIniMem)
+  # Guardamos la posición siguiente tras la base de datos más grande posible
+  guarda_desplazamiento (tamMaxBD - desplIniMem)
+  areasYaEscritas.append ([desplIniFich + tamCabecera - tamDespl, desplIniFich + tamCabecera])
+  # Guardamos el vocabulario
+  posicion = carga_desplazamiento (CAB_POS_VOCAB) + desplIniFich
+  fich_sal.seek (posicion)
+  guardaVocabulario (conversion)
+  # Guardamos las localidades iniciales de los objetos
+  for localidad in locs_iniciales:
+    guarda_int1 (localidad)
+  guarda_int1 (255)  # Fin de la lista de localidades iniciales de los objetos
+  if formato == 'qql':
+    # Guardamos los nombres de los objetos
+    for nombre, adjetivo in nombres_objs:
+      guarda_int1 (nombre)
+    guarda_int1 (0)  # Fin de la lista de nombres de los objetos
+    areasYaEscritas.append ([posicion, posicion + tamVocab + numLocs + num_objetos[0] + 2])
+  else:  # formato == 'c64'
+    areasYaEscritas.append ([posicion, posicion + tamVocab + numLocs + 1])
+  # Guardamos las tablas de eventos y de estado, sin duplicidad
+  assert areasYaEscritas[1][1] == desplIniFich + tamCabecera
+  fich_sal.seek (desplIniFich + tamCabecera)
+  for t in range (2):
+    cabeceras, entradas = tablas_proceso[t]
+    for e in range (len (entradas)):
+      guarda_int1 (cabeceras[e][0])  # Palabra 1 (normalmente verbo)
+      guarda_int1 (cabeceras[e][1])  # Palabra 2 (normalmente nombre)
+      areasYaEscritas[1][1] += 2
+      algunaAccion = False  # Si se ha encontrado ya alguna acción en la entrada
+      accionFlujo  = False  # Si la entrada termina con una acción que cambia el flujo de ejecución incondicionalmente
+      secuencia    = []
+      for condacto, parametros in entradas[e]:
+        if condacto >= 100:
+          if not algunaAccion:
+            secuencia.append (255)  # Fin de condiciones
+          algunaAccion = True
+        secuencia.append (condacto - (100 if algunaAccion else 0))
+        secuencia.extend (parametros)
+        if algunaAccion and condactos[condacto][3]:
+          accionFlujo = True
+          break  # Esta acción cambia el flujo de ejecución incondicionalmente
+      if not accionFlujo:
+        secuencia.append (255)  # Fin de acciones y entrada
+      posicion = fich_sal.tell()
+      posSecuencia = buscaSecuenciaEnAreas (secuencia, areasYaEscritas, desplIniFich)
+      fich_sal.seek (posicion)
+      if posSecuencia is None:  # No encontrada la secuencia de la entrada de proceso en el fichero
+        guarda_desplazamiento (ocupado)  # Posición de esta entrada
+        fich_sal.seek (desplIniFich + ocupado)
+        for codigo in secuencia:
+          guarda_int1 (codigo)
+        assert areasYaEscritas[-1][1] == desplIniFich + ocupado
+        areasYaEscritas[-1][1] += len (secuencia)
+        ocupado += len (secuencia)
+        fich_sal.seek (posicion + tamDespl)
+      else:
+        guarda_desplazamiento (posSecuencia - desplIniFich)  # Posición donde ya estaba
+      areasYaEscritas[1][1] += tamDespl
+    guarda_int1 (0)  # Marca de fin de cabecera de tabla
+    areasYaEscritas[1][1] += 1
+  # Guardamos las conexiones de las localidades, sin duplicidad
+  for c in range (len (conexiones)):
+    secuencia = []
+    for conexion in conexiones[c]:
+      secuencia.extend (list (conexion))
+    secuencia.append (255)  # Fin de las conexiones de esta localidad
+    posSecuencia = buscaSecuenciaEnAreas (secuencia, areasYaEscritas, desplIniFich)
+    posicion = carga_desplazamiento (CAB_POS_LST_POS_CNXS) + desplIniFich + (c * tamDespl)
+    fich_sal.seek (posicion)
+    if posSecuencia is None:  # No encontrada la secuencia de la conexión en el fichero
+      guarda_desplazamiento (ocupado)  # Posición de esta conexión
+      fich_sal.seek (desplIniFich + ocupado)
+      for codigo in secuencia:
+        guarda_int1 (codigo)
+      assert areasYaEscritas[-1][1] == desplIniFich + ocupado
+      areasYaEscritas[-1][1] += len (secuencia) + 1
+      ocupado += len (secuencia) + 1
+    else:
+      guarda_desplazamiento (posSecuencia - desplIniFich)  # Posición donde ya estaba
+  assert areasYaEscritas[-1][0] == posicion + numLocs * tamDespl
+  areasYaEscritas[-1][0] -= numLocs * tamDespl
+  # Guardamos los textos de la aventura y sus posiciones, sin duplicidad
+  for posCabecera, mensajes in ((CAB_POS_LST_POS_OBJS, desc_objs), (CAB_POS_LST_POS_LOCS, desc_locs), (CAB_POS_LST_POS_MSGS_USR, msgs_usr), (CAB_POS_LST_POS_MSGS_SYS, msgs_sys)):
+    for m in range (len (mensajes)):
+      secuencia    = daCadena (mensajes[m], finCadena = 0, nuevaLinea = 141, conversion = conversion)
+      posSecuencia = buscaSecuenciaEnAreas (secuencia, areasYaEscritas, desplIniFich)
+      posicion = carga_desplazamiento (posCabecera) + desplIniFich + (m * tamDespl)
+      fich_sal.seek (posicion)
+      assert areasYaEscritas[-2][1] == posicion
+      areasYaEscritas[-2][1] += tamDespl
+      if posSecuencia is None:  # No encontrada la secuencia del mensaje en el fichero
+        guarda_desplazamiento (ocupado)  # Posición de este mensaje
+        fich_sal.seek (desplIniFich + ocupado)
+        guardaCadena (mensajes[m], finCadena = 0, nuevaLinea = 141, conversion = conversion)
+        assert areasYaEscritas[-1][1] == desplIniFich + ocupado
+        areasYaEscritas[-1][1] += len (secuencia)
+        ocupado += len (secuencia)
+      else:
+        guarda_desplazamiento (posSecuencia - desplIniFich)  # Posición donde ya estaba
+  # Guardamos la posición siguiente tras la base de datos
+  fich_sal.seek (CAB_POS_NOMS_OBJS + (tamDespl if formato == 'qql' else 0))
+  guarda_desplazamiento (ocupado)
+
 def guarda_bd_c64 (bbdd):
   """Almacena la base de datos entera en el fichero de salida, para Commodore 64, replicando el formato original"""
   global fich_sal, guarda_desplazamiento
@@ -479,6 +684,7 @@ def guarda_bd_c64 (bbdd):
         for parametro in parametros:
           guarda_int1 (parametro)
         ocupado += 1 + len (parametros)
+      # TODO: este código no contempla entradas sin acciones ni condactos
       guarda_int1 (255)  # Fin de acciones y entrada
       ocupado += 2  # Las marcas de fin de condiciones y acciones
     # Guardamos la posición de la cabecera de la tabla
@@ -640,6 +846,7 @@ def guarda_bd_ql (bbdd):
         for parametro in parametros:
           guarda_int1 (parametro)
         ocupado += 1 + len (parametros)
+      # TODO: este código no contempla entradas sin acciones ni condactos
       guarda_int1 (255)  # Fin de acciones y entrada
       ocupado += 2  # Las marcas de fin de condiciones y acciones
       e += 1
@@ -788,6 +995,21 @@ def nueva_bd ():
 
 # Funciones auxiliares que sólo se usan en este módulo
 
+def buscaSecuenciaEnAreas (secuencia, areas, inicioFich):
+  """Busca la secuencia de valores de byte dada a partir de la posición inicioFich del fichero, entre las áreas del fichero dadas, y devuelve la posición donde comienza o None si no se encontró"""
+  while True:
+    posSecuencia = busca_secuencia (secuencia, inicioFich)
+    if posSecuencia is None:
+      return  # No encontrada
+    posSecuencia -= len (secuencia) - 1  # Encontrada por completo en esta posición
+    for posInicio, posFin in areas:
+      if posInicio > posSecuencia or posFin < posSecuencia:
+        continue
+      if posSecuencia + len (secuencia) > posFin:
+        break  # No está completa la secuencia ahí
+      return posSecuencia
+    inicioFich = posSecuencia + 1  # Seguiremos buscando
+
 def cargaBD (fichero, longitud):
   """Carga la base de datos entera desde el fichero de entrada
 
@@ -855,12 +1077,12 @@ cadenas es la lista donde almacenar las cadenas que se carguen"""
 def cargaConexiones ():
   """Carga las conexiones"""
   # Cargamos el número de localidades
-  num_locs = carga_int1 (CAB_NUM_LOCS)
+  numLocs = carga_int1 (CAB_NUM_LOCS)
   # Vamos a la posición de la lista de posiciones de las conexiones
   fich_ent.seek (carga_desplazamiento (CAB_POS_LST_POS_CNXS))
   # Cargamos las posiciones de las conexiones de cada localidad
   posiciones = []
-  for i in range (num_locs):
+  for i in range (numLocs):
     posiciones.append (carga_desplazamiento())
   # Cargamos las conexiones de cada localidad
   for posicion in posiciones:
@@ -979,6 +1201,20 @@ def cargaVocabulario ():
       palabra = palabra.translate (petscii_a_ascii)
     # Quill guarda las palabras en mayúsculas
     vocabulario.append ((palabra.lower(), carga_int1(), 0))
+
+def daCadena (cadena, finCadena, nuevaLinea, conversion = None):
+  """Devuelve una cadena en el formato de Quill"""
+  if conversion:
+    cadena = cadena.translate (conversion)
+  resultado = []
+  for caracter in cadena:
+    if caracter == '\n':
+      caracter = nuevaLinea
+    else:
+      caracter = ord (caracter)
+    resultado.append (caracter ^ 255)
+  resultado.append (finCadena ^ 255)  # Fin de cadena
+  return resultado
 
 def guardaCadena (cadena, finCadena, nuevaLinea, conversion = None):
   """Guarda una cadena en el formato de Quill"""

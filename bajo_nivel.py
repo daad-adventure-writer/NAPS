@@ -64,15 +64,17 @@ def bajo_nivel_cambia_sal (fichero):
   global fich_sal
   fich_sal = fichero
 
-def busca_secuencia (secuencia):
-  # type: (Sequence[Optional[int]]) -> Optional[int]
+def busca_secuencia (secuencia, posInicio = 0):
+  # type: (Sequence[Optional[int]], Optional[int]) -> Optional[int]
   """Busca la secuencia de valores de byte dada y devuelve la posición donde se quedó al encontrarla o None si no se encontró
 
-  secuencia es la lista de valores de byte a buscar. Puede incluir valores None para posiciones que siempre encajarán"""
+  secuencia es la lista de valores de byte a buscar. Puede incluir valores None para posiciones que siempre encajarán
+  posInicio es el índice donde se empezará a buscar"""
   fich_ent.seek (0, os.SEEK_END)
   longitud = fich_ent.tell()
-  if posicion >= longitud:
+  if posInicio >= longitud:
     return
+  posicion = posInicio
   fich_ent.seek (posicion)
   encajeSec = []  # Secuencia de encajes hasta ahora
   c = carga_int1()
