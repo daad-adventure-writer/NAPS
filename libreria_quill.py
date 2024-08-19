@@ -498,13 +498,18 @@ def guarda_bd (bbdd):
   guarda_int1 (numMsgsSys)
   if formato == 'qql':
     guarda_int1 (0)  # Relleno
-  # Eliminamos entradas de proceso vacías, los editores de Quill no las permiten y el código de guardado de tablas de proceso no contempla que no haya acciones ni condiciones
+  # Eliminamos entradas sin acciones, los editores de Quill no las permiten y el código de guardado optimizado de tablas de proceso tampoco
   tablasLimpias = []
   for cabeceras, entradas in tablas_proceso:
     cabecerasLimpias = []
     entradasLimpias  = []
     for e in range (len (entradas)):
-      if entradas[e]:
+      algunaAccion = False
+      for condacto, parametros in entradas[e]:
+        if condacto >= 100:
+          algunaAccion = True
+          break
+      if algunaAccion:
         cabecerasLimpias.append (cabeceras[e])
         entradasLimpias.append  (entradas[e])
     tablasLimpias.append ((cabecerasLimpias, entradasLimpias))
