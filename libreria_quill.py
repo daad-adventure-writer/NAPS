@@ -693,7 +693,8 @@ def guarda_bd_c64 (bbdd):
         for parametro in parametros:
           guarda_int1 (parametro)
         ocupado += 1 + len (parametros)
-      # TODO: este código no contempla entradas sin acciones ni condactos
+      if not algunaAccion:
+        guarda_int1 (255)  # Fin de condiciones
       guarda_int1 (255)  # Fin de acciones y entrada
       ocupado += 2  # Las marcas de fin de condiciones y acciones
     # Guardamos la posición de la cabecera de la tabla
@@ -855,7 +856,8 @@ def guarda_bd_ql (bbdd):
         for parametro in parametros:
           guarda_int1 (parametro)
         ocupado += 1 + len (parametros)
-      # TODO: este código no contempla entradas sin acciones ni condactos
+      if not algunaAccion:
+        guarda_int1 (255)  # Fin de condiciones
       guarda_int1 (255)  # Fin de acciones y entrada
       ocupado += 2  # Las marcas de fin de condiciones y acciones
       e += 1
