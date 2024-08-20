@@ -272,9 +272,9 @@ for codigo in acciones:
 
 # Variables que sólo se usan en este módulo
 
-petscii = ''.join (('%c' % c for c in range (65))) + 'abcdefghijklmnopqrstuvwxyz' + ''.join (('%c' % c for c in range (91, 96))) + '\xc0ABCDEFGHIJKLMNOPQRSTUVWXYZ' + ''.join (('%c' % c for c in range (219, 224) + range (128, 193))) + 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' + ''.join (('%c' % c for c in range (219, 224) + range (160, 192)))
+petscii = ''.join (('%c' % c for c in range (65))) + 'abcdefghijklmnopqrstuvwxyz' + ''.join (('%c' % c for c in range (91, 96))) + '\xc0ABCDEFGHIJKLMNOPQRSTUVWXYZ' + ''.join (('%c' % c for c in tuple (range (219, 224)) + tuple (range (128, 193)))) + 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' + ''.join (('%c' % c for c in tuple (range (219, 224)) + tuple (range (160, 192))))
 petscii_a_ascii = maketrans (''.join (('%c' % c for c in range (256))), petscii)
-ascii_para_petscii = ''.join (('%c' % c for c in range (65) + range (193, 219) + range (91, 97))) + 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' + ''.join (('%c' % c for c in range (123, 256)))
+ascii_para_petscii = ''.join (('%c' % c for c in tuple (range (65)) + tuple (range (193, 219)) + tuple (range (91, 97)))) + 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' + ''.join (('%c' % c for c in range (123, 256)))
 ascii_a_petscii = maketrans (''.join (('%c' % c for c in range (256))), ascii_para_petscii)
 
 
