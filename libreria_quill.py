@@ -441,6 +441,7 @@ def guarda_bd (bbdd):
   extension = os.path.splitext (bbdd.name)[1][1:].lower()
   formato   = 'c64' if extension == 'prg' else extension
   areasYaEscritas = []  # Áreas del fichero ya escritas, para deduplicar datos ya existentes en la base de datos
+  porColocar      = {}  # Secciones del fichero reubicables pendientes de colocar
   fich_sal     = bbdd
   conversion   = None             # Conversión de juego de caracteres
   desplIniFich = 0                # Posición donde empieza la BD en el fichero
@@ -482,7 +483,9 @@ def guarda_bd (bbdd):
     guarda_int1 (72)  # Tipo de fichero
     guardaInt4  (0)   # Longitud de datos
     guardaInt4  (0)   # Reservado
+
   # Guardamos la cabecera de Quill
+
   guarda_int1 (0)  # ¿Plataforma?
   if formato == 'qql':
     guarda_int1 (1)  # ¿Versión del formato?
@@ -533,50 +536,34 @@ def guarda_bd (bbdd):
   # Guardamos la posición de la lista de posiciones de las conexiones
   guarda_desplazamiento (ocupado)
   ocupado += numLocs * tamDespl
-  # Guardamos la posición del vocabulario
-  guarda_desplazamiento (ocupado)
-  tamVocab = (len (vocabulario) * (LONGITUD_PAL + 1)) + 1
-  ocupado += tamVocab
-  # Guardamos la posición de las localidades iniciales de los objetos
-  guarda_desplazamiento (ocupado)
-  ocupado += numLocs + 1
+  # Dejamos espacio para la posición del vocabulario
+  areasYaEscritas.append ([desplIniFich, CAB_POS_VOCAB])
+  guarda_desplazamiento (-desplIniMem)
+  # Dejamos espacio para la posición de las localidades iniciales de los objetos
+  guarda_desplazamiento (-desplIniMem)
   if formato == 'qql':
-    # Guardamos la posición de los nombres de los objetos
-    guarda_desplazamiento (ocupado)
-    ocupado += num_objetos[0] + 1
-    areasYaEscritas = [(desplIniFich, CAB_POS_NOMS_OBJS + tamDespl)]
-  else:
-    areasYaEscritas = [(desplIniFich, CAB_POS_NOMS_OBJS)]
+    # Dejamos espacio para la posición de los nombres de los objetos
+    guarda_desplazamiento (-desplIniMem)
   # Dejamos espacio para la posición siguiente tras la base de datos
   guarda_desplazamiento (-desplIniMem)
   # Guardamos la posición siguiente tras la base de datos más grande posible
   guarda_desplazamiento (tamMaxBD - desplIniMem)
   areasYaEscritas.append ([desplIniFich + tamCabecera - tamDespl, desplIniFich + tamCabecera])
-  # Guardamos el vocabulario
-  posicion = carga_desplazamiento (CAB_POS_VOCAB) + desplIniFich
-  fich_sal.seek (posicion)
-  guardaVocabulario (conversion)
-  # Guardamos las localidades iniciales de los objetos
-  for localidad in locs_iniciales:
-    guarda_int1 (localidad)
-  guarda_int1 (255)  # Fin de la lista de localidades iniciales de los objetos
-  if formato == 'qql':
-    # Guardamos los nombres de los objetos
-    for nombre, adjetivo in nombres_objs:
-      guarda_int1 (nombre)
-    guarda_int1 (0)  # Fin de la lista de nombres de los objetos
-    areasYaEscritas.append ([posicion, posicion + tamVocab + numLocs + num_objetos[0] + 2])
-  else:  # formato == 'c64'
-    areasYaEscritas.append ([posicion, posicion + tamVocab + numLocs + 1])
-  # Guardamos las tablas de eventos y de estado, sin duplicidad
-  assert areasYaEscritas[1][1] == desplIniFich + tamCabecera
-  fich_sal.seek (desplIniFich + tamCabecera)
+
+  # Guardamos las tablas con posiciones que rellenar
+
+  # Guardamos las cabeceras de las tablas de eventos y de estado, dejando espacio para las posiciones de las entradas
+  # De paso, recopilaremos el código de las entradas como reubicables
   for t in range (2):
     cabeceras, entradas = tablasLimpias[t]
     for e in range (len (entradas)):
+      posicion = fich_sal.tell()
       guarda_int1 (cabeceras[e][0])  # Palabra 1 (normalmente verbo)
       guarda_int1 (cabeceras[e][1])  # Palabra 2 (normalmente nombre)
-      areasYaEscritas[1][1] += 2
+      if areasYaEscritas[-1][1] == posicion:
+        areasYaEscritas[-1][1] += 2
+      else:
+        areasYaEscritas.append ([posicion, posicion + 2])
       algunaAccion = False  # Si se ha encontrado ya alguna acción en la entrada
       accionFlujo  = False  # Si la entrada termina con una acción que cambia el flujo de ejecución incondicionalmente
       secuencia    = []
@@ -592,62 +579,247 @@ def guarda_bd (bbdd):
           break  # Esta acción cambia el flujo de ejecución incondicionalmente
       if not accionFlujo:
         secuencia.append (255)  # Fin de acciones y entrada
-      posicion = fich_sal.tell()
-      posSecuencia = buscaSecuenciaEnAreas (secuencia, areasYaEscritas, desplIniFich)
-      fich_sal.seek (posicion)
-      if posSecuencia is None:  # No encontrada la secuencia de la entrada de proceso en el fichero
-        guarda_desplazamiento (ocupado)  # Posición de esta entrada
-        fich_sal.seek (desplIniFich + ocupado)
-        for codigo in secuencia:
-          guarda_int1 (codigo)
-        assert areasYaEscritas[-1][1] == desplIniFich + ocupado
-        areasYaEscritas[-1][1] += len (secuencia)
-        ocupado += len (secuencia)
-        fich_sal.seek (posicion + tamDespl)
-      else:
-        guarda_desplazamiento (posSecuencia - desplIniFich)  # Posición donde ya estaba
-      areasYaEscritas[1][1] += tamDespl
+      porColocar[fich_sal.tell()] = secuencia
+      # Dejamos espacio para la posición de esta entrada
+      guarda_desplazamiento (-desplIniMem)
+    posicion = fich_sal.tell()
     guarda_int1 (0)  # Marca de fin de cabecera de tabla
-    areasYaEscritas[1][1] += 1
-  # Guardamos las conexiones de las localidades, sin duplicidad
+    areasYaEscritas.append ([posicion, posicion + 1])
+
+  # Recopilamos las demás secciones reubicables de la base de datos
+
+  # Obtenemos el vocabulario
+  porColocar[CAB_POS_VOCAB] = daVocabulario (conversion)
+  # Recopilamos las localidades iniciales de los objetos
+  secuencia = []
+  for localidad in locs_iniciales:
+    secuencia.append (localidad)
+  secuencia.append (255)  # Fin de la lista de localidades iniciales de los objetos
+  porColocar[CAB_POS_LOCS_OBJS] = secuencia
+  if formato == 'qql':
+    # Recopilamos los nombres de los objetos
+    secuencia = []
+    for nombre, adjetivo in nombres_objs:
+      secuencia.append (nombre)
+    secuencia.append (0)  # Fin de la lista de nombres de los objetos
+    porColocar[CAB_POS_NOMS_OBJS] = secuencia
+  # Recopilamos las conexiones de las localidades
+  posicion = carga_desplazamiento (CAB_POS_LST_POS_CNXS) + desplIniFich
   for c in range (len (conexiones)):
     secuencia = []
     for conexion in conexiones[c]:
       secuencia.extend (list (conexion))
     secuencia.append (255)  # Fin de las conexiones de esta localidad
-    posSecuencia = buscaSecuenciaEnAreas (secuencia, areasYaEscritas, desplIniFich)
-    posicion = carga_desplazamiento (CAB_POS_LST_POS_CNXS) + desplIniFich + (c * tamDespl)
-    fich_sal.seek (posicion)
-    if posSecuencia is None:  # No encontrada la secuencia de la conexión en el fichero
-      guarda_desplazamiento (ocupado)  # Posición de esta conexión
-      fich_sal.seek (desplIniFich + ocupado)
-      for codigo in secuencia:
-        guarda_int1 (codigo)
-      assert areasYaEscritas[-1][1] == desplIniFich + ocupado
-      areasYaEscritas[-1][1] += len (secuencia) + 1
-      ocupado += len (secuencia) + 1
-    else:
-      guarda_desplazamiento (posSecuencia - desplIniFich)  # Posición donde ya estaba
-  # assert areasYaEscritas[-1][0] == posicion + numLocs * tamDespl
-  areasYaEscritas[-1][0] -= numLocs * tamDespl
-  # Guardamos los textos de la aventura y sus posiciones, sin duplicidad
+    porColocar[posicion + c * tamDespl] = secuencia
+  # Recopilamos los textos de la aventura
   for posCabecera, mensajes in ((CAB_POS_LST_POS_OBJS, desc_objs), (CAB_POS_LST_POS_LOCS, desc_locs), (CAB_POS_LST_POS_MSGS_USR, msgs_usr), (CAB_POS_LST_POS_MSGS_SYS, msgs_sys)):
+    posicion = carga_desplazamiento (posCabecera) + desplIniFich
     for m in range (len (mensajes)):
-      secuencia    = daCadena (mensajes[m], finCadena = 0, nuevaLinea = 141, conversion = conversion)
-      posSecuencia = buscaSecuenciaEnAreas (secuencia, areasYaEscritas, desplIniFich)
-      posicion = carga_desplazamiento (posCabecera) + desplIniFich + (m * tamDespl)
-      fich_sal.seek (posicion)
-      assert areasYaEscritas[-2][1] == posicion
-      areasYaEscritas[-2][1] += tamDespl
-      if posSecuencia is None:  # No encontrada la secuencia del mensaje en el fichero
-        guarda_desplazamiento (ocupado)  # Posición de este mensaje
-        fich_sal.seek (desplIniFich + ocupado)
-        guardaCadena (mensajes[m], finCadena = 0, nuevaLinea = 141, conversion = conversion)
-        assert areasYaEscritas[-1][1] == desplIniFich + ocupado
-        areasYaEscritas[-1][1] += len (secuencia)
-        ocupado += len (secuencia)
-      else:
-        guarda_desplazamiento (posSecuencia - desplIniFich)  # Posición donde ya estaba
+      secuencia = daCadena (mensajes[m], finCadena = 0, nuevaLinea = 141, conversion = conversion)
+      porColocar[posicion + m * tamDespl] = secuencia
+
+  # Detectamos las secuencias reubicables duplicadas
+  duplicadas    = set()  # Posiciones de secuencias duplicadas, salen todas menos la primera ocurrencia
+  duplicadasInv = {}     # Posiciones de secuencias duplicadas para cada primera ocurrencia
+  for posicion, secuencia in porColocar.items():
+    if posicion in duplicadas:
+      continue
+    for posicion2, secuencia2 in porColocar.items():
+      if posicion2 == posicion:
+        continue
+      if secuencia == secuencia2:
+        duplicadas.add (posicion2)
+        if posicion not in duplicadasInv:
+          duplicadasInv[posicion] = []
+        duplicadasInv[posicion].append (posicion2)
+  for posicion in duplicadas:
+    del porColocar[posicion]
+
+  # Colocamos las secciones reubicables
+
+  ahorrosColocar = {}
+  iteracion      = 0
+  secuenciaFinal = []
+  while porColocar:
+    # Colocamos las secciones cuyo contenido esté por completo entre las áreas ya escritas del fichero
+    # Juntamos las secuencias de porColocar en un árbol "trie" para buscarlas todas en el fichero de una sola pasada
+    porColocarSecs = {}
+    for posicion, secuencia in porColocar.items ():
+      casilla = porColocarSecs
+      for s in range (len (secuencia)):
+        if secuencia[s] not in casilla:
+          casilla[secuencia[s]] = [{}, None]
+        if s == len (secuencia) - 1:
+          casilla[secuencia[s]][1] = posicion  # Basta con esto porque no hay secuencias duplicadas en porColocar
+        else:
+          casilla = casilla[secuencia[s]][0]
+    # Colocamos las secciones cuyo contenido ya estaba escrito en algún lugar del fichero
+    for posicion, posSecuencia in buscaSecuenciasEnAreas (porColocarSecs, areasYaEscritas, porColocar, desplIniFich).items():
+      posSecuencia -= desplIniFich
+      posiciones    = [posicion]
+      if posicion in duplicadasInv:
+        posiciones.extend (duplicadasInv[posicion])
+        del duplicadasInv[posicion]
+      # Guardamos punteros a secciones como esta
+      for posicion in posiciones:
+        fich_sal.seek (posicion)
+        guarda_desplazamiento (posSecuencia)
+        anyadeArea (posicion, posicion + tamDespl, areasYaEscritas)
+      del porColocar[posiciones[0]]
+    if not porColocar:
+      break  # Ya las hemos colocado todas
+    # Vemos el tamaño de los solapes que hay entre el fin de la última área del fichero y el inicio de cada sección restante por colocar
+    if areasYaEscritas[-1][1] >= ocupado:  # Sólo si la última área del fichero ya está escrita
+      # Extendemos secuenciaFinal con lo que haya nuevo al final del fichero
+      nuevoAlFinal = areasYaEscritas[-1][1] - areasYaEscritas[-1][0] - len (secuenciaFinal)
+      if nuevoAlFinal > 0:
+        fich_sal.seek (areasYaEscritas[-1][1] - nuevoAlFinal)
+        for b in range (areasYaEscritas[-1][1] - nuevoAlFinal, areasYaEscritas[-1][1]):
+          secuenciaFinal.append (ord (fich_sal.read (1)))
+      # Buscamos solapes entre lo último escrito al final del fichero y cada sección restante por colocar
+      for posicion, secuencia in porColocar.items():
+        for s in range (min (len (secuencia), len (secuenciaFinal)), 0, -1):
+          if secuenciaFinal[-s:] == secuencia[:s]:
+            ahorro = s
+            if posicion in duplicadasInv:
+              ahorro += s * len (duplicadasInv[posicion])
+            if ahorro not in ahorrosColocar:
+              ahorrosColocar[ahorro] = []
+            ahorrosColocar[ahorro].append ((0, posicion))
+            break
+    if not iteracion:  # Sólo en la primera iteración
+      # Vemos el tamaño de los solapes que hay entre fin e inicio de cada combinación de secciones restantes por colocar
+      for posicion, secuencia in porColocar.items():
+        for posicion2, secuencia2 in porColocar.items():
+          if posicion2 == posicion:
+            continue
+          # XXX: esto es código común con lo de justo arriba
+          for s in range (min (len (secuencia), len (secuencia2)), 0, -1):
+            if secuencia[-s:] == secuencia2[:s]:
+              ahorro = s
+              if posicion2 in duplicadasInv:
+                ahorro += s * len (duplicadasInv[posicion2])
+              if ahorro not in ahorrosColocar:
+                ahorrosColocar[ahorro] = []
+              ahorrosColocar[ahorro].append ((posicion, posicion2))
+              break
+          # XXX: aquí termina el código duplicado
+    for ahorro in ahorrosColocar:
+      ahorrosColocar[ahorro].sort()  # Los necesitamos ordenados
+    # Vemos cuáles de las secciones restantes ahorrarán espacio por solaparse sobre la última área escrita del fichero
+    colocaSiguiente = False
+    siguientes      = {}  # Posición de secuencias que ahorrarán espacio por colocarse tras la última área escrita, solape con ésta y cuánto ahorran
+    for ahorro in ahorrosColocar:
+      for posicion, posicion2 in ahorrosColocar[ahorro]:
+        if posicion:
+          break  # Ya hemos terminado de ver las combinaciones que ahorran ahorro tras la última área escrita
+        siguientes[posicion2] = [ahorro, ahorro]
+    # Vemos cuáles de las secciones restantes si se ponen al final del fichero consituiría un prefijo mayor de otra
+    if areasYaEscritas[-1][1] >= ocupado:  # Sólo si la última área del fichero ya está escrita
+      ahorrosExtraFin  = {}
+      ahorrosSolapeFin = {}
+      for posicion, secuencia in porColocar.items():
+        secuenciaSobreFin = secuenciaFinal + secuencia
+        for posicion2, secuencia2 in porColocar.items():
+          if posicion2 == posicion:
+            continue
+          if secuencia2 in secuenciaSobreFin and secuencia2 not in secuenciaFinal:  # Quedará totalmente incluida gracias a esto
+            if posicion in ahorrosExtraFin:
+              ahorrosExtraFin[posicion] += len (secuencia2)
+            else:
+              ahorrosExtraFin[posicion] = len (secuencia2)
+          else:  # No quedará totalmente incluida con esto
+            # Buscamos solapes adicionales si se coloca la sección de posición posicion tras la última área escrita
+            for s in range (min (len (secuencia2) - 1, len (secuenciaSobreFin)), len (secuencia), -1):
+              if secuenciaSobreFin[-s:] == secuencia2[:s]:
+                ahorroTotal = s
+                if posicion in ahorrosSolapeFin:
+                  ahorrosSolapeFin[posicion] = max (ahorrosSolapeFin[posicion], ahorroTotal)
+                else:
+                  ahorrosSolapeFin[posicion] = ahorroTotal
+                break
+      for posicion in ahorrosSolapeFin:
+        if posicion in siguientes:
+          siguientes[posicion][1] = max (siguientes[posicion], ahorrosSolapeFin[posicion])
+        else:
+          siguientes[posicion] = [0, ahorrosSolapeFin[posicion]]
+      for posicion in ahorrosExtraFin:
+        if posicion in siguientes:
+          siguientes[posicion][1] += ahorrosExtraFin[posicion]
+        else:
+          siguientes[posicion] = [0, ahorrosExtraFin[posicion]]
+    if siguientes:
+      # TODO: quitar de siguientes las que ahorrarían más colocadas detrás de alguna otra
+      # Buscamos las de máximo ahorro
+      maxAhorro = 0
+      posMax    = None  # Primera posición encontrada con máximo ahorro
+      solapeMax = None  # Solape de la primera posición encontrada con máximo ahorro
+      for siguiente in siguientes:
+        solape, ahorro = siguientes[siguiente]
+        if ahorro > maxAhorro:
+          maxAhorro = ahorro
+          solapeMax = solape
+          posMax    = siguiente
+      colocaSiguiente = True
+      siguiente       = posMax
+      solape          = solapeMax
+    else:  # Ninguna de las secuencias restantes ahorrarán nada por ponerlas al final del fichero
+      solape = 0
+      # Buscamos una sección de las restantes que no tenga ahorro por colocarse detrás de ninguna otra
+      for posicion, secuencia in porColocar.items():
+        clavesAhorros = sorted (ahorrosColocar.keys(), reverse = True)
+        for a in (range (len (clavesAhorros))):
+          for parPosiciones in ahorrosColocar[ahorro]:
+            if parPosiciones[1] == posicion:
+              break  # Encontrada, no sirve esta
+          else:  # No encontrada, puede servir esta
+            continue
+          break  # Encontrada, no sirve esta
+        else:  # No encontrada, sirve esta
+          colocaSiguiente = True
+          siguiente       = posicion
+          break
+      else:  # Todas tenían algo de ahorro por colocarse detrás de alguna otra
+        colocaSiguiente = True  # Nos quedamos una cualquiera (la última recorrida, en este caso)
+        siguiente       = posicion
+    # Colocamos la sección
+    if colocaSiguiente:
+      posicion     = siguiente
+      posSecuencia = ocupado - solape
+      secuencia    = porColocar[siguiente]
+      # TODO: crear función con el siguiente código, duplicado arriba
+      posiciones = [posicion]
+      if posicion in duplicadasInv:
+        posiciones.extend (duplicadasInv[posicion])
+        del duplicadasInv[posicion]
+      # Guardamos punteros a secciones como esta
+      for posicion in posiciones:
+        fich_sal.seek (posicion)
+        guarda_desplazamiento (posSecuencia)
+        anyadeArea (posicion, posicion + tamDespl, areasYaEscritas)
+      del porColocar[posiciones[0]]
+      # XXX: aquí termina el código duplicado
+      # Guardamos esta sección
+      fich_sal.seek (desplIniFich + ocupado)
+      for codigo in secuencia[solape:]:
+        guarda_int1 (codigo)
+      anyadeArea (desplIniFich + ocupado, desplIniFich + ocupado + len (secuencia) - solape, areasYaEscritas)
+      ocupado += len (secuencia) - solape
+      # Limpiamos ahorrosColocar, quitando entradas desde 0 (el final de fichero anterior), y desde y hasta la secuencia de la posición siguiente
+      for ahorro in tuple (ahorrosColocar.keys()):
+        indicesEliminar = set()
+        for a in range (len (ahorrosColocar[ahorro])):
+          parPosiciones = ahorrosColocar[ahorro][a]
+          if parPosiciones[0] == 0 or siguiente in parPosiciones:
+            indicesEliminar.add (a)
+        eliminados = 0
+        for a in sorted (indicesEliminar):
+          del ahorrosColocar[ahorro][a - eliminados]
+          eliminados += 1
+        if not ahorrosColocar[ahorro]:
+          del ahorrosColocar[ahorro]
+    iteracion += 1
+
   # Guardamos la posición siguiente tras la base de datos
   fich_sal.seek (CAB_POS_NOMS_OBJS + (tamDespl if formato == 'qql' else 0))
   guarda_desplazamiento (ocupado)
@@ -1011,20 +1183,43 @@ def nueva_bd ():
 
 # Funciones auxiliares que sólo se usan en este módulo
 
-def buscaSecuenciaEnAreas (secuencia, areas, inicioFich):
-  """Busca la secuencia de valores de byte dada a partir de la posición inicioFich del fichero, entre las áreas del fichero dadas, y devuelve la posición donde comienza o None si no se encontró"""
-  while True:
-    posSecuencia = busca_secuencia (secuencia, inicioFich)
-    if posSecuencia is None:
-      return  # No encontrada
-    posSecuencia -= len (secuencia) - 1  # Encontrada por completo en esta posición
-    for posInicio, posFin in areas:
-      if posInicio > posSecuencia or posFin < posSecuencia:
-        continue
-      if posSecuencia + len (secuencia) > posFin:
-        break  # No está completa la secuencia ahí
-      return posSecuencia
-    inicioFich = posSecuencia + 1  # Seguiremos buscando
+def anyadeArea (rangoInicio, rangoFin, areas):
+  # type: (int, int, List[List[int, int]]) -> None
+  """Añade un área de rango dado a la lista de áreas ordenadas del fichero dada, ordenadamente y extendiendo o integrando áreas contiguas. El rango dado no debe solapar ninguna otra área"""
+  for a in range (len (areas)):
+    posInicio, posFin = areas[a]
+    if posFin < rangoInicio:
+      continue
+    if posFin == rangoInicio:
+      if a + 1 < len (areas) and areas[a + 1][0] == rangoFin:  # Este rango cubre el hueco entre el área anterior y la posterior
+        areas[a][1] = areas[a + 1][1]
+        del areas[a + 1]
+        return
+      areas[a][1] = rangoFin
+      return
+    if posInicio == rangoFin:
+      areas[a][0] = rangoInicio
+      return
+    areas.insert (a, [rangoInicio, rangoFin])
+    return
+  areas.append ([rangoInicio, rangoFin])
+
+def buscaSecuenciasEnAreas (arbolSecuencias, areas, secuencias, inicioFich):
+  # type: (Dict[str, list[Dict[str, list], Optional[int]]], List[List[int, int]], Dict[int, Sequence[int]], int) -> Dict[int, int]
+  """Busca las secuencias de valores de byte del árbol "trie" dado a partir de la posición inicioFich del fichero, entre las áreas ordenadas del fichero dadas, tomando la longitud de las secuencias desde el diccionario secuencias dado, indexado por posición donde se guardará su desplazamiento. Devuelve un diccionario con clave los valores de las hojas de las secuencias encontradas, y como valor la primera posición donde se ha encontrado en las áreas del fichero"""
+  secuenciasEnAreas = {}
+  for posicion, posSecuencias in busca_secuencias (arbolSecuencias, inicioFich).items():
+    for posSecuencia in posSecuencias:
+      for posInicio, posFin in areas:
+        if posFin <= posSecuencia:
+          continue
+        if posInicio > posSecuencia or posSecuencia + len (secuencias[posicion]) > posFin:
+          break  # No está la secuencia ahí o no está completa
+        secuenciasEnAreas[posicion] = posSecuencia
+        break
+      if posicion in secuenciasEnAreas:
+        break
+  return secuenciasEnAreas
 
 def cargaBD (fichero, longitud):
   """Carga la base de datos entera desde el fichero de entrada
@@ -1230,6 +1425,22 @@ def daCadena (cadena, finCadena, nuevaLinea, conversion = None):
       caracter = ord (caracter)
     resultado.append (caracter ^ 255)
   resultado.append (finCadena ^ 255)  # Fin de cadena
+  return resultado
+
+def daVocabulario (conversion = None):
+  """Devuelve la sección de vocabulario en el formato de Quill"""
+  resultado = []
+  for palabra in vocabulario:
+    # Rellenamos el texto de la palabra con espacios al final
+    cadena = palabra[0].upper()
+    if conversion:
+      cadena = cadena.translate (conversion)
+    cadena = cadena.ljust (LONGITUD_PAL)
+    for caracter in cadena:
+      caracter = ord (caracter)
+      resultado.append (caracter ^ 255)
+    resultado.append (palabra[1])  # Código de la palabra
+  resultado.append (0)  # Fin del vocabulario
   return resultado
 
 def guardaCadena (cadena, finCadena, nuevaLinea, conversion = None):

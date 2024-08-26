@@ -91,6 +91,38 @@ def busca_secuencia (secuencia, posInicio = 0):
     c = carga_int1()
     posicion += 1
 
+def busca_secuencias (arbolSecuencias, posInicio = 0):
+  # type: (Dict[str, list[Dict[str, list], Optional[int]]], int) -> Dict[int, Sequence[int]]
+  """Busca las secuencias de valores de byte del árbol "trie" dado a partir de la posición posInicio del fichero. Devuelve un diccionario con clave los valores de las hojas de las secuencias encontradas, y como valor las posiciones donde inicia su ocurrencia en el fichero"""
+  encajadas = {}
+  fich_ent.seek (0, os.SEEK_END)
+  longitud = fich_ent.tell()
+  if posInicio >= longitud:
+    return encajadas
+  posicion = posInicio
+  fich_ent.seek (posicion)
+  encajesParciales = []  # Prefijos de los encajes hasta ahora
+  c = carga_int1()
+  while True:
+    if c in arbolSecuencias:
+      encajesParciales.append ([])
+    for e in range (len (encajesParciales)):
+      casilla       = (arbolSecuencias, None)
+      encajeParcial = encajesParciales.pop (0)
+      for caracter in encajeParcial:
+        casilla = casilla[0][caracter]
+      if c in casilla[0]:  # Si hay alguna secuencia más larga con este prefijo
+        encajesParciales.append (encajeParcial + [c])
+        valorHoja = casilla[0][c][1]
+        if valorHoja != None:
+          if valorHoja not in encajadas:
+            encajadas[valorHoja] = []
+          encajadas[valorHoja].append (posicion - len (encajeParcial))
+    if posicion + 1 == longitud:
+      return encajadas  # Se ha llegado al final del fichero
+    c = carga_int1()
+    posicion += 1
+
 def carga_desplazamiento2 (desplazamiento = None):
   # type: (int) -> int
   """Carga un desplazamiento de 2 bytes en relación con el fichero
