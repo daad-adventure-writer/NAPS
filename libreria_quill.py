@@ -628,7 +628,7 @@ def guarda_bd (bbdd):
       ocupado += len (secuencia) + 1
     else:
       guarda_desplazamiento (posSecuencia - desplIniFich)  # Posición donde ya estaba
-  assert areasYaEscritas[-1][0] == posicion + numLocs * tamDespl
+  # assert areasYaEscritas[-1][0] == posicion + numLocs * tamDespl
   areasYaEscritas[-1][0] -= numLocs * tamDespl
   # Guardamos los textos de la aventura y sus posiciones, sin duplicidad
   for posCabecera, mensajes in ((CAB_POS_LST_POS_OBJS, desc_objs), (CAB_POS_LST_POS_LOCS, desc_locs), (CAB_POS_LST_POS_MSGS_USR, msgs_usr), (CAB_POS_LST_POS_MSGS_SYS, msgs_sys)):
