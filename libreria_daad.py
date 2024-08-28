@@ -41,6 +41,7 @@ atributos_extra = []   # Atributos extra de los objetos
 conexiones      = []   # Listas de conexiones de cada localidad
 desc_locs       = []   # Descripciones de las localidades
 desc_objs       = []   # Descripciones de los objetos
+dlg_progreso    = []   # Diálogo de progreso al exportar
 locs_iniciales  = []   # Localidades iniciales de los objetos
 msgs_sys        = []   # Mensajes de sistema
 msgs_usr        = []   # Mensajes de usuario
@@ -1131,6 +1132,7 @@ def guarda_bd (bbdd):
   # TODO: detectar cuando se sobrepasa el máximo valor representable en 16 bits para ocupado
   global abreviaturas, fich_sal
   longMin = 999999
+  dlg_progreso[0].setRange (3, 30 + 1)
   for maxAbrev in range (3, 30):
     try:
       (posibles, longAbrev) = calcula_abreviaturas (maxAbrev)
@@ -1143,6 +1145,10 @@ def guarda_bd (bbdd):
         abreviaturas = posibles
       longMin = longAbrev  # Reducción máxima de longitud total de textos lograda
       longMax = maxAbrev   # Longitud máxima en la búsqueda de abreviaturas
+    if dlg_progreso[0].wasCanceled():
+      break
+    else:
+      cambia_progreso.emit (maxAbrev)
   if longMin < longAntes:
     prn (longAntes - longMin, 'bytes ahorrados por abreviación de textos')
     prn ('La mejor combinación de abreviaturas se encontró con longitud máxima de abreviatura', longMax)
@@ -1320,6 +1326,7 @@ def guarda_bd (bbdd):
   # Guardamos la longitud final del fichero
   fich_sal.seek (CAB_LONG_FICH)
   guarda_desplazamiento (ocupado)
+  cambia_progreso.emit (30 + 1)
 
 def guardaDescLocs (posInicial = 0):
   """Guarda la sección de descripciones de las localidades sobre el fichero de salida, y devuelve cuántos bytes ocupa la sección, y las posiciones de cada descripción desde posInicial"""
