@@ -734,6 +734,36 @@ class CampoTexto (QTextEdit):
     else:
       super (CampoTexto, self).wheelEvent (evento)
 
+class ManejoExportacion (QThread):
+  """Hilo que ejecuta la exportación de base de datos sin bloquear la interfaz de usuario"""
+  cambia_progreso = pyqtSignal (int)
+
+  def __init__ (self, padre, fichero, indiceFiltroExportar):
+    QThread.__init__ (self, parent = padre)
+    self.fichero      = fichero
+    self.indiceFiltro = indiceFiltroExportar
+    self.cambia_progreso.connect (self.cambiaProgreso)
+    if 'dlg_progreso' in mod_actual.__dict__:
+      del mod_actual.dlg_progreso[:]  # Por si acaso quedaba algo ahí
+      self.dialogoProgreso = QProgressDialog (_('Export database'), _('&Cancel'), 0, 100, selector)
+      self.dialogoProgreso.setMinimumDuration (2000)  # Que salga si va a durar más de 2 segundos
+      mod_actual.cambia_progreso = self.cambia_progreso
+      mod_actual.dlg_progreso.append (self.dialogoProgreso)
+    else:
+      self.dialogoProgreso = None
+
+  def cambiaProgreso (self, valorProgreso):
+    """Cambia el valor actual del progreso en el diálogo de progreso"""
+    if self.dialogoProgreso:
+      self.dialogoProgreso.setValue (valorProgreso)
+
+  def run (self):
+    mod_actual.__dict__[info_exportar[self.indiceFiltro][0]] (self.fichero)
+    if self.dialogoProgreso:
+      self.dialogoProgreso.close()
+      self.dialogoProgreso = None
+      del mod_actual.dlg_progreso[:]
+
 class ManejoInterprete (QThread):
   """Maneja la comunicación con el intérprete ejecutando la base de datos"""
   cambiaBanderas = pyqtSignal (object)
@@ -1715,9 +1745,13 @@ def exportaBD ():
                     _('Cause:\n') + excepcion.args[1])
       selector.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
       return
-    mod_actual.__dict__[info_exportar[indiceFiltro][0]] (fichero)
-    fichero.close()
-    selector.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
+    hilo = ManejoExportacion (aplicacion, fichero, indiceFiltro)
+    hilo.finished.connect (lambda: finExportacion (fichero))
+    hilo.start()
+
+def finExportacion (fichero):
+  fichero.close()
+  selector.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
 
 def icono (nombre):
   """Devuelve un QIcon, sacando la imagen de la carpeta de iconos"""

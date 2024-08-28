@@ -35,6 +35,7 @@ colores_inicio = []   # Colores iniciales: tinta, papel y borde
 conexiones     = []   # Listas de conexiones de cada localidad
 desc_locs      = []   # Descripciones de las localidades
 desc_objs      = []   # Descripciones de los objetos
+dlg_progreso   = []   # Diálogo de progreso al exportar
 locs_iniciales = []   # Localidades iniciales de los objetos
 msgs_sys       = []   # Mensajes de sistema
 msgs_usr       = []   # Mensajes de usuario
@@ -637,11 +638,13 @@ def guarda_bd (bbdd):
 
   # Colocamos las secciones reubicables
 
+  dlg_progreso[0].setRange (- len (porColocar) - len (duplicadasInv), 0)
   ahorrosColocar = {}
   iteracion      = 0
   secuenciaFinal = []
-  while porColocar:
+  while porColocar and not dlg_progreso[0].wasCanceled():
     # Colocamos las secciones cuyo contenido esté por completo entre las áreas ya escritas del fichero
+    cambia_progreso.emit (- len (porColocar) - len (duplicadasInv))
     # Juntamos las secuencias de porColocar en un árbol "trie" para buscarlas todas en el fichero de una sola pasada
     porColocarSecs = {}
     for posicion, secuencia in porColocar.items ():
@@ -666,6 +669,7 @@ def guarda_bd (bbdd):
         guarda_desplazamiento (posSecuencia)
         anyadeArea (posicion, posicion + tamDespl, areasYaEscritas)
       del porColocar[posiciones[0]]
+    cambia_progreso.emit (- len (porColocar) - len (duplicadasInv))
     if not porColocar:
       break  # Ya las hemos colocado todas
     # Vemos el tamaño de los solapes que hay entre el fin de la última área del fichero y el inicio de cada sección restante por colocar
@@ -818,6 +822,7 @@ def guarda_bd (bbdd):
           eliminados += 1
         if not ahorrosColocar[ahorro]:
           del ahorrosColocar[ahorro]
+    cambia_progreso.emit (- len (porColocar) - len (duplicadasInv))
     iteracion += 1
 
   # Guardamos la posición siguiente tras la base de datos
