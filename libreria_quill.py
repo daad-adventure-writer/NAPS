@@ -717,8 +717,8 @@ def guarda_bd (bbdd):
       for posicion, posicion2 in ahorrosColocar[ahorro]:
         if posicion:
           break  # Ya hemos terminado de ver las combinaciones que ahorran ahorro tras la última área escrita
-        siguientes[posicion2] = [ahorro, ahorro]
-    # Vemos cuáles de las secciones restantes si se ponen al final del fichero consituiría un prefijo mayor de otra
+        siguientes[posicion2] = [ahorro // (len (duplicadasInv.get (posicion2, ())) + 1), ahorro]
+    # Vemos cuáles de las secciones restantes si se ponen al final del fichero constituiría un prefijo mayor de otra
     if areasYaEscritas[-1][1] >= ocupado:  # Sólo si la última área del fichero ya está escrita
       ahorrosExtraFin  = {}
       ahorrosSolapeFin = {}
