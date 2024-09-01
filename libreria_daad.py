@@ -831,29 +831,29 @@ def cargaTablasProcesos ():
   #   En los procesos 1 y 2, las cabeceras de las entradas se ignoran, condicionalmente según una bandera"""
   # Cargamos el número de procesos
   fich_ent.seek (CAB_NUM_PROCS)
-  num_procs = carga_int1()
+  numProcesos = carga_int1()
   # Vamos a la posición de la lista de posiciones de los procesos
   fich_ent.seek (carga_desplazamiento (CAB_POS_LST_POS_PROCS))
   # Cargamos las posiciones de los procesos
   posiciones = []
-  for i in range (num_procs):
+  for i in range (numProcesos):
     posiciones.append (carga_desplazamiento())
   # Cargamos cada tabla de procesos
-  for num_proceso in range (num_procs):
-    posicion = posiciones[num_proceso]
+  for numProceso in range (numProcesos):
+    posicion = posiciones[numProceso]
     fich_ent.seek (posicion)
-    cabeceras    = []
-    pos_entradas = []
+    cabeceras   = []
+    posEntradas = []
     while True:
       verbo = carga_int1()
       if verbo == 0:  # Fin de este proceso
         break
       cabeceras.append ((verbo, carga_int1()))
-      pos_entradas.append (carga_desplazamiento())
+      posEntradas.append (carga_desplazamiento())
     entradas = []
-    for num_entrada in range (len (pos_entradas)):
-      pos_entrada = pos_entradas[num_entrada]
-      fich_ent.seek (pos_entrada)
+    for numEntrada in range (len (posEntradas)):
+      posEntrada = posEntradas[numEntrada]
+      fich_ent.seek (posEntrada)
       condactoFlujo = False  # Si hay algún condacto en la entrada que cambia el flujo incondicionalmente
       entrada       = []
       while True:
@@ -861,30 +861,30 @@ def cargaTablasProcesos ():
         if condacto == 255:  # Fin de esta entrada
           break
         if condacto > 127:  # Condacto con indirección
-          num_condacto = condacto - 128
+          numCondacto = condacto - 128
         else:
-          num_condacto = condacto
+          numCondacto = condacto
         parametros = []
-        if num_condacto not in condactos:
+        if numCondacto not in condactos:
           if condactoFlujo:
             break  # Dejamos de obtener condactos para esta entrada
           try:
-            muestraFallo ('Condacto desconocido', 'Código de condacto: ' + str (num_condacto) + '\nProceso: ' + str (num_proceso) + '\nÍndice de entrada: ' + str (num_entrada))
+            muestraFallo ('Condacto desconocido', 'Código de condacto: ' + str (numCondacto) + '\nProceso: ' + str (numProceso) + '\nÍndice de entrada: ' + str (numEntrada))
           except:
-            prn ('FIXME: Número de condacto', num_condacto, 'desconocido, en entrada', num_entrada, 'del proceso', num_proceso, file = sys.stderr)
+            prn ('FIXME: Número de condacto', numCondacto, 'desconocido, en entrada', numEntrada, 'del proceso', numProceso, file = sys.stderr)
           return
-        if condactos[num_condacto][3]:
+        if condactos[numCondacto][3]:
           condactoFlujo = True
-        for i in range (len (condactos[num_condacto][1])):
+        for i in range (len (condactos[numCondacto][1])):
           parametros.append (carga_int1())
-        if plataforma not in (5, 6) and num_condacto == 61 and parametros[1] == 3:  # XMES de Maluva
+        if plataforma not in (5, 6) and numCondacto == 61 and parametros[1] == 3:  # XMES de Maluva
           parametros.append (carga_int1())
         entrada.append ((condacto, parametros))
         if nada_tras_flujo and condactoFlujo:
           break  # Dejamos de obtener condactos para esta entrada
       entradas.append (entrada)
     if len (cabeceras) != len (entradas):
-      prn ('ERROR: Número distinto de cabeceras y entradas para la tabla de procesos', num_proceso, file = sys.stderr)
+      prn ('ERROR: Número distinto de cabeceras y entradas para la tabla de procesos', numProceso, file = sys.stderr)
       return
     tablas_proceso.append ((cabeceras, entradas))
 
