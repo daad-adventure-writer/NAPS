@@ -1378,17 +1378,22 @@ def cargaTablasProcesos ():
     for numEntrada in range (len (posEntradas)):
       posEntrada = posEntradas[numEntrada]
       fich_ent.seek (posEntrada)
-      entrada = []
+      condactoFlujo = False  # Si hay alguna acción en la entrada que cambia el flujo incondicionalmente
+      entrada       = []
       for listaCondactos in (condiciones, acciones):
         while True:
           numCondacto = carga_int1()
           if numCondacto == 255:  # Fin de esta entrada
             break
           if numCondacto not in listaCondactos:
+            if condactoFlujo:
+              break  # Dejamos de obtener acciones para esta entrada
             try:
               muestraFallo ('Condacto desconocido', 'Número de ' + ('condición' if listaCondactos == condiciones else 'acción') + ' ' + str (numCondacto) + ' desconocida, en entrada ' + str (numEntrada) + ' de la tabla de ' + ('estado' if numProceso else 'eventos'))
             except:
               prn ('FIXME: Número de', 'condición' if listaCondactos == condiciones else 'acción', numCondacto, 'desconocida, en entrada', numEntrada, 'de la tabla de', 'estado' if numProceso else 'eventos', file = sys.stderr)
+          elif not condactoFlujo and listaCondactos == acciones and acciones[numCondacto][2]:
+            condactoFlujo = True
           parametros = []
           for i in range (len (listaCondactos[numCondacto][1])):
             parametros.append (carga_int1())
