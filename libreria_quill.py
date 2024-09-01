@@ -22,6 +22,8 @@
 # *                                                                           *
 # *****************************************************************************
 
+import sys  # Para stderr
+
 from bajo_nivel import *
 from prn_func   import *
 
@@ -1383,7 +1385,10 @@ def cargaTablasProcesos ():
           if numCondacto == 255:  # Fin de esta entrada
             break
           if numCondacto not in listaCondactos:
-            prn ('FIXME: Número de', 'condición' if listaCondactos == condiciones else 'acción', numCondacto, 'desconocida, en entrada', numEntrada, 'de la tabla de', 'estado' if numProceso else 'eventos')
+            try:
+              muestraFallo ('Condacto desconocido', 'Número de ' + ('condición' if listaCondactos == condiciones else 'acción') + ' ' + str (numCondacto) + ' desconocida, en entrada ' + str (numEntrada) + ' de la tabla de ' + ('estado' if numProceso else 'eventos'))
+            except:
+              prn ('FIXME: Número de', 'condición' if listaCondactos == condiciones else 'acción', numCondacto, 'desconocida, en entrada', numEntrada, 'de la tabla de', 'estado' if numProceso else 'eventos', file = sys.stderr)
           parametros = []
           for i in range (len (listaCondactos[numCondacto][1])):
             parametros.append (carga_int1())
@@ -1393,8 +1398,7 @@ def cargaTablasProcesos ():
             entrada.append ((numCondacto, parametros))
       entradas.append (entrada)
     if len (cabeceras) != len (entradas):
-      prn ('ERROR: Número distinto de cabeceras y entradas para una tabla de',
-           'procesos')
+      prn ('ERROR: Número distinto de cabeceras y entradas para la tabla de ' + ('estado' if numProceso else 'eventos'), file = sys.stderr)
       return
     tablas_proceso.append ((cabeceras, entradas))
 
