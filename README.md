@@ -88,7 +88,7 @@ Parámetros:
 - ``bd_o_codigo`` (opcional) Base de datos, snapshot SNA, o código fuente; de Quill/PAWS/SWAN/DAAD a cargar
 - ``bd_o_carpeta_gráficos`` (opcional) Base de datos gráfica que usar para las imágenes al depurar, o carpeta de la que tomarlas (con nombre pic###.png)
 - ``--help`` (opcional) Muestra ayuda sobre los parámetros de línea de comandos
-- ``--no-entry-end`` (opcional) Omite en entradas de proceso los condactos que haya detrás de los que cambian el flujo de ejecución incondicionalmente (como DONE), muy útil para bases de datos compiladas con DRC sin activar el modo clásico, donde no pone marcas de fin de entrada cuando hay algún condacto así, y descarta los condactos que haya después
+- ``--no-entry-end`` (opcional) Omite en entradas de proceso los condactos que haya detrás de los que cambian el flujo de ejecución incondicionalmente (como DONE). Muy útil para bases de datos optimizadas por NAPS o DRC (lo hace si no se activa el modo clásico), que omiten marcas de fin de entrada cuando hay algún condacto así, y descartan los condactos que haya después
 - ``--run`` (opcional) Ejecuta la base de datos pasada como parámetro directamente, depurando por pasos
 - ``--theme`` (opcional) Elige el tema de colores para el IDE. Opciones posibles: dark (tema oscuro, opción por defecto), y light (tema claro, con estética clásica)
 

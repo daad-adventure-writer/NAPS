@@ -46,10 +46,11 @@ num_objetos    = [0]  # Número de objetos (en lista para pasar por referencia)
 tablas_proceso = []   # Tablas de proceso (la de estado y la de eventos)
 vocabulario    = []   # Vocabulario
 
-despl_ini     = 0           # Desplazamiento inicial para cargar desde memoria
-max_llevables = 0           # Número máximo de objetos que puede llevar el jugador
-nueva_linea   = ord ('\n')  # Código del carácter de nueva línea
-pos_msgs_sys  = 0           # Posición de los mensajes de sistema en versiones de Quill sin lista de posiciones para ellos
+despl_ini       = 0           # Desplazamiento inicial para cargar desde memoria
+max_llevables   = 0           # Número máximo de objetos que puede llevar el jugador
+nada_tras_flujo = []          # Si omitiremos los condactos que haya después de los de cambio de flujo incondicional
+nueva_linea     = ord ('\n')  # Código del carácter de nueva línea
+pos_msgs_sys    = 0           # Posición de los mensajes de sistema en versiones de Quill sin lista de posiciones para ellos
 
 # Identificadores (para hacer el código más legible) predefinidos
 ids_locs = {  0 : 'INICIAL',
@@ -1401,6 +1402,8 @@ def cargaTablasProcesos ():
             entrada.append ((numCondacto + 100, parametros))
           else:
             entrada.append ((numCondacto, parametros))
+          if nada_tras_flujo and condactoFlujo:
+            break  # Dejamos de obtener condactos para esta entrada
       entradas.append (entrada)
     if len (cabeceras) != len (entradas):
       prn ('ERROR: Número distinto de cabeceras y entradas para la tabla de ' + ('estado' if numProceso else 'eventos'), file = sys.stderr)
