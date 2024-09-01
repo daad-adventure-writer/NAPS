@@ -1117,9 +1117,11 @@ if __name__ == '__main__':
   texto_nuevo        = gui.texto_nuevo
 
   if os.path.isdir (args.bbdd):
+    gui.NOMBRE_SISTEMA = 'DAAD'
     libreria    = __import__ ('libreria_daad')
     partes, gfx = libreria.busca_partes (args.bbdd)
     if not partes:
+      gui.NOMBRE_SISTEMA = 'SWAN'
       libreria    = __import__ ('libreria_swan')
       partes, gfx = libreria.busca_partes (args.bbdd)
       if not partes:
