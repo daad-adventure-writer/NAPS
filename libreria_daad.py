@@ -532,7 +532,7 @@ def cargaCadena (fichero):
         try:
           cadena.append (abreviaturas[caracter - 127].replace ('\r', '\n'))
         except:
-          prn (caracter)
+          prn (caracter, file = sys.stderr)
           raise
     elif caracter == ord ('\r'):  # Un carácter de nueva línea en la cadena
       cadena.append ('\n')
@@ -560,7 +560,7 @@ def guardaCadena (cadena):
   guarda_int1 (ord ('\n') ^ 255)  # Fin de cadena
   if cuenta:
     prn ('Error en guardaCadena: la cadena "%s" tiene %d caracteres que exceden el código 127, pero no salen en daad_a_chr' %
-        (cadena, cuenta))
+        (cadena, cuenta), file = sys.stderr)
 
 def guardaCadenaAbreviada (cadena):
   """Guarda una cadena abreviada, en el formato de DAAD"""
@@ -625,7 +625,6 @@ def calcula_abreviaturas (maxAbrev):
     longAntes = longAntes
   except:
     longAntes = 0
-  # prn (desc_locs)
   cadenas     = []  # Cadenas sobre las que aplicar abreviaturas
   longDespues = 0   # Longitud total de las cadenas tras aplicar abreviaturas, incluyendo espacio de éstas
   minAbrev    = 2   # Longitud mínima de las abreviaturas
@@ -640,9 +639,9 @@ def calcula_abreviaturas (maxAbrev):
         longAntes  += longCadena
         cadenas.append (cadena)
     if compatibilidad:
-      prn ('Longitud de cadenas sin abreviar (excluyendo objetos):', longAntes)
+      prn ('Longitud de cadenas sin abreviar (excluyendo objetos):', longAntes, file = sys.stderr)
     else:
-      prn ('Longitud de cadenas sin abreviar:', longAntes)
+      prn ('Longitud de cadenas sin abreviar:', longAntes, file = sys.stderr)
   else:
     for listaCadenas in listasCadenas:
       for cadena in listaCadenas:
@@ -673,7 +672,7 @@ def calcula_abreviaturas (maxAbrev):
     ordenAhorro = sorted (ahorros, key = ahorros.get, reverse = True)
     abreviatura = ordenAhorro[0]
     ahorro      = ahorros[abreviatura]
-    # prn ((abreviatura, ahorro, ocurrencias[abreviatura]))
+    # prn ((abreviatura, ahorro, ocurrencias[abreviatura]), file = sys.stderr)
     # Buscamos superconjuntos entre el resto de combinaciones posibles
     maxAhorroSup = ahorro  # Ahorro máximo combinado por reemplazar abreviatura por un superconjunto, entre ambos
     maxSuperCjto = None
@@ -689,15 +688,15 @@ def calcula_abreviaturas (maxAbrev):
             maxSuperCjto = sconjto
             posMaxAhorro = d
             # prn ('"%s" (%d) es superconjunto de "%s", ahorros %d, ocurrencias %d. Ahorros combinados tomando éste %d' %
-            #     (sconjto, d, abreviatura, ahorros[sconjto], ocurrencias[sconjto], ahorroSup))
+            #     (sconjto, d, abreviatura, ahorros[sconjto], ocurrencias[sconjto], ahorroSup), file = sys.stderr)
     if posMaxAhorro:  # Tenía algún superconjunto (TODO: puede que siempre ocurra, si len (abreviatura) < maxAbrev)
-      # prn ('La entrada "' + ordenAhorro[posMaxAhorro] + '" (' + str(posMaxAhorro) + ') reemplaza "' + abreviatura + '" (0)')
+      # prn ('La entrada "' + ordenAhorro[posMaxAhorro] + '" (' + str(posMaxAhorro) + ') reemplaza "' + abreviatura + '" (0)', file = sys.stderr)
       abreviatura = maxSuperCjto
     # Añadimos esta abreviatura a la lista de abreviaturas óptimas calculadas
     ahorro = ahorros[abreviatura]
     if ahorro < 0:  # Ahorra más con 0 que con 1, seguramente por los superconjuntos
       break  # Ya no se ahorra nada más
-    # prn ((abreviatura, ahorro, ocurrencias[abreviatura]))
+    # prn ((abreviatura, ahorro, ocurrencias[abreviatura]), file = sys.stderr)
     optimas.append ((abreviatura, ahorro, ocurrencias[abreviatura]))
     longDespues += len (abreviatura)
     # Quitamos las ocurrencias de esta abreviatura en las cadenas
@@ -716,8 +715,8 @@ def calcula_abreviaturas (maxAbrev):
     longDespues += longCadena
   if len (optimas) < num_abreviaturas:
     longDespues += num_abreviaturas - len (optimas)  # Se reemplazarán por abreviaturas de un byte
-  prn ('Con longitud m\xc3\xa1xima de las abreviaturas %d, longitud de cadenas tras abreviar: %d.' % (maxAbrev, longDespues))
-  prn (optimas)
+  prn ('Con longitud m\xc3\xa1xima de las abreviaturas %d, longitud de cadenas tras abreviar: %d.' % (maxAbrev, longDespues), file = sys.stderr)
+  prn (optimas, file = sys.stderr)
   nuevasAbreviaturas = []
   for abreviatura in optimas:
     nuevasAbreviaturas.append (abreviatura[0])
@@ -745,7 +744,7 @@ def cargaAbreviaturas ():
       else:
         abreviatura.append (daad_a_chr[caracter - 16])
     abreviaturas.append (''.join (abreviatura))
-    #prn (i, ' |', abreviaturas[-1], '|', sep = '')
+    #prn (i, ' |', abreviaturas[-1], '|', sep = '', file = sys.stderr)
 
 def cargaAtributos ():
   """Carga los atributos de los objetos"""
@@ -833,7 +832,6 @@ def cargaTablasProcesos ():
   # Cargamos el número de procesos
   fich_ent.seek (CAB_NUM_PROCS)
   num_procs = carga_int1()
-  # prn (num_procs, 'procesos')
   # Vamos a la posición de la lista de posiciones de los procesos
   fich_ent.seek (carga_desplazamiento (CAB_POS_LST_POS_PROCS))
   # Cargamos las posiciones de los procesos
@@ -871,9 +869,9 @@ def cargaTablasProcesos ():
           if condactoFlujo:
             break  # Dejamos de obtener condactos para esta entrada
           try:
-            muestraFallo ('FIXME: Condacto desconocido', 'Código de condacto: ' + str (num_condacto) + '\nProceso: ' + str (num_proceso) + '\nÍndice de entrada: ' + str (num_entrada))
+            muestraFallo ('Condacto desconocido', 'Código de condacto: ' + str (num_condacto) + '\nProceso: ' + str (num_proceso) + '\nÍndice de entrada: ' + str (num_entrada))
           except:
-            prn ('FIXME: Número de condacto', num_condacto, 'desconocido, en entrada', num_entrada, 'del proceso', num_proceso)
+            prn ('FIXME: Número de condacto', num_condacto, 'desconocido, en entrada', num_entrada, 'del proceso', num_proceso, file = sys.stderr)
           return
         if condactos[num_condacto][3]:
           condactoFlujo = True
@@ -886,8 +884,7 @@ def cargaTablasProcesos ():
           break  # Dejamos de obtener condactos para esta entrada
       entradas.append (entrada)
     if len (cabeceras) != len (entradas):
-      prn ('ERROR: Número distinto de cabeceras y entradas para una tabla de',
-           'procesos')
+      prn ('ERROR: Número distinto de cabeceras y entradas para la tabla de procesos', num_proceso, file = sys.stderr)
       return
     tablas_proceso.append ((cabeceras, entradas))
 
@@ -940,7 +937,7 @@ def daCadenaAbreviada (cadena):
       i += 1
   # Juntamos todas las partes en una sola cadena abreviada
   abreviada = ''  # Forma abreviada de la cadena
-  cuenta    = 0   # Caractéres inválidos, no debería ocurrir
+  cuenta    = 0   # Caracteres inválidos, no debería ocurrir
   for parteCadena in partesCadena:
     if type (parteCadena) != str:
       abreviada += chr (127 + parteCadena[0])
@@ -958,7 +955,7 @@ def daCadenaAbreviada (cadena):
       abreviada += caracter
   if cuenta:
     prn ('Error en daCadenaAbreviada: la cadena "%s" tiene %d caracteres que exceden el código 127, pero no salen en daad_a_chr' %
-        (cadena, cuenta))
+        (cadena, cuenta), file = sys.stderr)
   return abreviada
 
 def guardaAbreviaturas ():
@@ -1097,7 +1094,7 @@ def guarda_bd_ (bbdd):
         for condacto, parametros in entradas[i]:
           ocupado += 1 + len (parametros)
       except:
-        prn (entradas[i])
+        prn (entradas[i], file = sys.stderr)
         raise
       ocupado += 1  # Por el fin de la entrada
     guarda_int2 (0)  # Fin del proceso (no tiene más entradas)
@@ -1150,12 +1147,12 @@ def guarda_bd (bbdd):
     else:
       cambia_progreso.emit (maxAbrev)
   if longMin < longAntes:
-    prn (longAntes - longMin, 'bytes ahorrados por abreviación de textos')
-    prn ('La mejor combinación de abreviaturas se encontró con longitud máxima de abreviatura', longMax)
-    prn (len (abreviaturas), 'abreviaturas en total, que son:')
-    prn (abreviaturas)
+    prn (longAntes - longMin, 'bytes ahorrados por abreviación de textos', file = sys.stderr)
+    prn ('La mejor combinación de abreviaturas se encontró con longitud máxima de abreviatura', longMax, file = sys.stderr)
+    prn (len (abreviaturas), 'abreviaturas en total, que son:', file = sys.stderr)
+    prn (abreviaturas, file = sys.stderr)
   else:
-    prn ('No se ahorra nada por abreviación de textos, abreviaturas desactivadas')
+    prn ('No se ahorra nada por abreviación de textos, abreviaturas desactivadas', file = sys.stderr)
     abreviaturas = []
   abreviaCadenas()
   fich_sal     = bbdd
@@ -1280,7 +1277,7 @@ def guarda_bd (bbdd):
             for condacto, parametros in entradas[i]:
               ahorroProcesos += 1 + len (parametros)
           except:
-            # prn (entradas[i])  # Ya se habrá hecho esto la primera vez
+            # prn (entradas[i], file = sys.stderr)  # Ya se habrá hecho esto la primera vez
             raise
           ahorroProcesos += 1  # Por el fin de la entrada
           break
@@ -1291,12 +1288,12 @@ def guarda_bd (bbdd):
           for condacto, parametros in entradas[i]:
             ocupado += 1 + len (parametros)
         except:
-          prn (entradas[i])
+          prn (entradas[i], file = sys.stderr)
           raise
         ocupado += 1  # Por el fin de la entrada
-      # prn (cabeceras[i], entradas[i])
+      # prn (cabeceras[i], entradas[i], file = sys.stderr)
     guarda_int2 (0)  # Fin del proceso (no tiene más entradas)
-  prn (ahorroProcesos, 'bytes ahorrados por deduplicar bloques de proceso')
+  prn (ahorroProcesos, 'bytes ahorrados por deduplicar bloques de proceso', file = sys.stderr)
   # Guardamos las descripciones de los objetos
   guardaDescObjs()
   # Guardamos las descripciones de las localidades
