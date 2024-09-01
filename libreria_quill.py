@@ -136,7 +136,8 @@ PREP_COMO_VERB   = 0        # Número de preposiciones convertibles a verbo
 NOMBRES_PROCS    = ('Tabla de eventos', 'Tabla de estado')
 TIPOS_PAL        = ('Palabra',)  # Nombres de los tipos de palabra (para el IDE)
 
-conversion = {}  # Tabla de conversión de caracteres
+conversion    = {}  # Tabla de conversión de caracteres
+strPlataforma = ''  # Identificador de plataforma como cadena
 
 
 # Diccionarios de condactos
@@ -295,15 +296,16 @@ Para compatibilidad con el IDE:
 - Recibe como primer parámetro un fichero abierto
 - Recibe como segundo parámetro la longitud del fichero abierto
 - Devuelve False si ha ocurrido algún error"""
-  global carga_desplazamiento, despl_ini, fin_cadena, nueva_linea, plataforma
+  global carga_desplazamiento, despl_ini, fin_cadena, nueva_linea, plataforma, strPlataforma
   carga_desplazamiento = carga_desplazamiento2
   bajo_nivel_cambia_endian (le = True)
   bajo_nivel_cambia_ent    (fichero)
   fichero.seek (0)
-  despl_ini   = carga_int2_le() - 2
-  fin_cadena  = 0
-  nueva_linea = 141  # El 13 también podría ser, pero tal vez no se use
-  plataforma  = 1    # Apaño para que el intérprete lo considere como Spectrum
+  despl_ini     = carga_int2_le() - 2
+  fin_cadena    = 0
+  nueva_linea   = 141  # El 13 también podría ser, pero tal vez no se use
+  plataforma    = 1    # Apaño para que el intérprete lo considere como Spectrum
+  strPlataforma = 'C64'
   bajo_nivel_cambia_despl (despl_ini)
   # Cargamos los colores iniciales
   fichero.seek (3)
@@ -324,14 +326,15 @@ Para compatibilidad con el IDE:
 - Recibe como primer parámetro un fichero abierto
 - Recibe como segundo parámetro la longitud del fichero abierto
 - Devuelve False si ha ocurrido algún error"""
-  global carga_desplazamiento, despl_ini, fin_cadena, nueva_linea, plataforma
+  global carga_desplazamiento, despl_ini, fin_cadena, nueva_linea, plataforma, strPlataforma
   carga_desplazamiento = carga_desplazamiento2
-  extension   = os.path.splitext (fichero.name)[1][1:].lower()
-  despl_ini   = 6242 if extension == 'dat' else -4912
-  fin_cadena  = 0
-  inicio      = 0
-  nueva_linea = ord ('\r')  # FIXME: no sé cuál es, el editor parece no dejar escribir nueva línea
-  plataforma  = 0
+  extension     = os.path.splitext (fichero.name)[1][1:].lower()
+  despl_ini     = 6242 if extension == 'dat' else -4912
+  fin_cadena    = 0
+  inicio        = 0
+  nueva_linea   = ord ('\r')  # FIXME: no sé cuál es, el editor parece no dejar escribir nueva línea
+  plataforma    = 0
+  strPlataforma = 'PC'
   bajo_nivel_cambia_endian (le = True)
   bajo_nivel_cambia_ent    (fichero)
   bajo_nivel_cambia_despl  (despl_ini)
@@ -361,11 +364,12 @@ Para compatibilidad con el IDE:
 - Recibe como primer parámetro un fichero abierto
 - Recibe como segundo parámetro la longitud del fichero abierto
 - Devuelve False si ha ocurrido algún error"""
-  global carga_desplazamiento, despl_ini, fin_cadena, nueva_linea, plataforma
+  global carga_desplazamiento, despl_ini, fin_cadena, nueva_linea, plataforma, strPlataforma
   carga_desplazamiento  = carga_desplazamiento4  # Así es en las bases de datos de Quill para QL
   fin_cadena            = 0                      # Así es en las bases de datos de Quill para QL
   nueva_linea           = 254                    # Así es en las bases de datos de Quill para QL
   plataforma            = 1                      # Apaño para que el intérprete lo considere como Spectrum
+  strPlataforma         = 'QL'
   BANDERA_VERBO[0]      = 64
   BANDERA_NOMBRE[0]     = 65
   BANDERA_LLEVABLES[0]  = 66
@@ -400,11 +404,12 @@ Para compatibilidad con el IDE:
 - Recibe como primer parámetro un fichero abierto
 - Recibe como segundo parámetro la longitud del fichero abierto
 - Devuelve False si ha ocurrido algún error"""
-  global carga_desplazamiento, despl_ini, fin_cadena, nueva_linea, pos_msgs_sys
-  carga_desplazamiento = carga_desplazamiento2
+  global carga_desplazamiento, despl_ini, fin_cadena, nueva_linea, pos_msgs_sys, strPlataforma
   # if longitud not in (49179, 131103):  # Tamaño de 48K y de 128K
   if longitud != 49179:
     return False  # No parece un fichero de imagen de memoria de Spectrum 48K
+  carga_desplazamiento = carga_desplazamiento2
+  strPlataforma        = 'ZX'
   # Detectamos la posición de la cabecera de la base de datos
   bajo_nivel_cambia_ent (fichero)
   posicion = busca_secuencia ((16, None, 17, None, 18, None, 19, None, 20, None, 21))
@@ -1106,7 +1111,7 @@ def escribe_secs_ctrl (cadena):
         convertida += c
       # TODO: interpretar el resto de secuencias escapadas con barra invertida (\)
     else:
-      if inversa and nueva_linea == ord ('\r'):
+      if inversa and strPlataforma == 'PC':
         convertida += chr (o + 128)
       else:
         convertida += c
@@ -1249,7 +1254,7 @@ Para compatibilidad con el IDE:
       cargaMensajesSistema()
     else:
       cargaCadenas (CAB_NUM_MSGS_SYS, CAB_POS_LST_POS_MSGS_SYS, msgs_sys)
-      if nueva_linea not in (ord ('\r'), 141):  # Evitamos tratar de cargar los nombres de los objetos en C64 y PC, donde no hay
+      if strPlataforma not in ('C64', 'PC'):  # No cargamos nombres de objetos en C64 y PC, donde no hay
         cargaNombresObjetos()
     cargaConexiones()
     cargaLocalidadesObjetos()
@@ -1288,7 +1293,7 @@ cadenas es la lista donde almacenar las cadenas que se carguen"""
         cadena.append ('\n')
       else:
         cadena.append (chr (caracter))
-    if nueva_linea == 141:
+    if strPlataforma == 'C64':
       cadenas.append (''.join (cadena).translate (petscii_a_ascii))
     else:
       cadenas.append (''.join (cadena))
@@ -1425,7 +1430,7 @@ def cargaVocabulario ():
       caracter = carga_int1() ^ 255
       palabra.append (chr (caracter))
     palabra = ''.join (palabra).rstrip()  # Quill guarda las palabras de menos de cuatro letras con espacios al final
-    if nueva_linea == 141:
+    if strPlataforma == 'C64':
       palabra = palabra.translate (petscii_a_ascii)
     # Quill guarda las palabras en mayúsculas
     vocabulario.append ((palabra.lower(), carga_int1(), 0))
