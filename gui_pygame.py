@@ -150,7 +150,10 @@ def abre_ventana (traza, escalar, bbdd):
   if titulo_ventana:
     pygame.display.set_caption (titulo_ventana)
   else:
-    pygame.display.set_caption ('NAPS - ' + path.relpath (bbdd))
+    rutaBD = path.abspath (bbdd)
+    if len (path.relpath (bbdd)) < len (rutaBD):
+      rutaBD = path.relpath (bbdd)
+    pygame.display.set_caption ('NAPS - ' + rutaBD)
   ancho_juego = int (math.ceil ((limite[0] * ancho_caracter) / 8.)) * 8
   resolucion  = (ancho_juego, limite[1] * 8)  # Tamaño de la ventana de juego
   if traza and 'NUM_BANDERAS' in globals():  # Añadiremos espacio para las banderas
@@ -579,7 +582,10 @@ def elige_parte (partes, graficos):
       titulo_ventana += ' - Parte ' + str (entrada)
     pygame.display.set_caption (titulo_ventana)
   else:
-    pygame.display.set_caption ('NAPS - ' + path.relpath (partes[entrada]))
+    rutaBD = path.abspath (partes[entrada])
+    if len (path.relpath (partes[entrada])) < len (rutaBD):
+      rutaBD = path.relpath (partes[entrada])
+    pygame.display.set_caption ('NAPS - ' + rutaBD)
   if portada:
     ventana.blit (portada, (0, 0))
     actualizaVentana()

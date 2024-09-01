@@ -4,7 +4,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Editor de bases de datos gráficas de DAAD
-# Copyright (C) 2022-2023 José Manuel Ferrer Ortiz
+# Copyright (C) 2022-2024 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -600,7 +600,10 @@ def importaBD (nombreFichero):
     widget.setMinimumSize (anchoMax + margenX, max (imagen.height() if imagen else 0, altoMin) + margenY)
     ventana.rejilla.layout().addWidget (widget)
   ventana.resizeEvent (None)
-  ventana.setWindowTitle (_('Graphic database editor') + ' - ' + os.path.relpath (nombreFichero))
+  rutaBD = os.path.abspath (nombreFichero)
+  if len (os.path.relpath (nombreFichero)) < len (rutaBD):
+    rutaBD = os.path.relpath (nombreFichero)
+  ventana.setWindowTitle (_('Graphic database editor') + ' - ' + rutaBD)
 
 def muestraFallo (mensaje, detalle = '', icono = QMessageBox.Warning, parent = None):
   """Muestra un diálogo de fallo"""

@@ -1807,7 +1807,10 @@ def importaBD (nombreFicheroBD, indiceFuncion = None, nombreFicheroGfx = None):
     return
   nombre_fich_bd  = nombreFicheroBD
   nombre_fich_gfx = nombreFicheroGfx
-  postCarga (os.path.relpath (nombreFicheroBD))
+  rutaBD = os.path.abspath (nombreFicheroBD)
+  if len (os.path.relpath (nombreFicheroBD)) < len (rutaBD):
+    rutaBD = os.path.relpath (nombreFicheroBD)
+  postCarga (rutaBD)
   return True
 
 def imprimeCabecera (verbo, nombre, numEntrada, numProceso):
