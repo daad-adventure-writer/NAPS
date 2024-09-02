@@ -37,7 +37,7 @@ traza = False  # Si queremos una traza del funcionamiento del módulo
 if traza:
   from prn_func import prn
 
-izquierda  = 'ª¡¿«»áéíóúñÑçÇüÜ !"º$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\x7f\n'
+izquierda  = 'ª¡¿«»áéíóúñÑçÇüÜ !"º$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\x7f\t\n'
 noEnFuente = {'©': 'c', u'\u2192': '>', u'\u2190': '<'}  # Tabla de conversión de caracteres que no están en la fuente
 
 # Pares de códigos ASCII para teclas pulsadas
@@ -390,7 +390,7 @@ def carga_fuente_zx (fichero):
   if NOMBRE_SISTEMA not in ('QUILL', 'PAWS'):
     return
   ancho_caracter = 8
-  izquierda      = '·' * 16 + ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_£abcdefghijklmnopqrstuvwxyz{|}~\x7f\n'
+  izquierda      = '·' * 16 + ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_£abcdefghijklmnopqrstuvwxyz{|}~\x7f\t\n'
   for c, convertido in conversion.items():
     izquierda = izquierda.replace (c, convertido)
   fuente_zx = pygame.image.load (path.dirname (path.realpath (__file__)) + path.sep + 'fuente_zx_8x8.png')
@@ -1165,7 +1165,7 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
         juego -= 32
     elif ordOrig == juego_bajo:
       juego = 0
-    elif ordinal == 127 and tabulador:  # Es un tabulador
+    elif ordinal == len (izquierda) - 2:  # Es un tabulador (el penúltimo carácter)
       posTabulador = iniLineas[-1] + len (linea)
       if restante > tope[0] // 2:
         numEspacios = (tope[0] // 2) - len (linea)  # Rellena con espacios hasta mitad de línea
@@ -1503,7 +1503,7 @@ def parseaColores (cadena):
       else:
         sigTinta = True
     elif c == tabulador:
-      sinColores += chr (127)  # Necesario para que quede sin convertir
+      sinColores += '\t'
     elif cadena[i] not in izquierda and cadena[i] in noEnFuente:
       sinColores += noEnFuente[cadena[i]]
     elif NOMBRE_SISTEMA == 'QUILL' and c > 127:  # Es un carácter en inversa
