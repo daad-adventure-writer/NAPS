@@ -1274,6 +1274,7 @@ if __name__ == '__main__':
         gui.cambia_cursor (msgs_sys[34])
       else:  # Es QUILL
         gui.partir_espacio = False
+        gui.strPlataforma  = libreria.strPlataforma
   else:  # Es DAAD
     gui.nueva_version = nueva_version
     if not gui.paleta[0]:

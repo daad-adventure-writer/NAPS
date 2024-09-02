@@ -1506,7 +1506,7 @@ def parseaColores (cadena):
       sinColores += '\t'
     elif cadena[i] not in izquierda and cadena[i] in noEnFuente:
       sinColores += noEnFuente[cadena[i]]
-    elif NOMBRE_SISTEMA == 'QUILL' and c > 127:  # Es un carácter en inversa
+    elif NOMBRE_SISTEMA == 'QUILL' and strPlataforma == 'PC' and c > 127:  # Es un carácter en inversa
       if not inversa:  # Sólo lo hacemos para el primer carácter consecutivo en inversa
         color = papel
         papel = tinta
@@ -1515,7 +1515,7 @@ def parseaColores (cadena):
       inversa     = True
       sinColores += chr (c - 128)
     else:
-      if inversa and NOMBRE_SISTEMA == 'QUILL':  # Este carácter terminará la impresión en inversa, al no estar en inversa
+      if inversa and NOMBRE_SISTEMA == 'QUILL' and strPlataforma == 'PC':  # Este carácter terminará la impresión en inversa, al no estar en inversa
         color = papel
         papel = tinta
         tinta = color
