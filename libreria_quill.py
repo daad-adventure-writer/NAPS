@@ -1341,7 +1341,6 @@ def cargaMensajesSistema ():
   fich_ent.seek (pos_msgs_sys - despl_ini)  # Nos movemos a la posición del primer mensaje de sistema
   saltaSiguiente = False  # Si salta el siguiente carácter, como ocurre tras algunos códigos de control
   while True:
-    algo   = False  # Si hay algo imprimible en la línea
     cadena = ''
     ceros  = 0  # Cuenta del número de ceros consecutivos al inicio de la cadena
     while True:
@@ -1357,11 +1356,8 @@ def cargaMensajesSistema ():
         if ceros > 20:  # Consideramos esto como marca de fin de mensajes de sistema
           return
       elif caracter == nueva_linea:  # Un carácter de nueva línea en la cadena
-        if algo:
-          cadena += '\n'
-        algo = not algo
+        cadena += '\n'
       else:
-        algo    = True
         cadena += chr (caracter)
     msgs_sys.append (cadena)
 
