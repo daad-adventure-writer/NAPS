@@ -515,7 +515,7 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
       if NUM_BANDERAS[0] > 70 and len (msgs_sys) > 32:
         peticion += msgs_sys[33]
       elif args.gui != 'telegram':
-        peticion += '>'  # Prompt de QUILL
+        peticion += '\n>'  # Prompt de QUILL
       if traza:
         gui.imprime_banderas  (banderas)
         gui.imprime_locs_objs (locs_objs)
