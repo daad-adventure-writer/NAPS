@@ -419,7 +419,7 @@ Para compatibilidad con el IDE:
   bajo_nivel_cambia_endian (le = True)  # Al menos es así en ZX Spectrum
   bajo_nivel_cambia_despl  (despl_ini)
   fin_cadena  = 31  # Igual que PAWS
-  nueva_linea = 6
+  nueva_linea = ord ('\r')
   # Cargamos los colores iniciales
   fichero.seek (posicion - 9)
   colores_inicio.append (ord (fichero.read (1)))  # Color de tinta
