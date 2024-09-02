@@ -1173,6 +1173,11 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
         numEspacios = restante  # Rellena el resto de la línea con espacios
       linea.extend (chr (16) * numEspacios)
       restante -= numEspacios
+      if restante == 0:
+        lineas.append (''.join (linea))
+        iniLineas.append (iniLineas[-1] + len (linea))
+        linea = []
+        restante = tope[0]
       coloresNuevos = {}
       for inicio in tuple (colores.keys()):
         if inicio > posTabulador:
