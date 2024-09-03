@@ -652,150 +652,155 @@ def guarda_bd (bbdd):
   ahorrosColocar = {}
   iteracion      = 0
   secuenciaFinal = []
-  while porColocar and not dlg_progreso[0].wasCanceled():
-    # Colocamos las secciones cuyo contenido esté por completo entre las áreas ya escritas del fichero
-    cambia_progreso.emit (- len (porColocar) - len (duplicadasInv))
-    # Juntamos las secuencias de porColocar en un árbol "trie" para buscarlas todas en el fichero de una sola pasada
-    porColocarSecs = {}
-    for posicion, secuencia in porColocar.items ():
-      casilla = porColocarSecs
-      for s in range (len (secuencia)):
-        if secuencia[s] not in casilla:
-          casilla[secuencia[s]] = [{}, None]
-        if s == len (secuencia) - 1:
-          casilla[secuencia[s]][1] = posicion  # Basta con esto porque no hay secuencias duplicadas en porColocar
-        else:
-          casilla = casilla[secuencia[s]][0]
-    # Colocamos las secciones cuyo contenido ya estaba escrito en algún lugar del fichero
-    for posicion, posSecuencia in buscaSecuenciasEnAreas (porColocarSecs, areasYaEscritas, porColocar, desplIniFich).items():
-      posSecuencia -= desplIniFich
-      posiciones    = [posicion]
-      if posicion in duplicadasInv:
-        posiciones.extend (duplicadasInv[posicion])
-        del duplicadasInv[posicion]
-      # Guardamos punteros a secciones como esta
-      for posicion in posiciones:
-        fich_sal.seek (posicion)
-        guarda_desplazamiento (posSecuencia)
-        anyadeArea (posicion, posicion + tamDespl, areasYaEscritas)
-      del porColocar[posiciones[0]]
-    cambia_progreso.emit (- len (porColocar) - len (duplicadasInv))
-    if not porColocar:
-      break  # Ya las hemos colocado todas
-    # Vemos el tamaño de los solapes que hay entre el fin de la última área del fichero y el inicio de cada sección restante por colocar
-    if areasYaEscritas[-1][1] >= ocupado:  # Sólo si la última área del fichero ya está escrita
-      # Extendemos secuenciaFinal con lo que haya nuevo al final del fichero
-      nuevoAlFinal = areasYaEscritas[-1][1] - areasYaEscritas[-1][0] - len (secuenciaFinal)
-      if nuevoAlFinal > 0:
-        fich_sal.seek (areasYaEscritas[-1][1] - nuevoAlFinal)
-        for b in range (areasYaEscritas[-1][1] - nuevoAlFinal, areasYaEscritas[-1][1]):
-          secuenciaFinal.append (ord (fich_sal.read (1)))
-      # Buscamos solapes entre lo último escrito al final del fichero y cada sección restante por colocar
-      for posicion, secuencia in porColocar.items():
-        for s in range (min (len (secuencia), len (secuenciaFinal)), 0, -1):
-          if secuenciaFinal[-s:] == secuencia[:s]:
-            ahorro = s
-            if posicion in duplicadasInv:
-              ahorro += s * len (duplicadasInv[posicion])
-            if ahorro not in ahorrosColocar:
-              ahorrosColocar[ahorro] = []
-            ahorrosColocar[ahorro].append ((0, posicion))
-            break
-    if not iteracion:  # Sólo en la primera iteración
-      # Vemos el tamaño de los solapes que hay entre fin e inicio de cada combinación de secciones restantes por colocar
-      for posicion, secuencia in porColocar.items():
-        for posicion2, secuencia2 in porColocar.items():
-          if posicion2 == posicion:
-            continue
-          # XXX: esto es código común con lo de justo arriba
-          for s in range (min (len (secuencia), len (secuencia2)), 0, -1):
-            if secuencia[-s:] == secuencia2[:s]:
+  while porColocar:
+    if dlg_progreso[0].wasCanceled():
+      colocaSiguiente = True
+      siguiente       = porColocar.keys()[0]
+      solape          = 0
+    else:
+      # Colocamos las secciones cuyo contenido esté por completo entre las áreas ya escritas del fichero
+      cambia_progreso.emit (- len (porColocar) - len (duplicadasInv))
+      # Juntamos las secuencias de porColocar en un árbol "trie" para buscarlas todas en el fichero de una sola pasada
+      porColocarSecs = {}
+      for posicion, secuencia in porColocar.items ():
+        casilla = porColocarSecs
+        for s in range (len (secuencia)):
+          if secuencia[s] not in casilla:
+            casilla[secuencia[s]] = [{}, None]
+          if s == len (secuencia) - 1:
+            casilla[secuencia[s]][1] = posicion  # Basta con esto porque no hay secuencias duplicadas en porColocar
+          else:
+            casilla = casilla[secuencia[s]][0]
+      # Colocamos las secciones cuyo contenido ya estaba escrito en algún lugar del fichero
+      for posicion, posSecuencia in buscaSecuenciasEnAreas (porColocarSecs, areasYaEscritas, porColocar, desplIniFich).items():
+        posSecuencia -= desplIniFich
+        posiciones    = [posicion]
+        if posicion in duplicadasInv:
+          posiciones.extend (duplicadasInv[posicion])
+          del duplicadasInv[posicion]
+        # Guardamos punteros a secciones como esta
+        for posicion in posiciones:
+          fich_sal.seek (posicion)
+          guarda_desplazamiento (posSecuencia)
+          anyadeArea (posicion, posicion + tamDespl, areasYaEscritas)
+        del porColocar[posiciones[0]]
+      cambia_progreso.emit (- len (porColocar) - len (duplicadasInv))
+      if not porColocar:
+        break  # Ya las hemos colocado todas
+      # Vemos el tamaño de los solapes que hay entre el fin de la última área del fichero y el inicio de cada sección restante por colocar
+      if areasYaEscritas[-1][1] >= ocupado:  # Sólo si la última área del fichero ya está escrita
+        # Extendemos secuenciaFinal con lo que haya nuevo al final del fichero
+        nuevoAlFinal = areasYaEscritas[-1][1] - areasYaEscritas[-1][0] - len (secuenciaFinal)
+        if nuevoAlFinal > 0:
+          fich_sal.seek (areasYaEscritas[-1][1] - nuevoAlFinal)
+          for b in range (areasYaEscritas[-1][1] - nuevoAlFinal, areasYaEscritas[-1][1]):
+            secuenciaFinal.append (ord (fich_sal.read (1)))
+        # Buscamos solapes entre lo último escrito al final del fichero y cada sección restante por colocar
+        for posicion, secuencia in porColocar.items():
+          for s in range (min (len (secuencia), len (secuenciaFinal)), 0, -1):
+            if secuenciaFinal[-s:] == secuencia[:s]:
               ahorro = s
-              if posicion2 in duplicadasInv:
-                ahorro += s * len (duplicadasInv[posicion2])
+              if posicion in duplicadasInv:
+                ahorro += s * len (duplicadasInv[posicion])
               if ahorro not in ahorrosColocar:
                 ahorrosColocar[ahorro] = []
-              ahorrosColocar[ahorro].append ((posicion, posicion2))
+              ahorrosColocar[ahorro].append ((0, posicion))
               break
-          # XXX: aquí termina el código duplicado
-    for ahorro in ahorrosColocar:
-      ahorrosColocar[ahorro].sort()  # Los necesitamos ordenados
-    # Vemos cuáles de las secciones restantes ahorrarán espacio por solaparse sobre la última área escrita del fichero
-    colocaSiguiente = False
-    siguientes      = {}  # Posición de secuencias que ahorrarán espacio por colocarse tras la última área escrita, solape con ésta y cuánto ahorran
-    for ahorro in ahorrosColocar:
-      for posicion, posicion2 in ahorrosColocar[ahorro]:
-        if posicion:
-          break  # Ya hemos terminado de ver las combinaciones que ahorran ahorro tras la última área escrita
-        siguientes[posicion2] = [ahorro // (len (duplicadasInv.get (posicion2, ())) + 1), ahorro]
-    # Vemos cuáles de las secciones restantes si se ponen al final del fichero constituiría un prefijo mayor de otra
-    if areasYaEscritas[-1][1] >= ocupado:  # Sólo si la última área del fichero ya está escrita
-      ahorrosExtraFin  = {}
-      ahorrosSolapeFin = {}
-      for posicion, secuencia in porColocar.items():
-        secuenciaSobreFin = secuenciaFinal + secuencia
-        for posicion2, secuencia2 in porColocar.items():
-          if posicion2 == posicion:
-            continue
-          if secuencia2 in secuenciaSobreFin and secuencia2 not in secuenciaFinal:  # Quedará totalmente incluida gracias a esto
-            if posicion in ahorrosExtraFin:
-              ahorrosExtraFin[posicion] += len (secuencia2)
-            else:
-              ahorrosExtraFin[posicion] = len (secuencia2)
-          else:  # No quedará totalmente incluida con esto
-            # Buscamos solapes adicionales si se coloca la sección de posición posicion tras la última área escrita
-            for s in range (min (len (secuencia2) - 1, len (secuenciaSobreFin)), len (secuencia), -1):
-              if secuenciaSobreFin[-s:] == secuencia2[:s]:
-                ahorroTotal = s
-                if posicion in ahorrosSolapeFin:
-                  ahorrosSolapeFin[posicion] = max (ahorrosSolapeFin[posicion], ahorroTotal)
-                else:
-                  ahorrosSolapeFin[posicion] = ahorroTotal
+      if not iteracion:  # Sólo en la primera iteración
+        # Vemos el tamaño de los solapes que hay entre fin e inicio de cada combinación de secciones restantes por colocar
+        for posicion, secuencia in porColocar.items():
+          for posicion2, secuencia2 in porColocar.items():
+            if posicion2 == posicion:
+              continue
+            # XXX: esto es código común con lo de justo arriba
+            for s in range (min (len (secuencia), len (secuencia2)), 0, -1):
+              if secuencia[-s:] == secuencia2[:s]:
+                ahorro = s
+                if posicion2 in duplicadasInv:
+                  ahorro += s * len (duplicadasInv[posicion2])
+                if ahorro not in ahorrosColocar:
+                  ahorrosColocar[ahorro] = []
+                ahorrosColocar[ahorro].append ((posicion, posicion2))
                 break
-      for posicion in ahorrosSolapeFin:
-        if posicion in siguientes:
-          siguientes[posicion][1] = max (siguientes[posicion], ahorrosSolapeFin[posicion])
-        else:
-          siguientes[posicion] = [0, ahorrosSolapeFin[posicion]]
-      for posicion in ahorrosExtraFin:
-        if posicion in siguientes:
-          siguientes[posicion][1] += ahorrosExtraFin[posicion]
-        else:
-          siguientes[posicion] = [0, ahorrosExtraFin[posicion]]
-    if siguientes:
-      # TODO: quitar de siguientes las que ahorrarían más colocadas detrás de alguna otra
-      # Buscamos las de máximo ahorro
-      maxAhorro = 0
-      posMax    = None  # Primera posición encontrada con máximo ahorro
-      solapeMax = None  # Solape de la primera posición encontrada con máximo ahorro
-      for siguiente in siguientes:
-        solape, ahorro = siguientes[siguiente]
-        if ahorro > maxAhorro:
-          maxAhorro = ahorro
-          solapeMax = solape
-          posMax    = siguiente
-      colocaSiguiente = True
-      siguiente       = posMax
-      solape          = solapeMax
-    else:  # Ninguna de las secuencias restantes ahorrarán nada por ponerlas al final del fichero
-      solape = 0
-      # Buscamos una sección de las restantes que no tenga ahorro por colocarse detrás de ninguna otra
-      for posicion, secuencia in porColocar.items():
-        clavesAhorros = sorted (ahorrosColocar.keys(), reverse = True)
-        for a in (range (len (clavesAhorros))):
-          for parPosiciones in ahorrosColocar[ahorro]:
-            if parPosiciones[1] == posicion:
-              break  # Encontrada, no sirve esta
-          else:  # No encontrada, puede servir esta
-            continue
-          break  # Encontrada, no sirve esta
-        else:  # No encontrada, sirve esta
-          colocaSiguiente = True
+            # XXX: aquí termina el código duplicado
+      for ahorro in ahorrosColocar:
+        ahorrosColocar[ahorro].sort()  # Los necesitamos ordenados
+      # Vemos cuáles de las secciones restantes ahorrarán espacio por solaparse sobre la última área escrita del fichero
+      colocaSiguiente = False
+      siguientes      = {}  # Posición de secuencias que ahorrarán espacio por colocarse tras la última área escrita, solape con ésta y cuánto ahorran
+      for ahorro in ahorrosColocar:
+        for posicion, posicion2 in ahorrosColocar[ahorro]:
+          if posicion:
+            break  # Ya hemos terminado de ver las combinaciones que ahorran ahorro tras la última área escrita
+          siguientes[posicion2] = [ahorro // (len (duplicadasInv.get (posicion2, ())) + 1), ahorro]
+      # Vemos cuáles de las secciones restantes si se ponen al final del fichero constituiría un prefijo mayor de otra
+      if areasYaEscritas[-1][1] >= ocupado:  # Sólo si la última área del fichero ya está escrita
+        ahorrosExtraFin  = {}
+        ahorrosSolapeFin = {}
+        for posicion, secuencia in porColocar.items():
+          secuenciaSobreFin = secuenciaFinal + secuencia
+          for posicion2, secuencia2 in porColocar.items():
+            if posicion2 == posicion:
+              continue
+            if secuencia2 in secuenciaSobreFin and secuencia2 not in secuenciaFinal:  # Quedará totalmente incluida gracias a esto
+              if posicion in ahorrosExtraFin:
+                ahorrosExtraFin[posicion] += len (secuencia2)
+              else:
+                ahorrosExtraFin[posicion] = len (secuencia2)
+            else:  # No quedará totalmente incluida con esto
+              # Buscamos solapes adicionales si se coloca la sección de posición posicion tras la última área escrita
+              for s in range (min (len (secuencia2) - 1, len (secuenciaSobreFin)), len (secuencia), -1):
+                if secuenciaSobreFin[-s:] == secuencia2[:s]:
+                  ahorroTotal = s
+                  if posicion in ahorrosSolapeFin:
+                    ahorrosSolapeFin[posicion] = max (ahorrosSolapeFin[posicion], ahorroTotal)
+                  else:
+                    ahorrosSolapeFin[posicion] = ahorroTotal
+                  break
+        for posicion in ahorrosSolapeFin:
+          if posicion in siguientes:
+            siguientes[posicion][1] = max (siguientes[posicion], ahorrosSolapeFin[posicion])
+          else:
+            siguientes[posicion] = [0, ahorrosSolapeFin[posicion]]
+        for posicion in ahorrosExtraFin:
+          if posicion in siguientes:
+            siguientes[posicion][1] += ahorrosExtraFin[posicion]
+          else:
+            siguientes[posicion] = [0, ahorrosExtraFin[posicion]]
+      if siguientes:
+        # TODO: quitar de siguientes las que ahorrarían más colocadas detrás de alguna otra
+        # Buscamos las de máximo ahorro
+        maxAhorro = 0
+        posMax    = None  # Primera posición encontrada con máximo ahorro
+        solapeMax = None  # Solape de la primera posición encontrada con máximo ahorro
+        for siguiente in siguientes:
+          solape, ahorro = siguientes[siguiente]
+          if ahorro > maxAhorro:
+            maxAhorro = ahorro
+            solapeMax = solape
+            posMax    = siguiente
+        colocaSiguiente = True
+        siguiente       = posMax
+        solape          = solapeMax
+      else:  # Ninguna de las secuencias restantes ahorrarán nada por ponerlas al final del fichero
+        solape = 0
+        # Buscamos una sección de las restantes que no tenga ahorro por colocarse detrás de ninguna otra
+        for posicion, secuencia in porColocar.items():
+          clavesAhorros = sorted (ahorrosColocar.keys(), reverse = True)
+          for a in (range (len (clavesAhorros))):
+            for parPosiciones in ahorrosColocar[ahorro]:
+              if parPosiciones[1] == posicion:
+                break  # Encontrada, no sirve esta
+            else:  # No encontrada, puede servir esta
+              continue
+            break  # Encontrada, no sirve esta
+          else:  # No encontrada, sirve esta
+            colocaSiguiente = True
+            siguiente       = posicion
+            break
+        else:  # Todas tenían algo de ahorro por colocarse detrás de alguna otra
+          colocaSiguiente = True  # Nos quedamos una cualquiera (la última recorrida, en este caso)
           siguiente       = posicion
-          break
-      else:  # Todas tenían algo de ahorro por colocarse detrás de alguna otra
-        colocaSiguiente = True  # Nos quedamos una cualquiera (la última recorrida, en este caso)
-        siguiente       = posicion
     # Colocamos la sección
     if colocaSiguiente:
       posicion     = siguiente
@@ -832,7 +837,8 @@ def guarda_bd (bbdd):
           eliminados += 1
         if not ahorrosColocar[ahorro]:
           del ahorrosColocar[ahorro]
-    cambia_progreso.emit (- len (porColocar) - len (duplicadasInv))
+    if not dlg_progreso[0].wasCanceled():
+      cambia_progreso.emit (- len (porColocar) - len (duplicadasInv))
     iteracion += 1
 
   # Guardamos la posición siguiente tras la base de datos
