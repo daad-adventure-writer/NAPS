@@ -357,6 +357,12 @@ def inicializa ():
       if nueva_version:  # Carga la paleta por defecto, evitando hacerlo en modo CGA (que de momento sólo está para DAAD v1)
         gui.carga_paleta_defecto()
 
+  # Cargamos los colores de inicio
+  if 'colores_inicio' in libreria.__dict__:
+    gui.cambia_color_tinta (libreria.colores_inicio[0])
+    gui.cambia_color_papel (libreria.colores_inicio[1])
+    gui.cambia_color_borde (libreria.colores_inicio[2])
+
   # Permitimos que la librería inicialice banderas de modo distinto a la inicialización PAWS estándar
   if 'inicializa_banderas' in libreria.__dict__:
     libreria.inicializa_banderas (banderas)
