@@ -772,7 +772,8 @@ El parámetro pararTimeout indica si se evitará el tiempo muerto cuando la entrad
       textoAntes = True
   elif opcs_input & 8:  # Pedir la entrada debajo del todo
     cursorMovido = list (cursores[elegida])
-  elif espaciar and cursores[elegida][1] >= topes[elegida][1] - 2 and cursores[elegida][0]:
+  elif (espaciar and cursores[elegida][1] >= topes[elegida][1] - 2 and cursores[elegida][0]) or \
+      (NOMBRE_SISTEMA == 'QUILL' and cursores[elegida][0]):
     prompt = '\n' + prompt  # Dejaremos una línea en blanco entre el último texto y el prompt
   # El prompt se imprimirá
   if opcs_input & 8:  # Pedir la entrada debajo del todo
