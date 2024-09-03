@@ -306,6 +306,11 @@ def borra_todo ():
   ventana.fill (colorPapel, (0, 0, resolucion[0], resolucion[1]))
   actualizaVentana()
 
+def cambia_color_brillo (valor):
+  """Cambia el valor de brillo de la subventana actual según el valor dado"""
+  global brillo
+  brillo = 1 if valor else 0
+
 def cambia_color_borde (color):
   """Cambia el color de fondo al borrar de la subventana actual por el de código dado"""
   if traza:

@@ -425,8 +425,10 @@ Para compatibilidad con el IDE:
   colores_inicio.append (ord (fichero.read (1)))  # Color de tinta
   fichero.read (1)
   colores_inicio.append (ord (fichero.read (1)))  # Color de papel
-  fichero.read (8)
-  colores_inicio.append (ord (fichero.read (1)))  # Color de borde
+  fichero.read (3)
+  colores_inicio.append (ord (fichero.read (1)))  # Brillo
+  fichero.read (5)
+  colores_inicio.insert (2, ord (fichero.read (1)))  # Color de borde
   posBD = posicion + 3
   # Detectamos si es una versión vieja de Quill, sin lista de posiciones de mensajes de sistema
   if busca_secuencia ((0xdd, 0xbe, 0, 0x28, None, 0xdd, 0xbe, 3, 0x28, None, 0xdd, 0x35, 3, 0x3a, None, None, 0xdd, 0xbe, None, 0x28, None, 0xfe, 0xfd, 0x30, None, 0x21)):

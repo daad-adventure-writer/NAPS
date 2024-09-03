@@ -362,6 +362,8 @@ def inicializa ():
     gui.cambia_color_tinta (libreria.colores_inicio[0])
     gui.cambia_color_papel (libreria.colores_inicio[1])
     gui.cambia_color_borde (libreria.colores_inicio[2])
+    if len (libreria.colores_inicio) > 3:
+      gui.cambia_color_brillo (libreria.colores_inicio[3])
 
   # Permitimos que la librería inicialice banderas de modo distinto a la inicialización PAWS estándar
   if 'inicializa_banderas' in libreria.__dict__:
