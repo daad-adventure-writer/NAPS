@@ -745,8 +745,9 @@ class ManejoExportacion (QThread):
     self.cambia_progreso.connect (self.cambiaProgreso)
     if 'dlg_progreso' in mod_actual.__dict__:
       del mod_actual.dlg_progreso[:]  # Por si acaso quedaba algo ahí
-      self.dialogoProgreso = QProgressDialog (_('Export database'), _('&Cancel'), 0, 100, selector)
+      self.dialogoProgreso = QProgressDialog (_('Optimizing database...\n\nPressing the "Cancel" button will export it without further optimizations'), _('&Cancel'), 0, 100, selector)
       self.dialogoProgreso.setMinimumDuration (2000)  # Que salga si va a durar más de 2 segundos
+      self.dialogoProgreso.setWindowTitle (_('Export database'))
       mod_actual.cambia_progreso = self.cambia_progreso
       mod_actual.dlg_progreso.append (self.dialogoProgreso)
     else:
