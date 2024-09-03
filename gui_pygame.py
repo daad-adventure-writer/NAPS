@@ -274,7 +274,7 @@ def borra_pantalla (desdeCursor = False, noRedibujar = False):
   if not desdeCursor:
     cursores[elegida]   = [0, 0]
     lineas_mas[elegida] = 0
-  colorBorde = daColorBorde()
+  colorPapel = daColorPapel()
   cursor     = cursores[elegida]
   subventana = subventanas[elegida]
   tope       = topes[elegida]
@@ -288,13 +288,13 @@ def borra_pantalla (desdeCursor = False, noRedibujar = False):
   else:
     ancho = int (math.ceil ((tope[0] * ancho_caracter) / 8.)) * 8  # Anchura del rectángulo a borrar
     alto  = tope[1] * 8                                            # Altura del rectángulo a borrar
-  ventana.fill (colorBorde, (inicioX, inicioY, ancho, alto))
+  ventana.fill (colorPapel, (inicioX, inicioY, ancho, alto))
   if desdeCursor and tope[1] - cursor[1] > 0:  # Borrado de las siguientes líneas
     inicioX = subventana[0] * ancho_caracter       # Esquina superior izquierda X
     inicioY = (subventana[1] + cursor[1] + 1) * 8  # Esquina superior izquierda Y
     ancho   = tope[0] * ancho_caracter             # Anchura del rectángulo a borrar
     alto    = (tope[1] - cursor[1] - 1) * 8        # Altura del rectángulo a borrar
-    ventana.fill (colorBorde, (inicioX, inicioY, ancho, alto))
+    ventana.fill (colorPapel, (inicioX, inicioY, ancho, alto))
   if not desdeCursor and not noRedibujar:
     actualizaVentana()
   if traza:
@@ -302,8 +302,8 @@ def borra_pantalla (desdeCursor = False, noRedibujar = False):
 
 def borra_todo ():
   """Limpia la pantalla completa"""
-  colorBorde = daColorBorde()
-  ventana.fill (colorBorde, (0, 0, resolucion[0], resolucion[1]))
+  colorPapel = daColorPapel()
+  ventana.fill (colorPapel, (0, 0, resolucion[0], resolucion[1]))
   actualizaVentana()
 
 def cambia_color_borde (color):
@@ -1426,10 +1426,10 @@ def cargaGrafico (numero):
   for propiedad in ('banderas', 'paleta', 'posicion'):
     graficos[numero][propiedad] = recurso[propiedad]
 
-def daColorBorde ():
-  """Devuelve el color de borde o de fondo de la subventana elegida, según corresponda a la plataforma"""
+def daColorPapel ():
+  """Devuelve el color de fondo de la subventana elegida, según corresponda a la plataforma"""
   if paleta[1]:  # Si hay dos paletas, debe ser Spectrum
-    return paleta[0][color_subv[elegida][2]] if paleta[0] else (0, 0, 0)  # Color del borde
+    return paleta[brillo][color_subv[elegida][1]]  # Color del papel
   return paleta[0][color_subv[elegida][1]] if paleta[0] else (0, 0, 0)  # Color del papel
 
 def daColorTinta ():
@@ -1597,9 +1597,9 @@ def scrollLineas (lineasAsubir, subventana, tope, redibujar = True):
     ventana.blit (ventana, destino, (origenX, origenY, anchura, altura))
   # Borramos el hueco
   lineasAsubir = min (lineasAsubir, tope[1])
-  colorBorde   = daColorBorde()
+  colorPapel   = daColorPapel()
   origenY      = (subventana[1] + tope[1] - lineasAsubir) * 8
   altura       = lineasAsubir * 8
-  ventana.fill (colorBorde, (origenX, origenY, anchura, altura))
+  ventana.fill (colorPapel, (origenX, origenY, anchura, altura))
   if redibujar:
     actualizaVentana()
