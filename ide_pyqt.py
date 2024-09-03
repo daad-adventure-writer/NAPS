@@ -1186,6 +1186,7 @@ def actualizaPosProcesos ():
       cursor.movePosition (QTextCursor.EndOfBlock)
       cursor.movePosition (QTextCursor.StartOfBlock, QTextCursor.KeepAnchor)
       cursor.removeSelectedText()
+      campo_txt.setFontWeight (QFont.Normal)
       campo_txt.setTextBackgroundColor (color_base)
       if pilaAnterior[-1][2] == -1:  # Es línea de cabecera
         cabecera = proceso[0][pilaAnterior[-1][1]]
