@@ -322,7 +322,7 @@ def cambia_color_tinta (color):
   """Cambia el color de tinta al escribir la subventana actual por el dado"""
   if traza:
     prn ('Color de tinta cambiado a', color, 'en subventana', elegida)
-  color_subv[elegida][0] = color % len (paleta[0])
+  color_subv[elegida][0] = color
 
 def cambia_cursor (cadenaCursor):
   """Cambia el carácter que marca la posición del cursor en la entrada del jugador"""
@@ -1094,9 +1094,8 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
   if cadena == '\n':  # TODO: sacar a función nueva_linea
     lineas_mas[elegida] += 1
     restante = tope[0] - cursor[0]     # Columnas restantes que quedan en la línea
-    papel    = color_subv[elegida][1]  # Color de papel/fondo
-    tinta    = color_subv[elegida][0]  # Color de tinta
-    colores  = {0: (paleta[brillo][tinta], paleta[brillo][papel])}
+    papel    = color_subv[elegida][1]  # Número de color de papel/fondo
+    colores  = {0: (daColorTinta(), paleta[brillo][papel])}
     imprime_linea ([chr (16)] * restante, redibujar = redibujar, colores = colores)
     if cursor[1] >= tope[1] - 1:
       scrollLineas (1, subventana, tope)
@@ -1433,6 +1432,19 @@ def daColorBorde ():
     return paleta[0][color_subv[elegida][2]] if paleta[0] else (0, 0, 0)  # Color del borde
   return paleta[0][color_subv[elegida][1]] if paleta[0] else (0, 0, 0)  # Color del papel
 
+def daColorTinta ():
+  """Devuelve el color de tinta de la subventana elegida, según corresponda a la plataforma"""
+  if paleta[1]:  # Si hay dos paletas, debe ser Spectrum
+    return paleta[brillo][daTinta()]
+  return paleta[0][daTinta()]
+
+def daTinta ():
+  """Devuelve el número de color de tinta de la subventana elegida, según corresponda a la plataforma"""
+  if paleta[1]:  # Si hay dos paletas, debe ser Spectrum
+    if color_subv[elegida][0] == 9:  # Contraste
+      return 0 if color_subv[elegida][1] > 3 else 7  # Negro para colores de papel oscuros, y blanco para colores claros
+  return color_subv[elegida][0] % len (paleta[0])
+
 def esperaMas (tiempo):
   """Muestra el texto de paginación, espera una tecla, y luego lo borra
 
@@ -1464,7 +1476,7 @@ def parseaColores (cadena):
   global brillo
   inversa = False  # Si se invierten o no papel y fondo
   papel   = color_subv[elegida][1]  # Color de papel/fondo
-  tinta   = color_subv[elegida][0]  # Color de tinta
+  tinta   = daTinta()               # Color de tinta
   colores = {0: (paleta[brillo][tinta], paleta[brillo][papel])}
   if not cambia_brillo:
     return cadena, colores
