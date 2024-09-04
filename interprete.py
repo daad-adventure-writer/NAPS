@@ -1269,15 +1269,15 @@ if __name__ == '__main__':
     if NOMBRE_SISTEMA == 'SWAN':
       if gui.paleta[1]:
         gui.brillo = 1   # Con brillo por defecto
-      gui.juego_alto = 48  # @
-      gui.juego_bajo = 48
+      gui.cod_juego_alto = 48  # @
+      gui.cod_juego_bajo = 48
     elif NOMBRE_SISTEMA == 'QUILL' or (NOMBRE_SISTEMA == 'PAWS' and extension == 'sna'):  # Quill, o PAWS de Spectrum
-      gui.cambia_brillo  = 19
-      gui.cambia_flash   = 18
-      gui.cambia_inversa = 20
-      gui.cambia_papel   = 17
-      gui.cambia_tinta   = 16
-      gui.tabulador      = 6
+      gui.cod_brillo    = 19
+      gui.cod_flash     = 18
+      gui.cod_inversa   = 20
+      gui.cod_papel     = 17
+      gui.cod_tabulador = 6
+      gui.cod_tinta     = 16
       if NOMBRE_SISTEMA == 'PAWS':
         gui.cambia_cursor (msgs_sys[34])
       else:  # Es QUILL
@@ -1295,8 +1295,8 @@ if __name__ == '__main__':
     # XXX: apaño para diferenciar la Aventura Original de aventuras posteriores
     if len (msgs_usr) > 77 and (msgs_usr[77] == '\x0eAVENTURA ORIGINAL I\x0f' or msgs_usr[0] == '\x0eAVENTURA ORIGINAL II\x0f'):
       gui.centrar_graficos.append (True)
-      gui.juego_alto = 14  # ü
-      gui.juego_bajo = 15  # Ü
+      gui.cod_juego_alto = 14  # ü
+      gui.cod_juego_bajo = 15  # Ü
     else:
       # XXX: apaño para detectar Chichén Itzá, al menos las versiones de 16 bits
       import hashlib
@@ -1309,8 +1309,8 @@ if __name__ == '__main__':
       elif len (msgs_sys) > 83 and hashlib.sha1 ((msgs_sys[6] + msgs_sys[27] + msgs_sys[43] + msgs_sys[66] + msgs_sys[74] + msgs_sys[77] + msgs_sys[81] + msgs_sys[83]).encode ('utf8')).hexdigest() == 'fe8d542a35c3f87f354bb60c6da50abca518b616':
         gui.templos = True
       elif nueva_version:
-        gui.juego_alto = 14  # ü
-        gui.juego_bajo = 15  # Ü
+        gui.cod_juego_alto = 14  # ü
+        gui.cod_juego_bajo = 15  # Ü
   if NOMBRE_SISTEMA != 'QUILL':
     gui.txt_mas = msgs_sys[32]  # (más)
 

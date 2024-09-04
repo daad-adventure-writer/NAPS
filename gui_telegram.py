@@ -31,18 +31,18 @@ from prn_func import *
 traza = False  # Si queremos una traza del funcionamiento del módulo
 
 # Variables que ajusta el intérprete y usa esta GUI u otro módulo
-cambia_brillo    = None      # Carácter que si se encuentra en una cadena, daría o quitaría brillo al color de tinta de la letra
-cambia_flash     = None      # Carácter que si se encuentra en una cadena, pondría o quitaría efecto flash a la letra
-cambia_inversa   = None      # Carácter que si se encuentra en una cadena, invertirá o no el papel/fondo de la letra
-cambia_papel     = None      # Carácter que si se encuentra en una cadena, cambiaría el color de papel/fondo de la letra
-cambia_tinta     = None      # Carácter que si se encuentra en una cadena, cambiaría el color de tinta de la letra
+cod_brillo       = None      # Carácter que si se encuentra en una cadena, daría o quitaría brillo al color de tinta de la letra
+cod_flash        = None      # Carácter que si se encuentra en una cadena, pondría o quitaría efecto flash a la letra
+cod_inversa      = None      # Carácter que si se encuentra en una cadena, invertirá o no el papel/fondo de la letra
+cod_juego_alto   = None      # Carácter que si se encuentra en una cadena, pasaría al juego de caracteres alto
+cod_juego_bajo   = None      # Carácter que si se encuentra en una cadena, pasaría al juego de caracteres bajo
+cod_papel        = None      # Carácter que si se encuentra en una cadena, cambiaría el color de papel/fondo de la letra
+cod_tabulador    = None      # Carácter que si se encuentra en una cadena, pondrá espacios hasta mitad o final de línea
+cod_tinta        = None      # Carácter que si se encuentra en una cadena, cambiaría el color de tinta de la letra
 centrar_graficos = []        # Si se deben centrar los gráficos al dibujarlos
 historial        = []        # Historial de órdenes del jugador
-juego_alto       = None      # Carácter que si se encuentra en una cadena, pasaría al juego de caracteres alto
-juego_bajo       = None      # Carácter que si se encuentra en una cadena, pasaría al juego de caracteres bajo
-paleta           = ([], [])  # Paleta de colores sin y con brillo, para los cambios con cambia_*
+paleta           = ([], [])  # Paleta de colores sin y con brillo, para los cambios con funciones cambia_*
 partir_espacio   = True      # Si se deben partir las líneas en el último espacio
-tabulador        = None      # Carácter que si se encuentra en una cadena, pondrá espacios hasta mitad o final de línea
 texto_nuevo      = []        # Tendrá valor verdadero si se ha escrito texto nuevo tras el último borrado de pantalla o espera de tecla
 
 cursores    = [[0, 0]] * 2  # Posición relativa del cursor de cada subventana
@@ -132,20 +132,20 @@ def reinicia_subventanas ():
 
 def abre_ventana (traza, factorEscala, bbdd):
   """Abre la ventana gráfica de la aplicación"""
-  global cambia_brillo, cambia_flash, cambia_inversa, cambia_papel, cambia_tinta, juego_alto, juego_bajo, tabulador
-  if juego_alto == 48:  # La @ de SWAN
-    juego_alto = '@'
-    juego_bajo = '@'
-  elif juego_alto == 14:  # La ü de las primeras versiones de DAAD
-    juego_alto = '\x0e'
-    juego_bajo = '\x0f'
-  if cambia_brillo:
-    cambia_brillo  = chr (cambia_brillo)
-    cambia_inversa = chr (cambia_inversa)
-    cambia_flash   = chr (cambia_flash)
-    cambia_papel   = chr (cambia_papel)
-    cambia_tinta   = chr (cambia_tinta)
-    tabulador      = chr (tabulador)
+  global cod_brillo, cod_flash, cod_inversa, cod_juego_alto, cod_juego_bajo, cod_papel, cod_tabulador, cod_tinta
+  if cod_juego_alto == 48:  # La @ de SWAN
+    cod_juego_alto = '@'
+    cod_juego_bajo = '@'
+  elif cod_juego_alto == 14:  # La ü de las primeras versiones de DAAD
+    cod_juego_alto = '\x0e'
+    cod_juego_bajo = '\x0f'
+  if cod_brillo:
+    cod_brillo    = chr (cod_brillo)
+    cod_inversa   = chr (cod_inversa)
+    cod_flash     = chr (cod_flash)
+    cod_papel     = chr (cod_papel)
+    cod_tabulador = chr (cod_tabulador)
+    cod_tinta     = chr (cod_tinta)
 
 def borra_pantalla (desdeCursor = False, noRedibujar = False):
   """Limpia la subventana de impresión"""
@@ -226,13 +226,13 @@ def imprime_cadena (cadena, textoNormal = True, redibujar = True, tiempo = 0):
   nuevaLinea = False
   cadena = limpiaCadena (cadena)
   if limite[0] == 999:  # Sin límite
-    if tabulador:
-      cadena = cadena.replace (tabulador, '\t')
+    if cod_tabulador:
+      cadena = cadena.replace (cod_tabulador, '\t')
     bufferTexto += cadena
     return
   # Convertimos los tabuladores en espacios
   mitadAnchura = limite[0] // 2  # Anchura de media línea
-  posTabulador = cadena.find (tabulador)
+  posTabulador = cadena.find (cod_tabulador)
   while posTabulador > -1:
     posTabEnLinea = posTabulador % limite[0]  # Columna en la línea donde está el tabulador
     if posTabEnLinea < mitadAnchura:
@@ -240,7 +240,7 @@ def imprime_cadena (cadena, textoNormal = True, redibujar = True, tiempo = 0):
     else:
       numEspacios = limite[0] - posTabEnLinea  # Rellena el resto de la línea con espacios
     cadena       = cadena[:posTabulador] + (' ' * numEspacios) + cadena[posTabulador + 1:]
-    posTabulador = cadena.find (tabulador)
+    posTabulador = cadena.find (cod_tabulador)
   # Dividimos la cadena en líneas
   lineas = []
   while len (cadena) > limite[0]:
@@ -291,7 +291,7 @@ def prepara_topes (columnas, filas):
 # Funciones auxiliares que sólo se usan en este módulo
 
 def limpiaCadena (cadena):
-  if not cambia_brillo and not juego_alto:
+  if not cod_brillo and not cod_juego_alto:
     return cadena
   if secuencias:
     for secuencia in secuencias:
@@ -300,9 +300,9 @@ def limpiaCadena (cadena):
   limpia = ''
   c = 0
   while c < len (cadena):
-    if cadena[c] in (cambia_brillo, cambia_flash, cambia_inversa, cambia_papel, cambia_tinta, juego_alto, juego_bajo):
-      if cadena[c] in (juego_alto, juego_bajo):
-        if juego_alto == '@':  # En SWAN los caracteres del juego alto son en negrita
+    if cadena[c] in (cod_brillo, cod_flash, cod_inversa, cod_juego_alto, cod_juego_bajo, cod_papel, cod_tinta):
+      if cadena[c] in (cod_juego_alto, cod_juego_bajo):
+        if cod_juego_alto == '@':  # En SWAN los caracteres del juego alto son en negrita
           limpia += '`*`'
       else:
         c += 1  # Descartamos también el siguiente byte, que indica el color o si se activa o no

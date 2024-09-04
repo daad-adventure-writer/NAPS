@@ -78,20 +78,20 @@ chr_cursor = pygame.Surface ((8, 8))  # Carácter con transparencia, para marcar 
 
 # Variables que ajusta el intérprete y usa esta GUI u otro módulo
 brillo           = 0         # Sin brillo por defecto
-cambia_brillo    = None      # Carácter que si se encuentra en una cadena, dará o quitará brillo al color de tinta de la letra
-cambia_flash     = None      # Carácter que si se encuentra en una cadena, pondría o quitaría efecto flash a la letra
-cambia_inversa   = None      # Carácter que si se encuentra en una cadena, invertirá o no el papel/fondo de la letra
-cambia_papel     = None      # Carácter que si se encuentra en una cadena, cambiará el color de papel/fondo de la letra
-cambia_tinta     = None      # Carácter que si se encuentra en una cadena, cambiará el color de tinta de la letra
+cod_brillo       = None      # Carácter que si se encuentra en una cadena, dará o quitará brillo al color de tinta de la letra
+cod_flash        = None      # Carácter que si se encuentra en una cadena, pondría o quitaría efecto flash a la letra
+cod_inversa      = None      # Carácter que si se encuentra en una cadena, invertirá o no el papel/fondo de la letra
+cod_juego_alto   = None      # Carácter que si se encuentra en una cadena, pasará al juego de caracteres alto
+cod_juego_bajo   = None      # Carácter que si se encuentra en una cadena, pasará al juego de caracteres bajo
+cod_papel        = None      # Carácter que si se encuentra en una cadena, cambiará el color de papel/fondo de la letra
+cod_tabulador    = None      # Carácter que si se encuentra en una cadena, pondrá espacios hasta mitad o final de línea
+cod_tinta        = None      # Carácter que si se encuentra en una cadena, cambiará el color de tinta de la letra
 centrar_graficos = []        # Si se deben centrar los gráficos al dibujarlos
 grf_borde        = None      # Cuadrado 8x8 que usar repetidamente como borde de los gráficos
-juego_alto       = None      # Carácter que si se encuentra en una cadena, pasará al juego de caracteres alto
-juego_bajo       = None      # Carácter que si se encuentra en una cadena, pasará al juego de caracteres bajo
-paleta           = ([], [])  # Paleta de colores sin y con brillo para los textos, que cambia con cambia_*
+paleta           = ([], [])  # Paleta de colores sin y con brillo para los textos, que cambia con funciones cambia_*
 paleta_gfx       = []        # Paleta de colores para los gráficos
 partir_espacio   = True      # Si se deben partir las líneas en el último espacio
 ruta_graficos    = ''        # Carpeta de donde cargar los gráficos a dibujar
-tabulador        = None      # Carácter que si se encuentra en una cadena, pondrá espacios hasta mitad o final de línea
 texto_nuevo      = []        # Tendrá valor verdadero si se ha escrito texto nuevo tras el último borrado de pantalla o espera de tecla
 todo_mayusculas  = False     # Si la entrada del jugador será incondicionalmente en mayúsculas
 txt_mas          = '(más)'   # Cadena a mostrar cuando no cabe más texto y se espera a que el jugador pulse una tecla
@@ -1124,7 +1124,7 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
       bajado   = False  # Si la parte actual de la cadena está pasada a juego bajo por letras no mayúsculas
       cambiada = ''     # Cadena cambiada teniendo en cuenta que en la fuente alta sólo hay letras mayúsculas
       for c in cadena:
-        if c == izquierda[juego_alto]:  # Es el mismo carácter para alternar entre juego alto y bajo
+        if c == izquierda[cod_juego_alto]:  # Es el mismo carácter para alternar entre juego alto y bajo
           juego = not juego
           if not bajado:
             cambiada += c
@@ -1134,10 +1134,10 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
           if c.isupper():
             if bajado:
               bajado    = False
-              cambiada += izquierda[juego_alto]
+              cambiada += izquierda[cod_juego_alto]
           elif not bajado:
             bajado    = True
-            cambiada += izquierda[juego_alto]
+            cambiada += izquierda[cod_juego_alto]
         cambiada += c
       cadena = cambiada
       juego  = 0  # Inicializa la variable como número, se necesitará así a continuación
@@ -1165,11 +1165,11 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
       iniLineas.append (iniLineas[-1] + len (linea) + (1 if (ordinal == len (izquierda) - 1) else 0))
       linea    = []
       restante = tope[0]
-    elif ordOrig == juego_alto and juego == 0:
+    elif ordOrig == cod_juego_alto and juego == 0:
       juego = 128  # TODO: ¿hay algún intérprete donde juego parta desde 128 - 16?
       if ancho_caracter == 8:  # SWAN con tipografía cargada desde fichero
         juego -= 32
-    elif ordOrig == juego_bajo:
+    elif ordOrig == cod_juego_bajo:
       juego = 0
     elif ordinal == len (izquierda) - 2:  # Es un tabulador (el penúltimo carácter)
       posTabulador = iniLineas[-1] + len (linea)
@@ -1232,7 +1232,7 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
         esperaMas (tiempo)  # Paginación
     elif 0 in colores and not lineas[i]:  # La primera línea es sólo \n
       fuente.set_palette (colores[0])  # Cargamos el color inicial de la cadena
-    if cambia_brillo:
+    if cod_brillo:
       imprime_linea (lineas[i], redibujar = redibujar, colores = colores, inicioLinea = iniLineas[i])
     else:
       imprime_linea (lineas[i], redibujar = redibujar, colores = colores)
@@ -1485,7 +1485,7 @@ def parseaColores (cadena):
   papel   = color_subv[elegida][1]  # Color de papel/fondo
   tinta   = daTinta()               # Color de tinta
   colores = {0: (paleta[brillo][tinta], paleta[brillo][papel])}
-  if not cambia_brillo:
+  if not cod_brillo:
     return cadena, colores
   sigBrillo  = False  # Si el siguiente carácter indica si se pone o quita brillo al color de tinta
   sigFlash   = False  # Si el siguiente carácter indica si se pone o quita efecto flash
@@ -1515,18 +1515,18 @@ def parseaColores (cadena):
         sigTinta = False
         tinta    = c % len (paleta[brillo])
       colores[len (sinColores)] = (paleta[brillo][tinta], paleta[brillo][papel])  # Color de tinta y papel a aplicar
-    elif c in (cambia_brillo, cambia_flash, cambia_inversa, cambia_papel, cambia_tinta):
-      if c == cambia_brillo:
+    elif c in (cod_brillo, cod_flash, cod_inversa, cod_papel, cod_tinta):
+      if c == cod_brillo:
         sigBrillo = True
-      elif c == cambia_flash:
+      elif c == cod_flash:
         sigFlash = True
-      elif c == cambia_inversa:
+      elif c == cod_inversa:
         sigInversa = True
-      elif c == cambia_papel:
+      elif c == cod_papel:
         sigPapel = True
       else:
         sigTinta = True
-    elif c == tabulador:
+    elif c == cod_tabulador:
       sinColores += '\t'
     elif cadena[i] not in izquierda and cadena[i] in noEnFuente:
       sinColores += noEnFuente[cadena[i]]
