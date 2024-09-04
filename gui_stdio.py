@@ -268,7 +268,7 @@ def prepara_topes (columnas, filas):
 # Funciones auxiliares que sólo se usan en este módulo
 
 def limpiaCadena (cadena):
-  if not cambia_brillo and not cambia_flash and not cambia_inversa and not cambia_papel and not cambia_tinta and not juego_alto and not juego_bajo:
+  if not cambia_brillo and not juego_alto:
     return cadena
   limpia = ''
   c = 0
