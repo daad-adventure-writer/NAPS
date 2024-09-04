@@ -269,10 +269,12 @@ El parámetro inicio es la entrada a medias anterior
 El parámetro timeout es una lista con el tiempo muerto, en segundos
 El parámetro espaciar permite elegir si se debe dejar una línea en blanco tras el último texto
 El parámetro pararTimeout indica si se evitará el tiempo muerto cuando la entrada tenga algo escrito"""
+  global nuevaLinea
   entrada = None
   while not entrada:
     if prompt:
-      imprime_cadena ('\n' + prompt)
+      nuevaLinea = True
+      imprime_cadena (prompt)
     escribe_buffer()
     entrada = raw_input()
   return entrada
