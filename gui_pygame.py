@@ -37,7 +37,7 @@ traza = False  # Si queremos una traza del funcionamiento del módulo
 if traza:
   from prn_func import prn
 
-izquierda  = 'ª¡¿«»áéíóúñÑçÇüÜ !"º$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\x7f\t\n'
+izquierda  = 'ª¡¿«»áéíóúñÑçÇüÜ !"º$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\x7f\r\t\n'
 noEnFuente = {'©': 'c', u'\u2192': '>', u'\u2190': '<'}  # Tabla de conversión de caracteres que no están en la fuente
 
 # Pares de códigos ASCII para teclas pulsadas
@@ -79,6 +79,7 @@ chr_cursor = pygame.Surface ((8, 8))  # Carácter con transparencia, para marcar 
 # Variables que ajusta el intérprete y usa esta GUI u otro módulo
 brillo           = 0         # Sin brillo por defecto
 cod_brillo       = None      # Carácter que si se encuentra en una cadena, dará o quitará brillo al color de tinta de la letra
+cod_columna      = None      # Carácter que si se encuentra en una cadena, moverá el cursor a la columna dada
 cod_flash        = None      # Carácter que si se encuentra en una cadena, pondría o quitaría efecto flash a la letra
 cod_inversa      = None      # Carácter que si se encuentra en una cadena, invertirá o no el papel/fondo de la letra
 cod_juego_alto   = None      # Carácter que si se encuentra en una cadena, pasará al juego de caracteres alto
@@ -396,7 +397,7 @@ def carga_fuente_zx (fichero):
   if NOMBRE_SISTEMA not in ('QUILL', 'PAWS'):
     return
   ancho_caracter = 8
-  izquierda      = '·' * 16 + ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_£abcdefghijklmnopqrstuvwxyz{|}~\x7f\t\n'
+  izquierda      = '·' * 16 + ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_£abcdefghijklmnopqrstuvwxyz{|}~\x7f\r\t\n'
   for c, convertido in conversion.items():
     izquierda = izquierda.replace (c, convertido)
   fuente_zx = pygame.image.load (path.dirname (path.realpath (__file__)) + path.sep + 'fuente_zx_8x8.png')
@@ -1155,8 +1156,12 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
   iniLineas = [0]  # Posición de inicio de cada línea, para colorear
   lineas    = []
   linea     = []
+  omitir    = 0  # Número de caracteres pendientes de omitir
   restante  = tope[0] - cursor[0]  # Columnas restantes que quedan en la línea
   for c in range (len (convertida)):
+    if omitir:
+      omitir -= 1
+      continue
     ordinal = ord (convertida[c])
     ordOrig = ordinal if NOMBRE_SISTEMA == 'SWAN' else ord (cadena[c])
     if ((ordinal == len (izquierda) - 1) or  # Carácter nueva línea (el último)
@@ -1171,19 +1176,30 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
         juego -= 32
     elif ordOrig == cod_juego_bajo:
       juego = 0
-    elif ordinal == len (izquierda) - 2:  # Es un tabulador (el penúltimo carácter)
+    elif ordinal in (len (izquierda) - 2, len (izquierda) - 3):  # Penúltimo o antepenúltimo carácter: tabulador o movimiento de cursor
+      numEspacios  = 0
       posTabulador = iniLineas[-1] + len (linea)
-      if restante > tope[0] // 2:
-        numEspacios = (tope[0] // 2) - len (linea)  # Rellena con espacios hasta mitad de línea
-      else:
-        numEspacios = restante  # Rellena el resto de la línea con espacios
-      linea.extend (chr (16) * numEspacios)
-      restante -= numEspacios
-      if restante == 0:
-        lineas.append (''.join (linea))
-        iniLineas.append (iniLineas[-1] + len (linea))
-        linea = []
-        restante = tope[0]
+      if cadena[c] == '\t':  # Es un tabulador
+        if restante > tope[0] // 2:
+          numEspacios = (tope[0] // 2) - len (linea)  # Rellena con espacios hasta mitad de línea
+        else:
+          numEspacios = restante  # Rellena el resto de la línea con espacios
+      elif cadena[c] == '\r' and len (cadena) > c + 2:  # Es un cambio de columna en la misma fila
+        columna     = (ord (cadena[c + 1]) + 1) % limite[0]
+        numEspacios = columna - posTabulador  # Rellena con espacios hasta la columna indicada
+        omitir      = 2
+      if numEspacios > 0:
+        linea.extend (chr (16) * numEspacios)
+        restante -= numEspacios
+        if restante == 0:
+          lineas.append (''.join (linea))
+          iniLineas.append (iniLineas[-1] + len (linea))
+          linea = []
+          restante = tope[0]
+        if cadena[c] == '\r':
+          numEspacios -= 2  # Para descontar los caracteres que indican fila y columna
+      elif numEspacios:  # Era un número negativo de espacios
+        numEspacios = -2  # Para descontar los caracteres que indican fila y columna
       coloresNuevos = {}
       for inicio in tuple (colores.keys()):
         if inicio > posTabulador:
@@ -1487,6 +1503,7 @@ def parseaColores (cadena):
   colores = {0: (paleta[brillo][tinta], paleta[brillo][papel])}
   if not cod_brillo:
     return cadena, colores
+  omitir     = 0      # Número de caracteres pendientes de omitir (los dejará tal cual están)
   sigBrillo  = False  # Si el siguiente carácter indica si se pone o quita brillo al color de tinta
   sigFlash   = False  # Si el siguiente carácter indica si se pone o quita efecto flash
   sigInversa = False  # Si el siguiente carácter indica si se invierten o no papel y fondo
@@ -1494,6 +1511,10 @@ def parseaColores (cadena):
   sigTinta   = False  # Si el siguiente carácter indica el color de tinta
   sinColores = ''     # Cadena sin los códigos de control de colores
   for i in range (len (cadena)):
+    if omitir:
+      omitir     -= 1
+      sinColores += cadena[i]
+      continue
     c = ord (cadena[i])
     if sigBrillo or sigFlash or sigInversa or sigPapel or sigTinta:
       if sigBrillo:
@@ -1528,6 +1549,9 @@ def parseaColores (cadena):
         sigTinta = True
     elif c == cod_tabulador:
       sinColores += '\t'
+    elif c == cod_columna:
+      sinColores += '\r'
+      omitir = 2
     elif cadena[i] not in izquierda and cadena[i] in noEnFuente:
       sinColores += noEnFuente[cadena[i]]
     elif NOMBRE_SISTEMA == 'QUILL' and strPlataforma == 'PC' and c > 127:  # Es un carácter en inversa

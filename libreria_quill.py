@@ -1115,6 +1115,14 @@ def escribe_secs_ctrl (cadena):
       if cadena[i:i + 9] == '\\INVERSA_':
         inversa = cadena[i + 9:i + 11] not in ('0', '00')
         i += 10
+      if cadena[i:i + 5] == '\\TAB_':
+        columna = cadena[i + 5:i + 7]
+        try:
+          columna     = int (columna, 16)
+          convertida += chr (23) + chr (columna)
+        except:
+          pass
+        i += 5
       else:
         convertida += c
       # TODO: interpretar el resto de secuencias escapadas con barra invertida (\)
@@ -1161,6 +1169,9 @@ def lee_secs_ctrl (cadena):
         convertida += 'INVERSA'
       convertida += '_%02X' % ord (cadena[i + 1])
       i += 1  # El siguiente carácter ya se ha procesado
+    elif o == 23:
+      convertida += '\\TAB_%02X' % ord (cadena[i + 1])
+      i += 2  # El siguiente carácter ya se ha procesado y el de después se ignora
     elif c == '\\':
       convertida += '\\\\'
     else:

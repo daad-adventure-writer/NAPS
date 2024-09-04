@@ -270,6 +270,13 @@ def carga_sce (fichero, longitud):
   gc.collect()
   return retorno
 
+def inicializa_banderas (banderas):
+  """Inicializa banderas con valores propios de PAWS"""
+  # Bandera 39:
+  # En todas las que he probado de ZX Spectrum, el intérprete la inicializa a 24
+  if plataforma == 0 and version == 21:  # Formato sna de Spectrum 48K
+    banderas[39] = 24
+
 def escribe_secs_ctrl (cadena):
   """Devuelve la cadena dada convirtiendo la representación de secuencias de control en sus códigos"""
   convertida = ''
@@ -279,18 +286,23 @@ def escribe_secs_ctrl (cadena):
     o = ord (c)
     if c == '\t':
       convertida += '\x06'  # Tabulador
+    elif c == '\\':
+      if cadena[i:i + 5] == '\\TAB_':
+        columna = cadena[i + 5:i + 7]
+        try:
+          columna     = int (columna, 16)
+          convertida += chr (23) + chr (columna)
+        except:
+          pass
+        i += 5
+      else:
+        convertida += c
+      # TODO: interpretar el resto de secuencias escapadas con barra invertida (\)
     else:
       convertida += c
     i += 1
   # TODO: interpretar las secuencias escapadas con barra invertida (\)
   return convertida
-
-def inicializa_banderas (banderas):
-  """Inicializa banderas con valores propios de PAWS"""
-  # Bandera 39:
-  # En todas las que he probado de ZX Spectrum, el intérprete la inicializa a 24
-  if plataforma == 0 and version == 21:  # Formato sna de Spectrum 48K
-    banderas[39] = 24
 
 def lee_secs_ctrl (cadena):
   """Devuelve la cadena dada convirtiendo las secuencias de control en una representación imprimible"""
@@ -317,6 +329,9 @@ def lee_secs_ctrl (cadena):
         convertida += 'INVERSA'
       convertida += '_%02X' % ord (cadena[i + 1])
       i += 1  # El siguiente carácter ya se ha procesado
+    elif o == 23:
+      convertida += '\\TAB_%02X' % ord (cadena[i + 1])
+      i += 2  # El siguiente carácter ya se ha procesado y el de después se ignora
     elif c == '\\':
       convertida += '\\\\'
     else:

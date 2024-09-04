@@ -32,6 +32,7 @@ traza = False  # Si queremos una traza del funcionamiento del módulo
 
 # Variables que ajusta el intérprete y usa esta GUI u otro módulo
 cod_brillo       = None      # Carácter que si se encuentra en una cadena, daría o quitaría brillo al color de tinta de la letra
+cod_columna      = None      # Carácter que si se encuentra en una cadena, moverá el cursor a la columna dada
 cod_flash        = None      # Carácter que si se encuentra en una cadena, pondría o quitaría efecto flash a la letra
 cod_inversa      = None      # Carácter que si se encuentra en una cadena, invertirá o no el papel/fondo de la letra
 cod_juego_alto   = None      # Carácter que si se encuentra en una cadena, pasaría al juego de caracteres alto
@@ -132,7 +133,7 @@ def reinicia_subventanas ():
 
 def abre_ventana (traza, factorEscala, bbdd):
   """Abre la ventana gráfica de la aplicación"""
-  global cod_brillo, cod_flash, cod_inversa, cod_juego_alto, cod_juego_bajo, cod_papel, cod_tabulador, cod_tinta
+  global cod_brillo, cod_columna, cod_flash, cod_inversa, cod_juego_alto, cod_juego_bajo, cod_papel, cod_tabulador, cod_tinta
   if cod_juego_alto == 48:  # La @ de SWAN
     cod_juego_alto = '@'
     cod_juego_bajo = '@'
@@ -141,6 +142,7 @@ def abre_ventana (traza, factorEscala, bbdd):
     cod_juego_bajo = '\x0f'
   if cod_brillo:
     cod_brillo    = chr (cod_brillo)
+    cod_columna   = chr (cod_columna)
     cod_inversa   = chr (cod_inversa)
     cod_flash     = chr (cod_flash)
     cod_papel     = chr (cod_papel)
@@ -230,6 +232,16 @@ def imprime_cadena (cadena, textoNormal = True, redibujar = True, tiempo = 0):
       cadena = cadena.replace (cod_tabulador, '\t')
     bufferTexto += cadena
     return
+  # Convertimos las secuencias de control TAB en espacios
+  posTabulador = cadena.find (cod_columna)
+  while posTabulador > -1:
+    numEspacios   = -1
+    posTabEnLinea = posTabulador % limite[0]  # Columna en la línea donde está el tabulador
+    if len (cadena) > posTabulador + 2:
+      columna     = (ord (cadena[posTabulador + 1]) + 1) % limite[0]
+      numEspacios = columna - posTabEnLinea  # Rellena con espacios hasta la columna indicada
+    cadena = cadena[:posTabulador] + (' ' * (numEspacios if numEspacios > 0 else 0)) + cadena[posTabulador + 2:]
+    posTabulador = cadena.find (cod_columna)
   # Convertimos los tabuladores en espacios
   mitadAnchura = limite[0] // 2  # Anchura de media línea
   posTabulador = cadena.find (cod_tabulador)

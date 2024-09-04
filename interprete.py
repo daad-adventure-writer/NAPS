@@ -1273,6 +1273,7 @@ if __name__ == '__main__':
       gui.cod_juego_bajo = 48
     elif NOMBRE_SISTEMA == 'QUILL' or (NOMBRE_SISTEMA == 'PAWS' and extension == 'sna'):  # Quill, o PAWS de Spectrum
       gui.cod_brillo    = 19
+      gui.cod_columna   = 23
       gui.cod_flash     = 18
       gui.cod_inversa   = 20
       gui.cod_papel     = 17
