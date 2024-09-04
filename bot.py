@@ -120,25 +120,25 @@ def menuPrincipal (message):
   opciones.add (telebot.types.KeyboardButton ('/guia'))
   for nombreJuego in juegos:
     opciones.add (telebot.types.KeyboardButton ('/jugar ' + nombreJuego))
-  bot.send_message (usuario, 'Bienvenido a NAPS bot, el bot de Telegram que utiliza NAPS para permitirte jugar una selección de aventuras conversacionales de los sistemas Quill, PAWS, SWAN o DAAD.', reply_markup = opciones)
+  bot.send_message (usuario, '_Bienvenido a NAPS bot, el bot de Telegram que utiliza NAPS para permitirte jugar una selección de aventuras conversacionales de los sistemas Quill, PAWS, SWAN o DAAD._', parse_mode = 'markdown', reply_markup = opciones)
   ayuda (message)
 
 @bot.message_handler (commands=['ayuda', 'help'])
 def ayuda (message):
   usuario = message.chat.id
-  bot.send_message (usuario, 'Utiliza el comando /quit o /start para terminar el juego en curso y preparar el botón de Telegram con la lista de juegos disponibles.')
-  bot.send_message (usuario, 'Elige qué juego jugar o cambia el juego en curso con el comando /jugar o /play. Puedes usar el botón de Telegram para esta función.')
-  bot.send_message (usuario, '*NUEVO*: Utiliza el comando /guia para ver una breve guía sobre cómo jugar aventuras conversacionales.', parse_mode = 'markdown')
-  bot.send_message (usuario, 'Utiliza el comando /ayuda o /help para volver a mostrar estos mensajes de ayuda.')
+  bot.send_message (usuario, '_Utiliza el comando /quit o /start para terminar el juego en curso y preparar el botón de Telegram con la lista de juegos disponibles._', parse_mode = 'markdown')
+  bot.send_message (usuario, '_Elige qué juego jugar o cambia el juego en curso con el comando /jugar o /play. Puedes usar el botón de Telegram para esta función._', parse_mode = 'markdown')
+  bot.send_message (usuario, '*NUEVO*_: Utiliza el comando /guia para ver una breve guía sobre cómo jugar aventuras conversacionales._', parse_mode = 'markdown')
+  bot.send_message (usuario, '_Utiliza el comando /ayuda o /help para volver a mostrar estos mensajes de ayuda._', parse_mode = 'markdown')
 
 @bot.message_handler (commands=['guia'])
 def guia (message):
   usuario = message.chat.id
-  bot.send_message (usuario, 'Para que las aventuras conversacionales te entiendan, y puedas completarlas con éxito, sigue los siguientes consejos:')
-  bot.send_message (usuario, 'Da órdenes al juego indicándole lo que quieres que el protagonista haga, usando verbos en infinitivo. Por ejemplo: ESPERAR, COGER HACHA, ENTRAR.')
-  bot.send_message (usuario, 'Comandos típicos para manejo de objetos (entre paréntesis sus abreviaturas): INVENTARIO (I) te dice los objetos que tiene el protagonista, EXAMINAR, COGER, DEJAR, ABRIR, CERRAR, ENCENDER, APAGAR, METER, SACAR.')
-  bot.send_message (usuario, 'Comandos típicos para moverse entre localidades: SALIDAS te dice hacia dónde puede ir el protagonista, NORTE (N), SUR (S), ESTE (E), OESTE (O), ENTRAR, SALIR, SUBIR, BAJAR, NORESTE (NE), NOROESTE (NO), SURESTE (SE), SUROESTE (SO).')
-  bot.send_message (usuario, 'Para hablar con otro personaje, lo que quieres que diga el protagonista ponlo entre comillas dobles. Por ejemplo: DECIR A TOMAS "SIGUEME".')
+  bot.send_message (usuario, '_Para que las aventuras conversacionales te entiendan, y puedas completarlas con éxito, sigue los siguientes consejos:_', parse_mode = 'markdown')
+  bot.send_message (usuario, '_Da órdenes al juego indicándole lo que quieres que el protagonista haga, usando verbos en infinitivo. Por ejemplo: ESPERAR, COGER HACHA, ENTRAR._', parse_mode = 'markdown')
+  bot.send_message (usuario, '_Comandos típicos para manejo de objetos (entre paréntesis sus abreviaturas): INVENTARIO (I) te dice los objetos que tiene el protagonista, EXAMINAR, COGER, DEJAR, ABRIR, CERRAR, ENCENDER, APAGAR, METER, SACAR._', parse_mode = 'markdown')
+  bot.send_message (usuario, '_Comandos típicos para moverse entre localidades: SALIDAS te dice hacia dónde puede ir el protagonista, NORTE (N), SUR (S), ESTE (E), OESTE (O), ENTRAR, SALIR, SUBIR, BAJAR, NORESTE (NE), NOROESTE (NO), SURESTE (SE), SUROESTE (SO)._', parse_mode = 'markdown')
+  bot.send_message (usuario, '_Para hablar con otro personaje, lo que quieres que diga el protagonista ponlo entre comillas dobles. Por ejemplo: DECIR A TOMAS "SIGUEME"._', parse_mode = 'markdown')
 
 @bot.message_handler (commands=['jugar', 'play'])
 def comandoJugar (message):
@@ -163,7 +163,7 @@ def comandoJugar (message):
       interpretes[jugador].kill()
       limpiaRecursos (jugador)
     if len (interpretes) >= MAX_JUGADORES and int (time.time()) - masAntiguo[1] < MAX_ESPERA:  # Están todos activos
-      bot.send_message (usuario, 'Se ha alcanzado el número máximo de jugadores simultáneos activos. Inténtalo de nuevo en otra ocasión.')
+      bot.send_message (usuario, '_Se ha alcanzado el número máximo de jugadores simultáneos activos. Inténtalo de nuevo en otra ocasión._', parse_mode = 'markdown')
       return
     # Cerramos el intérprete del más antiguo
     interpretes[masAntiguo[0]].kill()
@@ -171,8 +171,8 @@ def comandoJugar (message):
   opciones = telebot.types.ReplyKeyboardMarkup()
   opciones.add (telebot.types.KeyboardButton ('/guia'))
   opciones.add (telebot.types.KeyboardButton ('/start'))
-  bot.send_message (usuario, 'Has elegido jugar a ' + eleccion + '. Puedes usar el comando /quit o /start para terminar la partida.', reply_markup = opciones)
-  bot.send_message (usuario, 'El tiempo de inactividad es de 30 minutos. Si pasa ese tiempo, tu plaza como jugador se cede a otros.')
+  bot.send_message (usuario, '_Has elegido jugar a ' + eleccion + '. Puedes usar el comando /quit o /start para terminar la partida._', parse_mode = 'markdown', reply_markup = opciones)
+  bot.send_message (usuario, '_El tiempo de inactividad es de 30 minutos. Si pasa ese tiempo, tu plaza como jugador se cede a otros._', parse_mode = 'markdown')
   nombreFichBD   = os.path.join (os.path.dirname (os.path.realpath (__file__)), carpeta_juegos, juegos[eleccion][0].replace ('/', os.sep))
   rutaInterprete = os.path.join (os.path.dirname (os.path.realpath (__file__)), 'interprete.py')
   argumentos     = ['python', rutaInterprete, '-g', 'telegram', nombreFichBD]
