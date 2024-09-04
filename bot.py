@@ -169,6 +169,7 @@ def comandoJugar (message):
     interpretes[masAntiguo[0]].kill()
     limpiaRecursos (masAntiguo[0])
   opciones = telebot.types.ReplyKeyboardMarkup()
+  opciones.add (telebot.types.KeyboardButton ('/guia'))
   opciones.add (telebot.types.KeyboardButton ('/start'))
   bot.send_message (usuario, 'Has elegido jugar a ' + eleccion + '. Puedes usar el comando /quit o /start para terminar la partida.', reply_markup = opciones)
   bot.send_message (usuario, 'El tiempo de inactividad es de 30 minutos. Si pasa ese tiempo, tu plaza como jugador se cede a otros.')
