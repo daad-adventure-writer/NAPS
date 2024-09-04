@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Interfaz gráfica de usuario (GUI) con entrada y salida estándar para el bot de Telegram
-# Copyright (C) 2010, 2018-2023 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2018-2024 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -63,7 +63,11 @@ def borra_orden ():
   pass
 
 def cambia_color_borde (color):
-  """Cambia el color de fondo al borrar de la subventana actual por el de código dado"""
+  """Cambia el color de borde de la subventana actual por el de código dado"""
+  pass
+
+def cambia_color_brillo (valor):
+  """Cambia el valor de brillo de la subventana actual según el valor dado"""
   pass
 
 def cambia_color_papel (color):
