@@ -252,7 +252,10 @@ def imprime_cadena (cadena, textoNormal = True, redibujar = True, tiempo = 0):
     if posPartir == -1:  # Ningún carácter de espacio en la línea
       posPartir = limite[0]  # La partimos suciamente (en mitad de palabra)
     lineas.append (cadena[:posPartir])
-    cadena = cadena[posPartir + (1 if cadena[posPartir] in (' ', '\n') else 0):]
+    if partir_espacio:
+      cadena = cadena[posPartir + (1 if cadena[posPartir] in ' \n' else 0):]
+    else:
+      cadena = cadena[posPartir + (1 if cadena[posPartir] == '\n' else 0):]
   for linea in lineas:
     bufferTexto += linea + '\n'
   if cadena:  # Queda algo en la última línea
