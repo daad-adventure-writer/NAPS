@@ -1134,7 +1134,7 @@ def lee_secs_ctrl (cadena):
   while i < len (cadena):
     c = cadena[i]
     o = ord (c)
-    if o > 127:
+    if o > 127 and strPlataforma == 'PC':
       if not inversa:
         convertida += '\\INVERSA_01'
       inversa = True
