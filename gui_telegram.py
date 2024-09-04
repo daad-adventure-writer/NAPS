@@ -231,14 +231,16 @@ def imprime_cadena (cadena, textoNormal = True, redibujar = True, tiempo = 0):
     bufferTexto += cadena
     return
   # Convertimos los tabuladores en espacios
-  while tabulador in cadena[:limite[0]]:
-    posTabulador = cadena[:limite[0]].index (tabulador)
-    restante     = limite[0] - posTabulador
-    if restante > limite[0] // 2:
-      numEspacios = (limite[0] // 2) - posTabulador  # Rellena con espacios hasta mitad de línea
+  mitadAnchura = limite[0] // 2  # Anchura de media línea
+  posTabulador = cadena.find (tabulador)
+  while posTabulador > -1:
+    posTabEnLinea = posTabulador % limite[0]  # Columna en la línea donde está el tabulador
+    if posTabEnLinea < mitadAnchura:
+      numEspacios = mitadAnchura - posTabEnLinea  # Rellena con espacios hasta mitad de línea
     else:
-      numEspacios = restante  # Rellena el resto de la línea con espacios
-    cadena = cadena[:posTabulador] + (' ' * numEspacios) + cadena[posTabulador + 1:]
+      numEspacios = limite[0] - posTabEnLinea  # Rellena el resto de la línea con espacios
+    cadena       = cadena[:posTabulador] + (' ' * numEspacios) + cadena[posTabulador + 1:]
+    posTabulador = cadena.find (tabulador)
   # Dividimos la cadena en líneas
   lineas = []
   while len (cadena) > limite[0]:
