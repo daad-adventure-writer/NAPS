@@ -31,6 +31,7 @@ from prn_func import *
 traza = False  # Si queremos una traza del funcionamiento del módulo
 
 # Variables que ajusta el intérprete y usa esta GUI u otro módulo
+
 cod_brillo       = None      # Carácter que si se encuentra en una cadena, daría o quitaría brillo al color de tinta de la letra
 cod_columna      = None      # Carácter que si se encuentra en una cadena, moverá el cursor a la columna dada
 cod_flash        = None      # Carácter que si se encuentra en una cadena, pondría o quitaría efecto flash a la letra
@@ -50,7 +51,14 @@ cursores    = [[0, 0]] * 2  # Posición relativa del cursor de cada subventana
 limite      = [999, 25]     # Ancho y alto máximos absolutos de cada subventana
 num_subvens = 8             # DAAD tiene 8 subventanas
 
+
+# Constantes que se exportan (fuera del paquete)
+
+NOMBRE_GUI = 'stdio'
+
+
 # Variables propias de este módulo de entrada y salida estándar
+
 elegida    = 1      # Subventana elegida (la predeterminada es la 1)
 nuevaLinea = False  # Si el siguiente texto a imprimir debería ir en una nueva línea
 

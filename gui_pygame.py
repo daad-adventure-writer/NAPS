@@ -76,7 +76,9 @@ fuente_estandar = fuente
 cad_cursor = '_'
 chr_cursor = pygame.Surface ((8, 8))  # Carácter con transparencia, para marcar posición de input
 
+
 # Variables que ajusta el intérprete y usa esta GUI u otro módulo
+
 brillo           = 0         # Sin brillo por defecto
 cod_brillo       = None      # Carácter que si se encuentra en una cadena, dará o quitará brillo al color de tinta de la letra
 cod_columna      = None      # Carácter que si se encuentra en una cadena, moverá el cursor a la columna dada
@@ -124,6 +126,11 @@ topes_gfx   = [53, 25]         # Ancho y alto del último gráfico dibujado en la 
 ancho_juego = 320              # Ancho de la ventana de juego
 resolucion  = (320, 200)       # Resolución gráfica de salida, sin escalar
 color_tinta = None             # Color de tinta por defecto
+
+
+# Constantes que se exportan (fuera del paquete)
+
+NOMBRE_GUI = 'pygame'
 
 
 def abre_ventana (traza, escalar, bbdd):
