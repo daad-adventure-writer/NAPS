@@ -209,7 +209,7 @@ def a0_ANYKEY ():
   """Imprime el mensaje del sistema 16 al final de la pantalla, y se espera hasta que se pulse una tecla, o hasta que haya pasado el tiempo muerto, si se ha usado tiempo muerto"""
   subvActual = gui.elige_subventana (3)
   gui.mueve_cursor (0, gui.limite[1] - 2)  # Es en las dos últimas líneas donde se imprime
-  gui.imprime_cadena (msgs_sys[16])
+  gui.imprime_cadena (msgs_sys[16], False)
   gui.espera_tecla (banderas[48] if banderas[49] & 4 else 0)
   gui.mueve_cursor (0, gui.limite[1] - 2)
   gui.borra_pantalla (True)          # Borra el texto escrito
