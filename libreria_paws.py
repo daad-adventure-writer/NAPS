@@ -551,9 +551,11 @@ def preparaPlataforma ():
     bajo_nivel_cambia_endian (le = False)
   # Preparamos el desplazamiento inicial para carga desde memoria
   if plataforma == 0 and version == 21:  # Formato sna de Spectrum 48K
-    conversionPorDefecto = {'#': 'é', '$': 'í', '%': 'ó', '&': 'ú', '@': 'á', '[': '¡', ']': '¿', '^': '»', '`': '«', '|': 'ñ', '\x7f': '©', '\x80': ' ', '\x90': 'X', '\x92': u'\u2192', '\x93': u'\u2190', '\x97': '%'}
-    conversionPorDefecto.update (conversion)
-    conversion.update (conversionPorDefecto)
+    # Evitamos conversión de caracteres por defecto para Spectrum ZX cuando hay GUI gráfica, para que imprima lo que corresponda a la fuente tipográfica y UDGs
+    if 'NOMBRE_GUI' not in globals() or NOMBRE_GUI != 'pygame':
+      conversionPorDefecto = {'#': 'é', '$': 'í', '%': 'ó', '&': 'ú', '@': 'á', '[': '¡', ']': '¿', '^': '»', '`': '«', '|': 'ñ', '\x7f': '©', '\x80': ' ', '\x90': 'X', '\x92': u'\u2192', '\x93': u'\u2190', '\x97': '%'}
+      conversionPorDefecto.update (conversion)
+      conversion.update (conversionPorDefecto)
     fin_cadena       = 31
     nueva_linea      = 7
     num_abreviaturas = 91

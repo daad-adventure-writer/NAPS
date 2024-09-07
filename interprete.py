@@ -1183,6 +1183,7 @@ if __name__ == '__main__':
     if traza or len (modLibs) > 1:
       prn ('Intentando cargar el fichero', extension.upper(), 'con sistema', modulo.NOMBRE_SISTEMA, file = sys.stderr)
     # Solicitamos la importación
+    modulo.NOMBRE_GUI = args.gui
     try:
       correcto = modulo.__dict__[funcion] (bbdd, os.path.getsize (args.bbdd)) != False
     except:
