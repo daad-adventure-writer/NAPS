@@ -432,13 +432,12 @@ Para compatibilidad con el IDE:
   colores_inicio.insert (2, ord (fichero.read (1)))  # Color de borde
   posBD = posicion + 3
   # Detectamos si es una versión vieja de Quill, sin lista de posiciones de mensajes de sistema
+  formato = 'sna48k'  # Por defecto asumimos que no es una versión de Quill vieja
   if busca_secuencia ((0xdd, 0xbe, 0, 0x28, None, 0xdd, 0xbe, 3, 0x28, None, 0xdd, 0x35, 3, 0x3a, None, None, 0xdd, 0xbe, None, 0x28, None, 0xfe, 0xfd, 0x30, None, 0x21)):
     pos_msgs_sys = carga_int2_le()
     if pos_msgs_sys:
       formato = 'sna48k_old'
       # TODO: cargar UDGs presentes en este formato, añadiéndolos a la fuente tipográfica
-    else:
-      formato = 'sna48k'  # No se ha encontrado, por lo que asumimos que no es una versión de Quill vieja
   preparaPosCabecera (formato, posBD)
   if formato == 'sna48k':
     # Ponemos las acciones correctas para esta versión de la plataforma
