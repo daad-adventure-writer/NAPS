@@ -22,8 +22,9 @@
 # *                                                                           *
 # *****************************************************************************
 
-from bajo_nivel import *
-from prn_func   import prn
+from bajo_nivel      import *
+from graficos_bitmap import carga_udgs_zx
+from prn_func        import prn
 
 import alto_nivel
 
@@ -43,6 +44,7 @@ msgs_usr       = []   # Mensajes de usuario
 nombres_objs   = []   # Nombre y adjetivo de los objetos
 num_objetos    = [0]  # Número de objetos (en lista para pasar por referencia)
 tablas_proceso = []   # Tablas de proceso
+udgs           = []   # UDGs (caracteres gráficos definidos por el usuario)
 vocabulario    = []   # Vocabulario
 
 # Funciones que importan bases de datos desde ficheros
@@ -251,6 +253,8 @@ Para compatibilidad con el IDE:
   if posicion == None:
     return False  # Cabecera de la base de datos no encontrada
   preparaPosCabecera ('sna48k', posicion)
+  del udgs[:]
+  udgs.extend (carga_udgs_zx (fichero, posicion - 321, 19)[0])
   return cargaBD (fichero, longitud)
 
 def carga_sce (fichero, longitud):

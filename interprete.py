@@ -1208,6 +1208,7 @@ if __name__ == '__main__':
     if extension == 'sna' and args.gui not in ('stdio', 'telegram'):
       # Trataremos de cargar fuente tipográfica desde el snapshot
       gui.conversion = libreria.conversion
+      gui.udgs       = libreria.udgs
       gui.carga_fuente_zx (bbdd)
       gui.prepara_topes (args.columns if args.columns else 32, 24)
     elif args.columns or args.gui not in ('stdio', 'telegram'):

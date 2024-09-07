@@ -240,6 +240,23 @@ def carga_portada (fichero, pareceST = False):
     return cargaPortadaAtari (fichero)
   return None
 
+def carga_udgs_zx (fichero, posicion, numUDGs):
+  """Carga y devuelve el número dado de UDGs de ZX Spectrum de 8x8 junto con su paleta, como índices en la paleta de cada píxel"""
+  bajo_nivel_cambia_ent (fichero)
+  fichero.seek (posicion)
+  ancho  = numUDGs * 8
+  alto   = 8
+  imagen = [0] * ancho * alto  # Índices en la paleta de cada píxel en la imagen
+  for u in range (numUDGs):
+    posPorCol  = u * 8
+    posPorFila = 0
+    for fila in range (8):
+      b = carga_int1()  # Fila actual
+      for indiceBit in range (8):  # Cada bit de la fila actual
+        imagen[posPorFila + posPorCol + indiceBit] = 0 if b & (2 ** (7 - indiceBit)) else 1
+      posPorFila += ancho
+  return imagen, paletaBN
+
 def da_paletas_del_formato ():
   """Devuelve un diccionario con las paletas del formato de base de datos gráfica, que será lista vacía para los modos que soportan paleta variable"""
   if modo_gfx == 'CGA':

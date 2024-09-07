@@ -44,6 +44,7 @@ msgs_usr       = []   # Mensajes de usuario
 nombres_objs   = []   # Palabras de los objetos
 num_objetos    = [0]  # Número de objetos (en lista para pasar por referencia)
 tablas_proceso = []   # Tablas de proceso (la de estado y la de eventos)
+udgs           = []   # UDGs (caracteres gráficos definidos por el usuario)
 vocabulario    = []   # Vocabulario
 
 despl_ini       = 0           # Desplazamiento inicial para cargar desde memoria

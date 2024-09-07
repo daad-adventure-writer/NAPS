@@ -98,6 +98,7 @@ ruta_graficos    = ''        # Carpeta de donde cargar los gráficos a dibujar
 texto_nuevo      = []        # Tendrá valor verdadero si se ha escrito texto nuevo tras el último borrado de pantalla o espera de tecla
 todo_mayusculas  = False     # Si la entrada del jugador será incondicionalmente en mayúsculas
 txt_mas          = '(más)'   # Cadena a mostrar cuando no cabe más texto y se espera a que el jugador pulse una tecla
+udgs             = []        # UDGs (caracteres gráficos definidos por el usuario)
 
 banderas_antes   = None   # Valor anterior de las banderas
 banderas_viejas  = None   # Banderas que antes cambiaron de valor
@@ -416,9 +417,19 @@ def carga_fuente_zx (fichero):
   bufferImg = bytes (bytearray (imagen))
   fuente    = pygame.image.frombuffer (bufferImg, (628, 48), 'P')
   fuente.set_palette (graficos_bitmap.paletaNB)
-  # Copiamos caracteres de símbolos gráficos (de la posición 96 a la 111)
+  # Copiamos caracteres de símbolos gráficos estándar (sobre las posiciones de la fuente 96 a la 111)
   fuente_zx.set_palette (graficos_bitmap.paletaNB)
   fuente.blit (fuente_zx, (330, 10), (330, 10, 160, 8))
+  # Copiamos caracteres de gráficos definidos por el usuario si los hay (sobre las posiciones de la fuente de 112 en adelante)
+  if udgs:
+    bufferImg  = bytes (bytearray (udgs))
+    anchoUDGs  = len (udgs) // 8
+    numUDGs    = anchoUDGs  // 8
+    imagenUDGs = pygame.image.frombuffer (bufferImg, (anchoUDGs, 8), 'P')
+    imagenUDGs.set_palette (graficos_bitmap.paletaNB)
+    for u in range (numUDGs):
+      c = 112 + u  # Número de carácter en la fuente
+      fuente.blit (imagenUDGs, ((c % 63) * 10, (c // 63) * 10), (u * 8, 0, 8, 8))
 
 def carga_paleta_defecto ():
   """Carga a la paleta por defecto para el modo gráfico"""
