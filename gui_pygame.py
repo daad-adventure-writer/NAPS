@@ -412,7 +412,6 @@ def carga_fuente_zx (fichero):
   if not imagen:
     fuente = fuente_zx
     fuente.set_palette (((255, 255, 255), (0, 0, 0)))
-    pygame.image.save (fuente, 'fuente_resultante_not_imagen.png')
     return
   bufferImg = bytes (bytearray (imagen))
   fuente = pygame.image.frombuffer (bufferImg, (628, 48), 'P')
@@ -420,7 +419,6 @@ def carga_fuente_zx (fichero):
   # Copiamos caracteres de símbolos gráficos (de la posición 96 a la 111)
   fuente_zx.set_palette (((0, 0, 0), (255, 255, 255)))
   fuente.blit (fuente_zx, (330, 10), (330, 10, 160, 8))
-  pygame.image.save (fuente, 'fuente_resultante.png')
 
 def carga_paleta_defecto ():
   """Carga a la paleta por defecto para el modo gráfico"""
