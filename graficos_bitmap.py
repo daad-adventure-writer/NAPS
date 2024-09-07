@@ -68,8 +68,9 @@ paleta2b = ((0, 0, 0), (85, 255,  85), (255, 85,  85), (255, 255,  85))
 paleta1s = ((0, 0, 0), ( 0, 170, 170), (170,  0, 170), (170, 170, 170))
 paleta2s = ((0, 0, 0), ( 0, 170,   0), (170,  0,   0), (170,  85,   0))
 
-# Paleta blanco y negro, en el orden necesario
+# Paletas de blanco y negro, en el orden necesario
 paletaBN = ((255, 255, 255), (0, 0, 0))
+paletaNB = ((0, 0, 0), (255, 255, 255))
 
 # Paleta EGA en el orden necesario
 paletaEGA = ((  0,  0,  0), (  0,  0, 170), (  0, 170,  0), (  0, 170, 170),

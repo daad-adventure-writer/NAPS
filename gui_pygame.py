@@ -70,7 +70,7 @@ ventana       = None
 
 ancho_caracter = 6
 fuente = pygame.image.load (path.dirname (path.realpath (__file__)) + path.sep + 'fuente.png')  # Fuente tipográfica
-fuente.set_palette (((255, 255, 255), (0, 0, 0)))
+fuente.set_palette (graficos_bitmap.paletaBN)
 fuente_estandar = fuente
 
 cad_cursor = '_'
@@ -411,13 +411,13 @@ def carga_fuente_zx (fichero):
   imagen, palImg = graficos_bitmap.carga_fuente_zx_8 (fichero)
   if not imagen:
     fuente = fuente_zx
-    fuente.set_palette (((255, 255, 255), (0, 0, 0)))
+    fuente.set_palette (graficos_bitmap.paletaBN)
     return
   bufferImg = bytes (bytearray (imagen))
-  fuente = pygame.image.frombuffer (bufferImg, (628, 48), 'P')
-  fuente.set_palette (((0, 0, 0), (255, 255, 255)))
+  fuente    = pygame.image.frombuffer (bufferImg, (628, 48), 'P')
+  fuente.set_palette (graficos_bitmap.paletaNB)
   # Copiamos caracteres de símbolos gráficos (de la posición 96 a la 111)
-  fuente_zx.set_palette (((0, 0, 0), (255, 255, 255)))
+  fuente_zx.set_palette (graficos_bitmap.paletaNB)
   fuente.blit (fuente_zx, (330, 10), (330, 10, 160, 8))
 
 def carga_paleta_defecto ():
@@ -995,14 +995,14 @@ def imprime_banderas (banderas):
       if banderas[num] == 0:
         fuente_estandar.set_palette (((96, 96, 96), (0, 0, 0)))
       else:
-        fuente_estandar.set_palette (((255, 255, 255), (0, 0, 0)))
+        fuente_estandar.set_palette (graficos_bitmap.paletaBN)
     # Imprimimos los valores de cada bandera
     for pos in range (3):
       c = ord (cadena[pos])
       ventana.blit (fuente_estandar, (columna + (pos * 6), fila),
                     ((c % 63) * 10, (c // 63) * 10, 6, 8))
   actualizaVentana()
-  fuente_estandar.set_palette (((255, 255, 255), (0, 0, 0)))
+  fuente_estandar.set_palette (graficos_bitmap.paletaBN)
 
 def imprime_locs_objs (locs_objs):
   """Imprime las localidades de los objetos (en la extensión de la ventana)"""
@@ -1073,7 +1073,7 @@ def imprime_locs_objs (locs_objs):
         if locs_objs[num] == 252:  # No creados
           fuente_estandar.set_palette (((96, 96, 96), (0, 0, 0)))
         else:
-          fuente_estandar.set_palette (((255, 255, 255), (0, 0, 0)))
+          fuente_estandar.set_palette (graficos_bitmap.paletaBN)
       # Imprimimos el valor de este objeto
       for pos in range (cifrasValores):
         c = ord (cadena[pos])
@@ -1082,7 +1082,7 @@ def imprime_locs_objs (locs_objs):
       fila += 8
     colColumna += ((cifrasObjeto + cifrasValores) * 6) + 3
   actualizaVentana()
-  fuente_estandar.set_palette (((255, 255, 255), (0, 0, 0)))
+  fuente_estandar.set_palette (graficos_bitmap.paletaBN)
 
 def imprime_cadena (cadena, textoNormal = True, redibujar = True, abajo = False, tiempo = 0):
   """Imprime una cadena en la posición del cursor (dentro de la subventana), y devuelve la cadena partida en líneas
