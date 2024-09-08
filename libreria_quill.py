@@ -33,7 +33,7 @@ from prn_func   import *
 # Sólo se usará este módulo de condactos
 mods_condactos = ('condactos_quill',)
 
-colores_inicio = []   # Colores iniciales: tinta, papel y borde
+colores_inicio = []   # Colores iniciales: tinta, papel, borde y opcionalmente brillo
 conexiones     = []   # Listas de conexiones de cada localidad
 desc_locs      = []   # Descripciones de las localidades
 desc_objs      = []   # Descripciones de los objetos
@@ -433,6 +433,7 @@ Para compatibilidad con el IDE:
   posBD = posicion + 3
   # Detectamos si es una versión vieja de Quill, sin lista de posiciones de mensajes de sistema
   formato = 'sna48k'  # Por defecto asumimos que no es una versión de Quill vieja
+  # Buscamos el código ensamblador de la parte de Quill donde utiliza el mensaje de sistema 0
   if busca_secuencia ((0xdd, 0xbe, 0, 0x28, None, 0xdd, 0xbe, 3, 0x28, None, 0xdd, 0x35, 3, 0x3a, None, None, 0xdd, 0xbe, None, 0x28, None, 0xfe, 0xfd, 0x30, None, 0x21)):
     pos_msgs_sys = carga_int2_le()
     if pos_msgs_sys:

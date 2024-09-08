@@ -35,6 +35,7 @@ import alto_nivel
 mods_condactos = ('condactos_paws', 'condactos_quill')
 
 atributos      = []   # Atributos de los objetos
+colores_inicio = []   # Colores iniciales: tinta, papel, borde y opcionalmente brillo
 conexiones     = []   # Listas de conexiones de cada localidad
 desc_locs      = []   # Descripciones de las localidades
 desc_objs      = []   # Descripciones de los objetos
@@ -252,6 +253,15 @@ Para compatibilidad con el IDE:
   posicion = busca_secuencia ((16, None, 17, None, 18, None, 19, None, 20, None, 21))
   if posicion == None:
     return False  # Cabecera de la base de datos no encontrada
+  # Cargamos los colores iniciales
+  fichero.seek (posicion - 9)
+  colores_inicio.append (ord (fichero.read (1)))  # Color de tinta
+  fichero.read (1)
+  colores_inicio.append (ord (fichero.read (1)))  # Color de papel
+  fichero.read (3)
+  colores_inicio.append (ord (fichero.read (1)))  # Brillo
+  fichero.read (5)
+  colores_inicio.insert (2, ord (fichero.read (1)))  # Color de borde
   preparaPosCabecera ('sna48k', posicion)
   del udgs[:]
   udgs.extend (carga_udgs_zx (fichero, posicion - 321, 19)[0])
