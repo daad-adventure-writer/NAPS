@@ -1308,7 +1308,7 @@ Los caracteres de linea deben estar convertidos a posiciones en la tipografía"""
                   ((c % 63) * 10, (c // 63) * 10, min (ancho_caracter, restantes), 8))
   if posInput != None:
     preparaCursor()
-    ventana.blit (chr_cursor, (destinoX + (posInput * ancho_caracter), destinoY), (0, 0, ancho_caracter, 8))
+    ventana.blit (chr_cursor, (destinoX + (posInput * ancho_caracter), destinoY), (0, 0, ancho_caracter, 8), special_flags = pygame.BLEND_ADD)
   if redibujar:
     actualizaVentana()
 
