@@ -1626,8 +1626,10 @@ def preparaConversion ():
 def preparaCursor ():
   """Prepara el cursor con el carácter y color adecuado"""
   cadenaCursor, colores = parseaColores (cad_cursor)
-  if len (cadenaCursor) >= 1 and cadenaCursor[0] in izquierda:
-    posEnFuente = izquierda.index (cadenaCursor[0]) - (16 if ancho_caracter == 8 else 0)
+  if len (cadenaCursor) >= 1:
+    posEnFuente = izquierda.index (cadenaCursor[0]) if cadenaCursor[0] in izquierda else ord (cadenaCursor[0])
+    if ancho_caracter == 8:
+      posEnFuente -= 16 if posEnFuente < 128 else 32
     fuente.set_palette (colores[0])
     chr_cursor.blit (fuente, (0, 0), ((posEnFuente % 63) * 10, (posEnFuente // 63) * 10, ancho_caracter, 8))
     chr_cursor.set_colorkey (colores[0][1])  # El color de papel/fondo será ahora transparente
