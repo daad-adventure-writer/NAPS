@@ -943,7 +943,7 @@ El parámetro pararTimeout indica si se evitará el tiempo muerto cuando la entrad
     if prompt and opcs_input & 8:  # Se imprimía abajo del todo y había prompt
       imprime_linea (finPrompt)
       cursores[elegida][0] += len (finPrompt)
-    imprime_cadena (''.join (entrada) + ' ')
+    imprime_cadena (''.join (entrada) + ' ')  # TODO: eliminar el espacio cuando no haga falta, como para QUILL y PAWS
     imprime_cadena ('\n')
   # Guardamos la entrada en el historial
   if not historial or historial[-1] != entrada:
@@ -1579,6 +1579,8 @@ def parseaColores (cadena):
         colores[len (sinColores)] = (paleta[brillo][tinta], paleta[brillo][papel])  # Color de tinta y papel invertidos
       inversa     = True
       sinColores += chr (c - 128)
+    elif paleta[1] and c < 32 and c != ord ('\n'):  # Códigos de control de Spectrum ZX inválidos o desconocidos
+      continue
     else:
       if inversa and NOMBRE_SISTEMA == 'QUILL' and strPlataforma == 'PC':  # Este carácter terminará la impresión en inversa, al no estar en inversa
         color = papel
