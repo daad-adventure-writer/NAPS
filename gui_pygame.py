@@ -941,6 +941,8 @@ El parámetro pararTimeout indica si se evitará el tiempo muerto cuando la entrad
     borra_pantalla (True)
   if not subv_input or opcs_input & 2:  # Realimentación permanente de la orden, junto al texto del juego
     if prompt and opcs_input & 8:  # Se imprimía abajo del todo y había prompt
+      if cursores[elegida][0]:  # No está en la primera columna
+        imprime_cadena ('\n')
       imprime_linea (finPrompt)
       cursores[elegida][0] += len (finPrompt)
     imprime_cadena (''.join (entrada) + ' ')  # TODO: eliminar el espacio cuando no haga falta, como para QUILL y PAWS
