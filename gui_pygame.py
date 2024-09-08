@@ -813,8 +813,8 @@ El parámetro pararTimeout indica si se evitará el tiempo muerto cuando la entrad
       imprime_cadena (prompt, False, False)
     else:
       diferencia = longAntes - (len (entrada) + (1 if posInput[0] == len (entrada) else 0))  # Caracteres de más antes vs. ahora
-      if diferencia > 0:
-        realimentacion += ' ' * (diferencia + 1)  # Para borrar el resto de la orden anterior
+      if diferencia > 0 or posInput[0] == len (entrada):
+        realimentacion += ' ' * (diferencia + 1)  # Para borrar el cursor al final y el resto de la orden anterior
       longAntes = len (entrada) + (1 if posInput[0] == len (entrada) else 0)
     imprime_lineas (realimentacion.translate (iso8859_15_a_fuente), posInput[0])
     tecla = espera_tecla (timeout[0])
@@ -828,8 +828,8 @@ El parámetro pararTimeout indica si se evitará el tiempo muerto cuando la entrad
         if textoAntes:
           subventanas[elegida][1] -= 1  # FIXME: no asumir que es una línea lo que se había ocupado antes del prompt en la subventana de entrada
         elegida = subvAntes  # Recuperamos la subventana elegida justo antes
-      else:  # Quitamos el guión bajo del final de la entrada
-        realimentacion = ''.join (entrada) + ' '  # El espacio borrará el guión bajo cuando estaba al final
+      else:  # Quitamos el cursor del final de la entrada
+        realimentacion = ''.join (entrada) + ' '  # El espacio borrará el cursor cuando estaba al final
         imprime_lineas (realimentacion.translate (iso8859_15_a_fuente))
       return ''.join (entrada)
 
