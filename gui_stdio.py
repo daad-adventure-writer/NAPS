@@ -208,7 +208,7 @@ def imprime_banderas (banderas):
     advertencia_banderas = True
     prn ('Impresión de banderas u objetos como texto (en stderr) no implementada', file = sys.stderr)
 
-def imprime_cadena (cadena, textoNormal = True, redibujar = True, tiempo = 0):
+def imprime_cadena (cadena, textoNormal = True, redibujar = True, abajo = False, tiempo = 0, restauraColores = False):
   """Imprime una cadena en la posición del cursor (dentro de la subventana)"""
   global nuevaLinea
   if nuevaLinea:

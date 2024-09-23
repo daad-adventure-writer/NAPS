@@ -1108,7 +1108,7 @@ def imprime_locs_objs (locs_objs):
   actualizaVentana()
   fuente_estandar.set_palette (graficos_bitmap.paletaBN)
 
-def imprime_cadena (cadena, textoNormal = True, redibujar = True, abajo = False, tiempo = 0):
+def imprime_cadena (cadena, textoNormal = True, redibujar = True, abajo = False, tiempo = 0, restauraColores = False):
   """Imprime una cadena en la posición del cursor (dentro de la subventana), y devuelve la cadena partida en líneas
 
 El cursor deberá quedar actualizado.
@@ -1125,14 +1125,15 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
     borra_pantalla()
   if not texto_nuevo:
     texto_nuevo.append (True)
+  if not textoNormal:
+    restauraColores = True
   cursor     = cursores[elegida]
   subventana = subventanas[elegida]
   tope       = topes[elegida]
   if cadena == '\n':  # TODO: sacar a función nueva_linea
     lineas_mas[elegida] += 1
-    restante = tope[0] - cursor[0]     # Columnas restantes que quedan en la línea
-    papel    = color_subv[elegida][1]  # Número de color de papel/fondo
-    colores  = {0: (daColorTinta(), paleta[brillo][papel])}
+    restante = tope[0] - cursor[0]  # Columnas restantes que quedan en la línea
+    colores  = {0: (daColorTinta(), daColorPapel())} if restauraColores else {}
     imprime_linea ([chr (16)] * restante, redibujar = redibujar, colores = colores)
     if cursor[1] >= tope[1] - 1:
       scrollLineas (1, subventana, tope)
@@ -1178,7 +1179,7 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
       except:
         juego = 0
   else:  # No es SWAN
-    cadena, colores = parseaColores (cadena)
+    cadena, colores = parseaColores (cadena, restauraColores)
     juego = 0  # Primera posición en la fuente del juego alto, si está en el juego alto, 0 (primera del juego bajo) si no
   convertida = cadena.translate (iso8859_15_a_fuente)
   # Dividimos la cadena en líneas
@@ -1526,15 +1527,18 @@ def factorEscalaMaximo ():
     factorMaximo += 1
   return factorMaximo
 
-def parseaColores (cadena):
+def parseaColores (cadena, restauraColores = False):
   """Procesa los códigos de control de colores, devolviendo la cadena sin ellos, y un diccionario posición: colores a aplicar"""
   global brillo
-  inversa = False  # Si se invierten o no papel y fondo
-  papel   = color_subv[elegida][1]  # Color de papel/fondo
-  tinta   = daTinta()               # Color de tinta
-  colores = {0: (paleta[brillo][tinta], paleta[brillo][papel])}
+  papel = color_subv[elegida][1]  # Color de papel/fondo
+  tinta = daTinta()               # Color de tinta
   if not cod_brillo:
-    return cadena, colores
+    return cadena, {0: (paleta[brillo][tinta], paleta[brillo][papel])}
+  if restauraColores:
+    colores = {0: (paleta[brillo][tinta], paleta[brillo][papel])}
+  else:
+    colores = {}
+  inversa    = False  # Si se invierten o no papel y fondo
   omitir     = 0      # Número de caracteres pendientes de omitir (los dejará tal cual están)
   sigBrillo  = False  # Si el siguiente carácter indica si se pone o quita brillo al color de tinta
   sigFlash   = False  # Si el siguiente carácter indica si se pone o quita efecto flash
