@@ -793,6 +793,7 @@ El parámetro pararTimeout indica si se evitará el tiempo muerto cuando la entrad
       prompt     = prompt[1:]
       textoAntes = True
   elif opcs_input & 8:  # Pedir la entrada debajo del todo
+    brilloAntes  = brillo  # Valor de brillo antes de imprimir nada
     cursorMovido = list (cursores[elegida])
   elif (espaciar and cursores[elegida][1] >= topes[elegida][1] - 2 and cursores[elegida][0]) or \
       (NOMBRE_SISTEMA == 'QUILL' and cursores[elegida][0]):
@@ -947,6 +948,12 @@ El parámetro pararTimeout indica si se evitará el tiempo muerto cuando la entrad
     if prompt and opcs_input & 8:  # Se imprimía abajo del todo y había prompt
       if cursores[elegida][0]:  # No está en la primera columna
         imprime_cadena ('\n')
+      if brillo != brilloAntes:
+        colorTinta, colorPapel = fuente.get_palette()[:2]
+        papel = paleta[brillo].index (colorPapel[:3])  # Omitimos el canal alfa
+        tinta = paleta[brillo].index (colorTinta[:3])
+        cambia_color_brillo (brilloAntes)
+        fuente.set_palette ((paleta[brilloAntes][tinta], paleta[brilloAntes][papel]))
       imprime_linea (finPrompt)
       cursores[elegida][0] += len (finPrompt)
     imprime_cadena (''.join (entrada) + ' ')  # TODO: eliminar el espacio cuando no haga falta, como para QUILL y PAWS
