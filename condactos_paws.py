@@ -317,7 +317,9 @@ def a0_LOAD ():
 
 def a0_NEWLINE ():
   """Imprime un caracter de nueva línea"""
-  gui.imprime_cadena ('\n', tiempo = banderas[48] if banderas[49] & 2 else 0)
+  if gui.paleta[1]:  # Sólo si hay paletas con y sin brillo
+    gui.cambia_color_brillo (0)  # Parece ocurrir así en el PAWS español de Aventuras AD.  TODO: revisar si recupera el valor de brillo inicial
+  gui.imprime_cadena ('\n', tiempo = banderas[48] if banderas[49] & 2 else 0, restauraColores = True)
 
 def a0_NEWTEXT ():
   """Vacía el resto de la orden"""
