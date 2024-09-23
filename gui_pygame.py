@@ -1283,6 +1283,8 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
     else:
       cursor = [cursor[0] + len (lineas[-1]), cursor[1]]
     cursores[elegida] = cursor  # Actualizamos el cursor de la subventana
+    if len (cadena) in colores:  # Cambiaban los colores al final de la cadena
+      fuente.set_palette (colores[len (cadena)])  # Cargamos el color final de la cadena
   if traza:
     prn ('Fin de impresión, cursor en', cursor)
   return lineas
