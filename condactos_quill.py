@@ -190,7 +190,7 @@ def a0_INVEN ():
   for objno in range (num_objetos[0]):
     if locs_objs[objno] in (253, 254):
       alguno = True
-      gui.imprime_cadena (desc_objs[objno])
+      gui.imprime_cadena (desc_objs[objno], restauraColores = True)
       if locs_objs[objno] == 253:  # Puesto
         gui.imprime_cadena (msgs_sys[10])
       gui.imprime_cadena ('\n')
