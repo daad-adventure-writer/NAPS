@@ -221,26 +221,28 @@ def imprime_cadena (cadena, textoNormal = True, redibujar = True, abajo = False,
     prn (cadena, end = '')
     return
   # Convertimos las secuencias de control TAB en espacios
-  posTabulador = cadena.find (cod_columna)
-  while posTabulador > -1:
-    numEspacios   = -1
-    posTabEnLinea = posTabulador % limite[0]  # Columna en la línea donde está el tabulador
-    if len (cadena) > posTabulador + 2:
-      columna     = (ord (cadena[posTabulador + 1]) + 1) % limite[0]
-      numEspacios = columna - posTabEnLinea  # Rellena con espacios hasta la columna indicada
-    cadena = cadena[:posTabulador] + (' ' * (numEspacios if numEspacios > 0 else 0)) + cadena[posTabulador + 2:]
+  if cod_columna:
     posTabulador = cadena.find (cod_columna)
+    while posTabulador > -1:
+      numEspacios   = -1
+      posTabEnLinea = posTabulador % limite[0]  # Columna en la línea donde está el tabulador
+      if len (cadena) > posTabulador + 2:
+        columna     = (ord (cadena[posTabulador + 1]) + 1) % limite[0]
+        numEspacios = columna - posTabEnLinea  # Rellena con espacios hasta la columna indicada
+      cadena = cadena[:posTabulador] + (' ' * (numEspacios if numEspacios > 0 else 0)) + cadena[posTabulador + 2:]
+      posTabulador = cadena.find (cod_columna)
   # Convertimos los tabuladores en espacios
-  mitadAnchura = limite[0] // 2  # Anchura de media línea
-  posTabulador = cadena.find (cod_tabulador)
-  while posTabulador > -1:
-    posTabEnLinea = posTabulador % limite[0]  # Columna en la línea donde está el tabulador
-    if posTabEnLinea < mitadAnchura:
-      numEspacios = mitadAnchura - posTabEnLinea  # Rellena con espacios hasta mitad de línea
-    else:
-      numEspacios = limite[0] - posTabEnLinea  # Rellena el resto de la línea con espacios
-    cadena       = cadena[:posTabulador] + (' ' * numEspacios) + cadena[posTabulador + 1:]
+  if cod_tabulador:
+    mitadAnchura = limite[0] // 2  # Anchura de media línea
     posTabulador = cadena.find (cod_tabulador)
+    while posTabulador > -1:
+      posTabEnLinea = posTabulador % limite[0]  # Columna en la línea donde está el tabulador
+      if posTabEnLinea < mitadAnchura:
+        numEspacios = mitadAnchura - posTabEnLinea  # Rellena con espacios hasta mitad de línea
+      else:
+        numEspacios = limite[0] - posTabEnLinea  # Rellena el resto de la línea con espacios
+      cadena       = cadena[:posTabulador] + (' ' * numEspacios) + cadena[posTabulador + 1:]
+      posTabulador = cadena.find (cod_tabulador)
   # Dividimos la cadena en líneas
   lineas = []
   while len (cadena) > limite[0]:
