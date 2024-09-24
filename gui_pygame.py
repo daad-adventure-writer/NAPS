@@ -1284,6 +1284,9 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
       imprime_linea (lineas[i], redibujar = redibujar, colores = colores)
     if i < len (lineas) - 1:  # Sólo si la línea se ha completado
       lineas_mas[elegida] += 1
+      if textoNormal and cursor[0] + len (lineas[i]) < tope[0]:  # Cabían más caracteres al final de la línea
+        cursor[0] += len (lineas[i])
+        imprime_linea (chr (16) * (tope[0] - cursor[0]))
   if lineas:  # Había alguna línea
     if cadena[-1] == '\n':  # La cadena terminaba en nueva línea
       if cursor[1] == tope[1] - 1:
