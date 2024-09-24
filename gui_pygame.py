@@ -84,6 +84,8 @@ cod_brillo       = None      # Carácter que si se encuentra en una cadena, dará 
 cod_columna      = None      # Carácter que si se encuentra en una cadena, moverá el cursor a la columna dada
 cod_flash        = None      # Carácter que si se encuentra en una cadena, pondría o quitaría efecto flash a la letra
 cod_inversa      = None      # Carácter que si se encuentra en una cadena, invertirá o no el papel/fondo de la letra
+cod_inversa_fin  = None      # Carácter que si se encuentra en una cadena, quitará  inversión del papel/fondo de la letra
+cod_inversa_ini  = None      # Carácter que si se encuentra en una cadena, activará inversión del papel/fondo de la letra
 cod_juego_alto   = None      # Carácter que si se encuentra en una cadena, pasará al juego de caracteres alto
 cod_juego_bajo   = None      # Carácter que si se encuentra en una cadena, pasará al juego de caracteres bajo
 cod_papel        = None      # Carácter que si se encuentra en una cadena, cambiará el color de papel/fondo de la letra
@@ -1278,7 +1280,7 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
         esperaMas (tiempo)  # Paginación
     elif 0 in colores and not lineas[i]:  # La primera línea es sólo \n
       fuente.set_palette (colores[0])  # Cargamos el color inicial de la cadena
-    if cod_brillo:
+    if cod_brillo or cod_inversa_fin:
       imprime_linea (lineas[i], redibujar = redibujar, colores = colores, inicioLinea = iniLineas[i])
     else:
       imprime_linea (lineas[i], redibujar = redibujar, colores = colores)
@@ -1535,7 +1537,7 @@ def parseaColores (cadena, restauraColores = False):
   global brillo
   papel = color_subv[elegida][1]  # Color de papel/fondo
   tinta = daTinta()               # Color de tinta
-  if not cod_brillo:
+  if not cod_brillo and not cod_inversa_fin:
     return cadena, {0: (paleta[brillo][tinta], paleta[brillo][papel])}
   if restauraColores:
     colores = {0: (paleta[brillo][tinta], paleta[brillo][papel])}
@@ -1562,7 +1564,7 @@ def parseaColores (cadena, restauraColores = False):
       elif sigFlash:
         sigFlash = False
       elif sigInversa:
-        if inversa and not c or not inversa and c:  # Si se ha activado o desactivado
+        if inversa and not c or not inversa and c:  # Si se ha activado o desactivado inversa
           color = papel
           papel = tinta
           tinta = color
@@ -1575,6 +1577,13 @@ def parseaColores (cadena, restauraColores = False):
         sigTinta = False
         tinta    = c % len (paleta[brillo])
       colores[len (sinColores)] = (paleta[brillo][tinta], paleta[brillo][papel])  # Color de tinta y papel a aplicar
+    elif c in (cod_inversa_fin, cod_inversa_ini):
+      if c == cod_inversa_ini and not inversa or c == cod_inversa_fin and inversa:  # Si se ha activado o desactivado inversa
+        color   = papel
+        papel   = tinta
+        tinta   = color
+        inversa = not inversa
+        colores[len (sinColores)] = (paleta[brillo][tinta], paleta[brillo][papel])  # Color de tinta y papel a aplicar
     elif c in (cod_brillo, cod_flash, cod_inversa, cod_papel, cod_tinta):
       if c == cod_brillo:
         sigBrillo = True

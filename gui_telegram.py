@@ -36,6 +36,8 @@ cod_brillo       = None      # Carácter que si se encuentra en una cadena, daría
 cod_columna      = None      # Carácter que si se encuentra en una cadena, moverá el cursor a la columna dada
 cod_flash        = None      # Carácter que si se encuentra en una cadena, pondría o quitaría efecto flash a la letra
 cod_inversa      = None      # Carácter que si se encuentra en una cadena, invertirá o no el papel/fondo de la letra
+cod_inversa_fin  = None      # Carácter que si se encuentra en una cadena, quitará  inversión del papel/fondo de la letra
+cod_inversa_ini  = None      # Carácter que si se encuentra en una cadena, activará inversión del papel/fondo de la letra
 cod_juego_alto   = None      # Carácter que si se encuentra en una cadena, pasaría al juego de caracteres alto
 cod_juego_bajo   = None      # Carácter que si se encuentra en una cadena, pasaría al juego de caracteres bajo
 cod_papel        = None      # Carácter que si se encuentra en una cadena, cambiaría el color de papel/fondo de la letra
@@ -141,7 +143,7 @@ def reinicia_subventanas ():
 
 def abre_ventana (traza, factorEscala, bbdd):
   """Abre la ventana gráfica de la aplicación"""
-  global cod_brillo, cod_columna, cod_flash, cod_inversa, cod_juego_alto, cod_juego_bajo, cod_papel, cod_tabulador, cod_tinta
+  global cod_brillo, cod_columna, cod_flash, cod_inversa, cod_inversa_fin, cod_inversa_ini, cod_juego_alto, cod_juego_bajo, cod_papel, cod_tabulador, cod_tinta
   if cod_juego_alto == 48:  # La @ de SWAN
     cod_juego_alto = '@'
     cod_juego_bajo = '@'
@@ -156,6 +158,9 @@ def abre_ventana (traza, factorEscala, bbdd):
     cod_papel     = chr (cod_papel)
     cod_tabulador = chr (cod_tabulador)
     cod_tinta     = chr (cod_tinta)
+  elif cod_inversa_fin:
+    cod_inversa_fin = chr (cod_inversa_fin)
+    cod_inversa_ini = chr (cod_inversa_ini)
 
 def borra_pantalla (desdeCursor = False, noRedibujar = False):
   """Limpia la subventana de impresión"""
@@ -313,7 +318,7 @@ def prepara_topes (columnas, filas):
 # Funciones auxiliares que sólo se usan en este módulo
 
 def limpiaCadena (cadena):
-  if not cod_brillo and not cod_juego_alto:
+  if not cod_brillo and not cod_juego_alto and not cod_inversa_fin:
     return cadena
   if secuencias:
     for secuencia in secuencias:
@@ -322,11 +327,11 @@ def limpiaCadena (cadena):
   limpia = ''
   c = 0
   while c < len (cadena):
-    if cadena[c] in (cod_brillo, cod_flash, cod_inversa, cod_juego_alto, cod_juego_bajo, cod_papel, cod_tinta):
+    if cadena[c] in (cod_brillo, cod_flash, cod_inversa, cod_inversa_fin, cod_inversa_ini, cod_juego_alto, cod_juego_bajo, cod_papel, cod_tinta):
       if cadena[c] in (cod_juego_alto, cod_juego_bajo):
         if cod_juego_alto == '@':  # En SWAN los caracteres del juego alto son en negrita
           limpia += '`*`'
-      else:
+      elif cadena[c] not in (cod_inversa_fin, cod_inversa_ini):
         c += 1  # Descartamos también el siguiente byte, que indica el color o si se activa o no
     elif centrar_graficos and cadena[c] == '\x7f':  # Abreviatura 0 en la Aventura Original
       limpia += ' '
