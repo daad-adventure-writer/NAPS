@@ -1655,9 +1655,10 @@ def preparaCursor ():
     posEnFuente = izquierda.index (cadenaCursor[0]) if cadenaCursor[0] in izquierda else ord (cadenaCursor[0])
     if ancho_caracter == 8:
       posEnFuente -= 16 if posEnFuente < 128 else 32
-    fuente.set_palette (colores[0])
+    if colores:
+      chr_cursor.set_colorkey (colores[0][1])  # El color de papel/fondo será ahora transparente
+      fuente.set_palette (colores[0])
     chr_cursor.blit (fuente, (0, 0), ((posEnFuente % 63) * 10, (posEnFuente // 63) * 10, ancho_caracter, 8))
-    chr_cursor.set_colorkey (colores[0][1])  # El color de papel/fondo será ahora transparente
 
 def scrollLineas (lineasAsubir, subventana, tope, redibujar = True):
   """Hace scroll gráfico del número dado de líneas, en la subventana dada, con topes dados"""
