@@ -525,6 +525,11 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
         peticion += msgs_sys[33]
       elif args.gui != 'telegram':
         peticion += '\n>'  # Prompt de QUILL
+        if args.gui == 'pygame':  # Nos aseguramos que la orden no vaya en inversa
+          if gui.cod_inversa_fin:
+            peticion += chr (gui.cod_inversa_fin)
+          elif gui.cod_inversa:
+            peticion += chr (gui.cod_inversa)
       if traza:
         gui.imprime_banderas  (banderas)
         gui.imprime_locs_objs (locs_objs)
