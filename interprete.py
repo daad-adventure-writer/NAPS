@@ -1206,13 +1206,15 @@ if __name__ == '__main__':
     prn ('Error al tratar de cargar la base de datos: formato incompatible o fichero corrupto', file = sys.stderr)
     sys.exit()
 
-  if extension == 'sna' or libreria.plataforma == 1:  # Plataforma ZX Spectrum
+  if extension == 'sna' or libreria.plataforma == 1:  # Plataforma con menos de 53 columnas
     if extension == 'sna' and args.gui not in ('stdio', 'telegram'):
       # Trataremos de cargar fuente tipográfica desde el snapshot
       gui.conversion = libreria.conversion
       gui.udgs       = libreria.udgs
       gui.carga_fuente_zx (bbdd)
       gui.prepara_topes (args.columns if args.columns else 32, 24)
+    elif extension == 'prg':
+      gui.prepara_topes (args.columns if args.columns else 40, 25)
     elif args.columns or args.gui not in ('stdio', 'telegram'):
       gui.prepara_topes (args.columns if args.columns else 42, 24)
   elif args.gui not in ('stdio', 'telegram'):
@@ -1293,6 +1295,10 @@ if __name__ == '__main__':
           gui.cod_inversa_fin = 146
           del gui.paleta[0][:]
           del gui.paleta[1][:]
+          # Colores en este orden: negro, blanco, rojo, cyan, violeta, verde, azul, amarillo,
+          #                        naranja, marrón, rojo claro, gris oscuro, gris, verde claro, azul claro, gris claro
+          gui.paleta[0].extend (((0, 0, 0), (255, 255, 255), (136, 0, 0), (170, 255, 238), (204, 68, 204), (0, 204, 85), (0, 0, 170), (238, 238, 119),
+                                (221, 136, 85), (102, 68, 0), (255, 119, 119), (51, 51, 51), (119, 119, 119), (170, 255, 102), (0, 136, 255), (187, 187, 187)))
   else:  # Es DAAD
     gui.nueva_version = nueva_version
     if not gui.paleta[0]:
