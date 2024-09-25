@@ -91,6 +91,7 @@ cod_juego_bajo   = None      # Carácter que si se encuentra en una cadena, pasar
 cod_papel        = None      # Carácter que si se encuentra en una cadena, cambiará el color de papel/fondo de la letra
 cod_tabulador    = None      # Carácter que si se encuentra en una cadena, pondrá espacios hasta mitad o final de línea
 cod_tinta        = None      # Carácter que si se encuentra en una cadena, cambiará el color de tinta de la letra
+cods_tinta       = {}        # Caracteres que si se encuentran en una cadena, cambiará el color de tinta por el del valor
 centrar_graficos = []        # Si se deben centrar los gráficos al dibujarlos
 grf_borde        = None      # Cuadrado 8x8 que usar repetidamente como borde de los gráficos
 paleta           = ([], [])  # Paleta de colores sin y con brillo para los textos, que cambia con funciones cambia_*
@@ -1280,7 +1281,7 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
         esperaMas (tiempo)  # Paginación
     elif 0 in colores and not lineas[i]:  # La primera línea es sólo \n
       fuente.set_palette (colores[0])  # Cargamos el color inicial de la cadena
-    if cod_brillo or cod_inversa_fin:
+    if cod_brillo or cods_tinta:
       imprime_linea (lineas[i], redibujar = redibujar, colores = colores, inicioLinea = iniLineas[i])
     else:
       imprime_linea (lineas[i], redibujar = redibujar, colores = colores)
@@ -1539,7 +1540,7 @@ def parseaColores (cadena, restauraColores = False):
   global brillo
   papel = color_subv[elegida][1]  # Color de papel/fondo
   tinta = daTinta()               # Color de tinta
-  if not cod_brillo and not cod_inversa_fin:
+  if not cod_brillo and not cods_tinta:
     return cadena, {0: (paleta[brillo][tinta], paleta[brillo][papel])}
   if restauraColores:
     colores = {0: (paleta[brillo][tinta], paleta[brillo][papel])}
@@ -1597,6 +1598,9 @@ def parseaColores (cadena, restauraColores = False):
         sigPapel = True
       else:
         sigTinta = True
+    elif c in cods_tinta:
+      tinta = cods_tinta[c]
+      colores[len (sinColores)] = (paleta[brillo][tinta], paleta[brillo][papel])  # Color de tinta y papel a aplicar
     elif c == cod_tabulador:
       sinColores += '\t'
     elif c == cod_columna:

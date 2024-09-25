@@ -35,14 +35,15 @@ traza = False  # Si queremos una traza del funcionamiento del módulo
 cod_brillo       = None      # Carácter que si se encuentra en una cadena, daría o quitaría brillo al color de tinta de la letra
 cod_columna      = None      # Carácter que si se encuentra en una cadena, moverá el cursor a la columna dada
 cod_flash        = None      # Carácter que si se encuentra en una cadena, pondría o quitaría efecto flash a la letra
-cod_inversa      = None      # Carácter que si se encuentra en una cadena, invertirá o no el papel/fondo de la letra
-cod_inversa_fin  = None      # Carácter que si se encuentra en una cadena, quitará  inversión del papel/fondo de la letra
-cod_inversa_ini  = None      # Carácter que si se encuentra en una cadena, activará inversión del papel/fondo de la letra
+cod_inversa      = None      # Carácter que si se encuentra en una cadena, invertiría o no el papel/fondo de la letra
+cod_inversa_fin  = None      # Carácter que si se encuentra en una cadena, quitaría  inversión del papel/fondo de la letra
+cod_inversa_ini  = None      # Carácter que si se encuentra en una cadena, activaría inversión del papel/fondo de la letra
 cod_juego_alto   = None      # Carácter que si se encuentra en una cadena, pasaría al juego de caracteres alto
 cod_juego_bajo   = None      # Carácter que si se encuentra en una cadena, pasaría al juego de caracteres bajo
 cod_papel        = None      # Carácter que si se encuentra en una cadena, cambiaría el color de papel/fondo de la letra
 cod_tabulador    = None      # Carácter que si se encuentra en una cadena, pondrá espacios hasta mitad o final de línea
 cod_tinta        = None      # Carácter que si se encuentra en una cadena, cambiaría el color de tinta de la letra
+cods_tinta       = {}        # Caracteres que si se encuentran en una cadena, cambiaría el color de tinta por el del valor
 centrar_graficos = []        # Si se deben centrar los gráficos al dibujarlos
 historial        = []        # Historial de órdenes del jugador
 paleta           = ([], [])  # Paleta de colores sin y con brillo, para los cambios con funciones cambia_*
@@ -156,7 +157,7 @@ def abre_ventana (traza, factorEscala, bbdd):
     cod_papel     = chr (cod_papel)
     cod_tabulador = chr (cod_tabulador)
     cod_tinta     = chr (cod_tinta)
-  elif cod_inversa_fin:
+  elif cods_tinta:
     cod_inversa_fin = chr (cod_inversa_fin)
     cod_inversa_ini = chr (cod_inversa_ini)
 
@@ -299,13 +300,14 @@ def limpiaCadena (cadena):
   for secuencia in secuencias:
     if secuencia in cadena:
       cadena = cadena.replace (secuencia, secuencias[secuencia])
-  if not cod_brillo and not cod_juego_alto and not cod_inversa_fin:
+  if not cod_brillo and not cod_juego_alto and not cods_tinta:
     return cadena
   limpia = ''
   c = 0
   while c < len (cadena):
-    if cadena[c] in (cod_brillo, cod_flash, cod_inversa, cod_inversa_fin, cod_inversa_ini, cod_juego_alto, cod_juego_bajo, cod_papel, cod_tinta):
-      if cadena[c] not in (cod_inversa_fin, cod_inversa_ini, cod_juego_alto, cod_juego_bajo):
+    if cadena[c] in (cod_brillo, cod_flash, cod_inversa, cod_inversa_fin, cod_inversa_ini, cod_juego_alto, cod_juego_bajo, cod_papel, cod_tinta) or \
+        cadena[c] in cods_tinta:
+      if cadena[c] not in (cod_inversa_fin, cod_inversa_ini, cod_juego_alto, cod_juego_bajo) and cadena[c] not in cods_tinta:
         c += 1  # Descartamos también el siguiente byte, que indica el color o si se activa o no
     elif centrar_graficos and cadena[c] == '\x7f':  # Abreviatura 0 en la Aventura Original
       limpia += ' '
