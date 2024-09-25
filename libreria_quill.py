@@ -1115,6 +1115,8 @@ def escribe_secs_ctrl (cadena):
     elif c == '\\':
       if cadena[i:i + 9] == '\\INVERSA_':
         inversa = cadena[i + 9:i + 11] not in ('0', '00')
+        if strPlataforma == 'ZX':
+          convertida += chr (20)
         i += 10
       if cadena[i:i + 5] == '\\TAB_' and strPlataforma == 'ZX':
         columna = cadena[i + 5:i + 7]
