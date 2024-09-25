@@ -1116,7 +1116,7 @@ def escribe_secs_ctrl (cadena):
       if cadena[i:i + 9] == '\\INVERSA_':
         inversa = cadena[i + 9:i + 11] not in ('0', '00')
         i += 10
-      if cadena[i:i + 5] == '\\TAB_':
+      if cadena[i:i + 5] == '\\TAB_' and strPlataforma == 'ZX':
         columna = cadena[i + 5:i + 7]
         try:
           columna     = int (columna, 16)
@@ -1154,9 +1154,9 @@ def lee_secs_ctrl (cadena):
       inversa = False
     if c == '\n':
       convertida += '\\n'
-    elif c == '\x06':  # Tabulador
+    elif o == 6 and strPlataforma == 'ZX':  # Tabulador
       convertida += '\\t'
-    elif o in range (16, 21) and (i + 1) < len (cadena):
+    elif strPlataforma == 'ZX' and o in range (16, 21) and (i + 1) < len (cadena):
       convertida += '\\'
       if o == 16:
         convertida += 'TINTA'
@@ -1170,7 +1170,7 @@ def lee_secs_ctrl (cadena):
         convertida += 'INVERSA'
       convertida += '_%02X' % ord (cadena[i + 1])
       i += 1  # El siguiente carácter ya se ha procesado
-    elif o == 23:
+    elif o == 23 and strPlataforma == 'ZX':  # Salto a columna en la misma fila
       convertida += '\\TAB_%02X' % ord (cadena[i + 1])
       i += 2  # El siguiente carácter ya se ha procesado y el de después se ignora
     elif c == '\\':
