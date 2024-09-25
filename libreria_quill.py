@@ -1120,7 +1120,7 @@ def escribe_secs_ctrl (cadena):
         elif strPlataforma == 'ZX':
           convertida += chr (20)
         i += 10
-      if cadena[i:i + 5] == '\\TAB_' and strPlataforma == 'ZX':
+      elif cadena[i:i + 5] == '\\TAB_' and strPlataforma == 'ZX':
         columna = cadena[i + 5:i + 7]
         try:
           columna     = int (columna, 16)
@@ -1128,6 +1128,13 @@ def escribe_secs_ctrl (cadena):
         except:
           pass
         i += 5
+      elif cadena[i:i + 2] == '\\x':  # Códigos escritos en hexadecimal
+        try:
+          codigo = int (cadena[i + 2: i + 4], 16)
+        except:
+          codigo = 0
+        convertida += chr (codigo)
+        i += 3
       else:
         convertida += c
       # TODO: interpretar el resto de secuencias escapadas con barra invertida (\)
