@@ -47,6 +47,7 @@ centrar_graficos = []        # Si se deben centrar los gráficos al dibujarlos
 historial        = []        # Historial de órdenes del jugador
 paleta           = ([], [])  # Paleta de colores sin y con brillo, para los cambios con funciones cambia_*
 partir_espacio   = True      # Si se deben partir las líneas en el último espacio
+secuencias       = {}        # Secuencias que convertir en las cadenas
 texto_nuevo      = []        # Tendrá valor verdadero si se ha escrito texto nuevo tras el último borrado de pantalla o espera de tecla
 
 cursores    = [[0, 0]] * 2  # Posición relativa del cursor de cada subventana
@@ -295,6 +296,9 @@ def prepara_topes (columnas, filas):
 # Funciones auxiliares que sólo se usan en este módulo
 
 def limpiaCadena (cadena):
+  for secuencia in secuencias:
+    if secuencia in cadena:
+      cadena = cadena.replace (secuencia, secuencias[secuencia])
   if not cod_brillo and not cod_juego_alto and not cod_inversa_fin:
     return cadena
   limpia = ''
