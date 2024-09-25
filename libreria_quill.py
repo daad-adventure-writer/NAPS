@@ -1115,7 +1115,9 @@ def escribe_secs_ctrl (cadena):
     elif c == '\\':
       if cadena[i:i + 9] == '\\INVERSA_':
         inversa = cadena[i + 9:i + 11] not in ('0', '00')
-        if strPlataforma == 'ZX':
+        if strPlataforma == 'C64':
+          convertida += chr (18 if inversa else 146)
+        elif strPlataforma == 'ZX':
           convertida += chr (20)
         i += 10
       if cadena[i:i + 5] == '\\TAB_' and strPlataforma == 'ZX':
@@ -1172,6 +1174,8 @@ def lee_secs_ctrl (cadena):
         convertida += 'INVERSA'
       convertida += '_%02X' % ord (cadena[i + 1])
       i += 1  # El siguiente carácter ya se ha procesado
+    elif o in (18, 146) and strPlataforma == 'C64':  # Cambio de inversa
+      convertida += '\\INVERSA_0' + ('1' if o == 18 else '0')
     elif o == 23 and strPlataforma == 'ZX':  # Salto a columna en la misma fila
       convertida += '\\TAB_%02X' % ord (cadena[i + 1])
       i += 2  # El siguiente carácter ya se ha procesado y el de después se ignora
