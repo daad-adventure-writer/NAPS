@@ -160,6 +160,9 @@ def abre_ventana (traza, factorEscala, bbdd):
     cod_tabulador = chr (cod_tabulador)
     cod_tinta     = chr (cod_tinta)
   elif cods_tinta:
+    for codigo, color in tuple (cods_tinta.items()):
+      del (cods_tinta[codigo])
+      cods_tinta[chr (codigo)] = color
     cod_inversa_fin = chr (cod_inversa_fin)
     cod_inversa_ini = chr (cod_inversa_ini)
 

@@ -1298,6 +1298,7 @@ if __name__ == '__main__':
         if gui.strPlataforma == 'C64':  # Plataforma Commodore 64
           gui.cod_inversa_ini = 18
           gui.cod_inversa_fin = 146
+          gui.cods_tinta      = libreria.cods_tinta
           del gui.paleta[0][:]
           del gui.paleta[1][:]
           # Colores en este orden: negro, blanco, rojo, cyan, violeta, verde, azul, amarillo,

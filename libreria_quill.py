@@ -137,6 +137,7 @@ PREP_COMO_VERB   = 0        # Número de preposiciones convertibles a verbo
 NOMBRES_PROCS    = ('Tabla de eventos', 'Tabla de estado')
 TIPOS_PAL        = ('Palabra',)  # Nombres de los tipos de palabra (para el IDE)
 
+cods_tinta    = {}  # Caracteres que si se encuentran en una cadena, cambiará el color de tinta por el del valor
 conversion    = {}  # Tabla de conversión de caracteres
 strPlataforma = ''  # Identificador de plataforma como cadena
 
@@ -307,6 +308,7 @@ Para compatibilidad con el IDE:
   nueva_linea   = 141  # El 13 también podría ser, pero tal vez no se use
   plataforma    = 1    # Apaño para que el intérprete lo considere como Spectrum
   strPlataforma = 'C64'
+  cods_tinta.update ({5: 1, 25: 2, 30: 5, 31: 6, 129: 8, 144: 0, 149: 9, 150: 10, 151: 11, 152: 12, 153: 13, 154: 14, 155: 15, 156: 4, 158: 7, 159: 3})
   bajo_nivel_cambia_despl (despl_ini)
   # Cargamos los colores iniciales
   fichero.seek (3)
