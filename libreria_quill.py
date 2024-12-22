@@ -1122,6 +1122,19 @@ def escribe_secs_ctrl (cadena):
         elif strPlataforma == 'ZX':
           convertida += chr (20)
         i += 10
+      elif cadena[i:i + 7] == '\\TINTA_' and strPlataforma == 'C64':
+        try:
+          codigo = int (cadena[i + 7: i + 9])
+        except:
+          codigo = 999
+        if codigo < len (cods_tinta):
+          for codigoColor in cods_tinta:
+            if cods_tinta[codigoColor] == codigo:
+              convertida += chr (codigoColor)
+              break
+          i += 8
+        else:  # No es un número de color permitido
+          convertida += c  # Lo trataremos literalmente como ese texto \TINTA_loquesea
       elif cadena[i:i + 5] == '\\TAB_' and strPlataforma == 'ZX':
         columna = cadena[i + 5:i + 7]
         try:
@@ -1188,6 +1201,8 @@ def lee_secs_ctrl (cadena):
     elif o == 23 and strPlataforma == 'ZX':  # Salto a columna en la misma fila
       convertida += '\\TAB_%02X' % ord (cadena[i + 1])
       i += 2  # El siguiente carácter ya se ha procesado y el de después se ignora
+    elif o in cods_tinta:
+      convertida += '\\TINTA_%02X' % cods_tinta[o]
     elif c == '\\':
       convertida += '\\\\'
     else:
