@@ -86,7 +86,10 @@ tam_fuente      = 12     # El tamaño de fuente para el diálogo de procesos
 
 # Identificadores (para hacer el código más legible) predefinidos
 IDS_LOCS = {
+  0:   'INITIAL',
+       'INITIAL': 0,
   252: 'NOTCREATED',
+       'NOTCREATED': 252,
        '_': 252,
   253: 'WORN',
        'WORN': 253,
@@ -918,6 +921,25 @@ class ModeloTextos (QAbstractTableModel):
   def rowCount (self, parent):
     return len (self.listaTextos)
 
+class ModeloObjetos (ModeloTextos):
+  """Modelo para la tabla de objetos"""
+  def __init__ (self, parent, listaTextos):
+    ModeloTextos.__init__ (self, parent, listaTextos)
+
+  def columnCount (self, parent):
+    return 2
+
+  def data (self, index, role):
+    if role == Qt.DisplayRole and index.column() == 1:
+      locInicial = mod_actual.locs_iniciales[index.row()]
+      return IDS_LOCS[locInicial] if locInicial in IDS_LOCS else locInicial
+    return ModeloTextos.data (self, index, role)
+
+  def headerData (self, section, orientation, role):
+    if orientation == Qt.Horizontal and role == Qt.DisplayRole and section == 1:
+      return _('Start location')
+    return ModeloTextos.headerData (self, section, orientation, role)
+
 class ModeloVocabulario (QAbstractTableModel):
   """Modelo para la tabla de vocabulario"""
   def __init__ (self, parent):
@@ -1370,7 +1392,7 @@ def creaAcciones ():
   accExportar   = QAction (icono ('exportar'), _('&Export'), selector)
   accImportar   = QAction (icono ('importar'), _('&Import'), selector)
   accMostrarLoc = QAction (_('&Location descriptions'), selector)
-  accMostrarObj = QAction (_('&Object descriptions'),  selector)
+  accMostrarObj = QAction (_('&Object descriptions'),   selector)
   accMostrarRec = QAction (_('&Trim to line width'),    selector)
   accMostrarSys = QAction (_('&System messages'),       selector)
   accMostrarUsr = QAction (_('&User messages'),         selector)
@@ -2143,9 +2165,12 @@ def muestraTextos (dialogo, listaTextos, tipoTextos, subventanaMdi):
   # Creamos el diálogo
   selector.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
   dialogo = QTableView (selector)
-  dialogo.horizontalHeader().setStretchLastSection(True)
   dialogo.setContextMenuPolicy (Qt.CustomContextMenu)
-  dialogo.setModel (ModeloTextos (dialogo, listaTextos))
+  if tipoTextos == 'desc_objetos':
+    dialogo.setModel (ModeloObjetos (dialogo, listaTextos))
+  else:
+    dialogo.horizontalHeader().setStretchLastSection(True)
+    dialogo.setModel (ModeloTextos (dialogo, listaTextos))
   atajoCopiar = QShortcut (QKeySequence.Copy,  dialogo)
   atajoPegar  = QShortcut (QKeySequence.Paste, dialogo)
   atajoCopiar.activated.connect (lambda: copiaTexto (dialogo, listaTextos))
@@ -2171,6 +2196,8 @@ def muestraTextos (dialogo, listaTextos, tipoTextos, subventanaMdi):
     dlg_msg_usr = dialogo
     mdi_msg_usr = subventanaMdi
   dialogo.showMaximized()
+  if tipoTextos == 'desc_objetos':
+    dialogo.horizontalHeader().resizeSections (QHeaderView.ResizeToContents)
   if inicio_debug:
     selector.setCursor (Qt.BusyCursor)  # Puntero de ratón de trabajo en segundo plano
   else:
