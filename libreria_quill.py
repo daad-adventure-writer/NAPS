@@ -377,6 +377,7 @@ Para compatibilidad con el IDE:
   BANDERA_NOMBRE[0]     = 65
   BANDERA_LLEVABLES[0]  = 66
   BANDERA_LOC_ACTUAL[0] = 67
+  NUM_ATRIBUTOS[0]      = 1
   NUM_BANDERAS[0]       = 68
   NUM_BANDERAS_ACC[0]   = 64
   fichero.seek (0)

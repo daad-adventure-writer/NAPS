@@ -927,17 +927,53 @@ class ModeloObjetos (ModeloTextos):
     ModeloTextos.__init__ (self, parent, listaTextos)
 
   def columnCount (self, parent):
-    return 2
+    if mod_actual.NUM_ATRIBUTOS[0] == 0:  # Ningún tipo de atributos
+      return 2  # Descripción y localidad inicial
+    if mod_actual.NUM_ATRIBUTOS[0] == 1:  # Pseudoatributo prenda en Quill para QL
+      return 4  # Descripción, localidad inicial, prenda, y nombre
+    if mod_actual.NUM_ATRIBUTOS[0] == 2:  # Contenedor y prenda, además del peso
+      return 7  # Descripción, localidad inicial, peso, contenedor, prenda, nombre, y adjetivo
+    # Contenedor, prenda, y 16 atributos extra, además del peso
+    return 7  # Descripción, localidad inicial, peso, contenedor, prenda, (atributos extra), nombre, y adjetivo
 
   def data (self, index, role):
-    if role == Qt.DisplayRole and index.column() == 1:
-      locInicial = mod_actual.locs_iniciales[index.row()]
-      return IDS_LOCS[locInicial] if locInicial in IDS_LOCS else locInicial
+    if role == Qt.DisplayRole and index.column():
+      if index.column() == 1:
+        locInicial = mod_actual.locs_iniciales[index.row()]
+        return IDS_LOCS[locInicial] if locInicial in IDS_LOCS else locInicial
+      nombre = mod_actual.nombres_objs[index.row()][0]
+      if mod_actual.NUM_ATRIBUTOS[0] == 1:  # Pseudoatributo prenda en Quill para QL
+        if index.column() == 2:
+          return _('Yes') if 199 < nombre < 255 else _('No')
+        return (pal_sinonimo[(nombre, tipo_nombre)] if (nombre, tipo_nombre) in pal_sinonimo else nombre) if nombre < 255 else ''
+      atributos = mod_actual.atributos[index.row()]
+      if index.column() == 2:
+        return atributos & 63
+      if index.column() == 5:
+        return (pal_sinonimo[(nombre, tipo_nombre)] if (nombre, tipo_nombre) in pal_sinonimo else nombre) if nombre < 255 else ''
+      if index.column() == 6:
+        adjetivo = mod_actual.nombres_objs[index.row()][1]
+        return (pal_sinonimo[(adjetivo, tipo_adjetivo)] if (adjetivo, tipo_adjetivo) in pal_sinonimo else adjetivo) if adjetivo < 255 else ''
+      return (_('Yes') if atributos & (64 if index.column() == 3 else 128) else _('No'))
     return ModeloTextos.data (self, index, role)
 
   def headerData (self, section, orientation, role):
-    if orientation == Qt.Horizontal and role == Qt.DisplayRole and section == 1:
-      return _('Start location')
+    if orientation == Qt.Horizontal and role == Qt.DisplayRole and section:
+      if section == 1:
+        return _('Start location')
+      if mod_actual.NUM_ATRIBUTOS[0] == 1:  # Pseudoatributo prenda en Quill para QL
+        if section == 2:
+          return _('Wearable')
+        return _('Noun')
+      if section == 2:
+        return _('Weight')
+      if section == 3:
+        return _('Container')
+      if section == 4:
+        return _('Wearable')
+      if section == 5:
+        return _('Noun')
+      return _('Adjective')
     return ModeloTextos.headerData (self, section, orientation, role)
 
 class ModeloVocabulario (QAbstractTableModel):
@@ -1387,7 +1423,7 @@ def creaAcciones ():
   accBanderas   = QAction (icono ('banderas'), _('&Flags'), selector)
   accContadores = QAction (icono ('contadores'), _('&Counters'), selector)
   accDescLocs   = QAction (icono ('desc_localidad'), _('&Location descriptions'), selector)
-  accDescObjs   = QAction (icono ('desc_objeto'),    _('&Object descriptions'),   selector)
+  accDescObjs   = QAction (icono ('desc_objeto'),    _('&Object data'),           selector)
   accDireccs    = QAction (icono ('direccion'), _('&Movement'), selector)
   accExportar   = QAction (icono ('exportar'), _('&Export'), selector)
   accImportar   = QAction (icono ('importar'), _('&Import'), selector)
@@ -1444,7 +1480,7 @@ def creaAcciones ():
   accBanderas.setStatusTip   (_('Allows to check and modify the value of flags'))
   accContadores.setStatusTip (_('Displays the number of elements of each type'))
   accDescLocs.setStatusTip   (_('Allows to check and modify location descriptions'))
-  accDescObjs.setStatusTip   (_('Allows to check and modify object descriptions'))
+  accDescObjs.setStatusTip   (_('Allows to check object data and modify their descriptions'))
   accDireccs.setStatusTip    (_('Allows to add and edit movement words'))
   accExportar.setStatusTip   (_('Exports the database to a file'))
   accImportar.setStatusTip   (_('Imports the database from a file'))
@@ -2176,7 +2212,7 @@ def muestraTextos (dialogo, listaTextos, tipoTextos, subventanaMdi):
   atajoCopiar.activated.connect (lambda: copiaTexto (dialogo, listaTextos))
   atajoPegar.activated.connect  (lambda: pegaTexto  (dialogo, listaTextos))
   dialogo.customContextMenuRequested.connect (functools.partial (menuContextualTextos, dialogo, listaTextos))
-  titulo = {'desc_localidades': _('Location descriptions'), 'desc_objetos': _('Object descriptions'), 'msgs_sistema': _('System messages'), 'msgs_usuario': _('User messages')}[tipoTextos]
+  titulo = {'desc_localidades': _('&Location descriptions'), 'desc_objetos': _('&Object data'), 'msgs_sistema': _('System messages'), 'msgs_usuario': _('User messages')}[tipoTextos]
   dialogo.setWindowTitle (titulo)
   subventanaMdi = selector.centralWidget().addSubWindow (dialogo)
   if tipoTextos == 'desc_localidades':
@@ -2401,7 +2437,7 @@ def postCarga (nombre):
   """Realiza las acciones convenientes tras la carga satisfactoria de una BD
 
   Recibe como parámetro el nombre de la base de datos"""
-  global tipo_nombre, tipo_verbo
+  global tipo_adjetivo, tipo_nombre, tipo_verbo
   # Apaño para que funcionen tal y como están las librerías con lista unificada de condactos
   # Lo hacemos aquí, porque la lista de condactos se puede extender tras cargar una BD
   if comprueba_nombre (mod_actual, 'condactos', dict) and (not comprueba_nombre (mod_actual, 'acciones', dict) or not mod_actual.acciones):
@@ -2412,8 +2448,9 @@ def postCarga (nombre):
         mod_actual.condiciones[codigo] = mod_actual.condactos[codigo]
   # Cogemos la primera palabra de cada tipo y número como sinónimo preferido
   if 'Verbo' in mod_actual.TIPOS_PAL:
-    tipo_nombre = mod_actual.TIPOS_PAL.index ('Nombre')
-    tipo_verbo  = mod_actual.TIPOS_PAL.index ('Verbo')
+    tipo_adjetivo = mod_actual.TIPOS_PAL.index ('Adjetivo')
+    tipo_nombre   = mod_actual.TIPOS_PAL.index ('Nombre')
+    tipo_verbo    = mod_actual.TIPOS_PAL.index ('Verbo')
   else:
     tipo_nombre = 0
     tipo_verbo  = 0
