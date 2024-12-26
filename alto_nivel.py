@@ -415,11 +415,9 @@ def carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, atributos, atributos_e
         if condacto[0] not in datosCondactos:
           datosCondactos[condacto[0]] = [None, None]
         datosCondacto = (codigo, condacto[1])
-        if not condactos_nuevos:  # Para sistemas distintos a DAAD
-          datosCondactos[condacto[0]][0] = datosCondacto
-        elif condacto[4] == 3:  # El condacto es igual en ambas versiones
+        if not condactos_nuevos or condacto[4] == 3:  # Para sistemas distintos a DAAD o si el condacto es igual en ambas versiones
           datosCondactos[condacto[0]] = (datosCondacto, datosCondacto)
-        else:
+        else:  # Condacto para una versión específica
           datosCondactos[condacto[0]][condacto[4] - 1] = datosCondacto
     if condactos_nuevos:  # Sólo para DAAD
       datosCondactos['DEBUG'] = ((220, ''), (220, ''))  # NEWTEXT con indirección
@@ -527,7 +525,8 @@ def carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, atributos, atributos_e
                       continue
                     raise TabError ('un símbolo ya definido', (), posicion)
                   raise TabError ('El condacto %s no admite una palabra de vocabulario como parámetro aquí', nombre, opcion[0][0][0][1])
-                # Salvo SYNONYM, los condactos con este tipo de parámetro sólo tienen uno de igual tipo en ambas versiones de DAAD
+                # Salvo SYNONYM, los condactos con este tipo de parámetro sólo tienen uno de igual tipo en ambas versiones de DAAD, por lo que podemos
+                # revisar sólo el tipo de parámetros de la versión 2 del condacto
                 encajesPalabra, posicion = opcion[0][0][0] if len (arbolParametro[1]) > 1 else opcion[0][0][0][0][0]
                 palabra      = encajesPalabra[0][:LONGITUD_PAL].lower()
                 letraTipoPal = datosCondactos[nombre][1][1][len (parametros)]
