@@ -324,7 +324,14 @@ def inicializa ():
   """Hace lo que dice la guía técnica de PAWS, página 7: 1.- LA INICIALIZACIÓN DEL SISTEMA"""
 
   # Los colores de fondo y el juego de caracteres son seleccionados
-  # FIXME
+  gui.juego = 0  # Seleccionamos el juego bajo
+  if 'colores_inicio' in libreria.__dict__ and libreria.colores_inicio:  # Cargamos los colores de inicio
+    gui.cambia_color_tinta (libreria.colores_inicio[0])
+    gui.cambia_color_papel (libreria.colores_inicio[1])
+    gui.cambia_color_borde (libreria.colores_inicio[2])
+    if len (libreria.colores_inicio) > 3:
+      gui.cambia_color_brillo (libreria.colores_inicio[3])
+    gui.elige_subventana (gui.elegida)  # Para que se apliquen los colores iniciales a la fuente
 
   # Las banderas son puestas a 0, las primeras 248 en el caso de las primeras versiones de DAAD, y todas en los demás
   for i in range (248 if NOMBRE_SISTEMA == 'DAAD' and not nueva_version else NUM_BANDERAS[0]):
@@ -356,15 +363,6 @@ def inicializa ():
       banderas[63] = 1
       if nueva_version:  # Carga la paleta por defecto, evitando hacerlo en modo CGA (que de momento sólo está para DAAD v1)
         gui.carga_paleta_defecto()
-
-  # Cargamos los colores de inicio
-  if 'colores_inicio' in libreria.__dict__ and libreria.colores_inicio:
-    gui.cambia_color_tinta (libreria.colores_inicio[0])
-    gui.cambia_color_papel (libreria.colores_inicio[1])
-    gui.cambia_color_borde (libreria.colores_inicio[2])
-    if len (libreria.colores_inicio) > 3:
-      gui.cambia_color_brillo (libreria.colores_inicio[3])
-    gui.elige_subventana (gui.elegida)  # Para que se apliquen los colores iniciales a la fuente
 
   # Permitimos que la librería inicialice banderas de modo distinto a la inicialización PAWS estándar
   if 'inicializa_banderas' in libreria.__dict__:
