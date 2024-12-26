@@ -987,6 +987,7 @@ def imprime_banderas (banderas):
     numFilas = 32
   else:
     numFilas = limite[1]
+  paletaAntes = fuente_estandar.get_palette()
   if banderas_antes == None:
     banderas_antes  = [0,] * NUM_BANDERAS[0]
     banderas_viejas = set (range (NUM_BANDERAS[0]))
@@ -1029,7 +1030,7 @@ def imprime_banderas (banderas):
       ventana.blit (fuente_estandar, (columna + (pos * 6), fila),
                     ((c % 63) * 10, (c // 63) * 10, 6, 8))
   actualizaVentana()
-  fuente_estandar.set_palette (graficos_bitmap.paletaBN)
+  fuente_estandar.set_palette (paletaAntes)
 
 def imprime_locs_objs (locs_objs):
   """Imprime las localidades de los objetos (en la extensión de la ventana)"""
@@ -1054,6 +1055,7 @@ def imprime_locs_objs (locs_objs):
     numFilas    = limite[1]
     # coloresObjetos = ((192, 192, 0), (96, 192, 96), (0, 192, 192))   # Colores cálidos
     coloresObjetos = ((128, 64, 192), (64, 128, 192), (0, 192, 192))  # Colores fríos
+  paletaAntes = fuente_estandar.get_palette()
   # Borramos la sección de localidades de objeto
   ventana.fill ((0, 0, 0), (colInicial, filaInicial, colFinal, numFilas * 8))
   # Imprimimos columna por columna los índices y valores de cada localidad de objeto
@@ -1109,7 +1111,7 @@ def imprime_locs_objs (locs_objs):
       fila += 8
     colColumna += ((cifrasObjeto + cifrasValores) * 6) + 3
   actualizaVentana()
-  fuente_estandar.set_palette (graficos_bitmap.paletaBN)
+  fuente_estandar.set_palette (paletaAntes)
 
 def imprime_cadena (cadena, textoNormal = True, redibujar = True, abajo = False, tiempo = 0, restauraColores = False):
   """Imprime una cadena en la posición del cursor (dentro de la subventana), y devuelve la cadena partida en líneas
