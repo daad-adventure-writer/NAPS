@@ -1323,7 +1323,7 @@ Los caracteres de linea deben estar convertidos a posiciones en la tipografía"""
       break  # No dibujar más allá del ancho de la ventana de juego
     c = ord (linea[i])
     if ancho_caracter == 8:
-      c -= 16 if c < 128 else 32
+      c -= 16 if c < 128 or NOMBRE_SISTEMA == 'SWAN' else 32
     if i + inicioLinea in colores:
       fuente.set_palette (colores[i + inicioLinea])
     # Curioso, aquí fuente tiene dos significados correctos :)
