@@ -1040,6 +1040,8 @@ def imprime_locs_objs (locs_objs):
   if locs_objs_antes == None:
     locs_objs_antes  = [0,] * num_objetos[0]
     locs_objs_viejas = set (range (num_objetos[0]))
+  if ide:
+    return
   alias = ({252: 'N', 253: 'W', 254: 'C'}, {252: 'NC', 253: 'WO', 254: 'CA'}, {252: 'NCR', 253: 'WOR', 254: 'CAR'})
   if NUM_BANDERAS[0] > 64:  # Posición bajo la ventana de juego
     colInicial  = 0
