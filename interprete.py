@@ -358,7 +358,7 @@ def inicializa ():
         gui.carga_paleta_defecto()
 
   # Cargamos los colores de inicio
-  if 'colores_inicio' in libreria.__dict__:
+  if 'colores_inicio' in libreria.__dict__ and libreria.colores_inicio:
     gui.cambia_color_tinta (libreria.colores_inicio[0])
     gui.cambia_color_papel (libreria.colores_inicio[1])
     gui.cambia_color_borde (libreria.colores_inicio[2])
