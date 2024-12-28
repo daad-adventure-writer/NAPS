@@ -2319,8 +2319,14 @@ def nuevaEntradaVocabulario (entrada, numFilaAntes = None):
   """Añade al vocabulario la entrada dada, en la posición que le corresponda"""
   # TODO: comprobar si ya existe otra palabra así y pedir confirmar en ese caso (pero permitirlo)
   pos = 0
-  while pos < len (mod_actual.vocabulario) and mod_actual.cadena_es_mayor (entrada[0], mod_actual.vocabulario[pos][0]):
-    pos += 1
+  if mod_actual.NOMBRE_SISTEMA in ('QUILL', 'PAWS'):  # En Quill y PAWS las palabras van ordenadas por código y luego alfabéticamente
+    while pos < len (mod_actual.vocabulario) and (
+        entrada[1] > mod_actual.vocabulario[pos][1] or
+        (entrada[1] == mod_actual.vocabulario[pos][1] and mod_actual.cadena_es_mayor (entrada[0], mod_actual.vocabulario[pos][0]))):
+      pos += 1
+  else:  # En SWAN y DAAD las palabras van ordenadas alfabéticamente
+    while pos < len (mod_actual.vocabulario) and mod_actual.cadena_es_mayor (entrada[0], mod_actual.vocabulario[pos][0]):
+      pos += 1
   modeloVocab = dlg_vocabulario.model().sourceModel()
   if numFilaAntes:
     modeloVocab.beginRemoveRows (QModelIndex(), numFilaAntes, numFilaAntes)
