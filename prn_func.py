@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Funciones para compatibilidad con Python 2.X y 3.X
-# Copyright (C) 2010, 2021 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2021, 2024 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -25,8 +25,33 @@
 # La versión de Python será al menos la 2.0 (es la versión que introdujo la
 # tupla version_info del módulo sys)
 
+import gettext  # Para localización
+import os
 import string
 from sys import version_info
+
+
+# Preparativos para la localización de textos
+
+def traduceConGettext (cadena, quitarAnd = False):
+  """Devuelve la traducción de la cadena al idioma del usuario, opcionalmente quitando del resultado el símbolo '&'"""
+  traducida = gettext.gettext (cadena)
+  if quitarAnd:
+    traducida = traducida.replace ('&', '')
+  if version_info[0] < 3:
+    return unicode (traducida.decode ('utf8'))
+  return traducida
+
+if os.name == 'nt':
+  import locale
+  if not os.getenv ('LANG') and not os.getenv ('LANGUAGE'):
+    idioma, codificacion   = locale.getdefaultlocale()
+    os.environ['LANG']     = idioma
+    os.environ['LANGUAGE'] = idioma
+
+gettext.bindtextdomain ('naps', os.path.join (os.path.abspath (os.path.dirname (__file__)), 'locale'))
+gettext.textdomain ('naps')
+_ = traduceConGettext
 
 
 # Con try... except SyntaxError hacemos que el código pueda ser visto correcto

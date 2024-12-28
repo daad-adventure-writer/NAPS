@@ -23,7 +23,6 @@
 # *                                                                           *
 # *****************************************************************************
 
-import gettext
 import math
 import os
 import re
@@ -39,6 +38,8 @@ except:
 
 import graficos_bitmap
 
+from prn_func import _  # Para la localización de textos
+
 
 acc_exportar          = None  # Acción de exportar base de datos gráfica
 acc_exportar_todo     = None  # Acción de exportar todos los recursos
@@ -49,29 +50,6 @@ dlg_exportar          = None  # Diálogo de exportar base de datos gráfica
 dlg_exportar_todo     = None  # Diálogo de exportar todos los recursos
 dlg_importar          = None  # Diálogo de importar base de datos gráfica
 dlg_guardar           = None  # Diálogo de guardar imagen
-
-
-# Preparativos para la localización de textos
-
-def traduceConGettext (cadena, quitarAnd = False):
-  """Devuelve la traducción de la cadena al idioma del usuario, opcionalmente quitando del resultado el símbolo '&'"""
-  traducida = gettext.gettext (cadena)
-  if quitarAnd:
-    traducida = traducida.replace ('&', '')
-  if sys.version_info[0] < 3:
-    return unicode (traducida.decode ('utf8'))
-  return traducida
-
-if os.name == 'nt':
-  import locale
-  if not os.getenv ('LANG') and not os.getenv ('LANGUAGE'):
-    idioma, codificacion   = locale.getdefaultlocale()
-    os.environ['LANG']     = idioma
-    os.environ['LANGUAGE'] = idioma
-
-gettext.bindtextdomain ('naps', os.path.join (os.path.abspath (os.path.dirname (__file__)), 'locale'))
-gettext.textdomain ('naps')
-_ = traduceConGettext
 
 
 filtro_img_def = 1  # Índice en filtros_img del formato de imagen por defecto (PNG)

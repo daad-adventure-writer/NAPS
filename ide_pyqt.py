@@ -24,11 +24,10 @@
 # *****************************************************************************
 
 from alto_nivel import *
-from prn_func   import prn
+from prn_func   import _, prn
 
 import argparse    # Para procesar argumentos de línea de comandos
 import functools   # Para partial
-import gettext     # Para localización
 import locale      # Para codificar bien la salida estándar
 import os          # Para curdir, listdir y path
 import subprocess  # Para ejecutar el intérprete
@@ -133,28 +132,7 @@ nombres_necesarios = (('acciones',          dict),
                       ('vocabulario',       list))
 
 
-# Preparativos para la localización de textos
-
-def traduceConGettext (cadena, quitarAnd = False):
-  """Devuelve la traducción de la cadena al idioma del usuario, opcionalmente quitando del resultado el símbolo '&'"""
-  traducida = gettext.gettext (cadena)
-  if quitarAnd:
-    traducida = traducida.replace ('&', '')
-  if sys.version_info[0] < 3:
-    return unicode (traducida.decode ('utf8'))
-  return traducida
-
-if os.name == 'nt':
-  import locale
-  if not os.getenv ('LANG') and not os.getenv ('LANGUAGE'):
-    idioma, codificacion   = locale.getdefaultlocale()
-    os.environ['LANG']     = idioma
-    os.environ['LANGUAGE'] = idioma
-
-gettext.bindtextdomain ('naps', os.path.join (os.path.abspath (os.path.dirname (__file__)), 'locale'))
-gettext.textdomain ('naps')
-_          = traduceConGettext
-argparse._ = _
+argparse._ = _  # Para la localización de textos
 
 
 class BarraIzquierda (QWidget):
