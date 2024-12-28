@@ -2321,7 +2321,7 @@ def nuevaEntradaVocabulario (entrada, numFilaAntes = None):
   pos = 0
   while pos < len (mod_actual.vocabulario) and mod_actual.cadena_es_mayor (entrada[0], mod_actual.vocabulario[pos][0]):
     pos += 1
-  modeloVocab = dlg_vocabulario.model()
+  modeloVocab = dlg_vocabulario.model().sourceModel()
   if numFilaAntes:
     modeloVocab.beginRemoveRows (QModelIndex(), numFilaAntes, numFilaAntes)
     del mod_actual.vocabulario[numFilaAntes]
@@ -2329,6 +2329,7 @@ def nuevaEntradaVocabulario (entrada, numFilaAntes = None):
   modeloVocab.beginInsertRows (QModelIndex(), pos, pos)
   mod_actual.vocabulario.insert (pos, entrada)
   modeloVocab.endInsertRows()
+  dlg_vocabulario.model().invalidate()  # Que reordene la tabla como corresponda
 
 def nuevaFilaVocabulario (indice):
   """Permite añadir una entrada de vocabulario, tras pulsar Enter en la tabla"""
