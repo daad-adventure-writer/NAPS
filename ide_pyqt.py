@@ -73,6 +73,7 @@ pestanyas = None  # La barra de pestañas del diálogo de procesos
 mod_actual      = None    # Módulo de librería activo
 pal_sinonimo    = dict()  # Sinónimos preferidos para cada par código y tipo válido
 pals_no_existen = []      # Códigos de palabra que no existen encontrados en tablas de proceso
+pals_salida     = []      # Códigos de palabra que se usan como salida en la tabla de conexiones
 
 color_base      = QColor (10, 10, 10)   # Color de fondo gris oscuro
 color_pila      = QColor (60, 35, 110)  # Color de fondo azul brillante
@@ -921,6 +922,29 @@ class ModeloTextos (QAbstractTableModel):
   def rowCount (self, parent):
     return len (self.listaTextos)
 
+class ModeloLocalidades (ModeloTextos):
+  """Modelo para la tabla de localidades"""
+  def __init__ (self, parent, listaTextos):
+    ModeloTextos.__init__ (self, parent, listaTextos)
+
+  def columnCount (self, parent):
+    return 1 + len (pals_salida)
+
+  def data (self, index, role):
+    if role == Qt.DisplayRole and index.column():
+      conexionesLocalidad = mod_actual.conexiones[index.row()]
+      for codigo, destino in conexionesLocalidad:
+        if codigo == pals_salida[index.column() - 1]:
+          return destino
+      return ''
+    return ModeloTextos.data (self, index, role)
+
+  def headerData (self, section, orientation, role):
+    if orientation == Qt.Horizontal and role == Qt.DisplayRole and section:
+      # Si no está la palabra en el vocabulario, mostraremos el código
+      return pal_sinonimo[(pals_salida[section - 1], tipo_verbo)] if (pals_salida[section - 1], tipo_verbo) else pals_salida[section - 1]
+    return ModeloTextos.headerData (self, section, orientation, role)
+
 class ModeloObjetos (ModeloTextos):
   """Modelo para la tabla de objetos"""
   def __init__ (self, parent, listaTextos):
@@ -1422,8 +1446,8 @@ def creaAcciones ():
   accAcercaDe   = QAction (icono_ide, _('&About NAPS IDE'), selector)
   accBanderas   = QAction (icono ('banderas'), _('&Flags'), selector)
   accContadores = QAction (icono ('contadores'), _('&Counters'), selector)
-  accDescLocs   = QAction (icono ('desc_localidad'), _('&Location descriptions'), selector)
-  accDescObjs   = QAction (icono ('desc_objeto'),    _('&Object data'),           selector)
+  accDescLocs   = QAction (icono ('desc_localidad'), _('&Location data'), selector)
+  accDescObjs   = QAction (icono ('desc_objeto'),    _('&Object data'),   selector)
   accDireccs    = QAction (icono ('direccion'), _('&Movement'), selector)
   accExportar   = QAction (icono ('exportar'), _('&Export'), selector)
   accImportar   = QAction (icono ('importar'), _('&Import'), selector)
@@ -1479,7 +1503,7 @@ def creaAcciones ():
   accAcercaDe.setStatusTip   (_('Shows information about the program'))
   accBanderas.setStatusTip   (_('Allows to check and modify the value of flags'))
   accContadores.setStatusTip (_('Displays the number of elements of each type'))
-  accDescLocs.setStatusTip   (_('Allows to check and modify location descriptions'))
+  accDescLocs.setStatusTip   (_('Allows to check location data and modify their descriptions'))
   accDescObjs.setStatusTip   (_('Allows to check object data and modify their descriptions'))
   accDireccs.setStatusTip    (_('Allows to add and edit movement words'))
   accExportar.setStatusTip   (_('Exports the database to a file'))
@@ -2202,8 +2226,8 @@ def muestraTextos (dialogo, listaTextos, tipoTextos, subventanaMdi):
   selector.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
   dialogo = QTableView (selector)
   dialogo.setContextMenuPolicy (Qt.CustomContextMenu)
-  if tipoTextos == 'desc_objetos':
-    dialogo.setModel (ModeloObjetos (dialogo, listaTextos))
+  if tipoTextos in ('desc_localidades', 'desc_objetos'):
+    dialogo.setModel ((ModeloObjetos if tipoTextos == 'desc_objetos' else ModeloLocalidades) (dialogo, listaTextos))
   else:
     dialogo.horizontalHeader().setStretchLastSection(True)
     dialogo.setModel (ModeloTextos (dialogo, listaTextos))
@@ -2212,7 +2236,7 @@ def muestraTextos (dialogo, listaTextos, tipoTextos, subventanaMdi):
   atajoCopiar.activated.connect (lambda: copiaTexto (dialogo, listaTextos))
   atajoPegar.activated.connect  (lambda: pegaTexto  (dialogo, listaTextos))
   dialogo.customContextMenuRequested.connect (functools.partial (menuContextualTextos, dialogo, listaTextos))
-  titulo = {'desc_localidades': _('&Location descriptions'), 'desc_objetos': _('&Object data'), 'msgs_sistema': _('System messages'), 'msgs_usuario': _('User messages')}[tipoTextos]
+  titulo = {'desc_localidades': _('&Location data'), 'desc_objetos': _('&Object data'), 'msgs_sistema': _('System messages'), 'msgs_usuario': _('User messages')}[tipoTextos]
   dialogo.setWindowTitle (titulo)
   subventanaMdi = selector.centralWidget().addSubWindow (dialogo)
   if tipoTextos == 'desc_localidades':
@@ -2232,7 +2256,7 @@ def muestraTextos (dialogo, listaTextos, tipoTextos, subventanaMdi):
     dlg_msg_usr = dialogo
     mdi_msg_usr = subventanaMdi
   dialogo.showMaximized()
-  if tipoTextos == 'desc_objetos':
+  if tipoTextos in ('desc_localidades', 'desc_objetos'):
     dialogo.horizontalHeader().resizeSections (QHeaderView.ResizeToContents)
   if inicio_debug:
     selector.setCursor (Qt.BusyCursor)  # Puntero de ratón de trabajo en segundo plano
@@ -2448,18 +2472,30 @@ def postCarga (nombre):
         mod_actual.condiciones[codigo] = mod_actual.condactos[codigo]
   # Cogemos la primera palabra de cada tipo y número como sinónimo preferido
   if 'Verbo' in mod_actual.TIPOS_PAL:
-    tipo_adjetivo = mod_actual.TIPOS_PAL.index ('Adjetivo')
-    tipo_nombre   = mod_actual.TIPOS_PAL.index ('Nombre')
-    tipo_verbo    = mod_actual.TIPOS_PAL.index ('Verbo')
+    tipo_adjetivo    = mod_actual.TIPOS_PAL.index ('Adjetivo')
+    tipo_nombre      = mod_actual.TIPOS_PAL.index ('Nombre')
+    tipo_preposicion = mod_actual.TIPOS_PAL.index ('Preposicion')
+    tipo_verbo       = mod_actual.TIPOS_PAL.index ('Verbo')
   else:
-    tipo_nombre = 0
-    tipo_verbo  = 0
+    tipo_nombre      = 0
+    tipo_preposicion = 0
+    tipo_verbo       = 0
   for palabra, codigo, tipo in mod_actual.vocabulario:
-    idYtipo = (codigo, tipo)
-    # Preferiremos terminación en R para verbos (heurística para que sean en forma infinitiva)
-    if idYtipo not in pal_sinonimo or \
-        (tipo == tipo_verbo and palabra[-1] == 'r' and pal_sinonimo[idYtipo][-1] != 'r'):
-      pal_sinonimo[idYtipo] = palabra
+    idYtipos = [(codigo, tipo)]
+    if (tipo == tipo_nombre      and codigo < mod_actual.NOMB_COMO_VERB[0] or  # Es nombre convertible en verbo
+        tipo == tipo_preposicion and codigo < mod_actual.PREP_COMO_VERB):      # Es preposición convertible en verbo
+      idYtipos.append ((codigo, tipo_verbo))
+    for idYtipo in idYtipos:
+      # Preferiremos terminación en R para verbos (heurística para que sean en forma infinitiva)
+      if idYtipo not in pal_sinonimo or \
+          (tipo == tipo_verbo and palabra[-1] == 'r' and pal_sinonimo[idYtipo][-1] != 'r'):
+        pal_sinonimo[idYtipo] = palabra
+  # Recopilamos las palabras usadas como salidas en la tabla de conexiones
+  for conexionesLocalidad in mod_actual.conexiones:
+    for codigo, destino in conexionesLocalidad:
+      if codigo not in pals_salida:
+        pals_salida.append (codigo)
+  pals_salida.sort()
   # Preparamos las funciones de exportación
   for entrada in mod_actual.funcs_exportar:
     if comprueba_nombre (mod_actual, entrada[0], types.FunctionType):
