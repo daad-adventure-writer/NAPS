@@ -25,7 +25,7 @@
 import os
 
 from bajo_nivel import *
-from prn_func   import prn
+from prn_func   import _, prn
 
 
 # Variables que se exportan (fuera del paquete)
@@ -47,7 +47,7 @@ vocabulario    = []   # Vocabulario
 
 # Funciones que importan bases de datos desde ficheros
 funcs_exportar = ()  # Ninguna, de momento
-funcs_importar = (('carga_bd', ('adb',), 'Bases de datos SWAN'), )
+funcs_importar = (('carga_bd', ('adb',), _('SWAN databases')), )
 # Función que crea una nueva base de datos (vacía)
 func_nueva = ''
 
@@ -63,7 +63,7 @@ NUM_BANDERAS     = [256]   # Número de banderas del parser
 NOMB_COMO_VERB   = [20]    # Número de nombres convertibles a verbo
 PREP_COMO_VERB   = 20      # Número de preposiciones convertibles a verbo
 # Nombres de las primeras tablas de proceso (para el IDE)
-NOMBRES_PROCS    = ('Tabla de respuestas', 'Tras la descripción', 'Cada turno')
+NOMBRES_PROCS    = (_('Response table'), _('After description'), _('Each turn'))
 # Nombres de los tipos de palabra (para el IDE)
 TIPOS_PAL = ('Verbo', 'Adverbio', 'Nombre', 'Adjetivo', 'Preposicion', 'Conjuncion', 'Pronombre')
 

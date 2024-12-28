@@ -23,7 +23,7 @@
 # *****************************************************************************
 
 from bajo_nivel import *
-from prn_func   import prn
+from prn_func   import _, prn
 
 import os
 import sys  # Para stderr
@@ -51,10 +51,10 @@ tablas_proceso  = []   # Tablas de proceso
 vocabulario     = []   # Vocabulario
 
 # Lista de funciones que importan bases de datos desde ficheros, con sus extensiones soportadas y descripción del tipo de fichero
-funcs_exportar = (('guarda_bd', ('ddb',), 'Bases de datos DAAD'), )
-funcs_importar = (('carga_bd',              ('ddb',), 'Bases de datos DAAD'),
-                  ('carga_codigo_fuente',   ('dsf',), 'Código fuente de DAAD Reborn Compiler'),
-                  ('carga_codigo_fuente',   ('sce',), 'Código fuente de DAAD tradicional'))
+funcs_exportar = (('guarda_bd', ('ddb',), _('DAAD database')), )
+funcs_importar = (('carga_bd',            ('ddb',), _('DAAD databases')),
+                  ('carga_codigo_fuente', ('dsf',), _('DAAD Reborn Compiler source code')),
+                  ('carga_codigo_fuente', ('sce',), _('DAAD source code (traditional)')))
 # Función que crea una nueva base de datos (vacía)
 func_nueva = ''
 

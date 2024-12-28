@@ -25,7 +25,7 @@
 import sys  # Para stderr
 
 from bajo_nivel import *
-from prn_func   import *
+from prn_func   import _, maketrans, prn
 
 
 # Variables que se exportan (fuera del paquete)
@@ -65,16 +65,16 @@ ids_locs = {  0 : 'INICIAL',
 
 # Funciones que importan bases de datos desde ficheros
 funcs_exportar = (
-  ('guarda_bd',     ('prg',), 'Base de datos Quill optimizada de Commodore 64'),
-  ('guarda_bd',     ('qql',), 'Base de datos Quill optimizada de Sinclair QL'),
-  ('guarda_bd_c64', ('prg',), 'Base de datos Quill de Commodore 64'),
-  ('guarda_bd_ql',  ('qql',), 'Base de datos Quill de Sinclair QL'),
+  ('guarda_bd',     ('prg',), _('Optimized Quill database for Commodore 64')),
+  ('guarda_bd',     ('qql',), _('Optimized Quill database for Sinclair QL')),
+  ('guarda_bd_c64', ('prg',), _('Quill database for Commodore 64')),
+  ('guarda_bd_ql',  ('qql',), _('Quill database for Sinclair QL')),
 )
 funcs_importar = (
-  ('carga_bd_c64', ('prg',),       'Bases de datos Quill de Commodore 64'),
-  ('carga_bd_pc',  ('dat', 'exe'), 'Bases de datos AdventureWriter de PC'),
-  ('carga_bd_ql',  ('qql',),       'Bases de datos Quill de Sinclair QL'),
-  ('carga_bd_sna', ('sna',),       'Imagen de memoria de ZX 48K con Quill'),
+  ('carga_bd_c64', ('prg',),       _('Quill databases for Commodore 64')),
+  ('carga_bd_pc',  ('dat', 'exe'), _('Quill databases for PC AdventureWriter')),
+  ('carga_bd_ql',  ('qql',),       _('Quill databases for Sinclair QL')),
+  ('carga_bd_sna', ('sna',),       _('ZX 48K memory snapshots with Quill')),
 )
 # Función que crea una nueva base de datos (vacía)
 func_nueva = 'nueva_bd'
@@ -134,7 +134,7 @@ NOMBRE_SISTEMA   = 'QUILL'  # Nombre de este sistema
 NOMB_COMO_VERB   = [0]      # Número de nombres convertibles a verbo
 PREP_COMO_VERB   = 0        # Número de preposiciones convertibles a verbo
 # Nombres de las primeras tablas de proceso (para el IDE)
-NOMBRES_PROCS    = ('Tabla de eventos', 'Tabla de estado')
+NOMBRES_PROCS    = (_('Event table'), _('Status table'))
 TIPOS_PAL        = ('Palabra',)  # Nombres de los tipos de palabra (para el IDE)
 
 cods_tinta    = {}  # Caracteres que si se encuentran en una cadena, cambiará el color de tinta por el del valor

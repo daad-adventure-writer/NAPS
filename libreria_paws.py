@@ -24,7 +24,7 @@
 
 from bajo_nivel      import *
 from graficos_bitmap import carga_udgs_zx
-from prn_func        import prn
+from prn_func        import _, prn
 
 import alto_nivel
 
@@ -51,9 +51,9 @@ vocabulario    = []   # Vocabulario
 # Funciones que importan bases de datos desde ficheros
 funcs_exportar = ()  # Ninguna, de momento
 funcs_importar = (
-  ('carga_bd',     ('pdb',), 'Bases de datos PAWS'),
-  ('carga_bd_sna', ('sna',), 'Imagen de memoria de ZX 48K con PAWS'),
-  ('carga_sce',    ('sce',), 'Código fuente de PAWS'),
+  ('carga_bd',     ('pdb',), _('PAWS databases')),
+  ('carga_bd_sna', ('sna',), _('ZX 48K memory snapshots with PAWS')),
+  ('carga_sce',    ('sce',), _('PAWS source code')),
 )
 # Función que crea una nueva base de datos (vacía)
 func_nueva = ''
@@ -70,7 +70,7 @@ NUM_BANDERAS     = [256]   # Número de banderas del parser
 NOMB_COMO_VERB   = [20]    # Número de nombres convertibles a verbo
 PREP_COMO_VERB   = 0       # Número de preposiciones convertibles a verbo
 # Nombres de las primeras tablas de proceso (para el IDE)
-NOMBRES_PROCS    = ('Tabla de respuestas', 'Tras la descripción', 'Cada turno')
+NOMBRES_PROCS    = (_('Response table'), _('After description'), _('Each turn'))
 # Nombres de los tipos de palabra (para el IDE)
 TIPOS_PAL = ('Verbo', 'Adverbio', 'Nombre', 'Adjetivo', 'Preposicion', 'Conjuncion', 'Pronombre')
 
