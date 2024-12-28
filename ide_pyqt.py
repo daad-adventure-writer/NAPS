@@ -615,8 +615,10 @@ class CampoTexto (QTextEdit):
         columna = colsValidas[-2]
       numParam  = colsValidas.index (columna)
       parametro = str (linea.text()[columna:])
-      if ',' in parametro:
+      if ',' in parametro:  # Hay algún parámetro posterior
         parametro = parametro[: parametro.find (',')]
+      elif ' ' in parametro:  # Hay una anotación posterior (del texto asociado al parámetro)
+        parametro = parametro[: parametro.find (' ')]
       dialogo = ModalEntrada (self, _('Parameter value:'), evento.text(), parametro)
       dialogo.setInputMode (QInputDialog.IntInput)
       dialogo.setIntRange  (0, 255)
