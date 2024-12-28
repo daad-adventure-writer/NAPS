@@ -844,12 +844,15 @@ class ModalEntrada (QInputDialog):
     self.setOkButtonText     (_('&Accept'))
 
   def _valorInicial (self):
-    combo = self.findChild (QComboBox)
+    combo   = self.findChild (QComboBox)  # Estará cuando se elige que sea desplegable
+    spinbox = self.findChild (QSpinBox)   # Estará al editar valores enteros
     if combo:
       campo = combo.lineEdit()
+    elif spinbox:
+      campo = spinbox.findChild (QLineEdit)
     else:
       campo = self.findChild (QLineEdit)
-    if self.textoOriginal:
+    if self.textoOriginal:  # De esta manera, se podrá recuperar el valor original deshaciendo
       campo.setText (self.textoOriginal)
       campo.selectAll()
       campo.insert (self.textoInicial)
