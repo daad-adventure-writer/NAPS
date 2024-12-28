@@ -1006,7 +1006,7 @@ class ModeloVocabulario (QAbstractTableModel):
         return _('Reserved')
       if tipo > len (self.tipos):
         return _('Unknown (') + str (tipo) + ')'
-      return self.tipos[tipo].replace ('cion', 'ción')
+      return self.tipos[tipo]
 
   def flags (self, index):
     return Qt.ItemIsSelectable | Qt.ItemIsEnabled
@@ -1717,7 +1717,7 @@ def editaVocabulario (indice):
   else:  # indice.column() == 2:  # Tipo
     tiposPalabra = {255: _('Reserved')}
     for i in range (len (mod_actual.TIPOS_PAL)):
-      tiposPalabra[i] = mod_actual.TIPOS_PAL[i].replace ('cion', 'ción')
+      tiposPalabra[i] = mod_actual.TIPOS_PAL[i]
     dialogo = ModalEntrada (dlg_vocabulario, _('Type of the word:'), tiposPalabra[palVocab[2]])
     dialogo.setComboBoxEditable (True)
     dialogo.setComboBoxItems    (sorted (tiposPalabra.values()))
@@ -2456,10 +2456,10 @@ def postCarga (nombre):
         mod_actual.condiciones[codigo] = mod_actual.condactos[codigo]
   # Cogemos la primera palabra de cada tipo y número como sinónimo preferido
   if 'Verbo' in mod_actual.TIPOS_PAL:
-    tipo_adjetivo    = mod_actual.TIPOS_PAL.index ('Adjetivo')
-    tipo_nombre      = mod_actual.TIPOS_PAL.index ('Nombre')
-    tipo_preposicion = mod_actual.TIPOS_PAL.index ('Preposicion')
-    tipo_verbo       = mod_actual.TIPOS_PAL.index ('Verbo')
+    tipo_adjetivo    = mod_actual.TIPOS_PAL.index (_('Adjective'))
+    tipo_nombre      = mod_actual.TIPOS_PAL.index (_('Noun'))
+    tipo_preposicion = mod_actual.TIPOS_PAL.index (_('Preposition'))
+    tipo_verbo       = mod_actual.TIPOS_PAL.index (_('Verb'))
   else:
     tipo_nombre      = 0
     tipo_preposicion = 0

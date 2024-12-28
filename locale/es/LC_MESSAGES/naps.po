@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 24.04\n"
 "Report-Msgid-Bugs-To: jmfo1982@gmail.com\n"
-"POT-Creation-Date: 2024-12-28 14:22+0100\n"
-"PO-Revision-Date: 2024-12-28 15:53+0200\n"
+"POT-Creation-Date: 2024-12-28 16:32+0100\n"
+"PO-Revision-Date: 2024-12-28 16:36+0100\n"
 "Last-Translator: José Manuel Ferrer Ortiz <jmfo1982@gmail.com>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
@@ -526,7 +526,8 @@ msgstr "Localidad inicial"
 msgid "Wearable"
 msgstr "Prenda"
 
-#: ide_pyqt.py:975 ide_pyqt.py:983
+#: ide_pyqt.py:975 ide_pyqt.py:983 ide_pyqt.py:2460 libreria_daad.py:74
+#: libreria_paws.py:75 libreria_swan.py:68
 msgid "Noun"
 msgstr "Nombre"
 
@@ -538,11 +539,12 @@ msgstr "Peso"
 msgid "Container"
 msgstr "Contenedor"
 
-#: ide_pyqt.py:984
+#: ide_pyqt.py:984 ide_pyqt.py:2459 libreria_daad.py:74 libreria_paws.py:75
+#: libreria_swan.py:68
 msgid "Adjective"
 msgstr "Adjetivo"
 
-#: ide_pyqt.py:991
+#: ide_pyqt.py:991 libreria_quill.py:138
 msgid "Word"
 msgstr "Palabra"
 
@@ -959,6 +961,14 @@ msgstr "Sin nombre"
 msgid "Add"
 msgstr "Añadir"
 
+#: ide_pyqt.py:2461 libreria_daad.py:74 libreria_paws.py:75 libreria_swan.py:68
+msgid "Preposition"
+msgstr "Preposición"
+
+#: ide_pyqt.py:2462 libreria_daad.py:74 libreria_paws.py:75 libreria_swan.py:68
+msgid "Verb"
+msgstr "Verbo"
+
 #: ide_pyqt.py:2523
 msgid "Integrated Development Environment for Quill/PAWS/SWAN/DAAD in Python"
 msgstr "Entorno de Desarrollo Integrado para Quill/PAWS/SWAN/DAAD en Python"
@@ -1027,6 +1037,18 @@ msgstr "Código fuente de DAAD Reborn Compiler"
 #: libreria_daad.py:57
 msgid "DAAD source code (traditional)"
 msgstr "Código fuente de DAAD tradicional"
+
+#: libreria_daad.py:74 libreria_paws.py:75 libreria_swan.py:68
+msgid "Adverb"
+msgstr "Adverbio"
+
+#: libreria_daad.py:74 libreria_paws.py:75 libreria_swan.py:68
+msgid "Conjugation"
+msgstr "Conjunción"
+
+#: libreria_daad.py:74 libreria_paws.py:75 libreria_swan.py:68
+msgid "Pronoun"
+msgstr "Pronombre"
 
 #: libreria_paws.py:54
 msgid "PAWS databases"

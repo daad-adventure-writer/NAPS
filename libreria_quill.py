@@ -135,7 +135,7 @@ NOMB_COMO_VERB   = [0]      # Número de nombres convertibles a verbo
 PREP_COMO_VERB   = 0        # Número de preposiciones convertibles a verbo
 # Nombres de las primeras tablas de proceso (para el IDE)
 NOMBRES_PROCS    = (_('Event table'), _('Status table'))
-TIPOS_PAL        = ('Palabra',)  # Nombres de los tipos de palabra (para el IDE)
+TIPOS_PAL        = (_('Word'),)  # Nombres de los tipos de palabra (para el IDE)
 
 cods_tinta    = {}  # Caracteres que si se encuentran en una cadena, cambiará el color de tinta por el del valor
 conversion    = {}  # Tabla de conversión de caracteres

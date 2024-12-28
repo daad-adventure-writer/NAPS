@@ -72,7 +72,7 @@ PREP_COMO_VERB   = 0       # Número de preposiciones convertibles a verbo
 # Nombres de las primeras tablas de proceso (para el IDE)
 NOMBRES_PROCS    = (_('Response table'), _('After description'), _('Each turn'))
 # Nombres de los tipos de palabra (para el IDE)
-TIPOS_PAL = ('Verbo', 'Adverbio', 'Nombre', 'Adjetivo', 'Preposicion', 'Conjuncion', 'Pronombre')
+TIPOS_PAL = (_('Verb'), _('Adverb'), _('Noun'), _('Adjective'), _('Preposition'), _('Conjugation'), _('Pronoun'))
 
 
 alinear          = False       # Si alineamos con relleno (padding) las listas de desplazamientos a posiciones pares

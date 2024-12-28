@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 24.04\n"
 "Report-Msgid-Bugs-To: jmfo1982@gmail.com\n"
-"POT-Creation-Date: 2024-12-28 14:22+0100\n"
+"POT-Creation-Date: 2024-12-28 16:32+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: TWO LETTER ISO LANGUAGE CODE\n"
@@ -482,7 +482,8 @@ msgstr ""
 msgid "Wearable"
 msgstr ""
 
-#: ide_pyqt.py:975 ide_pyqt.py:983
+#: ide_pyqt.py:975 ide_pyqt.py:983 ide_pyqt.py:2460 libreria_daad.py:74
+#: libreria_paws.py:75 libreria_swan.py:68
 msgid "Noun"
 msgstr ""
 
@@ -494,11 +495,12 @@ msgstr ""
 msgid "Container"
 msgstr ""
 
-#: ide_pyqt.py:984
+#: ide_pyqt.py:984 ide_pyqt.py:2459 libreria_daad.py:74 libreria_paws.py:75
+#: libreria_swan.py:68
 msgid "Adjective"
 msgstr ""
 
-#: ide_pyqt.py:991
+#: ide_pyqt.py:991 libreria_quill.py:138
 msgid "Word"
 msgstr ""
 
@@ -898,6 +900,14 @@ msgstr ""
 msgid "Add"
 msgstr ""
 
+#: ide_pyqt.py:2461 libreria_daad.py:74 libreria_paws.py:75 libreria_swan.py:68
+msgid "Preposition"
+msgstr ""
+
+#: ide_pyqt.py:2462 libreria_daad.py:74 libreria_paws.py:75 libreria_swan.py:68
+msgid "Verb"
+msgstr ""
+
 #: ide_pyqt.py:2523
 msgid "Integrated Development Environment for Quill/PAWS/SWAN/DAAD in Python"
 msgstr ""
@@ -957,6 +967,18 @@ msgstr ""
 
 #: libreria_daad.py:57
 msgid "DAAD source code (traditional)"
+msgstr ""
+
+#: libreria_daad.py:74 libreria_paws.py:75 libreria_swan.py:68
+msgid "Adverb"
+msgstr ""
+
+#: libreria_daad.py:74 libreria_paws.py:75 libreria_swan.py:68
+msgid "Conjugation"
+msgstr ""
+
+#: libreria_daad.py:74 libreria_paws.py:75 libreria_swan.py:68
+msgid "Pronoun"
 msgstr ""
 
 #: libreria_paws.py:54
