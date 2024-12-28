@@ -53,8 +53,14 @@ dlg_guardar           = None  # Diálogo de guardar imagen
 
 # Preparativos para la localización de textos
 
-def traduceConGettext (cadena):
-  return unicode (gettext.gettext (cadena).decode ('utf8'))
+def traduceConGettext (cadena, quitarAnd = False):
+  """Devuelve la traducción de la cadena al idioma del usuario, opcionalmente quitando del resultado el símbolo '&'"""
+  traducida = gettext.gettext (cadena)
+  if quitarAnd:
+    traducida = traducida.replace ('&', '')
+  if sys.version_info[0] < 3:
+    return unicode (traducida.decode ('utf8'))
+  return traducida
 
 if os.name == 'nt':
   import locale
@@ -65,7 +71,7 @@ if os.name == 'nt':
 
 gettext.bindtextdomain ('naps', os.path.join (os.path.abspath (os.path.dirname (__file__)), 'locale'))
 gettext.textdomain ('naps')
-_ = traduceConGettext if sys.version_info[0] < 3 else gettext.gettext
+_ = traduceConGettext
 
 
 filtro_img_def = 1  # Índice en filtros_img del formato de imagen por defecto (PNG)
@@ -112,7 +118,7 @@ class Recurso (QPushButton):
       dlgSiNo.addButton (_('&Yes'), QMessageBox.YesRole)
       dlgSiNo.addButton (_('&No'),  QMessageBox.NoRole)
       dlgSiNo.setIcon (QMessageBox.Warning)
-      dlgSiNo.setWindowTitle (_('Delete image'))
+      dlgSiNo.setWindowTitle (_('&Delete image', 1))
       dlgSiNo.setText (_("Image #%d isn't used by any other resource") % self.numRecurso)
       dlgSiNo.setInformativeText (_('\nAre you sure you want to delete it?'))
       if dlgSiNo.exec_() != 0:  # No se ha pulsado el botón Sí
@@ -128,7 +134,7 @@ class Recurso (QPushButton):
       for descripcion, extensiones in filtros_img:
         filtro.append (descripcion + ' (*.' + ' *.'.join (extensiones) + ')')
       if not dlg_guardar:  # Diálogo no creado aún
-        dlg_guardar = QFileDialog (ventana, _('Export image'), os.curdir, ';;'.join (filtro))
+        dlg_guardar = QFileDialog (ventana, _('&Export image', 1), os.curdir, ';;'.join (filtro))
         dlg_guardar.setAcceptMode (QFileDialog.AcceptSave)
         dlg_guardar.setLabelText  (QFileDialog.LookIn,   _('Places'))
         dlg_guardar.setLabelText  (QFileDialog.FileName, _('&Name:'))

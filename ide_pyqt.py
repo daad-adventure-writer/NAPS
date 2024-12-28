@@ -135,8 +135,14 @@ nombres_necesarios = (('acciones',          dict),
 
 # Preparativos para la localización de textos
 
-def traduceConGettext (cadena):
-  return unicode (gettext.gettext (cadena).decode ('utf8'))
+def traduceConGettext (cadena, quitarAnd = False):
+  """Devuelve la traducción de la cadena al idioma del usuario, opcionalmente quitando del resultado el símbolo '&'"""
+  traducida = gettext.gettext (cadena)
+  if quitarAnd:
+    traducida = traducida.replace ('&', '')
+  if sys.version_info[0] < 3:
+    return unicode (traducida.decode ('utf8'))
+  return traducida
 
 if os.name == 'nt':
   import locale
@@ -147,7 +153,7 @@ if os.name == 'nt':
 
 gettext.bindtextdomain ('naps', os.path.join (os.path.abspath (os.path.dirname (__file__)), 'locale'))
 gettext.textdomain ('naps')
-_ = traduceConGettext if sys.version_info[0] < 3 else gettext.gettext
+_          = traduceConGettext
 argparse._ = _
 
 
@@ -968,7 +974,7 @@ class ModeloObjetos (ModeloTextos):
       nombre = mod_actual.nombres_objs[index.row()][0]
       if mod_actual.NUM_ATRIBUTOS[0] == 1:  # Pseudoatributo prenda en Quill para QL
         if index.column() == 2:
-          return _('Yes') if 199 < nombre < 255 else _('No')
+          return _('&Yes', 1) if 199 < nombre < 255 else _('&No', 1)
         return (pal_sinonimo[(nombre, tipo_nombre)] if (nombre, tipo_nombre) in pal_sinonimo else nombre) if nombre < 255 else ''
       atributos = mod_actual.atributos[index.row()]
       if index.column() == 2:
@@ -978,7 +984,7 @@ class ModeloObjetos (ModeloTextos):
       if index.column() == 6:
         adjetivo = mod_actual.nombres_objs[index.row()][1]
         return (pal_sinonimo[(adjetivo, tipo_adjetivo)] if (adjetivo, tipo_adjetivo) in pal_sinonimo else adjetivo) if adjetivo < 255 else ''
-      return (_('Yes') if atributos & (64 if index.column() == 3 else 128) else _('No'))
+      return (_('&Yes', 1) if atributos & (64 if index.column() == 3 else 128) else _('&No', 1))
     return ModeloTextos.data (self, index, role)
 
   def headerData (self, section, orientation, role):
@@ -2090,7 +2096,7 @@ def muestraAcercaDe ():
     dlg_acerca_de.setInformativeText (_('PyQt version: ') +
         PYQT_VERSION_STR + _('\nQt version: ') + QT_VERSION_STR +
         _('\nPython version: ') + sys.version[:fin])
-    dlg_acerca_de.setWindowTitle (_('About NAPS IDE'))
+    dlg_acerca_de.setWindowTitle (_('&About NAPS IDE', 1))
   dlg_acerca_de.exec_()
 
 def muestraBanderas ():
@@ -2116,7 +2122,7 @@ def muestraBanderas ():
     layout.addWidget (botonBandera)
   dlg_banderas.setLayout      (layout)
   dlg_banderas.setStyleSheet  ('QPushButton#bandera {padding: 0}')  # Para limitar ancho de columnas del diálogo
-  dlg_banderas.setWindowTitle (_('Flags'))
+  dlg_banderas.setWindowTitle (_('&Flags', 1))
   mdi_banderas = selector.centralWidget().addSubWindow (dlg_banderas)
   mdi_banderas.setOption (QMdiSubWindow.RubberBandResize)
   dlg_banderas.show()
@@ -2128,13 +2134,13 @@ def muestraContadores ():
     dlg_contadores = QMessageBox (selector)
     dlg_contadores.addButton (_('&Accept'), QMessageBox.AcceptRole)
     dlg_contadores.setText (
-      _('Locations: ')            + str (len (mod_actual.desc_locs))      + '\n'   + \
-      _('Objects: ')              + str (len (mod_actual.desc_objs))      + '\n'   + \
-      _('System messages') + ': ' + str (len (mod_actual.msgs_sys))       + '\t\n' + \
-      _('User messages')   + ': ' + str (len (mod_actual.msgs_usr))       + '\n'   + \
-      _('Process tables')  + ': ' + str (len (mod_actual.tablas_proceso)) + '\n'   + \
-      _('Vocabulary words: ')     + str (len (mod_actual.vocabulario)))
-    dlg_contadores.setWindowTitle (_('Counters'))
+      _('Locations: ')                + str (len (mod_actual.desc_locs))      + '\n'   + \
+      _('Objects: ')                  + str (len (mod_actual.desc_objs))      + '\n'   + \
+      _('&System messages', 1) + ': ' + str (len (mod_actual.msgs_sys))       + '\t\n' + \
+      _('&User messages',   1) + ': ' + str (len (mod_actual.msgs_usr))       + '\n'   + \
+      _('Process tables')  + ': '     + str (len (mod_actual.tablas_proceso)) + '\n'   + \
+      _('Vocabulary words: ')         + str (len (mod_actual.vocabulario)))
+    dlg_contadores.setWindowTitle (_('&Counters', 1))
   dlg_contadores.exec_()
 
 def muestraDescLocs ():
@@ -2236,7 +2242,7 @@ def muestraTextos (dialogo, listaTextos, tipoTextos, subventanaMdi):
   atajoCopiar.activated.connect (lambda: copiaTexto (dialogo, listaTextos))
   atajoPegar.activated.connect  (lambda: pegaTexto  (dialogo, listaTextos))
   dialogo.customContextMenuRequested.connect (functools.partial (menuContextualTextos, dialogo, listaTextos))
-  titulo = {'desc_localidades': _('&Location data'), 'desc_objetos': _('&Object data'), 'msgs_sistema': _('System messages'), 'msgs_usuario': _('User messages')}[tipoTextos]
+  titulo = {'desc_localidades': _('&Location data', 1), 'desc_objetos': _('&Object data', 1), 'msgs_sistema': _('&System messages', 1), 'msgs_usuario': _('&User messages', 1)}[tipoTextos]
   dialogo.setWindowTitle (titulo)
   subventanaMdi = selector.centralWidget().addSubWindow (dialogo)
   if tipoTextos == 'desc_localidades':
@@ -2279,7 +2285,7 @@ def muestraVistaVocab ():
   dlg_vocabulario.setModel (ModeloVocabulario (dlg_vocabulario))
   # dlg_vocabulario.setHorizontalHeaderLabels (('Palabra', 'Número', 'Tipo'))
   dlg_vocabulario.setContextMenuPolicy (Qt.CustomContextMenu)
-  dlg_vocabulario.setWindowTitle       (_('Vocabulary'))
+  dlg_vocabulario.setWindowTitle       (_('&Vocabulary', 1))
   dlg_vocabulario.activated.connect                  (nuevaFilaVocabulario)
   dlg_vocabulario.customContextMenuRequested.connect (menuContextualVocabulario)
   dlg_vocabulario.doubleClicked.connect (editaVocabulario)
