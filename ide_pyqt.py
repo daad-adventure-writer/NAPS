@@ -2264,14 +2264,18 @@ def muestraVistaVocab ():
       pass  # Lo crearemos de nuevo
   # Creamos el diálogo
   selector.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
+  modeloOrden = QSortFilterProxyModel (dlg_vocabulario)
+  modeloOrden.setSourceModel (ModeloVocabulario (dlg_vocabulario))
   dlg_vocabulario = QTableView (selector)
-  dlg_vocabulario.setModel (ModeloVocabulario (dlg_vocabulario))
+  dlg_vocabulario.setModel (modeloOrden)
+  dlg_vocabulario.setSortingEnabled (True)
+  dlg_vocabulario.sortByColumn (0, Qt.AscendingOrder)  # Orden alfabético por texto de palabras
   # dlg_vocabulario.setHorizontalHeaderLabels (('Palabra', 'Número', 'Tipo'))
   dlg_vocabulario.setContextMenuPolicy (Qt.CustomContextMenu)
   dlg_vocabulario.setWindowTitle       (_('&Vocabulary', 1))
-  dlg_vocabulario.activated.connect                  (nuevaFilaVocabulario)
+  dlg_vocabulario.activated.connect     (lambda indice: nuevaFilaVocabulario (modeloOrden.mapToSource (indice)))
+  dlg_vocabulario.doubleClicked.connect (lambda indice: editaVocabulario     (modeloOrden.mapToSource (indice)))
   dlg_vocabulario.customContextMenuRequested.connect (menuContextualVocabulario)
-  dlg_vocabulario.doubleClicked.connect (editaVocabulario)
   mdi_vocabulario = selector.centralWidget().addSubWindow (dlg_vocabulario)
   dlg_vocabulario.showMaximized()
   if inicio_debug:
