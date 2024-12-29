@@ -39,7 +39,7 @@ tipos_pal_dict = {'verb': 0, 'adverb': 1, 'noun': 2, 'adjective': 3, 'prepositio
 IDS_LOCS = {'WORN': 253, 'CARRIED': 254, 'HERE': 255}
 
 
-def carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, condactos, condactos_nuevos, conexiones, desc_locs, desc_objs, locs_iniciales, msgs_usr, msgs_sys, nombres_objs, nueva_version, num_objetos, tablas_proceso, vocabulario):
+def carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, condactos, condactos_nuevos, conexiones, desc_locs, desc_objs, locs_iniciales, msgs_usr, msgs_sys, nombres_objs, nueva_version, num_objetos, tablas_proceso, vocabulario, escribe_secs_ctrl):
   """Carga la base de datos desde el código fuente SCE o DSF del fichero de entrada, con y sobre las variables pasadas como parámetro
 
   Para compatibilidad con el IDE:
@@ -262,7 +262,7 @@ def carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, atributos, atributos_e
               linea = lineaTexto[0][0]
               if not lineas and linea[:1] == ';':
                 continue  # Omitimos comentarios iniciales
-              linea = linea.replace ('\\b', '\x0b').replace ('\\k', '\x0c').replace ('\\s', ' ').replace ('\\\\', '\\')
+              linea = escribe_secs_ctrl (linea)
               lineas.append (linea)
             for l in range (len (lineas) - 1, 0, -1):
               if lineas[l][:1] == ';':
@@ -279,8 +279,8 @@ def carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, atributos, atributos_e
           else:  # Es formato DSF
             cadena = entrada[posLineas][0][0][0][0][0] if entrada[posLineas][0][0] else entrada[posLineas][0][1][0][0][0]
             # XXX: ver si #b lo convierte DRC en espacio
-            cadena = cadena.replace ('#b', '\x0b').replace ('#e', '¤').replace ('#k', '\x0c').replace ('#n', '\n').replace ('#s', ' ').replace ('##', '#')
-            cadena = cadena.replace ('\\b', '\x0b').replace ('\\k', '\x0c').replace ('\\s', ' ').replace ('\\\\', '\\')
+            cadena = cadena.replace ('#e', '¤').replace ('#', '\\')
+            cadena = escribe_secs_ctrl (cadena)
           listaCadenas.append (str (cadena))  # Con str para que no sean cadenas unicode en Python 2, y así se pueda ejecutar translate sobre ellas
           numEntrada += 1
     # Cargamos el vocabulario
