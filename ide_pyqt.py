@@ -931,7 +931,7 @@ class ModeloLocalidades (ModeloTextos):
   def headerData (self, section, orientation, role):
     if orientation == Qt.Horizontal and role == Qt.DisplayRole and section:
       # Si no está la palabra en el vocabulario, mostraremos el código
-      return pal_sinonimo[(pals_salida[section - 1], tipo_verbo)] if (pals_salida[section - 1], tipo_verbo) else pals_salida[section - 1]
+      return pal_sinonimo[(pals_salida[section - 1], tipo_verbo)] if (pals_salida[section - 1], tipo_verbo) in pal_sinonimo else pals_salida[section - 1]
     return ModeloTextos.headerData (self, section, orientation, role)
 
 class ModeloObjetos (ModeloTextos):
