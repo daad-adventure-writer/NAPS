@@ -2056,12 +2056,23 @@ def menuContextualTextos (dialogoTextos, listaTextos, punto):
 
 def menuContextualVocabulario (punto):
   """Muestra el menú contextual para la tabla de vocabulario"""
-  contextual  = QMenu (dlg_vocabulario)
-  accionNueva = QAction (_('&Add entry'), contextual)
+  # Primero obtenemos la información que necesitaremos
+  indice    = dlg_vocabulario.model().mapToSource (dlg_vocabulario.indexAt (punto))
+  seleccion = dlg_vocabulario.selectionModel().selection()
+  filasSeleccionadas = set()
+  for indiceCelda in seleccion.indexes():
+    filasSeleccionadas.add (indiceCelda.row())
+  # Construimos los componentes del menú contextual
+  contextual = QMenu (dlg_vocabulario)
+  accionNueva    = QAction (_('Add &entry'),   contextual)
+  accionSinonimo = QAction (_('Add &synonym'), contextual)
   accionNueva.setShortcut (QKeySequence (Qt.Key_Enter))
-  # accionNueva.triggered.connect (lambda: nuevaFilaVocabulario (dlg_vocabulario.viewport().mapFromGlobal (punto).y()))
-  accionNueva.triggered.connect (lambda: nuevaFilaVocabulario (-1))  # No necesita la fila del click
+  accionSinonimo.setShortcut ('Ctrl+S')
+  accionNueva.triggered.connect    (lambda: nuevaFilaVocabulario (-1))  # No necesita la fila del click
+  accionSinonimo.triggered.connect (lambda: nuevaFilaVocabulario (indice, True))
+  accionSinonimo.setEnabled (len (filasSeleccionadas) == 1)
   contextual.addAction (accionNueva)
+  contextual.addAction (accionSinonimo)
   contextual.exec_ (dlg_vocabulario.viewport().mapToGlobal (punto))
 
 def muestraAcercaDe ():
@@ -2276,6 +2287,8 @@ def muestraVistaVocab ():
   dlg_vocabulario.activated.connect     (lambda indice: nuevaFilaVocabulario (modeloOrden.mapToSource (indice)))
   dlg_vocabulario.doubleClicked.connect (lambda indice: editaVocabulario     (modeloOrden.mapToSource (indice)))
   dlg_vocabulario.customContextMenuRequested.connect (menuContextualVocabulario)
+  atajoSinonimo = QShortcut (QKeySequence ('Ctrl+S'), dlg_vocabulario)
+  atajoSinonimo.activated.connect (lambda: nuevaFilaVocabulario (None, True))
   mdi_vocabulario = selector.centralWidget().addSubWindow (dlg_vocabulario)
   dlg_vocabulario.showMaximized()
   if inicio_debug:
@@ -2337,14 +2350,22 @@ def nuevaEntradaVocabulario (entrada, numFilaAntes = None):
   modeloVocab.endInsertRows()
   dlg_vocabulario.model().invalidate()  # Que reordene la tabla como corresponda
 
-def nuevaFilaVocabulario (indice):
-  """Permite añadir una entrada de vocabulario, tras pulsar Enter en la tabla"""
+def nuevaFilaVocabulario (indice, sinonimo = False):
+  """Permite añadir una entrada de vocabulario, opcionalmente sinónimo de otra"""
   try:
     if dlg_vocabulario.indiceDobleClick == indice:
       dlg_vocabulario.indiceDobleClick = None
       return  # Descartamos el evento por ocurrir tras un doble click anterior
   except:
     pass
+  if sinonimo and indice == None:
+    seleccion = dlg_vocabulario.selectionModel().selection()
+    filasSeleccionadas = set()
+    for indiceCelda in seleccion.indexes():
+      filasSeleccionadas.add (indiceCelda.row())
+    if len (filasSeleccionadas) != 1:  # Ninguna fila seleccionada o más de una
+      return
+    indice = dlg_vocabulario.model().mapToSource (seleccion.indexes()[0])  # Obtenemos un índice a la fila seleccionada
   nuevaPal = []  # Entrada de vocabulario a añadir
   # Obtenemos el texto de la palabra
   dialogo = ModalEntrada (dlg_vocabulario, _('Text of the word:'), '')
@@ -2355,6 +2376,10 @@ def nuevaFilaVocabulario (indice):
       return
     textoPalabra = str (dialogo.textValue()).strip()
   nuevaPal.append (textoPalabra[:mod_actual.LONGITUD_PAL].lower())
+  if sinonimo:  # Cuando estábamos añadiendo un sinónimo, ya no hace falta pedir nada más
+    nuevaPal.extend (mod_actual.vocabulario[indice.row()][1:])
+    nuevaEntradaVocabulario (tuple (nuevaPal))
+    return
   # Obtenemos el código de la palabra
   dialogo = ModalEntrada (dlg_vocabulario, _('Code of the word:'), '')
   dialogo.setInputMode   (QInputDialog.IntInput)
