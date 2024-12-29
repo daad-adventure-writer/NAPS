@@ -2496,15 +2496,13 @@ def postCarga (nombre):
       else:  # Es condición
         mod_actual.condiciones[codigo] = mod_actual.condactos[codigo]
   # Cogemos la primera palabra de cada tipo y número como sinónimo preferido
-  if 'Verbo' in mod_actual.TIPOS_PAL:
+  if len (mod_actual.TIPOS_PAL) > 1:
     tipo_adjetivo    = mod_actual.TIPOS_PAL.index (_('Adjective'))
     tipo_nombre      = mod_actual.TIPOS_PAL.index (_('Noun'))
     tipo_preposicion = mod_actual.TIPOS_PAL.index (_('Preposition'))
     tipo_verbo       = mod_actual.TIPOS_PAL.index (_('Verb'))
   else:
-    tipo_nombre      = 0
-    tipo_preposicion = 0
-    tipo_verbo       = 0
+    tipo_nombre = tipo_preposicion = tipo_verbo = 0
   for palabra, codigo, tipo in mod_actual.vocabulario:
     idYtipos = [(codigo, tipo)]
     if (tipo == tipo_nombre      and codigo < mod_actual.NOMB_COMO_VERB[0] or  # Es nombre convertible en verbo
