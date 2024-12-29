@@ -424,9 +424,7 @@ def carga_xmessage (desplazamiento):
 
 def escribe_secs_ctrl (cadena):
   """Devuelve la cadena dada convirtiendo la representación de secuencias de control en sus códigos"""
-  if nueva_version:
-    cadena = cadena.replace ('\\b', '\x0b').replace ('\\k', '\x0c').replace ('\\s', ' ')
-  return cadena.replace ('\\\\', '\\').replace ('\\n', '\n')
+  return cadena.replace ('\\\\', '\\').replace ('\\b', '\x0b').replace ('\\k', '\x0c').replace ('\\n', '\n').replace ('\\s', ' ')
 
 def inicializa_banderas (banderas):
   """Inicializa banderas con valores propios de DAAD"""
@@ -505,10 +503,7 @@ def inicializa_banderas (banderas):
 
 def lee_secs_ctrl (cadena):
   """Devuelve la cadena dada convirtiendo las secuencias de control en una representación imprimible. Usa la nomenclatura estándar del manual de DAAD"""
-  cadena = cadena.replace ('\\', '\\\\').replace ('\n', '\\n')
-  if nueva_version:
-    cadena = cadena.replace ('\x0b', '\\b').replace ('\x0c', '\\k')
-  return cadena
+  return cadena.replace ('\\', '\\\\').replace ('\x0b', '\\b').replace ('\x0c', '\\k').replace ('\n', '\\n')
 
 def nueva_bd ():
   """Crea una nueva base de datos de DAAD"""
