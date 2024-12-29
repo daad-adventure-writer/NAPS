@@ -242,7 +242,7 @@ condactos = {
    84 : ('PICTURE', 'u',  True,  False, 3),
    85 : ('DOALL',   'L',  True,  False, 3),
    86 : ('PROMPT',  's',  True,  False, 1),
-   87 : ('GFX',     'uu', True,  False, 3),  # Era GRAPHIC
+   87 : ('GRAPHIC', 'uu', True,  False, 1),
    88 : ('ISNOTAT', 'oL', False, False, 3),
    89 : ('WEIGH',   'of', True,  False, 3),
    90 : ('PUTIN',   'ol', True,  False, 3),
@@ -297,8 +297,9 @@ condactos_nuevos = {
    58 : ('HASAT',   'u',  False, False, 2),  # Era COPYFO
    59 : ('HASNAT',  'u',  False, False, 2),  # Era COPYFF
    73 : ('PARSE',   'u',  False, False, 2),  # Se comporta como condición
-   84 : ('PICTURE', 'u',  False, False, 3),  # Se comporta como condición, en función si esa imagen existe
+   84 : ('PICTURE', 'u',  False, False, 3),  # Se comporta como condición, según si esa imagen existe
    86 : ('MOUSE',   'u',  True,  False, 2),  # Era PROMPT
+   87 : ('GFX',     'uu', True,  False, 2),  # Era GRAPHIC
   112 : ('BIGGER',  'ff', False, False, 2),  # Mismo orden que en el manual
   113 : ('SMALLER', 'ff', False, False, 2),  # Mismo orden que en el manual
 }
