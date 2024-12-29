@@ -2,7 +2,7 @@
 
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
-# Analizador sintáctico para cargar rápida y cómodamente código fuente SCE, y pronto también DSF
+# Analizador sintáctico para cargar rápida y cómodamente código fuente SCE y DSF
 # Copyright (C) 2023-2024 José Manuel Ferrer Ortiz
 
 import re

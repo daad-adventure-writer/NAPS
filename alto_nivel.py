@@ -34,9 +34,11 @@ validar = False  # Si queremos validar el funcionamiento correcto del código
 
 # Código de cada tipo de palabra por nombre en el código fuente
 tipos_pal_dict = {'verb': 0, 'adverb': 1, 'noun': 2, 'adjective': 3, 'preposition': 4, 'conjugation': 5, 'conjunction': 5, 'pronoun': 6}
+tipos_pal_inv  = {0: 'verb', 1: 'adverb', 2: 'noun', 3: 'adjective', 4: 'preposition', 5: 'conjugation', 6: 'pronoun'}
 
 # Identificadores (para hacer el código más legible) predefinidos
-IDS_LOCS = {'WORN': 253, 'CARRIED': 254, 'HERE': 255}
+IDS_LOCS     = {'WORN': 253, 'CARRIED': 254, 'HERE': 255}
+IDS_LOCS_inv = {252: '_', 253: 'WORN', 254: 'CARRIED', 255: 'HERE'}
 
 
 def carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, condactos, condactos_nuevos, conexiones, desc_locs, desc_objs, locs_iniciales, msgs_usr, msgs_sys, nombres_objs, nueva_version, num_objetos, tablas_proceso, vocabulario, escribe_secs_ctrl):
@@ -634,6 +636,105 @@ def carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, atributos, atributos_e
     import traceback
     traceback.print_exc()
   return False
+
+def guarda_codigo_fuente (fichero, NOMB_COMO_VERB, PREP_COMO_VERB, abreviaturas, atributos, atributos_extra, condactos, conexiones, desc_locs, desc_objs, locs_iniciales, msgs_usr, msgs_sys, nombres_objs, nueva_version, num_objetos, tablas_proceso, vocabulario, lee_secs_ctrl):
+  formato      = os.path.splitext (fichero.name)[1][1:].lower()  # Formato del código fuente, con valores posibles 'sce' o 'dsf'
+  codigoFuente = ''  # Aquí construiremos el código fuente a guardar, para convertirlo de una vez a la codificación necesaria
+  codigoFuente += '; Código fuente generado por NAPS https://github.com/daad-adventure-writer/NAPS\n\n'
+  codigoFuente += '/CTL\n_\n\n'
+  if abreviaturas:  # TODO: ver si DC exige que haya sección /TOK
+    codigoFuente += '/TOK\n'
+    for abreviatura in abreviaturas:
+      codigoFuente += lee_secs_ctrl (abreviatura).replace (' ', '_') + '\n'
+    codigoFuente += '\n'
+  codigoFuente += '/VOC\n'
+  pal_sinonimo = dict()  # Sinónimo preferido para cada par código y tipo válido
+  tipo_adjetivo    = tipos_pal_dict['adjective']
+  tipo_nombre      = tipos_pal_dict['noun']
+  tipo_preposicion = tipos_pal_dict['preposition']
+  tipo_verbo       = tipos_pal_dict['verb']
+  for (palabra, codigo, tipo) in vocabulario:
+    codigoFuente += palabra + '\t' + str (codigo) + '\t' + tipos_pal_inv[tipo] + '\n'
+    idYtipos = [(codigo, tipo)]
+    if (tipo == tipo_nombre      and codigo < NOMB_COMO_VERB[0] or  # Es nombre convertible en verbo
+        tipo == tipo_preposicion and codigo < PREP_COMO_VERB):      # Es preposición convertible en verbo
+      idYtipos.append ((codigo, tipo_verbo))
+    for idYtipo in idYtipos:
+      # Preferiremos terminación en R para verbos (heurística para que sean en forma infinitiva)
+      if idYtipo not in pal_sinonimo or \
+          (tipo == tipo_verbo and palabra[-1] == 'r' and pal_sinonimo[idYtipo][-1] != 'r'):
+        pal_sinonimo[idYtipo] = palabra
+  codigoFuente += '\n'
+  for idSeccion, listaCadenas in (('STX', msgs_sys), ('MTX', msgs_usr), ('OTX', desc_objs), ('LTX', desc_locs)):
+    codigoFuente += '/' + idSeccion + '\n'
+    for numCadena in range (len (listaCadenas)):
+      cadena = lee_secs_ctrl (listaCadenas[numCadena])
+      if formato == 'sce':
+        # Las nuevas líneas iniciales no necesitan duplicarse, ni tampoco las líneas en blanco detrás de otras líneas en blanco
+        lineasCadena = cadena.split ('\\n')
+        cadena       = ''
+        for l in range (len (lineasCadena)):
+          if l and lineasCadena[l - 1]:  # La línea anterior no estaba vacía
+            cadena += '\n\n'
+          elif l:  # Había línea anterior pero estaba vacía
+            cadena += '\n'
+          cadena += lineasCadena[l]
+      else:
+        cadena = '"' + cadena + '"'
+      codigoFuente += '/' + str (numCadena) + ('\n' if formato == 'sce' else ' ') + cadena + '\n'
+    codigoFuente += '\n' if not listaCadenas or formato == 'dsf' else ';\n'
+  codigoFuente += '/CON\n'
+  for localidad in range (len (conexiones)):
+    codigoFuente += '/' + str (localidad) + '\n'
+    for direccion, destino in conexiones[localidad]:
+      idDireccion  = pal_sinonimo[(direccion, tipo_verbo)] if (direccion, tipo_verbo) in pal_sinonimo else str (direccion)
+      codigoFuente += '\t' + idDireccion + '\t' + str (destino) + '\n'
+  codigoFuente += '\n/OBJ\n'
+  for numObjeto in range (num_objetos[0]):
+    idLocalidad = locs_iniciales[numObjeto]
+    idLocalidad = IDS_LOCS_inv[idLocalidad] if idLocalidad < 255 and idLocalidad in IDS_LOCS_inv else str (idLocalidad)
+    peso       = str (atributos[numObjeto] & 63)
+    contenedor = 'Y' if atributos[numObjeto] &  64 else '_'
+    prenda     = 'Y' if atributos[numObjeto] & 128 else '_'
+    nombre = nombres_objs[numObjeto][0]
+    nombre = '_' if nombre == 255 else (pal_sinonimo[(nombre, tipo_nombre)] if (nombre, tipo_nombre) in pal_sinonimo else str (nombre))
+    adjetivo = nombres_objs[numObjeto][1]
+    adjetivo = '_' if adjetivo == 255 else (pal_sinonimo[(adjetivo, tipo_adjetivo)] if (adjetivo, tipo_adjetivo) in pal_sinonimo else str (adjetivo))
+    codigoFuente += '/' + str (numObjeto) + '\t' + idLocalidad + '\t' + peso + '\t' + contenedor + '\t' + prenda
+    if atributos_extra:
+      for indiceBit in range (15, -1, -1):
+        mascaraBit = 2 ** indiceBit
+        codigoFuente += '\t' + ('Y' if atributos_extra[numObjeto] & mascaraBit else '_')
+    codigoFuente += '\t' + nombre + '\t' + adjetivo + '\n'
+  for numProceso in range (len (tablas_proceso)):
+    codigoFuente += '\n/PRO ' + str (numProceso)
+    cabeceras, entradas = tablas_proceso[numProceso]
+    for numEntrada in range (len (entradas)):
+      verbo, nombre = cabeceras[numEntrada]
+      nombre = '_' if nombre == 255 else (pal_sinonimo[(nombre, tipo_nombre)] if (nombre, tipo_nombre) in pal_sinonimo else str (nombre))
+      verbo  = '_' if verbo  == 255 else (pal_sinonimo[(verbo,  tipo_verbo)]  if (verbo,  tipo_verbo)  in pal_sinonimo else str (verbo))
+      codigoFuente += '\n\n' + ('>\t' if formato == 'dsf' else '') + verbo + '\t' + nombre + '\n'
+      for codigo, parametros in entradas[numEntrada]:
+        if codigo > 127:
+          codigo -= 128
+          indireccion = True
+        else:
+          indireccion = False
+        datosCondacto = condactos[codigo] if codigo in condactos else (str (codigo), '')
+        codigoFuente += '\n\t' + datosCondacto[0]
+        for p in range (len (parametros)):
+          parametro = parametros[p]
+          if p == 0 and indireccion:
+            if formato == 'sce':
+              codigoFuente += '\t[' + str (parametro) + ']'
+            else:  # formato == 'dsf'
+              codigoFuente += '\t@' + str (parametro)
+          else:
+            codigoFuente += '\t' + str (parametro)
+    codigoFuente += '\n'
+  if formato == 'dsf':
+    codigoFuente += '\n/END'
+  fichero.write (codigoFuente.encode ('cp437' if formato == 'sce' else 'iso-8859-1'))
 
 def comprueba_nombre (modulo, nombre, tipo):
   """Devuelve True si un nombre está en un módulo, y es del tipo correcto"""

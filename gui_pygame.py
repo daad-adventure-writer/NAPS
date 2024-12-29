@@ -652,7 +652,7 @@ def elige_subventana (numero):
   elegida  = numero
   # Ponemos en la fuente los colores que tenía la subventana elegida
   papel = color_subv[elegida][1]  # Color de papel/fondo
-  tinta = daTinta ()              # Color de tinta
+  tinta = daTinta()               # Color de tinta
   fuente.set_palette ((paleta[brillo][tinta], paleta[brillo][papel]))
   if traza:
     prn ('Subventana', elegida, 'elegida, en', subventanas[elegida],

@@ -51,10 +51,12 @@ tablas_proceso  = []   # Tablas de proceso
 vocabulario     = []   # Vocabulario
 
 # Lista de funciones que importan bases de datos desde ficheros, con sus extensiones soportadas y descripción del tipo de fichero
-funcs_exportar = (('guarda_bd', ('ddb',), _('DAAD database')), )
-funcs_importar = (('carga_bd',            ('ddb',), _('DAAD databases')),
-                  ('carga_codigo_fuente', ('dsf',), _('DAAD Reborn Compiler source code')),
-                  ('carga_codigo_fuente', ('sce',), _('DAAD source code (traditional)')))
+funcs_exportar = (('guarda_bd',            ('ddb',), _('DAAD database')),
+                  ('guarda_codigo_fuente', ('dsf',), _('DAAD Reborn Compiler source code')),
+                  ('guarda_codigo_fuente', ('sce',), _('DAAD source code (traditional)')))
+funcs_importar = (('carga_bd',             ('ddb',), _('DAAD databases')),
+                  ('carga_codigo_fuente',  ('dsf',), _('DAAD Reborn Compiler source code')),
+                  ('carga_codigo_fuente',  ('sce',), _('DAAD source code (traditional)')))
 # Función que crea una nueva base de datos (vacía)
 func_nueva = ''
 
@@ -426,6 +428,14 @@ def carga_xmessage (desplazamiento):
 def escribe_secs_ctrl (cadena):
   """Devuelve la cadena dada convirtiendo la representación de secuencias de control en sus códigos"""
   return cadena.replace ('\\\\', '\\').replace ('\\b', '\x0b').replace ('\\f', '\x7f').replace ('\\k', '\x0c').replace ('\\n', '\n').replace ('\\s', ' ')
+
+def guarda_codigo_fuente (fichero):
+  """Guarda la base de datos a código fuente SCE o DSF sobre el fichero de salida
+
+  Para compatibilidad con el IDE:
+  - Recibe como primer parámetro un fichero abierto
+  - Devuelve False si ha ocurrido algún error"""
+  return alto_nivel.guarda_codigo_fuente (fichero, NOMB_COMO_VERB, PREP_COMO_VERB, abreviaturas, atributos, atributos_extra, condactos, conexiones, desc_locs, desc_objs, locs_iniciales, msgs_usr, msgs_sys, nombres_objs, nueva_version, num_objetos, tablas_proceso, vocabulario, lee_secs_ctrl)
 
 def inicializa_banderas (banderas):
   """Inicializa banderas con valores propios de DAAD"""
