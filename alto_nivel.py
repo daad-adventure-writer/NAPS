@@ -582,7 +582,7 @@ def carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, atributos, atributos_e
             # Fijamos versión de DAAD si el condacto con ese número de parámetros sólo está en una
             elif len (datosCondactos[nombre][0][1]) != len (datosCondactos[nombre][1][1]):
               version = 1 if len (parametros) == len (datosCondactos[nombre][0][1]) else 2
-            entrada.append ((datosCondactos[nombre][0][0] + indireccion, parametros))
+            entrada.append ((datosCondactos[nombre][version - 1][0] + indireccion, parametros))
             # TODO: poner a condactos anteriores con código diferente entre versiones, el de la versión 2
             if version == 2:
               pass
