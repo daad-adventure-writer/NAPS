@@ -866,7 +866,10 @@ class ModalEntradaTexto (QDialog):
   """Modal de entrada de texto multilínea"""
   def __init__ (self, parent, texto):
     QDialog.__init__ (self, parent)
-    self.campo = QPlainTextEdit (daTextoImprimible (texto).replace ('\\n', '\n').replace ('\\t', '\t'), self)
+    texto = daTextoImprimible (texto).replace ('\\n', '\n')
+    if mod_actual.NOMBRE_SISTEMA != 'DAAD':  # En DAAD no hay tabulador, allí se usa \t para el código que pasa al juego bajo
+      texto = texto.replace ('\\t', '\t')
+    self.campo = QPlainTextEdit (texto, self)
     layout = QVBoxLayout (self)
     layout.addWidget (self.campo)
     layoutBotones = QHBoxLayout()
@@ -2424,7 +2427,10 @@ def pegaTexto (dialogoTextos, listaTextos):
     texto = texto[:-1]
   textos = texto.split ('\n')
   for t in range (len (textos)):  # Interpretamos las secuencias de control en los textos
-    textos[t] = mod_actual.escribe_secs_ctrl (textos[t].replace ('\\n', '\n').replace ('\\t', '\t'))
+    texto = textos[t].replace ('\\n', '\n')
+    if mod_actual.NOMBRE_SISTEMA != 'DAAD':  # En DAAD no hay tabulador, allí se usa \t para el código que pasa al juego bajo
+      texto = textos.replace ('\\t', '\t')
+    textos[t] = mod_actual.escribe_secs_ctrl (texto)
   if len (destinos) > 1:  # Múltiples filas seleccionadas
     for d in range (len (destinos)):
       numFila = destinos[d].row()
