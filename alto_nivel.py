@@ -655,6 +655,8 @@ def guarda_codigo_fuente (fichero, NOMB_COMO_VERB, PREP_COMO_VERB, abreviaturas,
   tipo_nombre      = tipos_pal_dict['noun']
   tipo_preposicion = tipos_pal_dict['preposition']
   tipo_verbo       = tipos_pal_dict['verb']
+  pal_sinonimo[(255, tipo_nombre)] = '_'
+  pal_sinonimo[(255, tipo_verbo)]  = '_'
   for (palabra, codigo, tipo) in vocabulario:
     codigoFuente += palabra + '\t' + str (codigo) + '\t' + tipos_pal_inv[tipo] + '\n'
     idYtipos = [(codigo, tipo)]
@@ -710,6 +712,9 @@ def guarda_codigo_fuente (fichero, NOMB_COMO_VERB, PREP_COMO_VERB, abreviaturas,
         mascaraBit = 2 ** indiceBit
         codigoFuente += '\t' + ('Y' if atributos_extra[numObjeto] & mascaraBit else '_')
     codigoFuente += '\t' + nombre + '\t' + adjetivo + '\n'
+  tipoParametro = {'j': 'adjective', 'n': 'noun', 'r': 'preposition', 'v': 'adverb', 'V': 'verb'}
+  for letraTipoPal, tipoPalabra in tipoParametro.items():
+    tipoParametro[letraTipoPal] = tipos_pal_dict[tipoPalabra]
   for numProceso in range (len (tablas_proceso)):
     codigoFuente += (';\n' if formato == 'sce' else '\n') + '/PRO ' + str (numProceso)
     cabeceras, entradas = tablas_proceso[numProceso]
@@ -733,6 +738,10 @@ def guarda_codigo_fuente (fichero, NOMB_COMO_VERB, PREP_COMO_VERB, abreviaturas,
         codigoFuente += datosCondacto[0]
         for p in range (len (parametros)):
           parametro = parametros[p]
+          if datosCondacto[1][p] in tipoParametro.keys():
+            entradaSinonimo = (parametro, tipoParametro[datosCondacto[1][p]])
+            if entradaSinonimo in pal_sinonimo:
+              parametro = pal_sinonimo[entradaSinonimo]
           if p == 0 and indireccion:
             if formato == 'sce':
               codigoFuente += '\t[' + str (parametro) + ']'
