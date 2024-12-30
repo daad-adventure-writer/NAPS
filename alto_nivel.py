@@ -642,13 +642,13 @@ def carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, atributos, atributos_e
 def guarda_codigo_fuente (fichero, NOMB_COMO_VERB, PREP_COMO_VERB, abreviaturas, atributos, atributos_extra, condactos, conexiones, desc_locs, desc_objs, locs_iniciales, msgs_usr, msgs_sys, nombres_objs, nueva_version, num_objetos, tablas_proceso, vocabulario, lee_secs_ctrl):
   formato      = os.path.splitext (fichero.name)[1][1:].lower()  # Formato del código fuente, con valores posibles 'sce' o 'dsf'
   codigoFuente = ''  # Aquí construiremos el código fuente a guardar, para convertirlo de una vez a la codificación necesaria
-  codigoFuente += '; Código fuente generado por NAPS https://github.com/daad-adventure-writer/NAPS\n\n'
-  codigoFuente += '/CTL\n_\n\n'
+  codigoFuente += '; Código fuente generado por NAPS https://github.com/daad-adventure-writer/NAPS\n'
+  codigoFuente += (';\n' if formato == 'sce' else '\n') + '/CTL\n_\n' + (';\n' if formato == 'sce' else '\n')
   if abreviaturas:  # TODO: ver si DC exige que haya sección /TOK
     codigoFuente += '/TOK\n'
     for abreviatura in abreviaturas[1:]:
       codigoFuente += lee_secs_ctrl (abreviatura).replace (' ', '_') + '\n'
-    codigoFuente += '\n'
+    codigoFuente += ';\n' if formato == 'sce' else '\n'
   codigoFuente += '/VOC\n'
   pal_sinonimo = dict()  # Sinónimo preferido para cada par código y tipo válido
   tipo_adjetivo    = tipos_pal_dict['adjective']
@@ -666,7 +666,7 @@ def guarda_codigo_fuente (fichero, NOMB_COMO_VERB, PREP_COMO_VERB, abreviaturas,
       if idYtipo not in pal_sinonimo or \
           (tipo == tipo_verbo and palabra[-1] == 'r' and pal_sinonimo[idYtipo][-1] != 'r'):
         pal_sinonimo[idYtipo] = palabra
-  codigoFuente += '\n'
+  codigoFuente += ';\n' if formato == 'sce' else '\n'
   for idSeccion, listaCadenas in (('STX', msgs_sys), ('MTX', msgs_usr), ('OTX', desc_objs), ('LTX', desc_locs)):
     codigoFuente += '/' + idSeccion + '\n'
     for numCadena in range (len (listaCadenas)):
@@ -693,7 +693,7 @@ def guarda_codigo_fuente (fichero, NOMB_COMO_VERB, PREP_COMO_VERB, abreviaturas,
     for direccion, destino in conexiones[localidad]:
       idDireccion  = pal_sinonimo[(direccion, tipo_verbo)] if (direccion, tipo_verbo) in pal_sinonimo else str (direccion)
       codigoFuente += '\t' + idDireccion + '\t' + str (destino) + '\n'
-  codigoFuente += '\n/OBJ\n'
+  codigoFuente += (';\n' if formato == 'sce' else '\n') + '/OBJ\n'
   for numObjeto in range (num_objetos[0]):
     idLocalidad = locs_iniciales[numObjeto]
     idLocalidad = IDS_LOCS_inv[idLocalidad] if idLocalidad < 255 and idLocalidad in IDS_LOCS_inv else str (idLocalidad)
@@ -711,21 +711,26 @@ def guarda_codigo_fuente (fichero, NOMB_COMO_VERB, PREP_COMO_VERB, abreviaturas,
         codigoFuente += '\t' + ('Y' if atributos_extra[numObjeto] & mascaraBit else '_')
     codigoFuente += '\t' + nombre + '\t' + adjetivo + '\n'
   for numProceso in range (len (tablas_proceso)):
-    codigoFuente += '\n/PRO ' + str (numProceso)
+    codigoFuente += (';\n' if formato == 'sce' else '\n') + '/PRO ' + str (numProceso)
     cabeceras, entradas = tablas_proceso[numProceso]
     for numEntrada in range (len (entradas)):
       verbo, nombre = cabeceras[numEntrada]
       nombre = '_' if nombre == 255 else (pal_sinonimo[(nombre, tipo_nombre)] if (nombre, tipo_nombre) in pal_sinonimo else str (nombre))
       verbo  = '_' if verbo  == 255 else (pal_sinonimo[(verbo,  tipo_verbo)]  if (verbo,  tipo_verbo)  in pal_sinonimo else str (verbo))
-      codigoFuente += '\n\n' + ('>\t' if formato == 'dsf' else '') + verbo + '\t' + nombre + '\n'
-      for codigo, parametros in entradas[numEntrada]:
+      codigoFuente += '\n\n' + ('>\t' if formato == 'dsf' else '') + verbo + '\t' + nombre + ('\n' if formato == 'dsf' else '\t')
+      for e in range (len (entradas[numEntrada])):
+        codigo, parametros = entradas[numEntrada][e]
         if codigo > 127:
           codigo -= 128
           indireccion = True
         else:
           indireccion = False
         datosCondacto = condactos[codigo] if codigo in condactos else (str (codigo), '')
-        codigoFuente += '\n\t' + datosCondacto[0]
+        if formato == 'sce' and e:  # En formato SCE, el primer condacto debe ir en la misma línea de la cabecera, y los siguientes en línea aparte
+          codigoFuente += '\n\t\t'
+        elif formato == 'dsf':
+          codigoFuente += '\n\t'
+        codigoFuente += datosCondacto[0]
         for p in range (len (parametros)):
           parametro = parametros[p]
           if p == 0 and indireccion:
