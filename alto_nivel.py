@@ -265,6 +265,8 @@ def carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, atributos, atributos_e
               if not lineas and linea[:1] == ';':
                 continue  # Omitimos comentarios iniciales
               linea = escribe_secs_ctrl (linea)
+              if linea[:2] == '\\/':
+                linea = linea[1:]  # Quitamos escapado del carácter / al inicio de línea
               lineas.append (linea)
             for l in range (len (lineas) - 1, 0, -1):
               if lineas[l][:1] == ';':
@@ -678,6 +680,8 @@ def guarda_codigo_fuente (fichero, NOMB_COMO_VERB, PREP_COMO_VERB, abreviaturas,
             cadena += '\n\n'
           elif l:  # Había línea anterior pero estaba vacía
             cadena += '\n'
+          if lineasCadena[l][:1] == '/':  # Debemos escapar los caracteres / al inicio de línea
+            cadena += '\\'
           cadena += lineasCadena[l]
       else:
         cadena = '"' + cadena + '"'
