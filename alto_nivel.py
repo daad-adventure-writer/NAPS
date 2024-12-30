@@ -307,17 +307,17 @@ def carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, atributos, atributos_e
       tipo    = tipos_pal_dict[entrada[posTipo][0][0][0].lower()]
       vocabulario.append ((palabra, codigo, tipo))
       # Dejamos preparados diccionarios de códigos de palabra para verbos, nombres y adjetivos
-      if tipo == 0:
+      if tipo == tipos_pal_dict['verb']:
         verbos[palabra] = codigo
-      elif tipo == 1:
+      elif tipo == tipos_pal_dict['adverb']:
         adverbios[palabra] = codigo
-      elif tipo == 2:
+      elif tipo == tipos_pal_dict['noun']:
         nombres[palabra] = codigo
         if codigo < 20:
           verbos[palabra] = codigo
-      elif tipo == 3:
+      elif tipo == tipos_pal_dict['adjective']:
         adjetivos[palabra] = codigo
-      elif tipo == 4:
+      elif tipo == tipos_pal_dict['preposition']:
         preposiciones[palabra] = codigo
     # Cargamos las conexiones entre localidades
     posSeccion  = gramatica.reglas[reglaEntrada].index ('sección CON')
