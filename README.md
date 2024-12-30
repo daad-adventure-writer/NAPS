@@ -79,6 +79,14 @@ Entorno de desarrollo integrado (IDE)
 
 Hacer doble click sobre ``ide_pyqt.py`` en caso de tener instalados los requisitos, o bien sobre ``IDE y depurador NAPS.bat`` en caso de disponer de la versión portable para Windows de NAPS.
 
+El IDE de NAPS se puede utilizar para depurar aventuras, con soporte de ejecución paso por paso, posibilidad de ejecutar varios pasos de golpe (10, 100, ó 1.000), de interrumpir la ejecución en los condactos DEBUG, o en puntos de ruptura que marque el usuario desde el IDE; y soporte de visualización de las banderas y de modificar su valor en tiempo de ejecución.
+
+Las aventuras se pueden cargar en el IDE a partir de una base de datos, o desde código fuente en formato SCE (el formato de código fuente tradicional de las plataformas desde PAWS en adelante) o DSF (el formato de DAAD Reborn Compiler), por lo que no hace falta que se compilen para depurarlas con NAPS.
+
+El IDE permite visualizar de forma estructurada los datos de las aventuras que se carguen en él, resultando a menudo más práctico que revisar el código fuente con editores de texto u otros entornos de programación genéricos.
+
+De momento, permite modificar buena parte de los de datos de la aventura, y exportar bases de datos para varias plataformas, o bien exportarlas como código fuente en ambos formatos también: tanto SCE como DSF, compatibles con los compiladores DC y DRC respectivamente, además de con el propio intérprete e IDE de NAPS. Por tanto, el IDE cubre funcionalidad equivalente a la de un compilador, y a la de un descompilador.
+
 **Uso desde línea de comandos:**
 
 ``python ide_pyqt.py [-h|--help] [-ne|--no-entry-end] [-r|--run] [--theme dark|light] [bd_o_codigo] [bd_o_carpeta_gráficos]``
