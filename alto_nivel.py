@@ -646,7 +646,7 @@ def guarda_codigo_fuente (fichero, NOMB_COMO_VERB, PREP_COMO_VERB, abreviaturas,
   codigoFuente += '/CTL\n_\n\n'
   if abreviaturas:  # TODO: ver si DC exige que haya sección /TOK
     codigoFuente += '/TOK\n'
-    for abreviatura in abreviaturas:
+    for abreviatura in abreviaturas[1:]:
       codigoFuente += lee_secs_ctrl (abreviatura).replace (' ', '_') + '\n'
     codigoFuente += '\n'
   codigoFuente += '/VOC\n'
