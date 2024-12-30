@@ -678,13 +678,27 @@ def guarda_codigo_fuente (fichero, NOMB_COMO_VERB, PREP_COMO_VERB, abreviaturas,
         lineasCadena = cadena.split ('\\n')
         cadena       = ''
         for l in range (len (lineasCadena)):
+          linea = lineasCadena[l]
           if l and lineasCadena[l - 1]:  # La línea anterior no estaba vacía
             cadena += '\n\n'
           elif l:  # Había línea anterior pero estaba vacía
             cadena += '\n'
-          if lineasCadena[l][:1] == '/':  # Debemos escapar los caracteres / al inicio de línea
-            cadena += '\\'
-          cadena += lineasCadena[l]
+          while linea:
+            if linea[:1] == '/':  # Debemos escapar los caracteres / al inicio de cada línea
+              cadena += '\\'
+            # Partimos la línea si ocupa más de 258 caracteres para evitar bug de DC que parte con espacio la palabra que haya en esa posición
+            if len (linea) > 258:
+              for c in range (257, 0, -1):
+                if linea[c] == ' ':
+                  cadena += linea[:c] + '\n'
+                  linea   = linea[c + (0 if linea[c - 1] == ' ' else 1):]
+                  break
+              else:  # No se ha podido partir por no encontrar ningún espacio
+                break
+              continue  # Se había podido partir, seguimos comrobando el resto de la línea
+            else:  # Ya no supera los 258 caracteres
+              break
+          cadena += linea
       else:
         cadena = '"' + cadena + '"'
       codigoFuente += '/' + str (numCadena) + ('\n' if formato == 'sce' else ' ') + cadena + '\n'
