@@ -30,11 +30,65 @@ Intérprete PAW-like
 
 Hacer doble click sobre ``interprete.py`` en caso de tener instalados los requisitos (necesitarás tener instalado también PyQt para utilizar el intérprete de esta manera), o bien sobre ``Intérprete NAPS.bat`` en caso de disponer de la versión portable para Windows de NAPS.
 
-Acto seguido, se mostrará un diálogo pidiendo que selecciones lo que deseas ejecutar, de entre las siguientes opciones: la carpeta donde están contenidos los ficheros del juego, el fichero de base de datos a ejecutar (de PAWS con extensión .PDB, de SWAN con extensión .ADB, o de DAAD con extensión .DDB), el fichero de snapshot (con extensión .SNA) de ZX Spectrum del juego de Quill o PAWS que quieras ejecutar, o bien el fichero de código fuente de PAWS o DAAD que quieras ejecutar (en formato SCE para PAWS o DAAD, o bien DSF de DAAD Reborn Compiler).
+Acto seguido, se mostrará un diálogo pidiendo que selecciones lo que deseas ejecutar, de entre las siguientes opciones: la carpeta donde están contenidos los ficheros del juego, el fichero de base de datos a ejecutar, el fichero de snapshot de Spectrum ZX del juego de Quill o PAWS que quieras ejecutar, o bien el fichero de código fuente de PAWS o DAAD que quieras ejecutar. Para más detalle, revisa la sección Formatos soportados.
 
 Si lo que quieres es jugar, siempre que puedas utiliza la primera opción de las mencionadas antes: la de elegir la carpeta donde están los ficheros del juego. Esta es la opción ideal para jugar, la más completa y fidedigna en cuanto a jugabilidad, en la cual el intérprete mostrará la imagen de portada si el juego tiene una, te pedirá elegir parte en caso de que la aventura tenga más de una, cargará y utilizará automáticamente los mejores gráficos disponibles para esa parte, y también la fuente tipográfica que proporcione la aventura. En el sistema SWAN, sólo esta opción permitirá la transición automática transparente entre partes, y sólo con ésta se podrá jugar a las partes de la segunda en adelante, que no funcionan como se espera si se intentan ejecutar directamente.
 
 Por tanto, para jugar en tu sistema operativo moderno (normalmente Windows o Linux) cualquiera de los juegos hechos con SWAN (como _Mindfighter_ y _Titan Find_) o con DAAD (como los juegos de Aventuras AD, y los que se publicaron posteriormente, tras la liberación en 2013 de las herramientas de DAAD), antes deberías haber guardado todos los ficheros de la aventura juntos en una carpeta, y luego tan sólo debes elegir esa carpeta en el intérprete de NAPS para ejecutar el juego.
+
+Y si lo que quieres es probar una de las aventuras en uno de estos sistemas tipo-PAWS de la cual dispones del código fuente, puedes hacerlo directamente con el intérprete de NAPS sin necesidad de compilarlo.
+
+**Formatos soportados:**
+
+Nota: en la columna Extensión de las siguientes tablas, _(carpeta)_ se refiere a la carpeta donde se encuentran los ficheros de la aventura, y en la columna Tipo, el término _aventura_ se refiere a una base de datos empaquetada junto a un intérprete.
+
+El intérprete de NAPS soporta los siguientes formatos para el sistema Quill:
+
+| Plataforma      | Extensión | Tipo          | Notas              |
+| --------------- | --------- | ------------- | ------------------ |
+| Commodore 64    | .PRG      | Base de datos |                    |
+| IBM PC          | .DAT      | Base de datos | PC AdventureWriter |
+| IBM PC          | .EXE      | Aventura      | PC AdventureWriter |
+| Sinclair QL     | .QQL      | Base de datos |                    |
+| Spectrum ZX     | .SNA      | Aventura      |                    |
+
+Los siguientes para el sistema PAWS:
+
+| Plataforma      | Extensión | Tipo          | Notas              |
+| --------------- | --------- | ------------- | ------------------ |
+| Amstrad CPC     | .PDB      | Base de datos |                    |
+| Amstrad CPC     | .SCE      | Código fuente |                    |
+| IBM PC          | .PDB      | Base de datos |                    |
+| IBM PC          | .SCE      | Código fuente |                    |
+| Spectrum ZX     | .SNA      | Aventura      |                    |
+
+Los siguientes para el sistema SWAN:
+
+| Plataforma      | Extensión | Tipo          | Notas              |
+| --------------- | --------- | ------------- | ------------------ |
+| Amstrad PCW     | (carpeta) | Aventura      |                    |
+| Amstrad PCW     | .ADB      | Base de datos |                    |
+| Atari ST        | (carpeta) | Aventura      |                    |
+| Atari ST        | .ADB      | Base de datos |                    |
+| IBM PC          | (carpeta) | Aventura      |                    |
+| IBM PC          | .ADB      | Base de datos |                    |
+
+Y los siguientes para el sistema DAAD:
+
+| Plataforma      | Extensión | Tipo          | Notas              |
+| --------------- | --------- | ------------- | ------------------ |
+| Amstrad PCW     | .DDB      | Base de datos |                    |
+| Atari ST        | (carpeta) | Aventura      |                    |
+| Atari ST        | .DDB      | Base de datos |                    |
+| Commodore 64    | (carpeta) | Aventura      |                    |
+| Commodore 64    | .DDB      | Base de datos |                    |
+| Commodore Amiga | (carpeta) | Aventura      |                    |
+| Commodore Amiga | .DDB      | Base de datos |                    |
+| IBM PC          | (carpeta) | Aventura      |                    |
+| IBM PC          | .DDB      | Base de datos |                    |
+| IBM PC          | .DSF      | Código fuente | Compilador DRC     |
+| IBM PC          | .SCE      | Código fuente | Compilador DC      |
+| Spectrum ZX     | .DDB      | Aventura      |                    |
 
 **Uso desde línea de comandos:**
 
