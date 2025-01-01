@@ -644,11 +644,11 @@ def guarda_codigo_fuente (fichero, NOMB_COMO_VERB, PREP_COMO_VERB, abreviaturas,
   codigoFuente = ''  # Aquí construiremos el código fuente a guardar, para convertirlo de una vez a la codificación necesaria
   codigoFuente += '; Código fuente generado por NAPS https://github.com/daad-adventure-writer/NAPS\n'
   codigoFuente += (';\n' if formato == 'sce' else '\n') + '/CTL\n_\n' + (';\n' if formato == 'sce' else '\n')
-  if abreviaturas:  # TODO: ver si DC exige que haya sección /TOK
+  if abreviaturas and formato == 'sce':  # TODO: ver si DC exige que haya sección /TOK
     codigoFuente += '/TOK\n'
     for abreviatura in abreviaturas[1:]:
       codigoFuente += lee_secs_ctrl (abreviatura).replace (' ', '_') + '\n'
-    codigoFuente += ';\n' if formato == 'sce' else '\n'
+    codigoFuente += ';\n'
   codigoFuente += '/VOC\n'
   pal_sinonimo = dict()  # Sinónimo preferido para cada par código y tipo válido
   tipo_adjetivo    = tipos_pal_dict['adjective']
