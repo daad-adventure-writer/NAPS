@@ -413,7 +413,8 @@ def describe_localidad ():
 
     # Lista objetos presentes en QUILL
     if NOMBRE_SISTEMA == 'QUILL':
-      gui.imprime_cadena ('\n')
+      prn(locs_iniciales)
+      gui.imprime_cadena ('\n', restauraColores = True)
       alguno = False
       for objno in range (num_objetos[0]):
         if locs_objs[objno] == banderas[BANDERA_LOC_ACTUAL]:
