@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Funciones de apoyo de alto nivel
-# Copyright (C) 2010, 2021, 2023-2024 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2021, 2023-2025 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -189,24 +189,31 @@ def carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, atributos, atributos_e
         # TODO: cuando el IDE muestre líneas con comentarios y directivas de preprocesador, marcar diferenciando entre líneas deshabilitadas y procesadas
         simbolos[simbolo]      = valorExpr
         lineasCodigo[numLinea] = ';NAPS;' + lineasCodigo[numLinea]  # Ya procesada esta línea
-      elif lineaCodigo[:3].lower() == '#if':
+      elif (formato == 'sce' and lineaCodigo[:3].lower() == '#if') or (formato == 'dsf' and lineaCodigo[:6].lower() == '#ifdef' or lineaCodigo[:7].lower() == '#ifndef'):
+        directiva    = '#if' if formato == 'sce' else ('#ifdef' if lineaCodigo[3] == 'd' else '#ifndef')
         encajesLinea = []
-        for encaje in erPartirPals.finditer (lineaCodigo[3:]):
+        for encaje in erPartirPals.finditer (lineaCodigo[len (directiva):]):
           encajesLinea.append (encaje)
           if len (encajesLinea) > 1:
             break
         if not encajesLinea or encajesLinea[0].start():
-          raise TabError ('espacio en blanco' + ('' if encajesLinea else ' y una etiqueta de símbolo'), (), (numLinea + 1, 4))
+          raise TabError ('espacio en blanco' + ('' if encajesLinea else ' y una etiqueta de símbolo'), (), (numLinea + 1, len (directiva) + 1))
         simbolo = encajesLinea[0].group (1)
-        if simbolo[0] == '!':
-          negado  = True
-          simbolo = simbolo[1:]
-        else:
-          negado = False
+        if formato == 'sce':
+          if simbolo[0] == '!':
+            negado  = True
+            simbolo = simbolo[1:]
+          else:
+            negado = False
+        else:  # formato == 'dsf'
+          if simbolo[0] != '"' or simbolo[-1] != '"':
+            raise TabError ('comilla doble', (), (numLinea + 1, len (directiva) + 1 + encajesLinea[0].start (1) + (len (simbolo) if simbolo[0] == '"' else 0)))
+          negado  = directiva[3] == 'n'
+          simbolo = simbolo[1:-1]
         if not erSimbolo.match (simbolo):
-          raise TabError ('una etiqueta de símbolo válida', (), (numLinea + 1, 4 + encajesLinea[0].start (1) + (1 if negado else 0)))
-        if simbolo in simbolos:
-          satisfecho = simbolos[simbolo]
+          raise TabError ('una etiqueta de símbolo válida', (), (numLinea + 1, len (directiva) + 1 + encajesLinea[0].start (1) + (1 if formato == 'dsf' or negado else 0)))
+        if simbolo in simbolos or formato == 'dsf':
+          satisfecho = simbolos[simbolo] if formato == 'sce' else simbolo in simbolos
           if negado:
             satisfecho = not satisfecho
           bloqueCond = bloqueOrigen  # Número de bloque en origenLineas de la línea condicional
