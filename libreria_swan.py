@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Librería de SWAN (parte común a editor, compilador e intérprete)
-# Copyright (C) 2020-2024 José Manuel Ferrer Ortiz
+# Copyright (C) 2020-2025 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -351,7 +351,6 @@ def lee_secs_ctrl (cadena):
 
 # Carga las abreviaturas
 def cargaAbreviaturas ():
-  del abreviaturas[:]  # Vaciamos la lista
   # Vamos a la posición de las abreviaturas
   posicion = carga_desplazamiento (CAB_POS_ABREVS)
   if posicion == 0:  # Sin abreviaturas
@@ -371,7 +370,6 @@ def cargaAbreviaturas ():
 
 # Carga los atributos de los objetos
 def cargaAtributos ():
-  del atributos[:]  # Vaciamos la lista
   # Cargamos el número de objetos (no lo tenemos todavía)
   fich_ent.seek (CAB_NUM_OBJS)
   num_objetos[0] = carga_int1()
@@ -386,7 +384,6 @@ def cargaAtributos ():
 # pos_lista_pos posición de donde obtener la lista de posiciones de las cadenas
 # cadenas es la lista donde almacenar las cadenas que se carguen
 def cargaCadenas (pos_num_cads, pos_lista_pos, cadenas):
-  del cadenas[:]  # Vaciamos la lista
   # Cargamos el número de cadenas
   fich_ent.seek (pos_num_cads)
   num_cads = carga_int1()
@@ -421,7 +418,6 @@ def cargaCadenas (pos_num_cads, pos_lista_pos, cadenas):
 
 # Carga las conexiones
 def cargaConexiones ():
-  del conexiones[:]  # Vaciamos la lista
   # Cargamos el número de localidades
   fich_ent.seek (CAB_NUM_LOCS)
   num_locs = carga_int1()
@@ -445,7 +441,6 @@ def cargaConexiones ():
 
 def cargaLocalidadesObjetos ():
   """Carga las localidades iniciales de los objetos (dónde está cada uno)"""
-  del locs_iniciales[:]  # Vaciamos la lista
   # Vamos a la posición de las localidades de los objetos
   fich_ent.seek (carga_desplazamiento (CAB_POS_LOCS_OBJS))
   # Cargamos la localidad de cada objeto
@@ -454,7 +449,6 @@ def cargaLocalidadesObjetos ():
 
 def cargaNombresObjetos ():
   """Carga los nombres y adjetivos de los objetos"""
-  del nombres_objs[:]  # Vaciamos la lista
   # Vamos a la posición de los nombres de los objetos
   fich_ent.seek (carga_desplazamiento (CAB_POS_NOMS_OBJS))
   # Cargamos el nombre y adjetivo de cada objeto
@@ -465,7 +459,6 @@ def cargaNombresObjetos ():
 # El proceso 0 es la tabla de respuestas
 # En los procesos 1 y 2, las cabeceras de las entradas se ignoran
 def cargaTablasProcesos ():
-  del tablas_proceso[:]  # Vaciamos la lista
   # Cargamos el número de procesos
   fich_ent.seek (CAB_NUM_PROCS)
   num_procs = carga_int1()
@@ -525,7 +518,6 @@ def cargaTablasProcesos ():
 
 # Carga el vocabulario
 def cargaVocabulario ():
-  del vocabulario[:]  # Vaciamos la lista
   # Vamos a la posición del vocabulario
   fich_ent.seek (carga_desplazamiento (CAB_POS_VOCAB))
   # Cargamos cada palabra de vocabulario
