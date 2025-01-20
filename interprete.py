@@ -4,7 +4,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Intérprete de sistemas PAW-like
-# Copyright (C) 2010, 2018-2024 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2018-2025 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -413,7 +413,8 @@ def describe_localidad ():
 
     # Lista objetos presentes en QUILL
     if NOMBRE_SISTEMA == 'QUILL':
-      prn(locs_iniciales)
+      # TODO: ver si esta nueva línea se debe escribir aunque no haya objetos en la localidad actual
+      # TODO: ver si es correcto que restaure los colores en caso de haber objetos en la localidad actual, modificando una BD para poner algo en la localidad inicial, y vaciarle el mensaje de sistema 1 (También puedo ver)
       gui.imprime_cadena ('\n', restauraColores = True)
       alguno = False
       for objno in range (num_objetos[0]):
