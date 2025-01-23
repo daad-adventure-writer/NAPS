@@ -196,7 +196,7 @@ def prepara_vocabulario ():
         dicc_vocab[palabraVoc[0]] = []
       dicc_vocab[palabraVoc[0]].append (tuple (palabraVoc[1:]))
       tipo = TIPOS_PAL[palabraVoc[2]]
-      if tipo == 'Conjuncion':
+      if tipo == 'Conjuncion':  # FIXME: esto en inglés no funcionará
         conjunciones.append (palabraVoc[0])
       elif tipo == 'Pronombre':
         pronombre = palabraVoc[0]
@@ -590,7 +590,7 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
             continue
           for codigo, tipo in dicc_vocab.get (palabra, ()):
             tipo = TIPOS_PAL[tipo]
-            if tipo in ('Verbo', 'Adverbio', 'Preposicion', 'Pronombre'):
+            if tipo in ('Verbo', 'Adverbio', 'Preposicion', 'Pronombre'):  # FIXME: esto en inglés no funcionará
               if tipo == 'Preposicion' and not frase['Nombre1'] and not frase['Adjetivo1']:
                 preposicionSinNombre = True
               if not frase[tipo]:
@@ -612,8 +612,9 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
                 frase[tipo + '1'] = codigo
                 break  # Palabra ya procesada
             else:
-              import pdb
-              pdb.set_trace()
+              if not ide and args.gui != 'telegram':
+                import pdb
+                pdb.set_trace()
               pass  # Tipo de palabra inesperado
             if compatibilidad:
               break  # No hay palabras iguales de más de un tipo, pasamos a la siguiente palabra
