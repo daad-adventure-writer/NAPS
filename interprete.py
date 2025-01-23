@@ -195,8 +195,8 @@ def prepara_vocabulario ():
       if palabraVoc[0] not in dicc_vocab:
         dicc_vocab[palabraVoc[0]] = []
       dicc_vocab[palabraVoc[0]].append (tuple (palabraVoc[1:]))
-      tipo = TIPOS_PAL[palabraVoc[2]]
-      if tipo == 'Conjuncion':  # FIXME: esto en inglés no funcionará
+      tipo = TIPOS_PAL_ES[palabraVoc[2]]
+      if tipo == 'Conjuncion':
         conjunciones.append (palabraVoc[0])
       elif tipo == 'Pronombre':
         pronombre = palabraVoc[0]
@@ -589,8 +589,8 @@ Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
             frase['Pronombre'] = palabra
             continue
           for codigo, tipo in dicc_vocab.get (palabra, ()):
-            tipo = TIPOS_PAL[tipo]
-            if tipo in ('Verbo', 'Adverbio', 'Preposicion', 'Pronombre'):  # FIXME: esto en inglés no funcionará
+            tipo = TIPOS_PAL_ES[tipo]
+            if tipo in ('Verbo', 'Adverbio', 'Preposicion', 'Pronombre'):
               if tipo == 'Preposicion' and not frase['Nombre1'] and not frase['Adjetivo1']:
                 preposicionSinNombre = True
               if not frase[tipo]:
@@ -1031,7 +1031,7 @@ def palabraSinPronombre (palabra):
   # TODO: modo de compatibilidad con cómo hace DAAD con los pronombres, buscando sufijos -la -lo
   # Vemos si la palabra está tal cual en el vocabulario como no verbo
   for codigo, tipo in dicc_vocab.get (palabra, ()):
-    if TIPOS_PAL[tipo] != 'Verbo':
+    if TIPOS_PAL_ES[tipo] != 'Verbo':
       return palabra  # No la consideraremos para ver si tiene sufijo de pronombre
   if palabra[-4:] in ('alas', 'alos', 'elas', 'elos', 'rlas', 'rlos'):
     inicioSufijo = -3
@@ -1041,7 +1041,7 @@ def palabraSinPronombre (palabra):
     return palabra
   # Vemos si la palabra sin sufijo de pronombre está en el vocabulario como verbo
   for codigo, tipo in dicc_vocab.get (palabra[:inicioSufijo][:LONGITUD_PAL], ()):
-    if TIPOS_PAL[tipo] == 'Verbo':
+    if TIPOS_PAL_ES[tipo] == 'Verbo':
       return palabra[:inicioSufijo]  # Contamos el sufijo como pronombre
   return palabra
 
@@ -1228,7 +1228,7 @@ if __name__ == '__main__':
 
   bbdd.close()
 
-  constantes = ('EXT_SAVEGAME', 'LONGITUD_PAL', 'NOMB_COMO_VERB', 'NOMBRE_SISTEMA', 'NUM_ATRIBUTOS', 'NUM_BANDERAS', 'PREP_COMO_VERB', 'TIPOS_PAL')
+  constantes = ('EXT_SAVEGAME', 'LONGITUD_PAL', 'NOMB_COMO_VERB', 'NOMBRE_SISTEMA', 'NUM_ATRIBUTOS', 'NUM_BANDERAS', 'PREP_COMO_VERB', 'TIPOS_PAL', 'TIPOS_PAL_ES')
   funciones  = ('actualiza_grafico', 'adapta_msgs_sys', 'busca_condacto', 'busca_conexion', 'cambia_articulo', 'da_peso', 'imprime_mensaje', 'obj_referido', 'parsea_orden', 'prepara_vocabulario', 'restaura_objetos', 'tabla_hizo_algo')
   funcsLib   = ('carga_xmessage', )
   variables  = ('atributos', 'atributos_extra', 'banderas', 'compatibilidad', 'conexiones', 'desc_locs', 'desc_objs', 'doall_activo', 'frases', 'locs_iniciales', 'locs_objs', 'msgs_usr', 'msgs_sys', 'nombres_objs', 'nueva_version', 'num_objetos', 'partida', 'peso_llevado', 'pila_procs', 'tablas_proceso', 'vocabulario')

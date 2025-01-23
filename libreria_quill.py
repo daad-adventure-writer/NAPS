@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Librería de QUILL (versión de Spectrum). Parte común a editor, compilador e intérprete
-# Copyright (C) 2010, 2018-2020, 2022, 2024 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2018-2020, 2022, 2024-2025 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -135,7 +135,7 @@ NOMB_COMO_VERB   = [0]      # Número de nombres convertibles a verbo
 PREP_COMO_VERB   = 0        # Número de preposiciones convertibles a verbo
 # Nombres de las primeras tablas de proceso (para el IDE)
 NOMBRES_PROCS    = (_('Event table'), _('Status table'))
-TIPOS_PAL        = (_('Word'),)  # Nombres de los tipos de palabra (para el IDE)
+TIPOS_PAL        = (_('Word'),)  # Nombres de los tipos de palabra (para el IDE y el intérprete)
 
 cods_tinta    = {}  # Caracteres que si se encuentran en una cadena, cambiará el color de tinta por el del valor
 conversion    = {}  # Tabla de conversión de caracteres

@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Librería de PAWS (parte común a editor, compilador e intérprete)
-# Copyright (C) 2020-2024 José Manuel Ferrer Ortiz
+# Copyright (C) 2020-2025 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -71,8 +71,9 @@ NOMB_COMO_VERB   = [20]    # Número de nombres convertibles a verbo
 PREP_COMO_VERB   = 0       # Número de preposiciones convertibles a verbo
 # Nombres de las primeras tablas de proceso (para el IDE)
 NOMBRES_PROCS    = (_('Response table'), _('After description'), _('Each turn'))
-# Nombres de los tipos de palabra (para el IDE)
-TIPOS_PAL = (_('Verb'), _('Adverb'), _('Noun'), _('Adjective'), _('Preposition'), _('Conjugation'), _('Pronoun'))
+# Nombres de los tipos de palabra (para el IDE y el intérprete)
+TIPOS_PAL    = (_('Verb'), _('Adverb'), _('Noun'), _('Adjective'), _('Preposition'), _('Conjugation'), _('Pronoun'))
+TIPOS_PAL_ES = ('Verbo', 'Adverbio', 'Nombre', 'Adjetivo', 'Preposicion', 'Conjuncion', 'Pronombre')
 
 
 alinear          = False       # Si alineamos con relleno (padding) las listas de desplazamientos a posiciones pares

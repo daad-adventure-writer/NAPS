@@ -64,8 +64,9 @@ NOMB_COMO_VERB   = [20]    # Número de nombres convertibles a verbo
 PREP_COMO_VERB   = 20      # Número de preposiciones convertibles a verbo
 # Nombres de las primeras tablas de proceso (para el IDE)
 NOMBRES_PROCS    = (_('Response table'), _('After description'), _('Each turn'))
-# Nombres de los tipos de palabra (para el IDE)
-TIPOS_PAL = (_('Verb'), _('Adverb'), _('Noun'), _('Adjective'), _('Preposition'), _('Conjugation'), _('Pronoun'))
+# Nombres de los tipos de palabra (para el IDE y el intérprete)
+TIPOS_PAL    = (_('Verb'), _('Adverb'), _('Noun'), _('Adjective'), _('Preposition'), _('Conjugation'), _('Pronoun'))
+TIPOS_PAL_ES = ('Verbo', 'Adverbio', 'Nombre', 'Adjetivo', 'Preposicion', 'Conjuncion', 'Pronombre')
 
 
 # Desplazamientos (offsets/posiciones) en la cabecera
