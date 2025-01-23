@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Condactos específicos de DAAD
-# Copyright (C) 2010, 2019-2024 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2019-2025 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -141,7 +141,7 @@ def c0_LOAD ():
   """Carga el contenido de las banderas y de las localidades de los objetos desde un fichero"""
   nombreFich = (gui.lee_cadena (msgs_sys[60] + msgs_sys[33]) + '.' + EXT_SAVEGAME).lower()
   # Buscamos el fichero con independencia de mayúsculas y minúsculas
-  for nombreFichero in os.listdir (os.path.dirname (ruta_bbdd)):
+  for nombreFichero in os.listdir (os.path.dirname (ruta_bbdd)):  # FIXME: falla cuando la BD se ha cargado desde código fuente
     if nombreFichero.lower() == nombreFich:
       nombreFich = os.path.join (os.path.dirname (ruta_bbdd), nombreFichero)
       break

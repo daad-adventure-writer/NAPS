@@ -489,7 +489,7 @@ Devuelve True si la frase no es válida o ha ocurrido tiempo muerto (para que vue
 def prepara_orden (espaciar = False, psi = False, mensajesInvalida = True):
   """Prepara una orden de las pendientes de ejecutar u obtiene una nueva
 
-Devuelve True si la frase no es válida, False si ha ocurrido tiempo muerto"""
+Devuelve None si la frase es válida, True si no, False si ha ocurrido tiempo muerto"""
   global frases, orden, orden_psi, traza
   # Borramos las banderas de SL actual
   if NUM_BANDERAS[0] > 70:  # De PAWS en adelante

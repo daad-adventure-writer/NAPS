@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Condactos de The Quill
-# Copyright (C) 2010, 2019-2024 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2019-2025 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -386,7 +386,7 @@ Si el resultado es negativo, la bandera se deja a 0"""
 def a2_PLUS (flagno, value):
   """Le añade a la bandera flagno el número que se ponga en value
 
-Si el resultado excede de 255, la bandera se pone a 255"""
+Si el resultado excede 255, la bandera se pone a 255"""
   banderas[flagno] += value
   if banderas[flagno] > 255:
     banderas[flagno] = 255

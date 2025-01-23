@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Funciones de apoyo de bajo nivel
-# Copyright (C) 2010, 2013, 2018-2024 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2013, 2018-2025 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -173,8 +173,8 @@ def guarda_desplazamiento2 (entero):
   guarda_int2 (entero + despl_ini)
 
 def guarda_desplazamiento4 (entero):
-  """Guarda un desplazamiento (4 bytes) en relación con la memoria"""
   # type: (int) -> None
+  """Guarda un desplazamiento (4 bytes) en relación con la memoria"""
   guarda_int4 (entero + despl_ini)
 
 if version_info[0] < 3:  # Para Python 2
