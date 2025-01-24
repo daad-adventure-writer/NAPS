@@ -4,7 +4,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Entorno de desarrollo integrado (IDE), hecho con PyQt
-# Copyright (C) 2010, 2018-2024 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2018-2025 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -238,6 +238,21 @@ class CampoTexto (QTextEdit):
     self.actualizandoProceso.timeout.connect (actualizaProceso)
     self.barra = BarraIzquierda (self)
     self.setViewportMargins (self.barra.anchoBarra, 0, 0, 0)
+    # Construimos variables necesarias para la introducción de condactos
+    self.condactos        = {}     # Información completa de los condactos indexada por nombre
+    self.condactosPorCod  = {}     # Nombre de condactos indexado por código
+    self.listaAcciones    = set()  # Lista de nombres de acciones
+    self.listaCondiciones = set()  # Lista de nombres de condiciones
+    for codigo, condacto in mod_actual.acciones.items():
+      if mod_actual.NOMBRE_SISTEMA == 'QUILL':
+        codigo += 100
+      self.listaAcciones.add (condacto[0])
+      self.condactos[condacto[0]]  = condacto + (codigo,)
+      self.condactosPorCod[codigo] = condacto[0]
+    for codigo, condacto in mod_actual.condiciones.items():
+      self.listaCondiciones.add (condacto[0])
+      self.condactos[condacto[0]]  = condacto + (codigo,)
+      self.condactosPorCod[codigo] = condacto[0]
 
   def _daColsValidas (self, textoLinea):
     """Devuelve las posiciones válidas para el cursor en la línea de tabla de proceso con texto dado"""
@@ -464,24 +479,6 @@ class CampoTexto (QTextEdit):
         return  # Intentando escribir texto donde no es posible
       if linea.text() and linea.userState() == -1:  # Una línea de entrada que no es la cabecera
         numEntrada, posicion = self._daNumEntradaYLinea (linea)
-        try:
-          self.condactos
-        except:
-          # Construimos variables necesarias para la introducción de condactos
-          self.condactos        = {}     # Información completa de los condactos indexada por nombre
-          self.condactosPorCod  = {}     # Nombre de condactos indexado por código
-          self.listaAcciones    = set()  # Lista de nombres de acciones
-          self.listaCondiciones = set()  # Lista de nombres de condiciones
-          for codigo, condacto in mod_actual.acciones.items():
-            if mod_actual.NOMBRE_SISTEMA == 'QUILL':
-              codigo += 100
-            self.listaAcciones.add (condacto[0])
-            self.condactos[condacto[0]]  = condacto + (codigo,)
-            self.condactosPorCod[codigo] = condacto[0]
-          for codigo, condacto in mod_actual.condiciones.items():
-            self.listaCondiciones.add (condacto[0])
-            self.condactos[condacto[0]]  = condacto + (codigo,)
-            self.condactosPorCod[codigo] = condacto[0]
         numProceso = pestanyas.currentIndex()
         proceso    = mod_actual.tablas_proceso[numProceso]  # El proceso seleccionado
         entrada    = proceso[1][numEntrada]  # La entrada seleccionada
@@ -2028,7 +2025,7 @@ def imprimeCondacto (condacto, parametros, inalcanzable = False, nuevaLinea = Tr
         campo_txt.insertPlainText ('"')
   else:  # Condacto sin parámetros
     campo_txt.insertPlainText ((nombre + indirecto).rstrip().center (7).rstrip())
-  if inalcanzable or mod_actual.condactos[condacto][3]:
+  if inalcanzable or campo_txt.condactos[campo_txt.condactosPorCod[condacto]][3]:
     return True
   return False
 
