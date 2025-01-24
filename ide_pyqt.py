@@ -2096,7 +2096,7 @@ def muestraAcercaDe ():
     dlg_acerca_de.setIconPixmap (icono_ide.pixmap (96))
     dlg_acerca_de.setText ('NAPS: The New Age PAW-like System\n' +
         _('Integrated Development Environment (IDE)\n') +
-        'Copyright © 2010, 2018-2024 José Manuel Ferrer Ortiz')
+        'Copyright © 2010, 2018-2025 José Manuel Ferrer Ortiz')
     dlg_acerca_de.setInformativeText (_('PyQt version: ') +
         PYQT_VERSION_STR + _('\nQt version: ') + QT_VERSION_STR +
         _('\nPython version: ') + sys.version[:fin])
@@ -2595,6 +2595,11 @@ else:
 creaSelector()
 selector.showMaximized()
 cargaInfoModulos()
+
+# Ajustamos el tamaño inicial de la fuente para el diálogo de procesos según la resolución de pantalla
+pantalla   = QDesktopWidget().screenNumber (selector)
+geometria  = QDesktopWidget().screenGeometry (pantalla)
+tam_fuente = int (12 * geometria.width() / 1024)  # El tamaño 12 está bien para resolución de ancho 1024
 
 if args.bbdd:
   if args.graficos and not os.path.exists (args.graficos):
