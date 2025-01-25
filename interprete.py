@@ -41,10 +41,13 @@ dicc_vocab     = {}     # Vocabulario como diccionario, con el texto de las pala
 doall_activo   = []     # Si hay bucle DOALL activo, guarda puntero al condacto DOALL activo
 frases         = []     # Buffer de órdenes parseadas por ejecutar, cuando el jugador tecleó más de una
 locs_objs      = []     # Localidades de los objetos
+marcadores     = []     # Marcadores en sistemas GAC (banderas de tipo booleano, con valor 0 ó 1)
 orden          = ''     # Orden a medio obtener (para tiempo muerto)
 orden_psi      = ''     # Parte de la orden entrecomillada
 partida        = []     # Partida guardada mediante RAMSAVE
+peso_llevable  = [0]    # Peso máximo llevable en sistemas GAC  # TODO: hacer con bandera de sistema
 peso_llevado   = [0]    # Peso total de objetos llevados y puestos
+pila_datos     = []     # Pila de datos en sistemas GAC
 pila_procs     = []     # Pila con estado de los procesos en ejecución
 proceso_acc    = False  # Guarda si el proceso ejecutó alguna acción adecuada
 proceso_ok     = None   # Guarda si el proceso terminó con DONE u OK (True), NOTDONE (False) o ninguno de estos (None)
@@ -70,12 +73,17 @@ BANDERA_LOC_ACTUAL = 38  # Bandera con la localidad actual
 def adapta_msgs_sys ():
   """Adapta los mensajes de sistema de la base de datos para las interfaces de texto"""
   if args.gui in ('stdio', 'telegram'):
-    libreria.msgs_sys[16] = ''  # Mensaje de espera una tecla
-  if args.gui == 'telegram' and len (libreria.msgs_sys) > 32:
-    libreria.msgs_sys[33] = ''  # Prompt
+    msgs_sys[243 if NOMBRE_SISTEMA == 'GAC' else 16] = ''  # Mensaje de espera una tecla
+  if args.gui == 'telegram' and len (msgs_sys) > 32:
+    if NOMBRE_SISTEMA == 'GAC':
+      if msgs_sys[240][:1] == '>':  # Es un prompt y no una petición como 'What now?'
+        msgs_sys[240] = ''
+    else:
+      msgs_sys[33] = ''  # Prompt
 
 def busca_condacto (firma):
   """Busca en los módulos de condactos la función donde está implementado el condacto con la firma dada"""
+  firma = firma.replace ('?', '_')
   for modulo in modulos:
     if firma in modulo.__dict__:
       return modulo.__dict__[firma]
@@ -84,7 +92,7 @@ def busca_condacto (firma):
 
 def busca_conexion (locOrigen):
   """Busca en las entradas de locOrigen en la tabla de conexiones el verbo de la SL actual, y devuelve la localidad de destino, o bien None si no estaba"""
-  if locOrigen >= len (conexiones):
+  if (type (conexiones) == list and locOrigen >= len (conexiones)) or (type (conexiones) == dict and locOrigen not in conexiones):
     return None
   for verbo, destino in conexiones[locOrigen]:
     if verbo == banderas[BANDERA_VERBO]:  # Verbo de la SL actual
@@ -239,6 +247,79 @@ def bucle_daad_nuevo ():
     if valor == False:
       continue  # Se reinicia la aventura
     return
+
+def bucle_gac ():
+  """Bucle principal del intérprete, para sistema GAC"""
+  estado = 0  # Estado del intérprete
+  while True:
+    if estado == 0:  # Inicialización
+      for i in range (NUM_BANDERAS[0]):
+        banderas[i] = 0
+      banderas[BANDERA_LOC_ACTUAL] = loc_inicio[0]
+      for i in range (NUM_MARCADORES[0]):
+        marcadores[i] = 0
+      for numObjeto in locs_iniciales:
+        locs_objs[numObjeto] = locs_iniciales[numObjeto]
+      estado = 1
+    elif estado < 2:  # Descripción de localidad y condiciones de alta prioridad
+      # Describir localidad actual
+      descLocActual = desc_locs[banderas[BANDERA_LOC_ACTUAL]] if banderas[BANDERA_LOC_ACTUAL] in desc_locs else ''
+      gui.imprime_cadena (descLocActual)
+      # Listar objetos presentes
+      pila_datos.append (banderas[BANDERA_LOC_ACTUAL])
+      busca_condacto ('a0_LIST') (msgs_sys[253])
+      estado = 3 if estado > 1 else 2
+    elif estado == 2:  # Condiciones de alta prioridad
+      # Ejecutar las condiciones de alta prioridad
+      valor = ejecuta_proceso (0)
+      if valor == False:  # Fin de la aventura
+        if args.gui in ('stdio', 'telegram'):
+          return  # Terminamos completamente la aventura
+        estado = 0  # Reiniciamos el juego
+      elif valor == True:  # Si la tabla de condiciones termina con algo equivalente a DESC en PAWS
+        estado = 1.5
+        # El intérprete original tras imprimir la descripción de localidad por esto, salta a pedir orden sin revisar la tabla de condiciones de alta prioridad
+        # TODO: revisar si sólo ocurre aquí, o si hace lo mismo en los estados 4 y 5
+      elif valor != True:
+        estado = 3
+    elif estado == 3:  # Obtener orden y comprobar conexiones
+      gui.imprime_cadena ('\n')
+      prepara_orden_gac()
+      incrementa_turno()
+      # Comprobar tabla de conexiones
+      destino = busca_conexion (banderas[BANDERA_LOC_ACTUAL])  # De la localidad actual
+      if destino == None:
+        estado = 4
+      else:
+        banderas[BANDERA_LOC_ACTUAL] = destino
+        estado = 1
+    elif estado == 4:  # Condiciones locales
+      # Ejecutar las condiciones de la localidad actual
+      if banderas[BANDERA_LOC_ACTUAL] in tablas_proceso:
+        valor = ejecuta_proceso (banderas[BANDERA_LOC_ACTUAL])
+      if valor == False:  # Fin de la aventura
+        if args.gui in ('stdio', 'telegram'):
+          return  # Terminamos completamente la aventura
+        estado = 0  # Reiniciamos el juego
+      elif valor == True:  # Si la tabla de condiciones termina con algo equivalente a DESC en PAWS
+        estado = 1
+      elif valor == 9:  # Pedir orden
+        estado = 2
+      else:
+        estado = 5
+    elif estado == 5:  # Condiciones de baja prioridad
+      valor = ejecuta_proceso (10000)
+      if valor == False:  # Fin de la aventura
+        if args.gui in ('stdio', 'telegram'):
+          return  # Terminamos completamente la aventura
+        estado = 0  # Reiniciamos el juego
+      elif valor == True:  # Si la tabla de condiciones termina con algo equivalente a DESC en PAWS
+        estado = 1
+      elif valor == 9:  # Pedir orden
+        estado = 2
+      else:
+        gui.imprime_cadena (msgs_sys[242 if banderas[BANDERA_VERBO] == 0 else 241])
+        estado = 2
 
 def bucle_paws ():
   """Bucle principal del intérprete, para PAWS y primeras versiones de DAAD"""
@@ -692,6 +773,107 @@ Devuelve None si la frase es válida, True si no, False si ha ocurrido tiempo mue
   if not valida:
     return True
 
+def prepara_orden_gac ():
+  # type: () -> None
+  """Prepara una orden de las pendientes de ejecutar u obtiene una nueva"""
+  global frases, traza
+  # Borramos las banderas de SL actual
+  banderasSL = {BANDERA_VERBO: 'Verbo', BANDERA_NOMBRE: 'Nombre1', BANDERA_ADVERBIO: 'Adverbio', BANDERA_NOMBRE2: 'Nombre2'}
+  for i in banderasSL:
+    banderas[i] = 0
+  # Si no hay órdenes ya parseadas pendientes de ejecutar
+  if not frases:
+    if frase_guardada:
+      del frase_guardada[:]  # Fin de ejecución de frases pendientes de ejecutar
+      gui.borra_orden()
+
+    peticion = ''
+    if args.gui != 'telegram':
+      peticion = msgs_sys[240]  # Prompt de GAC
+    if traza:
+      gui.imprime_banderas  (banderas)
+      gui.imprime_locs_objs (locs_objs)
+
+    ordenObtenida = False
+    while not ordenObtenida:
+      orden = gui.lee_cadena (peticion)
+      # Activamos o desactivamos la depuración paso a paso
+      if args.gui != 'telegram' and orden.strip().lower() == '*debug*':
+        orden = ''
+        traza = not traza
+        gui.abre_ventana (traza, args.scale, args.bbdd)
+        gui.borra_orden()
+        if traza:
+          gui.banderas_antes = None  # Que siempre dibuje los números de bandera
+      elif orden:
+        ordenObtenida = True
+      if traza:
+        gui.imprime_banderas  (banderas)
+        gui.imprime_locs_objs (locs_objs)
+
+    ordenes = separa_orden (orden)  # TODO: partir con la puntuación y conjunciones (AND y THEN) hardcodeados de GAC
+    if traza:
+      prn ('Orden partida en estas frases:', ordenes)
+    for f in range (len (ordenes)):
+      frase = {'Verbo': None, 'Nombre1': None, 'Nombre2': None, 'Adverbio': None, 'Pronombre': None}
+      for palabra in ordenes[f]:
+        if palabra == pronombre:
+          frase['Pronombre'] = palabra
+          continue
+        for codigo, tipo in dicc_vocab.get (palabra, ()):
+          tipo = TIPOS_PAL_ES[tipo]
+          if tipo in ('Verbo', 'Adverbio', 'Pronombre'):
+            if not frase[tipo]:
+              frase[tipo] = codigo
+              break  # Palabra ya procesada
+          elif tipo == 'Nombre':
+            if frase['Pronombre']:
+              if not frase['Nombre1']:  # Hubo Pronombre antes que Nombre
+                frase['Nombre2'] = codigo
+                break  # Palabra ya procesada
+            elif frase['Nombre1']:
+              frase['Nombre2'] = codigo
+              break  # Palabra ya procesada
+            else:
+              frase['Nombre1'] = codigo
+              break  # Palabra ya procesada
+          else:
+            if not ide and args.gui != 'telegram':
+              import pdb
+              pdb.set_trace()
+            pass  # Tipo de palabra inesperado
+      if not frase['Verbo']:
+        if frase['Nombre1'] and f and frases[-1]['Verbo']:  # Verbo heredado de la frase anterior
+          frase['Verbo'] = frases[-1]['Verbo']
+      frases.append (frase)
+    if len (frases) > 1:
+      del texto_nuevo[:]  # Hay más de una orden, por lo queremos saber cuándo se escribe texto nuevo
+  else:  # Había frases pendientes de ejecutar
+    gui.espera_tecla()
+    frase_guardada.append (True)
+  if not frases:  # Sólo se escribió espacio en blanco, conjunciones o ,.;:
+    gui.borra_orden()
+    return
+
+  frase = frases.pop (0)
+  if frase['Verbo']:
+    # Cargamos pronombres
+    if frase['Pronombre']:
+      if frase['Nombre1']:
+        if not frase['Nombre2']:
+          frase['Nombre2'] = banderas[BANDERA_PRONOMBRE]
+      else:
+        frase['Nombre1'] = banderas[BANDERA_PRONOMBRE]
+    # Guardamos las palabras de la frase en las banderas correspondientes
+    for flagno, tipo in banderasSL.items():
+      banderas[flagno] = frase[tipo] if frase[tipo] else 0
+    if frase['Nombre1']:  # Guardamos como pronombre el último nombre usado
+      banderas[BANDERA_PRONOMBRE] = frase['Nombre2'] if frase['Nombre2'] else frase['Nombre1']
+
+  orden = ''  # Vaciamos ya la orden
+  if not frases:
+    gui.borra_orden()
+
 def ejecuta_condacto (codigo, parametros):
   """Ejecuta el condacto con el código y parámetros dados
 
@@ -706,6 +888,7 @@ Devuelve el modo en que el condacto altera el flujo de ejecución:
    6: termina la entrada de tabla actual (como una condición que no se cumple)
    7: termina completamente la ejecución de la aventura
    8: termina la ejecución y pasa a ejecutar la tabla de respuestas
+   9: termina la ejecución y pasa a pedir orden al jugador (como WAIT de GAC)
 None: pasa al siguiente condacto"""
   global proceso_acc
   if libreria.INDIRECCION and codigo > 127:  # Si el sistema soporta indirección
@@ -722,17 +905,18 @@ None: pasa al siguiente condacto"""
     parametros = [banderas[parametros[0]]] + parametros[1:]
   valor = funcion (*parametros)  # El * saca los parámetros de la lista
   if condacto[2] == False:  # El condacto es una condición
-    if codigo in (20, 106) and valor == True:  # QUIT, MOVE
+    if NOMBRE_SISTEMA != 'GAC' and codigo in (20, 106) and valor == True:  # QUIT, MOVE
       proceso_acc = True
     if valor == False:  # No se cumple
       return 6
     if valor == True:  # Se cumple
       return None
     return valor  # Permite que condactos se comporten como acción y condición, como QUIT de PAWS
-  if codigo == 103 or (codigo == 85 and valor == 4):  # NOTDONE, o DOALL que termina con NOTDONE
-    proceso_acc = False
-  elif codigo not in (75, 108, 116):  # PROCESS, REDO, SKIP
-    proceso_acc = True
+  if NOMBRE_SISTEMA != 'GAC':
+    if codigo == 103 or (codigo == 85 and valor == 4):  # NOTDONE, o DOALL que termina con NOTDONE
+      proceso_acc = False
+    elif codigo not in (75, 108, 116):  # PROCESS, REDO, SKIP
+      proceso_acc = True
   return valor
 
 def ejecuta_pasos (numPasos):
@@ -776,7 +960,7 @@ Devuelve True si ha ejecutado DESC o equivalente. False si se debe reiniciar la 
       entrada = tabla[1][numEntrada]
       if cambioFlujo == 0:  # La cabecera encajó (ahora o en su momento)
         # Dejamos de ejecutar pasos tras ANYKEY, LOAD, PARSE de órdenes del jugador, y DEBUG
-        if traza and entrada[numCondacto][0] in (24, 26, 73, 220):
+        if traza and NOMBRE_SISTEMA != 'GAC' and entrada[numCondacto][0] in (24, 26, 73, 220):
           # Aseguramos que PARSE sea de órdenes del jugador, que será con parámetro 0
           if entrada[numCondacto][0] != 73 or (entrada[numCondacto][1] and not entrada[numCondacto][1][0]):
             paso = numPasos
@@ -786,18 +970,18 @@ Devuelve True si ha ejecutado DESC o equivalente. False si se debe reiniciar la 
         if cambioFlujo < 0:  # Ejecutar subproceso
           prepara_tabla_proceso (-cambioFlujo)
           continue
-        if cambioFlujo in (0, 1, 8):  # Terminar todo
+        if cambioFlujo in (0, 1, 8, 9):  # Terminar todo
           del doall_activo[:]
           del pila_procs[:]
           if cambioFlujo == 0:  # Reiniciar aventura
             gui.borra_todo()  # TODO: se hace en DAAD, ver si también lo hace PAWS
             proceso_ok = None
             return False
-          # cambioFlujo in (1, 8):  # Saltar a describir la localidad o a ejecutar el proceso 0
+          # cambioFlujo in (1, 8, 9):  # Saltar a describir la localidad, a ejecutar el proceso 0, o a pedir orden
           proceso_ok = True  # TODO: comprobar si esto es así
           if cambioFlujo == 1:
             return True
-          return 8
+          return cambioFlujo
         if cambioFlujo == 2:  # Reiniciar tabla actual
           numEntrada  = 0
           numCondacto = -2
@@ -931,7 +1115,7 @@ def imprime_condacto ():
   for parametro in parametros:
     prn (str (parametro).rjust (3), end = ' ')
   prn()
-  if condacto[0] == 'ANYKEY':  # Dejará las banderas actualizadas al momento de esta pausa
+  if condacto[0] in ('ANYKEY', 'HOLD'):  # Dejará las banderas actualizadas al momento de esta pausa
     gui.imprime_banderas  (banderas)
     gui.imprime_locs_objs (locs_objs)
 
@@ -942,6 +1126,9 @@ def incrementa_turno ():
   if NUM_BANDERAS[0] == 68:  # Quill para Sinclair QL
     banderaTurnosLSB += 30
     banderaTurnosMSB += 30
+  elif NOMBRE_SISTEMA == 'GAC':
+    banderaTurnosLSB += 95
+    banderaTurnosMSB += 95
   banderas[banderaTurnosLSB] += 1
   if banderas[banderaTurnosLSB] > 255:
     banderas[banderaTurnosLSB]  = 0
@@ -1073,7 +1260,7 @@ if __name__ == '__main__':
   argsParser.add_argument ('--icon', type = str, help = argparse.SUPPRESS)
   argsParser.add_argument ('--ide', action = 'store_true', help = argparse.SUPPRESS)
   argsParser.add_argument ('-s', '--scale', type = int, choices = range (1, 10), help = 'factor de escalado para la ventana')
-  argsParser.add_argument ('--system', choices = ('quill', 'paws', 'swan', 'daad'), help = 'usar este sistema en lugar de autodetectarlo')
+  argsParser.add_argument ('--system', choices = ('gac', 'quill', 'paws', 'swan', 'daad'), help = 'usar este sistema en lugar de autodetectarlo')
   argsParser.add_argument ('--title', type = str, help = argparse.SUPPRESS)
   argsParser.add_argument ('bbdd', metavar = 'bd_cf_o_carpeta', nargs = '?' if QDialog else 1, help = 'base de datos, snapshot, código fuente, o carpeta de Quill/PAWS/SWAN/DAAD a ejecutar')
   argsParser.add_argument ('ruta_graficos', metavar = 'bd_o_carpeta_gráficos', nargs = '?', help = 'base de datos gráfica o carpeta de la que tomar las imágenes (con nombre pic###.png)')
@@ -1201,7 +1388,7 @@ if __name__ == '__main__':
       gui.NOMBRE_SISTEMA = libreria.NOMBRE_SISTEMA
       gui.NUM_BANDERAS   = libreria.NUM_BANDERAS
       modulo.ruta_bbdd   = args.bbdd
-      for constante in ('BANDERA_LLEVABLES', 'BANDERA_LOC_ACTUAL', 'BANDERA_NOMBRE', 'BANDERA_VERBO'):
+      for constante in ('BANDERA_ADVERBIO', 'BANDERA_LLEVABLES', 'BANDERA_LOC_ACTUAL', 'BANDERA_NOMBRE', 'BANDERA_NOMBRE2', 'BANDERA_PRONOMBRE', 'BANDERA_VERBO', 'NUM_BANDERAS_ACC'):
         if constante in libreria.__dict__:
           globals()[constante] = libreria.__dict__[constante][0]
       break
@@ -1228,10 +1415,10 @@ if __name__ == '__main__':
 
   bbdd.close()
 
-  constantes = ('EXT_SAVEGAME', 'LONGITUD_PAL', 'NOMB_COMO_VERB', 'NOMBRE_SISTEMA', 'NUM_ATRIBUTOS', 'NUM_BANDERAS', 'PREP_COMO_VERB', 'TIPOS_PAL', 'TIPOS_PAL_ES')
+  constantes = ('EXT_SAVEGAME', 'LONGITUD_PAL', 'NOMB_COMO_VERB', 'NOMBRE_SISTEMA', 'NUM_ATRIBUTOS', 'NUM_BANDERAS', 'NUM_MARCADORES', 'PREP_COMO_VERB', 'TIPOS_PAL', 'TIPOS_PAL_ES')
   funciones  = ('actualiza_grafico', 'adapta_msgs_sys', 'busca_condacto', 'busca_conexion', 'cambia_articulo', 'da_peso', 'imprime_mensaje', 'obj_referido', 'parsea_orden', 'prepara_vocabulario', 'restaura_objetos', 'tabla_hizo_algo')
   funcsLib   = ('carga_xmessage', )
-  variables  = ('atributos', 'atributos_extra', 'banderas', 'compatibilidad', 'conexiones', 'desc_locs', 'desc_objs', 'doall_activo', 'frases', 'locs_iniciales', 'locs_objs', 'msgs_usr', 'msgs_sys', 'nombres_objs', 'nueva_version', 'num_objetos', 'partida', 'peso_llevado', 'pila_procs', 'tablas_proceso', 'vocabulario')
+  variables  = ('atributos', 'atributos_extra', 'banderas', 'compatibilidad', 'conexiones', 'desc_locs', 'desc_objs', 'doall_activo', 'frases', 'loc_inicio', 'locs_iniciales', 'locs_objs', 'marcadores', 'msgs_usr', 'msgs_sys', 'nombres_objs', 'nueva_version', 'num_objetos', 'partida', 'peso_llevable', 'peso_llevado', 'pila_datos', 'pila_procs', 'tablas_proceso', 'vocabulario')
 
   # Hacemos lo equivalente a: from libreria import *, cargando sólo lo exportable
   for lista in (constantes, funcsLib, variables):
@@ -1245,7 +1432,7 @@ if __name__ == '__main__':
     modulo.gui       = gui
     modulo.libreria  = libreria
     modulo.ruta_bbdd = args.bbdd
-    for constante in ('BANDERA_LLEVABLES', 'BANDERA_LOC_ACTUAL', 'BANDERA_NOMBRE'):
+    for constante in ('BANDERA_ADVERBIO', 'BANDERA_LLEVABLES', 'BANDERA_LOC_ACTUAL', 'BANDERA_NOMBRE', 'BANDERA_NOMBRE2', 'BANDERA_VERBO', 'NUM_BANDERAS_ACC'):
       if constante in globals():
         modulo.__dict__[constante] = globals()[constante]
     for lista in (constantes, funcsLib, variables):
@@ -1270,7 +1457,8 @@ if __name__ == '__main__':
       prn ('No hay ningún fichero ni carpeta con ese nombre:', args.ruta_graficos, file = sys.stderr)
 
   if NOMBRE_SISTEMA != 'DAAD':
-    gui.todo_mayusculas = True
+    if NOMBRE_SISTEMA != 'GAC':
+      gui.todo_mayusculas = True
     if not gui.paleta[0]:
       # Colores en este orden: negro, azul, rojo, magenta, verde, cyan, amarillo, blanco
       gui.paleta[0].extend (((0, 0, 0), (0, 0, 215), (215, 0, 0), (215, 0, 215),  # Sin brillo
@@ -1334,7 +1522,7 @@ if __name__ == '__main__':
       elif nueva_version:
         gui.cod_juego_alto = 14  # ü
         gui.cod_juego_bajo = 15  # Ü
-  if NOMBRE_SISTEMA != 'QUILL':
+  if NOMBRE_SISTEMA not in ('GAC', 'QUILL'):
     gui.txt_mas = msgs_sys[32]  # (más)
 
   # Fallamos ahora si falta algún condacto
@@ -1355,6 +1543,7 @@ if __name__ == '__main__':
   gui.abre_ventana (traza, args.scale, args.bbdd)
 
   # Preparamos las listas banderas y locs_objs
+  # TODO: ver si locs_objs está bien así para GAC
   banderas.extend  ([0,] * NUM_BANDERAS[0])  # Banderas del sistema
   locs_objs.extend ([0,] * num_objetos[0])   # Localidades de los objetos
 
@@ -1366,6 +1555,9 @@ if __name__ == '__main__':
 
   if NOMBRE_SISTEMA == 'DAAD' and nueva_version:
     bucle_daad_nuevo()
+  elif NOMBRE_SISTEMA == 'GAC':
+    marcadores.extend ([0,] * NUM_MARCADORES[0])  # Banderas del sistema
+    bucle_gac()
   else:
     bucle_paws()
 

@@ -33,7 +33,7 @@ import graficos_bitmap
 import pygame
 
 if version_info[0] == 3 and version_info[1] >= 5:  # Para Python 3.5+
-  from typing import *  # Para que PyCharm reconozca Optional y Union
+  from typing import *  # Para que PyCharm reconozca BinaryIO, Optional y Union
 
 
 traza = False  # Si queremos una traza del funcionamiento del módulo
@@ -172,8 +172,10 @@ def abre_ventana (traza, escalar, bbdd):
   ancho_juego = int (math.ceil ((limite[0] * ancho_caracter) / 8.)) * 8
   resolucion  = (ancho_juego, limite[1] * 8)  # Tamaño de la ventana de juego
   if traza and 'NUM_BANDERAS' in globals():  # Añadiremos espacio para las banderas
-    if NUM_BANDERAS[0] > 64:  # Sistemas desde PAWS en adelante
+    if NUM_BANDERAS[0] > 140:  # Sistemas desde PAWS en adelante
       resolucion = (resolucion[0] + ((5 * 6) + 3) * 8 - 2, 32 * 8)
+    elif NUM_BANDERAS[0] > 64:  # Sistema GAC
+      resolucion = (resolucion[0] + ((5 * 6) + 3) * 5 - 2, 32 * 8)
     elif NUM_BANDERAS[0] == 64:  # Sistema Quill para Sinclair QL
       resolucion = (resolucion[0] + ((5 * 6) + 3) * (3 + int (math.ceil (float (num_objetos[0]) / limite[1]))), resolucion[1])
     else:  # Resto de sistemas Quill, con 33 banderas
@@ -406,9 +408,10 @@ def carga_bd_pics (rutaBDGfx):
     precargaGraficos()
 
 def carga_fuente_zx (fichero):
-  """Carga una fuente tipográfica de 8x8 de QUILL o PAWS desde el fichero abierto dado con snapshot de ZX Spectrum"""
+  # type: (BinaryIO) -> None
+  """Carga una fuente tipográfica de 8x8 de GAC, QUILL o PAWS desde el fichero abierto dado con snapshot de ZX Spectrum"""
   global ancho_caracter, fuente, izquierda
-  if NOMBRE_SISTEMA not in ('QUILL', 'PAWS'):
+  if NOMBRE_SISTEMA not in ('GAC', 'QUILL', 'PAWS'):
     return
   ancho_caracter = 8
   izquierda      = '·' * 16 + ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_£abcdefghijklmnopqrstuvwxyz{|}~\x7f\r\t\n'
@@ -852,9 +855,9 @@ El parámetro pararTimeout indica si se evitará el tiempo muerto cuando la entrad
     shift         = (modificadores & pygame.KMOD_SHIFT) != 0
     # Primero, tratamos los códigos superiores a 255
     if tecla in (pygame.K_KP_ENTER, pygame.K_RETURN):
-      if entrada:
+      if entrada or NOMBRE_SISTEMA == 'GAC':
         break
-      # Seguimos leyendo entrada del jugador si se pulsa Enter sin haber escrito nada
+      # Seguimos leyendo entrada del jugador si se pulsa Enter sin haber escrito nada, salvo en sistema GAC
     elif tecla == 314:  # Alt Gr + `
       insertaHastaMax (entrada, posInput, '[', longMax)
     elif tecla in teclas_kp:
@@ -1046,7 +1049,10 @@ def imprime_locs_objs (locs_objs):
     locs_objs_viejas = set (range (num_objetos[0]))
   if ide:
     return
-  alias = ({252: 'N', 253: 'W', 254: 'C'}, {252: 'NC', 253: 'WO', 254: 'CA'}, {252: 'NCR', 253: 'WOR', 254: 'CAR'})
+  if NOMBRE_SISTEMA == 'GAC':
+    alias = ({0: 'N', 32767: 'C'}, {0: 'NC', 32767: 'CA'}, {0: 'NCR', 32767: 'CAR'})
+  else:
+    alias = ({252: 'N', 253: 'W', 254: 'C'}, {252: 'NC', 253: 'WO', 254: 'CA'}, {252: 'NCR', 253: 'WOR', 254: 'CAR'})
   if NUM_BANDERAS[0] > 64:  # Posición bajo la ventana de juego
     colInicial  = 0
     colFinal    = ancho_juego

@@ -86,17 +86,24 @@ tam_fuente      = 12     # El tamaño de fuente para el diálogo de procesos
 
 # Identificadores (para hacer el código más legible) predefinidos
 IDS_LOCS = {
-  0:   'INITIAL',
-       'INITIAL': 0,
-  252: 'NOTCREATED',
-       'NOTCREATED': 252,
-       '_': 252,
-  253: 'WORN',
-       'WORN': 253,
-  254: 'CARRIED',
-       'CARRIED': 254,
-  255: 'HERE',
-       'HERE': 255}
+  'GAC': {
+    0:     'NOTCREATED',
+           'NOTCREATED': 0,
+    32767: 'CARRIED',
+           'CARRIED': 32767},
+  None: {
+    0:   'INITIAL',
+         'INITIAL': 0,
+    252: 'NOTCREATED',
+         'NOTCREATED': 252,
+         '_': 252,
+    253: 'WORN',
+         'WORN': 253,
+    254: 'CARRIED',
+         'CARRIED': 254,
+    255: 'HERE',
+         'HERE': 255}
+}
 
 # Conversión de teclas para manejo del intérprete
 conversion_teclas = {Qt.Key_Escape: 27, Qt.Key_Down: 80, Qt.Key_End: 79, Qt.Key_Home: 71, Qt.Key_Left: 75, Qt.Key_Right: 77, Qt.Key_Up: 72}
@@ -118,26 +125,26 @@ info_nueva = []
 nombres_necesarios = (('acciones',          dict),
                       ('cadena_es_mayor',   types.FunctionType),
                       ('condiciones',       dict),
-                      ('conexiones',        list),
-                      ('desc_locs',         list),
-                      ('desc_objs',         list),
+                      ('conexiones',        (dict, list)),
+                      ('desc_locs',         (dict, list)),
+                      ('desc_objs',         (dict, list)),
                       ('func_nueva',        str),
                       ('funcs_exportar',    tuple),
                       ('funcs_importar',    tuple),
                       ('escribe_secs_ctrl', types.FunctionType),
                       ('INDIRECCION',       bool),
                       ('lee_secs_ctrl',     types.FunctionType),
-                      ('locs_iniciales',    list),
+                      ('locs_iniciales',    (dict, list)),
                       ('LONGITUD_PAL',      int),
-                      ('msgs_sys',          list),
+                      ('msgs_sys',          (dict, list)),
                       ('msgs_usr',          list),
                       ('NOMB_COMO_VERB',    list),
                       ('NOMBRE_SISTEMA',    str),
-                      ('nombres_objs',      list),
+                      ('nombres_objs',      (dict, list)),
                       ('NUM_ATRIBUTOS',     list),
                       ('NUM_BANDERAS',      list),
                       ('PREP_COMO_VERB',    int),
-                      ('tablas_proceso',    list),
+                      ('tablas_proceso',    (dict, list)),
                       ('TIPOS_PAL',         tuple),
                       ('vocabulario',       list))
 
@@ -897,14 +904,15 @@ class ModeloTextos (QAbstractTableModel):
   """Modelo para las tablas de mensajes y de descripciones"""
   def __init__ (self, parent, listaTextos):
     QAbstractTableModel.__init__ (self, parent)
-    self.listaTextos = listaTextos
+    self.indicesTextos = sorted (listaTextos.keys()) if type (listaTextos) == dict else list (range (len (listaTextos)))
+    self.listaTextos   = listaTextos
 
   def columnCount (self, parent):
     return 1
 
   def data (self, index, role):
     if role == Qt.DisplayRole:
-      return daTextoImprimible (self.listaTextos[index.row()])
+      return daTextoImprimible (self.listaTextos[self.indicesTextos[index.row()]])
 
   def flags (self, index):
     return Qt.ItemIsSelectable | Qt.ItemIsEnabled
@@ -915,11 +923,11 @@ class ModeloTextos (QAbstractTableModel):
         return _('Message text')
       return _('Description text')
     if orientation == Qt.Vertical and role == Qt.DisplayRole:
-      return section  # Cuenta el número de mensaje desde 0
+      return self.indicesTextos[section]  # section cuenta desde 0
     return QAbstractTableModel.headerData (self, section, orientation, role)
 
   def rowCount (self, parent):
-    return len (self.listaTextos)
+    return len (self.indicesTextos)
 
 class ModeloLocalidades (ModeloTextos):
   """Modelo para la tabla de localidades"""
@@ -931,7 +939,7 @@ class ModeloLocalidades (ModeloTextos):
 
   def data (self, index, role):
     if role == Qt.DisplayRole and index.column():
-      conexionesLocalidad = mod_actual.conexiones[index.row()]
+      conexionesLocalidad = mod_actual.conexiones[self.indicesTextos[index.row()]]
       for codigo, destino in conexionesLocalidad:
         if codigo == pals_salida[index.column() - 1]:
           return destino
@@ -962,20 +970,21 @@ class ModeloObjetos (ModeloTextos):
   def data (self, index, role):
     if role == Qt.DisplayRole and index.column():
       if index.column() == 1:
-        locInicial = mod_actual.locs_iniciales[index.row()]
-        return IDS_LOCS[locInicial] if locInicial in IDS_LOCS else locInicial
-      nombre = mod_actual.nombres_objs[index.row()][0]
+        locInicial = mod_actual.locs_iniciales[self.indicesTextos[index.row()]]
+        locsPredefinidas = IDS_LOCS[mod_actual.NOMBRE_SISTEMA] if mod_actual.NOMBRE_SISTEMA in IDS_LOCS else IDS_LOCS[None]
+        return locsPredefinidas[locInicial] if locInicial in locsPredefinidas else locInicial
+      nombre = mod_actual.nombres_objs[self.indicesTextos[index.row()]][0]
       if mod_actual.NUM_ATRIBUTOS[0] == 1:  # Pseudoatributo prenda en Quill para QL
         if index.column() == 2:
           return _('&Yes', 1) if 199 < nombre < 255 else _('&No', 1)
         return (pal_sinonimo[(nombre, tipo_nombre)] if (nombre, tipo_nombre) in pal_sinonimo else nombre) if nombre < 255 else ''
-      atributos = mod_actual.atributos[index.row()]
+      atributos = mod_actual.atributos[self.indicesTextos[index.row()]]
       if index.column() == 2:
         return atributos & 63
       if index.column() == 5:
         return (pal_sinonimo[(nombre, tipo_nombre)] if (nombre, tipo_nombre) in pal_sinonimo else nombre) if nombre < 255 else ''
       if index.column() == 6:
-        adjetivo = mod_actual.nombres_objs[index.row()][1]
+        adjetivo = mod_actual.nombres_objs[self.indicesTextos[index.row()]][1]
         return (pal_sinonimo[(adjetivo, tipo_adjetivo)] if (adjetivo, tipo_adjetivo) in pal_sinonimo else adjetivo) if adjetivo < 255 else ''
       return (_('&Yes', 1) if atributos & (64 if index.column() == 3 else 128) else _('&No', 1))
     return ModeloTextos.data (self, index, role)
@@ -1257,9 +1266,12 @@ def actualizaPosProcesos ():
   else:  # No queda nada más por actualizar
     return
   muestraProcesos()
+  numProcSel = pestanyas.currentIndex()  # Número de proceso seleccionado
+  if type (mod_actual.tablas_proceso) == dict:
+    numProcSel = sorted (mod_actual.tablas_proceso.keys())[numProcSel]
   if not pila_procs:
     cambiaProceso (pestanyas.currentIndex())
-  elif pestanyas.currentIndex() == pila_procs[-1][0]:  # La línea ejecutándose actualmente es del proceso seleccionado
+  elif numProcSel == pila_procs[-1][0]:  # La línea ejecutándose actualmente es del proceso seleccionado
     proceso = mod_actual.tablas_proceso[pila_procs[-1][0]]
     # Desmarcamos la línea marcada anteriormente
     if pilaAnterior and len (pilaAnterior[-1]) > 1:
@@ -1298,7 +1310,10 @@ def actualizaPosProcesos ():
       campo_txt.setFontWeight (QFont.Normal)
     campo_txt.centraLineaCursor()
   else:
-    pestanyas.setCurrentIndex (pila_procs[-1][0])
+    indiceProceso = pila_procs[-1][0]
+    if type (mod_actual.tablas_proceso) == dict:
+      indiceProceso = sorted (mod_actual.tablas_proceso.keys()).index (indiceProceso)
+    pestanyas.setCurrentIndex (indiceProceso)
   if mdi_juego:
     selector.centralWidget().setActiveSubWindow (mdi_juego)
     if inicio_debug:
@@ -1334,6 +1349,8 @@ def cambiaProceso (numero, numEntrada = None):
   """Llamada al cambiar de pestaña en el diálogo de procesos"""
   global pals_no_existen
   selector.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
+  if type (mod_actual.tablas_proceso) == dict:
+    numero = sorted (mod_actual.tablas_proceso.keys())[numero]
   proceso   = mod_actual.tablas_proceso[numero]  # El proceso seleccionado
   cabeceras = proceso[0]  # Las cabeceras del proceso seleccionado
   entradas  = proceso[1]  # Las entradas del proceso seleccionado
@@ -1689,27 +1706,27 @@ def editaBandera (numBandera):
 
 def editaDescLoc (indice):
   """Permite editar el texto de una descripción de localidad, tras hacer doble click en su tabla"""
-  dialogo = ModalEntradaTexto (dlg_desc_locs, mod_actual.desc_locs[indice.row()])
+  dialogo = ModalEntradaTexto (dlg_desc_locs, mod_actual.desc_locs[dlg_desc_locs.model().indicesTextos[indice.row()]])
   if dialogo.exec_() == QDialog.Accepted:
-    mod_actual.desc_locs[indice.row()] = dialogo.daTexto()
+    mod_actual.desc_locs[dlg_desc_locs.model().indicesTextos[indice.row()]] = dialogo.daTexto()
 
 def editaDescObj (indice):
   """Permite editar el texto de una descripción de objeto, tras hacer doble click en su tabla"""
-  dialogo = ModalEntradaTexto (dlg_desc_objs, mod_actual.desc_objs[indice.row()])
+  dialogo = ModalEntradaTexto (dlg_desc_objs, mod_actual.desc_objs[dlg_desc_objs.model().indicesTextos[indice.row()]])
   if dialogo.exec_() == QDialog.Accepted:
-    mod_actual.desc_objs[indice.row()] = dialogo.daTexto()
+    mod_actual.desc_objs[dlg_desc_objs.model().indicesTextos[indice.row()]] = dialogo.daTexto()
 
 def editaMsgSys (indice):
   """Permite editar el texto de un mensaje de sistema, tras hacer doble click en su tabla"""
-  dialogo = ModalEntradaTexto (dlg_msg_sys, mod_actual.msgs_sys[indice.row()])
+  dialogo = ModalEntradaTexto (dlg_msg_sys, mod_actual.msgs_sys[dlg_msg_sys.model().indicesTextos[indice.row()]])
   if dialogo.exec_() == QDialog.Accepted:
-    mod_actual.msgs_sys[indice.row()] = dialogo.daTexto()
+    mod_actual.msgs_sys[dlg_msg_sys.model().indicesTextos[indice.row()]] = dialogo.daTexto()
 
 def editaMsgUsr (indice):
   """Permite editar el texto de un mensaje de usuario, tras hacer doble click en su tabla"""
-  dialogo = ModalEntradaTexto (dlg_msg_usr, mod_actual.msgs_usr[indice.row()])
+  dialogo = ModalEntradaTexto (dlg_msg_usr, mod_actual.msgs_usr[dlg_msg_usr.model().indicesTextos[indice.row()]])
   if dialogo.exec_() == QDialog.Accepted:
-    mod_actual.msgs_usr[indice.row()] = dialogo.daTexto()
+    mod_actual.msgs_usr[dlg_msg_usr.model().indicesTextos[indice.row()]] = dialogo.daTexto()
 
 def editaVocabulario (indice):
   """Permite editar una entrada de vocabulario, tras hacer doble clic en su tabla"""
@@ -1983,7 +2000,8 @@ def imprimeCondacto (condacto, parametros, inalcanzable = False, nuevaLinea = Tr
            (tiposParams[p] == 'o' and parametro >= len (mod_actual.desc_objs))      or \
            (tiposParams[p] == 'p' and parametro >= len (mod_actual.tablas_proceso)) or \
            (tiposParams[p] == 's' and parametro >= len (mod_actual.msgs_sys))       or \
-           (tiposParams[p] == 'w' and parametro >= 8):
+           (tiposParams[p] == 'w' and parametro >= 8) or \
+           (tiposParams[p] == 'W' and parametro > 32767):
           if inalcanzable:
             campo_txt.setTextColor (QColor (120, 0, 0))  # Color rojo oscuro
           else:
@@ -2195,18 +2213,22 @@ def muestraProcesos ():
   layout.addWidget (campo_txt)
   layout.setContentsMargins (1, 1, 1, 1)
   pestanyas.currentChanged.connect (cambiaProceso)
-  num_procesos = len (mod_actual.tablas_proceso)
-  for numero in range (num_procesos):
-    str_numero = str (numero)
-    if 'NOMBRES_PROCS' in mod_actual.__dict__ and numero < len (mod_actual.NOMBRES_PROCS):
-      titulo = mod_actual.NOMBRES_PROCS[numero]
-    else:
-      titulo = _('Process ') + str_numero
-    if num_procesos < 6:  # Hay pocos procesos, espacio de sobra
+  procesos = sorted (mod_actual.tablas_proceso.keys()) if type (mod_actual.tablas_proceso) == dict else range (len (mod_actual.tablas_proceso))
+  for numero in procesos:
+    strNumero = str (numero)
+    titulo    = _('Process ') + strNumero
+    if 'NOMBRES_PROCS' in mod_actual.__dict__:
+      if (type (mod_actual.NOMBRES_PROCS) == list and numero < len (mod_actual.NOMBRES_PROCS)) or \
+         (type (mod_actual.NOMBRES_PROCS) == dict and numero in mod_actual.NOMBRES_PROCS):
+        titulo = mod_actual.NOMBRES_PROCS[numero]
+      elif type (mod_actual.NOMBRES_PROCS) == dict and None in mod_actual.NOMBRES_PROCS:
+        titulo = mod_actual.NOMBRES_PROCS[None] + ' ' + strNumero
+    if len (procesos) < 6:  # Hay pocos procesos, espacio de sobra
       pestanyas.addTab (titulo)
     else:
-      pestanyas.addTab (str_numero)
-      pestanyas.setTabToolTip (numero, titulo)
+      numPestanya = pestanyas.count()
+      pestanyas.addTab (strNumero)
+      pestanyas.setTabToolTip (numPestanya, titulo)
   paleta = QPalette (campo_txt.palette())
   paleta.setColor (QPalette.Base, color_base)              # Color de fondo gris oscuro
   paleta.setColor (QPalette.Text, QColor (255, 255, 255))  # Color de frente (para el cursor) blanco
@@ -2419,7 +2441,7 @@ def copiaTexto (dialogoTextos, listaTextos):
   indices = dialogoTextos.selectionModel().selectedIndexes()
   textoCopiado = ''
   for indice in indices:
-    textoCopiado += ('\n' if textoCopiado else '') + mod_actual.lee_secs_ctrl (listaTextos[indice.row()])
+    textoCopiado += ('\n' if textoCopiado else '') + mod_actual.lee_secs_ctrl (listaTextos[dialogoTextos.model().indicesTextos[indice.row()]])
   aplicacion.clipboard().setText (textoCopiado)
 
 def pegaTexto (dialogoTextos, listaTextos):
@@ -2509,12 +2531,16 @@ def postCarga (nombre):
       else:  # Es condición
         mod_actual.condiciones[codigo] = mod_actual.condactos[codigo]
   # Cogemos la primera palabra de cada tipo y número como sinónimo preferido
-  if len (mod_actual.TIPOS_PAL) > 1:
+  if len (mod_actual.TIPOS_PAL) > 3:
     tipo_adjetivo    = mod_actual.TIPOS_PAL.index (_('Adjective'))
     tipo_nombre      = mod_actual.TIPOS_PAL.index (_('Noun'))
     tipo_preposicion = mod_actual.TIPOS_PAL.index (_('Preposition'))
     tipo_verbo       = mod_actual.TIPOS_PAL.index (_('Verb'))
-  else:
+  elif len (mod_actual.TIPOS_PAL) > 1:  # Es GAC
+    tipo_nombre      = mod_actual.TIPOS_PAL.index (_('Noun'))
+    tipo_preposicion = mod_actual.TIPOS_PAL.index (_('Adverb'))
+    tipo_verbo       = mod_actual.TIPOS_PAL.index (_('Verb'))
+  else:  # Es Quill
     tipo_nombre = tipo_preposicion = tipo_verbo = 0
   for palabra, codigo, tipo in mod_actual.vocabulario:
     idYtipos = [(codigo, tipo)]
@@ -2527,7 +2553,7 @@ def postCarga (nombre):
           (tipo == tipo_verbo and palabra[-1] == 'r' and pal_sinonimo[idYtipo][-1] != 'r'):
         pal_sinonimo[idYtipo] = palabra
   # Recopilamos las palabras usadas como salidas en la tabla de conexiones
-  for conexionesLocalidad in mod_actual.conexiones:
+  for conexionesLocalidad in mod_actual.conexiones.values() if type (mod_actual.conexiones) == dict else mod_actual.conexiones:
     for codigo, destino in conexionesLocalidad:
       if codigo not in pals_salida:
         pals_salida.append (codigo)
