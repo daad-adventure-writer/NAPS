@@ -1098,7 +1098,7 @@ if __name__ == '__main__':
           prn ('Error al importar el módulo:', excepcion, file = sys.stderr)
           continue
         for funcion, extensiones, descripcion in modulo.funcs_importar:
-          if comprueba_nombre (modulo, funcion, types.FunctionType):
+          if comprueba_tipo (modulo, funcion, types.FunctionType):
             filtro.append (descripcion + ' (*.' + ' *.'.join (extensiones) + ')')
             for extension in extensiones:
               soportadas.add (extension)

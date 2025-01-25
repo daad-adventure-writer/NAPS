@@ -27,7 +27,7 @@ import os  # Para SEEK_END
 from sys import version_info
 
 if version_info[0] == 3 and version_info[1] >= 5:  # Para Python 3.5+
-  from typing import *  # Para que PyCharm reconozca BinaryIO
+  from typing import *  # Para que PyCharm reconozca BinaryIO, Optional y Sequence
 
 despl_ini = 0
 

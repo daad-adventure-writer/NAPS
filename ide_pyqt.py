@@ -1398,20 +1398,20 @@ def cargaInfoModulos ():
       prn (_('Error when importing module:'), excepcion, file = sys.stderr)
       continue
     # Apaño para que funcione las librerías de DAAD, PAW y SWAN tal y como están (con lista unificada de condactos)
-    if comprueba_nombre (modulo, 'condactos', dict) and not comprueba_nombre (modulo, 'acciones', dict):
+    if comprueba_tipo (modulo, 'condactos', dict) and not comprueba_tipo (modulo, 'acciones', dict):
       modulo.acciones    = {}
       modulo.condiciones = {}
     # Comprobamos que el módulo tenga todos los nombres necesarios
-    for nombre, tipo in nombres_necesarios:
-      if not comprueba_nombre (modulo, nombre, tipo):
+    for nombre, tipos in nombres_necesarios:
+      if not comprueba_tipo (modulo, nombre, tipos):
         modulo = None  # Módulo de librería inválido, lo liberamos
         break
     if modulo == None:
       continue
     for entrada in modulo.funcs_importar:
-      if comprueba_nombre (modulo, entrada[0], types.FunctionType):
+      if comprueba_tipo (modulo, entrada[0], types.FunctionType):
         info_importar.append ((nombre_modulo, entrada[0], entrada[1], entrada[2]))
-    if comprueba_nombre (modulo, modulo.func_nueva, types.FunctionType):
+    if comprueba_tipo (modulo, modulo.func_nueva, types.FunctionType):
       info_nueva.append ((nombre_modulo, modulo.func_nueva))
       accion = QAction (_('%s database') % modulo.NOMBRE_SISTEMA, menu_BD_nueva)
       accion.setStatusTip (_('Creates a new %s database') % modulo.NOMBRE_SISTEMA)
@@ -2502,7 +2502,7 @@ def postCarga (nombre):
   global tipo_adjetivo, tipo_nombre, tipo_verbo
   # Apaño para que funcionen tal y como están las librerías con lista unificada de condactos
   # Lo hacemos aquí, porque la lista de condactos se puede extender tras cargar una BD
-  if comprueba_nombre (mod_actual, 'condactos', dict) and (not comprueba_nombre (mod_actual, 'acciones', dict) or not mod_actual.acciones):
+  if comprueba_tipo (mod_actual, 'condactos', dict) and (not comprueba_tipo (mod_actual, 'acciones', dict) or not mod_actual.acciones):
     for codigo in mod_actual.condactos:
       if mod_actual.condactos[codigo][2]:  # Es acción
         mod_actual.acciones[codigo] = mod_actual.condactos[codigo]
@@ -2534,7 +2534,7 @@ def postCarga (nombre):
   pals_salida.sort()
   # Preparamos las funciones de exportación
   for entrada in mod_actual.funcs_exportar:
-    if comprueba_nombre (mod_actual, entrada[0], types.FunctionType):
+    if comprueba_tipo (mod_actual, entrada[0], types.FunctionType):
       info_exportar.append ((entrada[0], entrada[1], entrada[2]))
   # Habilitamos las acciones que requieran tener una base de datos cargada
   accContadores.setEnabled (True)

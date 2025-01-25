@@ -29,6 +29,11 @@ import sys
 
 import gramatica
 
+# Para sugerencias de tipo
+from types import *
+if sys.version_info[0] == 3 and sys.version_info[1] >= 5:  # Para Python 3.5+
+  from typing import *  # Para que PyCharm reconozca Sequence y Union
+
 
 validar = False  # Si queremos validar el funcionamiento correcto del código
 
@@ -782,9 +787,12 @@ def guarda_codigo_fuente (fichero, NOMB_COMO_VERB, PREP_COMO_VERB, abreviaturas,
     codigoFuente += '\n/END'
   fichero.write (codigoFuente.encode ('cp437' if formato == 'sce' else 'iso-8859-1'))
 
-def comprueba_nombre (modulo, nombre, tipo):
-  """Devuelve True si un nombre está en un módulo, y es del tipo correcto"""
-  if (nombre in modulo.__dict__) and (type (modulo.__dict__[nombre]) == tipo):
+def comprueba_tipo (modulo, nombre, tipos):
+  # type: (ModuleType, str, Union[type, Sequence[type]]) -> bool
+  """Devuelve si el nombre dado está en el módulo dado y es de uno de los tipos dados"""
+  if type (tipos) not in (list, tuple):
+    tipos = [tipos]
+  if (nombre in modulo.__dict__) and (type (modulo.__dict__[nombre]) in tipos):
     return True
   return False
 
