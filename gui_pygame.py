@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Interfaz gráfica de usuario (GUI) con PyGame para el intérprete PAW-like
-# Copyright (C) 2010, 2018-2024 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2018-2025 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -31,6 +31,9 @@ import string  # Para algunas constantes
 
 import graficos_bitmap
 import pygame
+
+if version_info[0] == 3 and version_info[1] >= 5:  # Para Python 3.5+
+  from typing import *  # Para que PyCharm reconozca Optional y Union
 
 
 traza = False  # Si queremos una traza del funcionamiento del módulo
@@ -660,7 +663,8 @@ def elige_subventana (numero):
   return anterior
 
 def espera_tecla (tiempo = 0, numPasos = False):
-  """Espera hasta que se pulse una tecla (modificadores no), o hasta que pase tiempo segundos, si tiempo > 0
+  # type: (Optional[Union[float, int]], Optional[bool]) -> Optional[Union[int, str]]
+  """Espera hasta que se pulse una tecla (modificadores no) y la devuelve, o hasta que pase tiempo segundos (si es > 0)
 
   numPasos indica si se espera tecla para el número de pasos a ejecutar, al depurar"""
   global lineas_mas, tras_portada
@@ -671,9 +675,9 @@ def espera_tecla (tiempo = 0, numPasos = False):
     if traza:
       prn ('Esperando tecla, con tiempo muerto', tiempo, 'segundos')
   if ide:
-    # TODO: tiempo muerto, teclas pulsadas, revisar teclas de edición, y que ninguna tecla indebida resulte en un Enter pulsado
+    # TODO: tiempo muerto, teclas pulsadas, revisar teclas de edición y que ninguna indebida resulte en un Enter pulsado
     actualizaVentana()
-    prn ('stp' if numPasos else 'key')  # Avisamos al IDE si estamos esperando una tecla para número de pasos de ejecución o no
+    prn ('stp' if numPasos else 'key')  # Avisamos al IDE si esperamos una tecla para número de pasos de ejecución o no
     stdout.flush()
     while True:
       entrada = raw_input()
@@ -696,7 +700,7 @@ def espera_tecla (tiempo = 0, numPasos = False):
             puntos_ruptura.append (puntoRuptura)
         continue
       return ord (entrada[0] if entrada else '\r')
-  pygame.time.set_timer (pygame.USEREVENT, tiempo * 1000)  # Ponemos el timer
+  pygame.time.set_timer (pygame.USEREVENT, int (tiempo * 1000))  # Ponemos el timer
   copia = ventana.copy()  # Porque con PyGame 2 se pierde al menos al redimensionar
   while True:
     pygame.event.pump()
