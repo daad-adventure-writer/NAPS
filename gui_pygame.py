@@ -1044,11 +1044,21 @@ def imprime_locs_objs (locs_objs):
   global locs_objs_antes, locs_objs_viejas
   if locs_objs == locs_objs_antes and not locs_objs_viejas:
     return  # No hacemos nada si no cambiaron ni habían cambiado justo antes
+  if ide:
+    if locs_objs_antes == None:
+      locs_objs_antes  = locs_objs.copy() if type (locs_objs) == dict else [0,] * num_objetos[0]
+      locs_objs_viejas = locs_objs  # Guardamos aquí acceso a la lista original, por si el IDE pide modificar alguna
+      return
+    cambiosObjetos = {}
+    for numObjeto in locs_objs if type (locs_objs) == dict else range (num_objetos[0]):
+      if locs_objs[numObjeto] != locs_objs_antes[numObjeto]:
+        cambiosObjetos[numObjeto]  = locs_objs[numObjeto]
+        locs_objs_antes[numObjeto] = locs_objs[numObjeto]
+    prn ('obj', cambiosObjetos)
+    return
   if locs_objs_antes == None:
     locs_objs_antes  = [0,] * num_objetos[0]
     locs_objs_viejas = set (range (num_objetos[0]))
-  if ide:
-    return
   if NOMBRE_SISTEMA == 'GAC':
     alias = ({0: 'N', 32767: 'C'}, {0: 'NC', 32767: 'CA'}, {0: 'NCR', 32767: 'CAR'})
   else:

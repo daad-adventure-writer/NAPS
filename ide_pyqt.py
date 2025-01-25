@@ -772,6 +772,7 @@ class ManejoExportacion (QThread):
 class ManejoInterprete (QThread):
   """Maneja la comunicación con el intérprete ejecutando la base de datos"""
   cambiaBanderas = pyqtSignal (object)
+  cambiaObjetos  = pyqtSignal (object)
   cambiaImagen   = pyqtSignal()
   cambiaPila     = pyqtSignal()
 
@@ -787,6 +788,7 @@ class ManejoInterprete (QThread):
       finLista        = ']'
       imagenCambiada  = 'img'
       banderasCambian = 'flg'
+      objetosCambian  = 'obj'
       esTeclaEntrada  = 'key'
       esTeclaPasos    = 'stp'
     else:
@@ -794,6 +796,7 @@ class ManejoInterprete (QThread):
       finLista        = ord (']')
       imagenCambiada  = b'img'
       banderasCambian = b'flg'
+      objetosCambian  = b'obj'
       esTeclaEntrada  = b'key'
       esTeclaPasos    = b'stp'
     pilaProcs = []
@@ -811,6 +814,9 @@ class ManejoInterprete (QThread):
       elif linea[:3] == banderasCambian:
         cambiosBanderas = eval (linea[4:])
         self.cambiaBanderas.emit (cambiosBanderas)
+      elif linea[:3] == objetosCambian:
+        cambiosObjetos = eval (linea[4:])
+        self.cambiaObjetos.emit (cambiosObjetos)
       elif linea[:3] == esTeclaEntrada:
         acc1Paso.setEnabled     (False)
         acc10Pasos.setEnabled   (False)
@@ -835,7 +841,11 @@ class ManejoInterprete (QThread):
     accBanderas.setEnabled   (False)
     accPasoAPaso.setEnabled  (True)
     menu_BD_nueva.setEnabled (len (info_nueva) > 0)
+    if dlg_desc_objs:
+      dlg_desc_objs.model().beginRemoveColumns (QModelIndex(), 2, 2)  # Desaparecerá la columna de la localidad actual de los objetos
     proc_interprete = None
+    if dlg_desc_objs:
+      dlg_desc_objs.model().endRemoveColumns()
     if mdi_juego:
       mdi_juego.close()
     if pilaProcs:
@@ -958,52 +968,65 @@ class ModeloObjetos (ModeloTextos):
     ModeloTextos.__init__ (self, parent, listaTextos)
 
   def columnCount (self, parent):
+    adicional = 1 if proc_interprete else 0  # Número de columnas adicionales, según si se está ejecutando la BD
+    # Parte común inicial: descripción, localidad inicial, y condicionalmente también localidad actual
     if mod_actual.NUM_ATRIBUTOS[0] == 0:  # Ningún tipo de atributos
-      return 2  # Descripción y localidad inicial
+      return 2 + adicional
     if mod_actual.NUM_ATRIBUTOS[0] == 1:  # Pseudoatributo prenda en Quill para QL
-      return 4  # Descripción, localidad inicial, prenda, y nombre
+      return 4 + adicional  # Añade columnas: prenda, y nombre
     if mod_actual.NUM_ATRIBUTOS[0] == 2:  # Contenedor y prenda, además del peso
-      return 7  # Descripción, localidad inicial, peso, contenedor, prenda, nombre, y adjetivo
+      return 7 + adicional  # Añade columnas: peso, contenedor, prenda, nombre, y adjetivo
     # Contenedor, prenda, y 16 atributos extra, además del peso
-    return 7  # Descripción, localidad inicial, peso, contenedor, prenda, (atributos extra), nombre, y adjetivo
+    return 7 + adicional  # Añade columnas: peso, contenedor, prenda, (atributos extra), nombre, y adjetivo
 
   def data (self, index, role):
     if role == Qt.DisplayRole and index.column():
-      if index.column() == 1:
+      locsPredefinidas = IDS_LOCS[mod_actual.NOMBRE_SISTEMA] if mod_actual.NOMBRE_SISTEMA in IDS_LOCS else IDS_LOCS[None]
+      if index.column() == 1:  # Localidad inicial
         locInicial = mod_actual.locs_iniciales[self.indicesTextos[index.row()]]
-        locsPredefinidas = IDS_LOCS[mod_actual.NOMBRE_SISTEMA] if mod_actual.NOMBRE_SISTEMA in IDS_LOCS else IDS_LOCS[None]
         return locsPredefinidas[locInicial] if locInicial in locsPredefinidas else locInicial
-      nombre = mod_actual.nombres_objs[self.indicesTextos[index.row()]][0]
+      if proc_interprete and index.column() == 2:  # Localidad actual, sólo mientras se está ejecutando la BD
+        locActual = locs_objs[self.indicesTextos[index.row()]]
+        return locsPredefinidas[locActual] if locActual in locsPredefinidas else locActual
+      adicional = 1 if proc_interprete else 0  # Número de columnas adicionales desde este punto
+      nombre    = mod_actual.nombres_objs[self.indicesTextos[index.row()]][0]
       if mod_actual.NUM_ATRIBUTOS[0] == 1:  # Pseudoatributo prenda en Quill para QL
-        if index.column() == 2:
+        if index.column() == 2 + adicional:
           return _('&Yes', 1) if 199 < nombre < 255 else _('&No', 1)
         return (pal_sinonimo[(nombre, tipo_nombre)] if (nombre, tipo_nombre) in pal_sinonimo else nombre) if nombre < 255 else ''
       atributos = mod_actual.atributos[self.indicesTextos[index.row()]]
-      if index.column() == 2:
+      if index.column() == 2 + adicional:
         return atributos & 63
-      if index.column() == 5:
+      if index.column() == 5 + adicional:
         return (pal_sinonimo[(nombre, tipo_nombre)] if (nombre, tipo_nombre) in pal_sinonimo else nombre) if nombre < 255 else ''
-      if index.column() == 6:
+      if index.column() == 6 + adicional:
         adjetivo = mod_actual.nombres_objs[self.indicesTextos[index.row()]][1]
         return (pal_sinonimo[(adjetivo, tipo_adjetivo)] if (adjetivo, tipo_adjetivo) in pal_sinonimo else adjetivo) if adjetivo < 255 else ''
-      return (_('&Yes', 1) if atributos & (64 if index.column() == 3 else 128) else _('&No', 1))
+      return (_('&Yes', 1) if atributos & (64 if index.column() == 3 + adicional else 128) else _('&No', 1))
+    elif role == Qt.ForegroundRole and proc_interprete and index.column() == 2:
+      idObjeto = self.indicesTextos[index.row()]
+      if locs_objs[idObjeto] != locs_objs_antes[idObjeto]:
+        return QColor (0, 255, 0)  # La imprimimos en verde porque acaba de cambiar
     return ModeloTextos.data (self, index, role)
 
   def headerData (self, section, orientation, role):
     if orientation == Qt.Horizontal and role == Qt.DisplayRole and section:
       if section == 1:
         return _('Start location')
+      if proc_interprete and section == 2:
+        return _('Current location')
+      adicional = 1 if proc_interprete else 0  # Número de columnas adicionales desde este punto
       if mod_actual.NUM_ATRIBUTOS[0] == 1:  # Pseudoatributo prenda en Quill para QL
-        if section == 2:
+        if section == 2 + adicional:
           return _('Wearable')
         return _('Noun')
-      if section == 2:
+      if section == 2 + adicional:
         return _('Weight')
-      if section == 3:
+      if section == 3 + adicional:
         return _('Container')
-      if section == 4:
+      if section == 4 + adicional:
         return _('Wearable')
-      if section == 5:
+      if section == 5 + adicional:
         return _('Noun')
       return _('Adjective')
     return ModeloTextos.headerData (self, section, orientation, role)
@@ -1244,6 +1267,15 @@ def actualizaBanderas (cambiosBanderas):
         botonBandera.setToolTip ((_('Value of flag %d: ') % numBandera) + str (banderas[numBandera]))
   if dlg_banderas:
     dlg_banderas.layout().redibuja()
+
+def actualizaObjetos (cambiosObjetos):
+  """Actualiza el valor de los objetos"""
+  global locs_objs, locs_objs_antes
+  locs_objs_antes = locs_objs.copy()
+  for numObjeto in cambiosObjetos:
+    locs_objs[numObjeto] = cambiosObjetos[numObjeto]
+  if dlg_desc_objs:
+    dlg_desc_objs.repaint()
 
 def actualizaProceso ():
   """Redibuja el proceso actualmente mostrado, si hay alguno"""
@@ -1781,9 +1813,14 @@ def ejecutaPasos (indicePasos):
 
 def ejecutaPorPasos ():
   """Ejecuta la base de datos para depuración paso a paso"""
-  global banderas, pilas_pendientes, inicio_debug, proc_interprete
+  global banderas, locs_objs, locs_objs_antes, pilas_pendientes, inicio_debug, proc_interprete
   banderas     = [0] * mod_actual.NUM_BANDERAS[0]  # Inicializamos las banderas
   inicio_debug = True
+  # Inicializamos las localidades de los objetos
+  locs_objs = {}
+  for numObjeto in mod_actual.locs_iniciales if type (mod_actual.locs_iniciales) == dict else range (len (mod_actual.locs_iniciales)):
+    locs_objs[numObjeto] = mod_actual.locs_iniciales[numObjeto]
+  locs_objs_antes = locs_objs.copy()
   accBanderas.setEnabled   (True)
   accPasoAPaso.setEnabled  (False)
   menu_BD_nueva.setEnabled (False)
@@ -1797,6 +1834,7 @@ def ejecutaPorPasos ():
   pilas_pendientes = []
   hilo = ManejoInterprete (proc_interprete, aplicacion)
   hilo.cambiaBanderas.connect (actualizaBanderas)
+  hilo.cambiaObjetos.connect  (actualizaObjetos)
   hilo.cambiaImagen.connect   (actualizaVentanaJuego)
   hilo.cambiaPila.connect     (actualizaPosProcesos)
   hilo.start()
