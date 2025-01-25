@@ -971,6 +971,8 @@ class ModeloObjetos (ModeloTextos):
     adicional = 1 if proc_interprete else 0  # Número de columnas adicionales, según si se está ejecutando la BD
     # Parte común inicial: descripción, localidad inicial, y condicionalmente también localidad actual
     if mod_actual.NUM_ATRIBUTOS[0] == 0:  # Ningún tipo de atributos
+      if mod_actual.NOMBRE_SISTEMA == 'GAC':
+        return 3 + adicional  # Añade columna peso
       return 2 + adicional
     if mod_actual.NUM_ATRIBUTOS[0] == 1:  # Pseudoatributo prenda en Quill para QL
       return 4 + adicional  # Añade columnas: prenda, y nombre
@@ -990,18 +992,20 @@ class ModeloObjetos (ModeloTextos):
         return locsPredefinidas[locActual] if locActual in locsPredefinidas else locActual
       adicional = 1 if proc_interprete else 0  # Número de columnas adicionales desde este punto
       nombre    = mod_actual.nombres_objs[self.indicesTextos[index.row()]][0]
-      if mod_actual.NUM_ATRIBUTOS[0] == 1:  # Pseudoatributo prenda en Quill para QL
-        if index.column() == 2 + adicional:
+      if mod_actual.NUM_ATRIBUTOS[0] == 1:
+        if index.column() == 2 + adicional:  # Pseudoatributo prenda en Quill para QL
           return _('&Yes', 1) if 199 < nombre < 255 else _('&No', 1)
+        # Nombre
         return (pal_sinonimo[(nombre, tipo_nombre)] if (nombre, tipo_nombre) in pal_sinonimo else nombre) if nombre < 255 else ''
       atributos = mod_actual.atributos[self.indicesTextos[index.row()]]
-      if index.column() == 2 + adicional:
-        return atributos & 63
-      if index.column() == 5 + adicional:
+      if index.column() == 2 + adicional:  # Peso
+        return atributos & (255 if mod_actual.NOMBRE_SISTEMA == 'GAC' else 63)
+      if index.column() == 5 + adicional:  # Nombre
         return (pal_sinonimo[(nombre, tipo_nombre)] if (nombre, tipo_nombre) in pal_sinonimo else nombre) if nombre < 255 else ''
-      if index.column() == 6 + adicional:
+      if index.column() == 6 + adicional:  # Adjetivo
         adjetivo = mod_actual.nombres_objs[self.indicesTextos[index.row()]][1]
         return (pal_sinonimo[(adjetivo, tipo_adjetivo)] if (adjetivo, tipo_adjetivo) in pal_sinonimo else adjetivo) if adjetivo < 255 else ''
+      # Atributos
       return (_('&Yes', 1) if atributos & (64 if index.column() == 3 + adicional else 128) else _('&No', 1))
     elif role == Qt.ForegroundRole and proc_interprete and index.column() == 2:
       idObjeto = self.indicesTextos[index.row()]
