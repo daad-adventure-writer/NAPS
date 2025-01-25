@@ -236,9 +236,6 @@ def bucle_daad_nuevo ():
   """Bucle principal del intérprete, para últimas versiones de DAAD"""
   while True:
     inicializa()
-    if traza:
-      gui.imprime_banderas  (banderas)
-      gui.imprime_locs_objs (locs_objs)
     valor = True
     while valor:
       valor = ejecuta_proceso (0)
@@ -325,10 +322,6 @@ def bucle_paws ():
   """Bucle principal del intérprete, para PAWS y primeras versiones de DAAD"""
   estado = 0  # Estado del intérprete
   while True:
-    if traza:
-      gui.imprime_banderas  (banderas)
-      gui.imprime_locs_objs (locs_objs)
-
     if estado == 0:  # Inicialización
       inicializa()
       estado = 1
@@ -355,9 +348,6 @@ def bucle_paws ():
       elif valor == True:  # Ha terminado con DESC
         estado = 1  # Saltamos a la descripción de la localidad
       else:
-        if traza:
-          gui.imprime_banderas  (banderas)
-          gui.imprime_locs_objs (locs_objs)
         # Mientras no tengamos una orden válida, reiniciaremos este estado
         if obtener_orden() != True:
           estado = 3
@@ -389,9 +379,6 @@ def bucle_paws ():
       else:
         banderas[BANDERA_LOC_ACTUAL] = destino
         estado = 1
-        if traza:
-          gui.imprime_banderas  (banderas)
-          gui.imprime_locs_objs (locs_objs)
     elif estado == 5:  # Tablas de respuestas y de conexiones exhaustas, o se terminó con NOTDONE
       tiempoTimeout = banderas[48] if NOMBRE_SISTEMA != 'QUILL' and banderas[49] & 2 else 0
       if not proceso_acc:  # No se ha ejecutado ninguna "acción"
