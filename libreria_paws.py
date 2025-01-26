@@ -26,6 +26,8 @@ from bajo_nivel      import *
 from graficos_bitmap import carga_udgs_zx
 from prn_func        import _, prn
 
+import sys  # Para stderr
+
 import alto_nivel
 
 
@@ -386,7 +388,7 @@ def cargaAbreviaturas ():
       else:
         abreviatura.append (chr (caracter))
     abreviaturas.append (''.join (abreviatura))
-    #prn (i, ' |', abreviaturas[-1], '|', sep = '')
+    #prn (i, ' |', abreviaturas[-1], '|', sep = '', file = sys.stderr)
 
 # Carga los atributos de los objetos
 def cargaAtributos ():
@@ -487,7 +489,6 @@ def cargaTablasProcesos ():
   # Cargamos el número de procesos
   fich_ent.seek (CAB_NUM_PROCS)
   num_procs = carga_int1()
-  # prn (num_procs, 'procesos')
   # Vamos a la posición de la lista de posiciones de los procesos
   fich_ent.seek (carga_desplazamiento (CAB_POS_LST_POS_PROCS))
   # Cargamos las posiciones de los procesos
@@ -521,15 +522,14 @@ def cargaTablasProcesos ():
           try:
             muestraFallo ('FIXME: Condacto desconocido', 'Código de condacto: ' + str (num_condacto) + '\nProceso: ' + str (num_proceso) + '\nÍndice de entrada: ' + str (num_entrada))
           except:
-            prn ('FIXME: Número de condacto', num_condacto, 'desconocido, en entrada', num_entrada, 'del proceso', num_proceso)
+            prn ('FIXME: Número de condacto', num_condacto, 'desconocido, en entrada', num_entrada, 'del proceso', num_proceso, file = sys.stderr)
           return
         for i in range (len (condactos[num_condacto][1])):
           parametros.append (carga_int1())
         entrada.append ((condacto, parametros))
       entradas.append (entrada)
     if len (cabeceras) != len (entradas):
-      prn ('ERROR: Número distinto de cabeceras y entradas para una tabla de',
-           'procesos')
+      prn ('ERROR: Número distinto de cabeceras y entradas para una tabla de procesos', file = sys.stderr)
       return
     tablas_proceso.append ((cabeceras, entradas))
 

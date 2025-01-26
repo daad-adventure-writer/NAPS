@@ -23,6 +23,7 @@
 # *****************************************************************************
 
 import os
+import sys  # Para stderr
 
 from bajo_nivel import *
 from prn_func   import _, prn
@@ -345,7 +346,7 @@ def cargaTablasProcesos ():
           try:
             muestraFallo ('FIXME: Condacto desconocido', 'Código de condacto: ' + str (codCondacto) + '\nTabla de condiciones: ' + nombreTabla + '\nÍndice de entrada: ' + str (len (entradas)))
           except:
-            prn ('FIXME: Número de condacto', codCondacto, 'desconocido, en entrada', len (entradas), 'de la tabla de condiciones de', nombreTabla)
+            prn ('FIXME: Número de condacto', codCondacto, 'desconocido, en entrada', len (entradas), 'de la tabla de condiciones de', nombreTabla, file = sys.stderr)
             entradas.append (entrada)
             tablas_proceso[numTabla] = (((255, 255), ) * len (entradas), entradas)
             for entrada in entradas:
@@ -414,7 +415,7 @@ def daCadena (longitud):
         try:
           muestraFallo ('Texto incompleto', 'Uno de los textos tiene un número de palabra inexistente: ' + str (par & 2047) + '\nNúmero de palabras: ' + len (palabras) + '\nSe reemplaza por "¡¿?!"')
         except:
-          prn ('Advertencia: número de palabra', par & 2047, 'inexistente, sólo hay', len (palabras), 'palabras. Se reemplaza por "!??!"')
+          prn ('Advertencia: número de palabra', par & 2047, 'inexistente, sólo hay', len (palabras), 'palabras. Se reemplaza por "!??!"', file = sys.stderr)
       if tipo == 0:  # Se debe pasar la primera letra a mayúsculas
         palabra = palabra[:1].upper() + palabra[1:]
       # Con tipo == 1 se deja la palabra en minúsculas
