@@ -402,7 +402,8 @@ def daCadena (longitud):
     signo = puntuacion[(par >> 11) & 7]
     if tipo == 3:  # Es un signo de puntuación
       if signo == '\x00':  # Fin de la cadena
-        return cadena
+        l += 2
+        break
       repetir = par & 255  # Cuántas veces repetir el signo de puntuación
       cadena += signo * repetir
     else:
