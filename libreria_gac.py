@@ -375,7 +375,22 @@ def cargaVocabulario ():
       codigo = carga_int1()
       if codigo == 0:  # Fin de este tipo de palabra de vocabulario
         break
-      palabra = palabras[carga_int2() & 2047]
+      numPalabra = carga_int2() & 2047
+      palabra    = palabras[numPalabra & 2047] if numPalabra < len (palabras) else ''
+      if not palabra:
+        mensajeGUIcomun     = 'Se omite una palabra de vocabulario por tener asociada una palabra %s: ' + str (numPalabra) + '\nTipo de palabra de vocabulario: ' + TIPOS_PAL[t] + '\nCódigo de ' + TIPOS_PAL[t].lower() + ': ' + str (codigo) + '\n' + (('Palabra del mismo tipo anterior: ' + vocabulario[-1][0]) if vocabulario and vocabulario[-1][2] == t else 'Ninguna palabra anterior del mismo tipo')
+        mensajeConsolaComun = 'Advertencia: omitida palabra de vocabulario ' + str (codigo) + ' de tipo ' + TIPOS_PAL[t] + ' por tener asociada una palabra %s con código ' + str (numPalabra)
+        if numPalabra < len (palabras):
+          try:
+            muestraFallo ('Palabra de vocabulario vacía', mensajeGUIcomun % 'vacía')
+          except:
+            prn (mensajeConsolaComun % 'vacía', file = sys.stderr)
+        else:
+          try:
+            muestraFallo ('Palabra inexistente', mensajeGUIcomun % 'inexistente')
+          except:
+            prn (mensajeConsolaComun % 'inexistente' + ', cuando sólo hay', len (palabras), 'palabras', file = sys.stderr)
+        continue
       vocabulario.append ((palabra, codigo, t))
       completas.add (palabra)
       # Anotamos los prefijos de la palabra
