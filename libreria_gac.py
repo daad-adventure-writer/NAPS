@@ -130,10 +130,13 @@ condactos = {
    1 : ('AND',  '',  True,  False),
    2 : ('OR',   '',  True,  False),
    3 : ('NOT',  '',  True,  False),
+   4 : ('XOR',  '',  True,  False),
    5 : ('HOLD', '',  True,  False),
    6 : ('GET',  '',  True,  False),
    7 : ('DROP', '',  True,  False),
+   8 : ('SWAP', '',  True,  False),
    9 : ('TO',   '',  True,  False),
+  10 : ('OBJ',  '',  True,  False),
   11 : ('SET',  '',  True,  False),
   12 : ('RESE', '',  True,  False),
   13 : ('SET?', '',  True,  False),
@@ -143,9 +146,11 @@ condactos = {
   17 : ('DECR', '',  True,  False),
   18 : ('INCR', '',  True,  False),
   19 : ('EQU?', '',  True,  False),
+  20 : ('DESC', '',  True,  False),
   21 : ('LOOK', '',  True,  False),
   22 : ('MESS', '',  True,  False),
   23 : ('PRIN', '',  True,  False),
+  24 : ('RAND', '',  True,  False),
   25 : ('LT',   '',  True,  False),  # Es el condacto <
   26 : ('GT',   '',  True,  False),  # Es el condacto >
   27 : ('EQ',   '',  True,  False),  # Es el condacto =
@@ -154,9 +159,16 @@ condactos = {
   30 : ('HERE', '',  True,  False),
   31 : ('CARR', '',  True,  False),  # TODO: revisar por qué hay dos CARR y se usan los dos en Quijote de ZX
   32 : ('CARR', '',  True,  False),  # TODO: revisar por qué hay dos CARR y se usan los dos en Quijote de ZX
+  33 : ('PLUS', '',  True,  False),  # Es el condacto +
+  34 : ('MINU', '',  True,  False),  # Es el condacto -
+  35 : ('TURN', '',  True,  False),
   36 : ('AT',   '',  True,  False),
+  37 : ('BRIN', '',  True,  False),
+  38 : ('FIND', '',  True,  False),
+  39 : ('IN',   '',  True,  False),
   42 : ('OKAY', '',  True,  True),
   43 : ('WAIT', '',  True,  True),
+  44 : ('QUIT', '',  True,  True),
   45 : ('EXIT', '',  True,  True),
   46 : ('ROOM', '',  True,  False),
   47 : ('NOUN', '',  True,  False),
@@ -169,6 +181,8 @@ condactos = {
   54 : ('LIST', '',  True,  False),
   55 : ('PICT', '',  True,  False),
   56 : ('TEXT', '',  True,  False),
+  57 : ('CONN', '',  True,  False),
+  58 : ('WEIG', '',  True,  False),
   59 : ('WITH', '',  True,  False),
   60 : ('STRE', '',  True,  False),
   61 : ('LF',   '',  True,  False),
