@@ -295,13 +295,32 @@ def cargaPalabras ():
   fich_ent.seek (carga_desplazamiento (pos_cabecera + CAB_POS_PALABRAS))
   # Cargamos cada palabra
   while True:
-    longitud = carga_int1()
+    invalida = True  # Si parece que esta palabra es inválida
     palabra  = ''
-    if longitud == 255:
-      break  # Ya no hay más palabras
-    for c in range (longitud):
-      palabra += chr (carga_int1() & 127)
-    palabras.append (palabra.lower())
+    try:
+      longitud = carga_int1()
+      invalida = False
+      for c in range (longitud):
+        byteActual = carga_int1()
+        caracter   = chr (byteActual & 127)
+        palabra   += caracter
+        if caracter < '"' or caracter.islower():
+          invalida = True
+          break  # Esto no parece ser una palabra
+        if byteActual & 128:  # Marca de fin de la palabra
+          break
+      if len (palabra) < longitud:
+        if invalida:
+          prn ('Advertencia: la palabra', len (palabras), 'parece ser inválida', file = sys.stderr)
+        else:
+          prn ('Advertencia: la palabra', len (palabras), 'termina antes de lo que indica su longitud', file = sys.stderr)
+        for c in range (longitud - len (palabra)):
+          carga_int1()
+    except:  # Normalmente, sólo ocurrirá cuando termine el fichero
+      if palabra:
+        palabras.append (palabra.lower())
+      break  # Ya no debería haber más palabras
+    palabras.append ('' if invalida else palabra.lower())
 
 def cargaTablasProcesos ():
   # type: () -> None
