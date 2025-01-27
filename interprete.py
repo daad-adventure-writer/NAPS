@@ -250,6 +250,7 @@ def bucle_gac ():
   estado = 0  # Estado del intérprete
   while True:
     if estado == 0:  # Inicialización
+      gui.borra_pantalla()
       for i in range (NUM_BANDERAS[0]):
         banderas[i] = 0
       banderas[BANDERA_LOC_ACTUAL] = loc_inicio[0]
