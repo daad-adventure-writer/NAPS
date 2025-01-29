@@ -1516,15 +1516,16 @@ if __name__ == '__main__':
   # Fallamos ahora si falta algún condacto
   if False:
     comprobados = set()
-    for tabla in tablas_proceso:
-      for entrada in tabla[1]:
+    for numTabla in tablas_proceso.keys() if type (tablas_proceso) == dict else tablas_proceso:
+      for numEntrada in range (len (tablas_proceso[numTabla][1])):
+        entrada = tablas_proceso[numTabla][1][numEntrada]
         for codigo, parametros in entrada:
           if codigo > 127:
             codigo -= 128
           if codigo in comprobados:
             continue
           condacto = libreria.condactos[codigo]
-          firma    = ('a' if condacto[2] else 'c') + str (condacto[1]) + '_' + condacto[0]
+          firma    = ('a' if condacto[2] else 'c') + str (len (condacto[1])) + '_' + condacto[0]
           funcion  = busca_condacto (firma)
           comprobados.add (codigo)
 
