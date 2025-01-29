@@ -22,6 +22,9 @@
 # *                                                                           *
 # *****************************************************************************
 
+import random  # Para randint
+import sys     # Para stderr
+
 from prn_func import prn
 
 
@@ -43,6 +46,10 @@ def c0_IF ():
 
 # ACCIONES
 
+def a0_ADVE ():
+  """Añade a la pila de datos el primer adverbio de la SL actual"""
+  pila_datos.append (banderas[BANDERA_ADVERBIO])
+
 def a0_AND ():
   """Comprueba si el último y el penúltimo valor de la pila de datos evalúan como verdadero, y añade el resultado de la condición a la pila"""
   valor1 = pila_datos.pop()
@@ -60,6 +67,14 @@ def a0_CARR ():
     pila_datos.append (0)
     return
   pila_datos.append (1 if locs_objs[numObjeto] == 32767 else 0)
+
+def a0_CSET ():
+  """Asigna el penúltimo valor de la pila de datos a la bandera cuyo número está en el último valor de la pila"""
+  numBandera = pila_datos.pop()
+  valor      = pila_datos.pop()
+  if numBandera > NUM_BANDERAS_ACC:
+    return
+  banderas[numBandera] = valor
 
 def a0_CTR ():
   """Añade a la pila de datos el valor de la bandera (contador en terminología de GAC) cuyo número está en el tope de la pila de datos"""
@@ -108,7 +123,7 @@ def a0_EQU_ ():
 
 def a0_EXIT ():
   """Reinicia el juego sin preguntar, pero pidiendo tecla"""
-  gui.imprime_cadena (msgs_sys[243])
+  gui.imprime_cadena (msgs_sys[243])  # Pulsa una tecla
   gui.espera_tecla()
   return 0
 
@@ -138,6 +153,14 @@ def a0_GT ():
   valor1 = pila_datos.pop()
   valor2 = pila_datos.pop()
   pila_datos.append (1 if valor2 > valor1 else 0)
+
+def a0_HERE ():
+  """Comprueba si la localidad del objeto cuyo número está en el tope de la pila de datos equivale a la localidad actual del jugador, y añade el resultado de la condición a la pila"""
+  numObjeto = pila_datos.pop()
+  if numObjeto > len (locs_objs):
+    pila_datos.append (0)
+    return
+  pila_datos.append (1 if locs_objs[numObjeto] == banderas[BANDERA_LOC_ACTUAL] else 0)
 
 def a0_HOLD ():
   """Pausa por un tiempo de v/50 segundos o hasta que se pulse una tecla, siendo v el valor en la pila de datos"""
@@ -172,7 +195,11 @@ def a0_LIST (texto = ''):
       texto += desc_objs[numObjeto]
       gui.imprime_cadena (texto)
   if not alguno and not texto:
-    gui.imprime_cadena ('nothing')
+    gui.imprime_cadena ('nothing')  # TODO: obtener esto de la posición 22223 del sna (después del mensaje Memory full ...)
+
+def a0_LOAD ():
+  """Carga desde un fichero una partida guardada"""
+  prn ('TODO: a0_LOAD no implementado', file = sys.stderr)
 
 def a0_LOOK ():
   """Describe la localidad actual"""
@@ -220,10 +247,35 @@ def a0_OR ():
   valor2 = pila_datos.pop()
   pila_datos.append (1 if valor1 or valor2 else 0)
 
+def a0_PICT ():
+  """Pasa del modo sólo-texto a gráficos y texto"""
+  prn ('TODO: a0_PICT no implementado', file = sys.stderr)
+
 def a0_PRIN ():
   """Imprime el número que está en el tope de la pila de datos"""
   valor = pila_datos.pop()
   gui.imprime_cadena (str (valor))
+
+def a0_PLUS ():
+  """Añade a la pila de datos la suma de los dos últimos valores en la pila de datos"""
+  pila_datos.append (pila_datos.pop() + pila_datos.pop())
+
+def a0_QUIT ():
+  """Pregunta si se desea terminar el juego, espera tecla, si el jugador pulsa N prosigue la ejecución, y si no, muestra la puntuación, el número de turnos, espera tecla y reinicia el juego"""
+  gui.imprime_cadena (msgs_sys[244])  # ¿Estás seguro?
+  tecla = gui.espera_tecla()
+  if tecla and chr (tecla) in 'Nn':
+    return 9  # TODO: revisar si pasa a pedir la orden del jugador u otra cosa
+  gui.imprime_cadena ('\n' + msgs_sys[249] + str (banderas[0]))  # Tu puntuación es X
+  gui.imprime_cadena (msgs_sys[250])  # Has necesitado
+  a0_TURN()
+  a0_PRIN()
+  gui.imprime_cadena (msgs_sys[255] + '\n')  # turnos
+  return a0_EXIT()
+
+def a0_RAND ():
+  """Añade a la pila de datos un número al azar entre 0 y el valor guardado en el tope de la pila de datos - 1"""
+  pila_datos.append (random.randint (0, pila_datos.pop() - 1))
 
 def a0_RESE ():
   """Pone a falso el marcador cuyo número está en el tope de la pila de datos"""
@@ -244,6 +296,10 @@ def a0_ROOM ():
   """Añade a la pila de datos el valor de la localidad actual"""
   pila_datos.append (banderas[BANDERA_LOC_ACTUAL])
 
+def a0_SAVE ():
+  """Guarda la partida a un fichero"""
+  prn ('TODO: a0_SAVE no implementado', file = sys.stderr)
+
 def a0_SET ():
   """Pone a verdadero el marcador cuyo número está en el tope de la pila de datos"""
   numMarcador = pila_datos.pop()
@@ -263,10 +319,27 @@ def a0_STRE ():
   """Asigna el peso máximo llevable por el jugador"""
   peso_llevable[0] = pila_datos.pop()
 
+def a0_SWAP ():
+  """Intercambia las localidades de los objetos cuyos números están en los dos últimos valores de la pila de datos"""
+  objeto1 = pila_datos.pop()
+  objeto2 = pila_datos.pop()
+  localidad1 = locs_objs[objeto1]
+  localidad2 = locs_objs[objeto2]
+  locs_objs[objeto1] = localidad2
+  locs_objs[objeto2] = localidad1
+
+def a0_TEXT ():
+  """Pasa del modo de gráficos y texto al de sólo-texto"""
+  prn ('TODO: a0_TEXT no implementado', file = sys.stderr)
+
 def a0_TO ():
   """Mueve a la localidad cuyo número está en el último valor de la pila, el objeto cuyo número está en el penúltimo valor de la pila"""
   locDestino = pila_datos.pop()
   locs_objs[pila_datos.pop()] = locDestino
+
+def a0_TURN ():
+  """Añade a la pila de datos el valor del número de turnos jugados"""
+  pila_datos.append (banderas[126] + banderas[127] * 256)
 
 def a0_VBNO ():
   """Añade a la pila de datos el verbo de la SL actual"""
