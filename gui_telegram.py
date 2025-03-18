@@ -313,6 +313,7 @@ El parámetro pararTimeout indica si se evitará el tiempo muerto cuando la entrad
       imprime_cadena (prompt)
     escribe_buffer()
     entrada = raw_input()
+  nuevaLinea = True
   return entrada
 
 def mueve_cursor (columna, fila = None):
