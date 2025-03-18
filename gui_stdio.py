@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Interfaz gráfica de usuario (GUI) con entrada y salida estándar para el intérprete PAW-like
-# Copyright (C) 2010, 2018-2024 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2018-2025 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -113,10 +113,6 @@ def dibuja_grafico (numero, descripcion = False, parcial = False):
   """Dibuja un gráfico en la posición del cursor"""
   pass
 
-def espera_tecla (tiempo = 0, numPasos = False):
-  """Espera hasta que se pulse una tecla (modificadores no), o hasta que pase tiempo segundos, si tiempo > 0"""
-  pass
-
 def guarda_cursor ():
   """Guarda la posición del cursor de la subventana elegida """
   pass
@@ -204,6 +200,11 @@ def elige_subventana (numero):
   if numero != elegida:
     elegida    = numero
     nuevaLinea = True
+
+def espera_tecla (tiempo = 0, numPasos = False):
+  """Espera hasta que se pulse una tecla (modificadores no), o hasta que pase tiempo segundos, si tiempo > 0"""
+  if NOMBRE_SISTEMA in ('GAC', 'QUILL'):
+    marcaNuevaLinea()
 
 def hay_grafico (numero):
   """Devuelve si existe el gráfico de número dado"""
