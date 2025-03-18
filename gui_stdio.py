@@ -223,8 +223,9 @@ def imprime_cadena (cadena, textoNormal = True, redibujar = True, abajo = False,
   """Imprime una cadena en la posición del cursor (dentro de la subventana)"""
   global nuevaLinea
   if nuevaLinea:
+    cursores[0][0] = 0
     prn()
-  nuevaLinea = False
+    nuevaLinea = False
   cadena = limpiaCadena (cadena)
   if limite[0] == 999:  # Sin límite
     if cod_tabulador:
@@ -255,16 +256,16 @@ def imprime_cadena (cadena, textoNormal = True, redibujar = True, abajo = False,
       cadena       = cadena[:posTabulador] + (' ' * numEspacios) + cadena[posTabulador + 1:]
       posTabulador = cadena.find (cod_tabulador)
   # Dividimos la cadena en líneas
-  lineas = []
-  while len (cadena) > limite[0]:
-    posPartir = -1
-    if '\n' in cadena[:limite[0]]:
-      posPartir = cadena.find ('\n')
-    elif partir_espacio:
-      posPartir = cadena.rfind (' ', 0, limite[0] + 1)
-    if posPartir == -1:  # Ningún carácter de espacio en la línea
-      posPartir = limite[0]  # La partimos suciamente (en mitad de palabra)
+  colCursor = cursores[0][0]  # Columna donde nos habíamos quedado imprimiendo
+  lineas    = []
+  while '\n' in cadena or colCursor + len (cadena) > limite[0]:
+    posPartir = cadena.find ('\n', 0, (limite[0] - colCursor) + 1)
+    if posPartir == -1 and partir_espacio:
+      posPartir = cadena.rfind (' ', 0, (limite[0] - colCursor) + 1)
+    if posPartir == -1:  # Ni nueva línea ni ningún carácter de espacio en lo que queda de línea
+      posPartir = limite[0] - colCursor  # La partimos suciamente (en mitad de palabra)
     lineas.append (cadena[:posPartir])
+    colCursor = 0
     if partir_espacio:
       cadena = cadena[posPartir + (1 if cadena[posPartir] in ' \n' else 0):]
     else:
@@ -272,7 +273,10 @@ def imprime_cadena (cadena, textoNormal = True, redibujar = True, abajo = False,
   for linea in lineas:
     prn (linea)
   if cadena:  # Queda algo en la última línea
-    prn (cadena, end = '')
+    prn (cadena, end = '')                     # Lo imprimimos
+    cursores[0][0] = colCursor + len (cadena)  # Guardamos la columna donde termina la cadena
+  elif lineas:
+    cursores[0][0] = 0  # La cadena terminaba al inicio de línea
 
 def lee_cadena (prompt = '', inicio = '', timeout = [0], espaciar = False, pararTimeout = False):
   """Lee una cadena (terminada con Enter) desde el teclado, dando realimentación al jugador
