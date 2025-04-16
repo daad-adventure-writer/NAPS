@@ -254,7 +254,7 @@ def bucle_gac ():
       for i in range (NUM_BANDERAS[0]):
         banderas[i] = 0
       banderas[BANDERA_LOC_ACTUAL] = loc_inicio[0]
-      for i in range (NUM_MARCADORES[0]):
+      for i in range (NUM_MARCADORES):
         marcadores[i] = 0
       for numObjeto in locs_iniciales:
         locs_objs[numObjeto] = locs_iniciales[numObjeto]
@@ -1545,7 +1545,7 @@ if __name__ == '__main__':
   if NOMBRE_SISTEMA == 'DAAD' and nueva_version:
     bucle_daad_nuevo()
   elif NOMBRE_SISTEMA == 'GAC':
-    marcadores.extend ([0,] * NUM_MARCADORES[0])  # Banderas del sistema
+    marcadores.extend ([0,] * NUM_MARCADORES)  # Banderas del sistema
     bucle_gac()
   else:
     bucle_paws()

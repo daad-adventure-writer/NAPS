@@ -71,7 +71,7 @@ NOMBRE_SISTEMA     = 'GAC'  # Nombre de este sistema
 NUM_ATRIBUTOS      = [0]    # Número de atributos de objeto
 NUM_BANDERAS       = [134]  # Número de banderas del parser (de usuario y de sistema)
 NUM_BANDERAS_ACC   = [128]  # Número de banderas del parser accesibles por el programador
-NUM_MARCADORES     = [256]  # Número de marcadores booleanos del parser
+NUM_MARCADORES     = 256    # Número de marcadores booleanos del parser
 NOMB_COMO_VERB     = [0]    # Número de nombres convertibles a verbo
 PREP_COMO_VERB     = 0      # Número de preposiciones convertibles a verbo
 # Nombres de las tablas de proceso (para el IDE)
