@@ -29,6 +29,7 @@ from prn_func   import prn
 import argparse  # Para procesar argumentos de línea de comandos
 import os        # Para obtener la longitud del fichero de base de datos
 import random    # Para choice y seed
+import re        # Para quitar acentos en GAC
 import sys       # Para exit, salida estándar, y argumentos de línea de comandos
 import types     # Para poder comprobar si algo es una función
 
@@ -67,6 +68,8 @@ BANDERA_VERBO      = 33  # Bandera con el verbo de la SL actual
 BANDERA_NOMBRE     = 34  # Bandera con el primer nombre de la SL actual
 BANDERA_LOC_ACTUAL = 38  # Bandera con la localidad actual
 
+acentos    = {'á': 'a', 'é': 'e', 'í': 'i', 'ó': 'o', 'ú': 'u', 'ü': 'u', 'Á': 'A', 'É': 'E', 'Í': 'I', 'Ó': 'O', 'Ú': 'U', 'Ü': 'U', 'ñ': 'n', 'Ñ': 'N'}
+er_acentos = re.compile ('|'.join (re.escape (c) for c in acentos.keys()))
 
 # Funciones auxiliares para los módulos de condactos
 
@@ -1141,6 +1144,8 @@ def separa_orden (orden):
   palabras   = []
   palabra    = ''
   puntuacion = libreria.puntuacion[1:] if NOMBRE_SISTEMA == 'GAC' else ' ,.;:'
+  if NOMBRE_SISTEMA == 'GAC':  # Quitamos acentos
+    orden = er_acentos.sub (cambiaAcento, orden)
   for caracter in orden:
     if caracter == '"':
       comillas = not comillas
@@ -1164,7 +1169,7 @@ def separa_orden (orden):
       if caracter != ' ' and palabras:
         frases.append (palabras)
         palabras = []
-    else:  # TODO: en GAC, quitar acentos
+    else:
       palabra += caracter.lower()
   if palabra and palabra not in conjunciones:
     if palabraSinPronombre (palabra) != palabra:
@@ -1201,6 +1206,10 @@ Para depuración paso a paso, devuelve el número de pasos a ejecutar, que es: 10,
 
 
 # Funciones auxiliares que sólo se usan en este módulo
+
+def cambiaAcento (encaje):
+  """Devuelve sin acento gráfico la letra dada en el encaje de expresión regular"""
+  return acentos[encaje.group (0)]
 
 def palabraSinPronombre (palabra):
   """Devuelve la palabra dada quitándole el pronombre si tenía"""
