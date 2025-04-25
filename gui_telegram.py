@@ -194,6 +194,7 @@ def elige_parte (partes, graficos):
       if type (e).__name__ != 'ValueError':
         raise
       entrada = None
+      imprime_cadena ('Debes escribir el número de parte, por ejemplo, para la primera parte escribe: 1\n')
   return partes[entrada]
 
 def elige_subventana (numero):
