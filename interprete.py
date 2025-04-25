@@ -799,7 +799,7 @@ def prepara_orden_gac ():
         gui.imprime_banderas  (banderas)
         gui.imprime_locs_objs (locs_objs)
 
-    ordenes = separa_orden (orden)  # TODO: partir con la puntuación y conjunciones (AND y THEN) hardcodeados de GAC
+    ordenes = separa_orden (orden)
     if traza:
       prn ('Orden partida en estas frases:', ordenes)
     for f in range (len (ordenes)):
@@ -1136,10 +1136,11 @@ def prepara_tabla_proceso (num_tabla):
 def separa_orden (orden):
   """Separa la orden por frases y palabras, recortadas a LONGITUD_PAL"""
   global orden_psi
-  comillas = False
-  frases   = []
-  palabras = []
-  palabra  = ''
+  comillas   = False
+  frases     = []
+  palabras   = []
+  palabra    = ''
+  puntuacion = libreria.puntuacion[1:] if NOMBRE_SISTEMA == 'GAC' else ' ,.;:'
   for caracter in orden:
     if caracter == '"':
       comillas = not comillas
@@ -1147,10 +1148,10 @@ def separa_orden (orden):
         orden_psi = ''
     elif comillas:
       orden_psi += caracter
-    elif caracter in ' ,.;:':
+    elif caracter in puntuacion:
       if not palabra:
         continue
-      if palabra in conjunciones:
+      if palabra in conjunciones:  # TODO: en GAC, partir con las conjunciones (AND y THEN) hardcodeados de GAC
         if palabras:
           frases.append (palabras)
           palabras = []
@@ -1163,7 +1164,7 @@ def separa_orden (orden):
       if caracter != ' ' and palabras:
         frases.append (palabras)
         palabras = []
-    else:
+    else:  # TODO: en GAC, quitar acentos
       palabra += caracter.lower()
   if palabra and palabra not in conjunciones:
     if palabraSinPronombre (palabra) != palabra:
