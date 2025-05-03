@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Analizador sintáctico para cargar rápida y cómodamente código fuente SCE y DSF
-# Copyright (C) 2023-2024 José Manuel Ferrer Ortiz
+# Copyright (C) 2023-2025 José Manuel Ferrer Ortiz
 
 import re
 
@@ -17,13 +17,13 @@ NULLWORD = ['_']
 terminales = {
   'carácter de NULLWORD':   re.compile ('(_)'),  # Puede cambiar al procesar la entrada de NULLWORD
   'espacio en blanco':      re.compile ('[ \t]+'),
-  'número entero':          re.compile ('([+\-]?[0-9]+)'),
+  'número entero':          re.compile (r'([+\-]?[0-9]+)'),
   'número entero positivo': re.compile ('([0-9]+)'),
   'fin de línea opcionalmente tras espacio en blanco y/o comentario': re.compile ('[ \t]*(?:;[^\n]*)?\n'),
   # De la sección CTL
   '/CTL':     re.compile ('(/CTL)'),
   'DBDRIVE':  re.compile ('([A-P])'),
-  'NULLWORD': re.compile ('([!-\*,-.<-@\[-`{-~])'),
+  'NULLWORD': re.compile (r'([!-\*,-.<-@\[-`{-~])'),
   # De la sección TOK
   '/TOK':  re.compile ('(/TOK)'),
   'token': re.compile ('([^ ;/\n\t][^ ;\n\t]+)(?:[ \t]*(?:;[^\n]*)?\n)+'),
@@ -58,9 +58,9 @@ terminales = {
   # De la sección PRO
   '/PRO':               re.compile ('(/PRO)'),
   'carácter @':         re.compile ('(@)'),
-  'carácter [':         re.compile ('(\[)'),
-  'carácter ]':         re.compile ('(\])'),
-  'etiqueta':           re.compile ('\$([A-Za-zÑ][0-9A-Za-zÑ]*)'),
+  'carácter [':         re.compile (r'(\[)'),
+  'carácter ]':         re.compile (r'(\])'),
+  'etiqueta':           re.compile (r'\$([A-Za-zÑ][0-9A-Za-zÑ]*)'),
   'nombre de condacto': re.compile ('([A-Z][0-9A-Z]*)', re.IGNORECASE),
   'signo mayor que':    re.compile ('(>)'),
   'HERE':               re.compile ('(HERE)'),

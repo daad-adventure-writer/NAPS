@@ -132,7 +132,7 @@ def carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, atributos, atributos_e
       # Añadimos si corresponde espacios antes de cada directiva del fichero a incluir
       erDirect = re.compile ('\n([ \t]*)#')  # Expresión regular para detectar directivas de preprocesador con #
       if nivelIncluir:
-        codigoIncluir = erDirect.sub ('\n' + (' ' * nivelIncluir) + '\g<1>#', codigoIncluir)
+        codigoIncluir = erDirect.sub ('\n' + (' ' * nivelIncluir) + r'\g<1>#', codigoIncluir)
       codigoFuente = codigoFuente[:encaje.start (0) + 1] + codigoIncluir + restante
       ficheroLnk.close()
       # Comprobamos que las líneas de codigoFuente corresponden con las líneas de los ficheros según origenLineas
