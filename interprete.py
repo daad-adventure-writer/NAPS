@@ -27,7 +27,7 @@ from alto_nivel import *
 from prn_func   import prn
 
 import argparse  # Para procesar argumentos de línea de comandos
-import os        # Para obtener la longitud del fichero de base de datos
+import os        # Para soporte multiplataforma
 import random    # Para choice y seed
 import re        # Para quitar acentos en GAC
 import sys       # Para exit, salida estándar, y argumentos de línea de comandos
@@ -1242,13 +1242,16 @@ if __name__ == '__main__':
   random.seed()  # Inicializamos el generador de números aleatorios
 
   # Vemos si está disponible la librería PyQt para diálogo de selección de fichero o carpeta
-  try:
-    from PyQt4.QtGui import QApplication, QDialog, QFileDialog
-  except:
+  if os.name != 'nt' and not os.environ.get ('DISPLAY'):
+    QDialog = None  # Para que no intente abrir diálogo al ejecutarse desde consola de texto aunque esté disponible PyQt
+  else:
     try:
-      from PyQt5.QtWidgets import QApplication, QDialog, QFileDialog
+      from PyQt4.QtGui import QApplication, QDialog, QFileDialog
     except:
-      QDialog = None
+      try:
+        from PyQt5.QtWidgets import QApplication, QDialog, QFileDialog
+      except:
+        QDialog = None
 
   argsParser = argparse.ArgumentParser (sys.argv[0], description = 'Intérprete de Quill/PAWS/SWAN/DAAD en Python')
   argsParser.add_argument ('-c', '--columns', type = int, choices = range (32, 43), help = 'número de columnas a usar al imitar Spectrum')
