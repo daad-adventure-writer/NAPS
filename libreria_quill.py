@@ -1233,20 +1233,37 @@ def nueva_bd ():
   # Creamos la localidad 0
   desc_locs.append  (_("Location 0's description, the initial location."))
   conexiones.append ([])  # Ninguna conexión en esta localidad
-  # Creamos una palabra para el objeto 0
-  vocabulario.append((_('ligh'), 13, 0))  # 0 es el tipo de palabra
+  # Creamos el vocabulario
+  vocabulario.append((_('n'),    1,   0))  # 0 es el tipo de palabra
+  vocabulario.append((_('nort'), 1,   0))
+  vocabulario.append((_('s'),    2,   0))
+  vocabulario.append((_('sout'), 2,   0))
+  vocabulario.append((_('e'),    3,   0))
+  vocabulario.append((_('east'), 3,   0))
+  vocabulario.append((_('w'),    4,   0))
+  vocabulario.append((_('west'), 4,   0))
+  vocabulario.append((_('i'),    13,  0))
+  vocabulario.append((_('inve'), 13,  0))
+  vocabulario.append((_('desc'), 14,  0))
+  vocabulario.append((_('look'), 14,  0))
+  vocabulario.append((_('quit'), 15,  0))
+  vocabulario.append((_('ligh'), 100, 0))
   # Creamos el objeto 0
   desc_objs.append      (_("Object 0's description, source of light."))
   locs_iniciales.append (ids_locs['NO_CREADOS'])
-  nombres_objs.append   ((13, 255))
+  nombres_objs.append   ((100, 255))
   num_objetos[0] = 1
   # Creamos el mensaje de usuario 0
   msgs_usr.append (_('Text of message 0.'))
   # Ponemos los mensajes de sistema predefinidos
   for mensaje in nuevos_sys:
     msgs_sys.append (mensaje)
-  # Creamos la tabla de estado y la de eventos
-  tablas_proceso.append (([[], []]))
+  # Creamos la tabla de eventos y la de estado
+  tablas_proceso.append (([[(13, 255), (14, 255), (15, 255)], [
+    [(100, (), )],           # INVE *: INVEN
+    [(101, (), )],           # MIRA *: DESC
+    [(102, ()), (103, ())],  # FIN  *: QUIT END
+  ]]))
   tablas_proceso.append (([[], []]))
 
 

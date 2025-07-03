@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 24.04\n"
 "Report-Msgid-Bugs-To: jmfo1982@gmail.com\n"
-"POT-Creation-Date: 2025-07-03 18:40+0200\n"
-"PO-Revision-Date: 2025-07-03 18:52+0200\n"
+"POT-Creation-Date: 2025-07-03 20:17+0200\n"
+"PO-Revision-Date: 2025-07-03 20:22+0200\n"
 "Last-Translator: José Manuel Ferrer Ortiz <jmfo1982@gmail.com>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
@@ -535,7 +535,7 @@ msgstr "Localidad actual"
 msgid "Wearable"
 msgstr "Prenda"
 
-#: ide_pyqt.py:1026 ide_pyqt.py:1034 ide_pyqt.py:2578 ide_pyqt.py:2582
+#: ide_pyqt.py:1026 ide_pyqt.py:1034 ide_pyqt.py:2579 ide_pyqt.py:2583
 #: libreria_daad.py:76 libreria_gac.py:80 libreria_paws.py:77
 #: libreria_swan.py:69
 msgid "Noun"
@@ -549,7 +549,7 @@ msgstr "Peso"
 msgid "Container"
 msgstr "Contenedor"
 
-#: ide_pyqt.py:1035 ide_pyqt.py:2577 libreria_daad.py:76 libreria_paws.py:77
+#: ide_pyqt.py:1035 ide_pyqt.py:2578 libreria_daad.py:76 libreria_paws.py:77
 #: libreria_swan.py:69
 msgid "Adjective"
 msgstr "Adjetivo"
@@ -566,7 +566,7 @@ msgstr "Código"
 msgid "Type"
 msgstr "Tipo"
 
-#: ide_pyqt.py:1057 ide_pyqt.py:1786 ide_pyqt.py:2469
+#: ide_pyqt.py:1057 ide_pyqt.py:1786 ide_pyqt.py:2470
 msgid "Reserved"
 msgstr "Reservado"
 
@@ -835,15 +835,15 @@ msgstr "Importar base de datos"
 msgid "Edit"
 msgstr "Editar"
 
-#: ide_pyqt.py:1774 ide_pyqt.py:2445
+#: ide_pyqt.py:1774 ide_pyqt.py:2446
 msgid "Text of the word:"
 msgstr "Texto de la palabra:"
 
-#: ide_pyqt.py:1779 ide_pyqt.py:2458
+#: ide_pyqt.py:1779 ide_pyqt.py:2459
 msgid "Code of the word:"
 msgstr "Código de la palabra:"
 
-#: ide_pyqt.py:1789 ide_pyqt.py:2472
+#: ide_pyqt.py:1789 ide_pyqt.py:2473
 msgid "Type of the word:"
 msgstr "Tipo de palabra:"
 
@@ -967,33 +967,33 @@ msgstr "Palabras de vocabulario: "
 msgid "Process "
 msgstr "Proceso "
 
-#: ide_pyqt.py:2380
+#: ide_pyqt.py:2381
 msgid "Untitled"
 msgstr "Sin nombre"
 
-#: ide_pyqt.py:2446 ide_pyqt.py:2461 ide_pyqt.py:2475
+#: ide_pyqt.py:2447 ide_pyqt.py:2462 ide_pyqt.py:2476
 msgid "Add"
 msgstr "Añadir"
 
-#: ide_pyqt.py:2579 libreria_daad.py:76 libreria_paws.py:77 libreria_swan.py:69
+#: ide_pyqt.py:2580 libreria_daad.py:76 libreria_paws.py:77 libreria_swan.py:69
 msgid "Preposition"
 msgstr "Preposición"
 
-#: ide_pyqt.py:2580 ide_pyqt.py:2584 libreria_daad.py:76 libreria_gac.py:80
+#: ide_pyqt.py:2581 ide_pyqt.py:2585 libreria_daad.py:76 libreria_gac.py:80
 #: libreria_paws.py:77 libreria_swan.py:69
 msgid "Verb"
 msgstr "Verbo"
 
-#: ide_pyqt.py:2583 libreria_daad.py:76 libreria_gac.py:80 libreria_paws.py:77
+#: ide_pyqt.py:2584 libreria_daad.py:76 libreria_gac.py:80 libreria_paws.py:77
 #: libreria_swan.py:69
 msgid "Adverb"
 msgstr "Adverbio"
 
-#: ide_pyqt.py:2643
+#: ide_pyqt.py:2644
 msgid "Integrated Development Environment for Quill/PAWS/SWAN/DAAD in Python"
 msgstr "Entorno de Desarrollo Integrado para Quill/PAWS/SWAN/DAAD en Python"
 
-#: ide_pyqt.py:2644
+#: ide_pyqt.py:2645
 msgid ""
 "omit condacts in process entries behind condacts that unconditionally change "
 "execution flow"
@@ -1001,38 +1001,38 @@ msgstr ""
 "omitir condactos en entradas de proceso detrás de los que cambian el flujo "
 "de ejecución incondicionalmente"
 
-#: ide_pyqt.py:2645
+#: ide_pyqt.py:2646
 msgid "directly run 'database' step by step"
 msgstr "ejecutar base_de_datos por pasos directamente"
 
-#: ide_pyqt.py:2646
+#: ide_pyqt.py:2647
 msgid "choose the color theme to use"
 msgstr "elegir el tema de color a usar"
 
-#: ide_pyqt.py:2647
+#: ide_pyqt.py:2648
 msgid "database"
 msgstr "base_de_datos"
 
-#: ide_pyqt.py:2647
+#: ide_pyqt.py:2648
 msgid "Quill/PAWS/SWAN/DAAD database, snapshot, or source code to run"
 msgstr ""
 "base de datos, snapshot, o código fuente de Quill/PAWS/SWAN/DAAD a ejecutar"
 
-#: ide_pyqt.py:2648
+#: ide_pyqt.py:2649
 msgid "db_or_graphics_folder"
 msgstr "bd_o_carpeta_gráficos"
 
-#: ide_pyqt.py:2648
+#: ide_pyqt.py:2649
 msgid "graphic database or folder to take images from (with name pic###.png)"
 msgstr ""
 "base de datos gráfica o carpeta de la que tomar las imágenes (con nombre "
 "pic###.png)"
 
-#: ide_pyqt.py:2674
+#: ide_pyqt.py:2675
 msgid "Inexistent path"
 msgstr "Ruta inexistente"
 
-#: ide_pyqt.py:2675
+#: ide_pyqt.py:2676
 msgid ""
 "There's no file and no folder with the path given from the command line for "
 "graphics:\n"
@@ -1240,7 +1240,7 @@ msgstr "Has usado "
 msgid " turn"
 msgstr " turno"
 
-#: libreria_quill.py:103
+#: libreria_quill.py:103 libreria_quill.py:1239
 msgid "s"
 msgstr ""
 
@@ -1305,14 +1305,62 @@ msgid "Location 0's description, the initial location."
 msgstr "Descripción de la localidad 0, la inicial."
 
 #: libreria_quill.py:1237
+msgid "n"
+msgstr ""
+
+#: libreria_quill.py:1238
+msgid "nort"
+msgstr ""
+
+#: libreria_quill.py:1240
+msgid "sout"
+msgstr "sur"
+
+#: libreria_quill.py:1241
+msgid "e"
+msgstr ""
+
+#: libreria_quill.py:1242
+msgid "east"
+msgstr "este"
+
+#: libreria_quill.py:1243
+msgid "w"
+msgstr "o"
+
+#: libreria_quill.py:1244
+msgid "west"
+msgstr "oest"
+
+#: libreria_quill.py:1245
+msgid "i"
+msgstr ""
+
+#: libreria_quill.py:1246
+msgid "inve"
+msgstr ""
+
+#: libreria_quill.py:1247
+msgid "desc"
+msgstr ""
+
+#: libreria_quill.py:1248
+msgid "look"
+msgstr "mira"
+
+#: libreria_quill.py:1249
+msgid "quit"
+msgstr "fin"
+
+#: libreria_quill.py:1250
 msgid "ligh"
 msgstr "luz"
 
-#: libreria_quill.py:1239
+#: libreria_quill.py:1252
 msgid "Object 0's description, source of light."
 msgstr "Descripción del objeto 0, emisor de luz."
 
-#: libreria_quill.py:1244
+#: libreria_quill.py:1257
 msgid "Text of message 0."
 msgstr "Texto del mensaje 0."
 
