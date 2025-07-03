@@ -2372,7 +2372,8 @@ def muestraVistaVocab ():
 
 def nuevaBD (posicion):
   """Ejecuta la función de índice posicion para crear una nueva base de datos vacía"""
-  global mod_actual
+  global mod_actual, nombre_fich_bd
+  nombre_fich_bd = None
   selector.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
   cierraDialogos()
   mod_actual = __import__ (info_nueva[posicion][0])
@@ -2617,7 +2618,7 @@ def postCarga (nombre):
   accMostrarUsr.setEnabled (True)
   accMsgSys.setEnabled     (True)
   accMsgUsr.setEnabled     (True)
-  accPasoAPaso.setEnabled  (True)
+  accPasoAPaso.setEnabled  (nombre_fich_bd != None)
   accTblProcs.setEnabled   (True)
   accTblVocab.setEnabled   (True)
   # Cambiamos la acción importar de la barra de botones por la de exportar
