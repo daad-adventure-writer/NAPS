@@ -2260,7 +2260,7 @@ def muestraProcesos ():
     strNumero = str (numero)
     titulo    = _('Process ') + strNumero
     if 'NOMBRES_PROCS' in mod_actual.__dict__:
-      if (type (mod_actual.NOMBRES_PROCS) == list and numero < len (mod_actual.NOMBRES_PROCS)) or \
+      if (type (mod_actual.NOMBRES_PROCS) in (list, tuple) and numero < len (mod_actual.NOMBRES_PROCS)) or \
          (type (mod_actual.NOMBRES_PROCS) == dict and numero in mod_actual.NOMBRES_PROCS):
         titulo = mod_actual.NOMBRES_PROCS[numero]
       elif type (mod_actual.NOMBRES_PROCS) == dict and None in mod_actual.NOMBRES_PROCS:
