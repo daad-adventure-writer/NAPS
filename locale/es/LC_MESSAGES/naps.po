@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 24.04\n"
 "Report-Msgid-Bugs-To: jmfo1982@gmail.com\n"
-"POT-Creation-Date: 2025-07-03 17:01+0200\n"
-"PO-Revision-Date: 2025-07-03 17:25+0200\n"
+"POT-Creation-Date: 2025-07-03 18:40+0200\n"
+"PO-Revision-Date: 2025-07-03 18:52+0200\n"
 "Last-Translator: José Manuel Ferrer Ortiz <jmfo1982@gmail.com>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
@@ -1179,9 +1179,11 @@ msgstr ""
 "Dame tu orden."
 
 #: libreria_quill.py:90
-msgid "Sorry, I don't understand.\n"
+msgid ""
+"Sorry, I don't understand.\n"
 "Try with other words."
-msgstr "Lo siento, no entiendo eso.\n"
+msgstr ""
+"Lo siento, no entiendo eso.\n"
 "Intenta con otras palabras."
 
 #: libreria_quill.py:91
@@ -1297,6 +1299,22 @@ msgstr "Tabla de eventos"
 #: libreria_quill.py:137
 msgid "Status table"
 msgstr "Tabla de estado"
+
+#: libreria_quill.py:1234
+msgid "Location 0's description, the initial location."
+msgstr "Descripción de la localidad 0, la inicial."
+
+#: libreria_quill.py:1237
+msgid "ligh"
+msgstr "luz"
+
+#: libreria_quill.py:1239
+msgid "Object 0's description, source of light."
+msgstr "Descripción del objeto 0, emisor de luz."
+
+#: libreria_quill.py:1244
+msgid "Text of message 0."
+msgstr "Texto del mensaje 0."
 
 #: libreria_swan.py:51
 msgid "SWAN databases"

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 24.04\n"
 "Report-Msgid-Bugs-To: jmfo1982@gmail.com\n"
-"POT-Creation-Date: 2025-07-03 17:01+0200\n"
+"POT-Creation-Date: 2025-07-03 18:40+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: TWO LETTER ISO LANGUAGE CODE\n"
@@ -1102,7 +1102,8 @@ msgid ""
 msgstr ""
 
 #: libreria_quill.py:90
-msgid "Sorry, I don't understand.\n"
+msgid ""
+"Sorry, I don't understand.\n"
 "Try with other words."
 msgstr ""
 
@@ -1215,6 +1216,22 @@ msgstr ""
 
 #: libreria_quill.py:137
 msgid "Status table"
+msgstr ""
+
+#: libreria_quill.py:1234
+msgid "Location 0's description, the initial location."
+msgstr ""
+
+#: libreria_quill.py:1237
+msgid "ligh"
+msgstr ""
+
+#: libreria_quill.py:1239
+msgid "Object 0's description, source of light."
+msgstr ""
+
+#: libreria_quill.py:1244
+msgid "Text of message 0."
 msgstr ""
 
 #: libreria_swan.py:51

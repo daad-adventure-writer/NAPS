@@ -1231,17 +1231,17 @@ def nueva_bd ():
   # Asignamos colores de inicio
   colores_inicio.extend ((4, 0, 0, 0))  # Tinta verde, papel y borde negro, y sin brillo
   # Creamos la localidad 0
-  desc_locs.append  ('Descripción de la localidad 0, la inicial.')
+  desc_locs.append  (_("Location 0's description, the initial location."))
   conexiones.append ([])  # Ninguna conexión en esta localidad
   # Creamos una palabra para el objeto 0
-  vocabulario.append(('luz', 13, 0))  # 0 es el tipo de palabra
+  vocabulario.append((_('ligh'), 13, 0))  # 0 es el tipo de palabra
   # Creamos el objeto 0
-  desc_objs.append      ('Descripción del objeto 0, emisor de luz.')
+  desc_objs.append      (_("Object 0's description, source of light."))
   locs_iniciales.append (ids_locs['NO_CREADOS'])
   nombres_objs.append   ((13, 255))
   num_objetos[0] = 1
   # Creamos el mensaje de usuario 0
-  msgs_usr.append ('Texto del mensaje 0.')
+  msgs_usr.append (_('Text of message 0.'))
   # Ponemos los mensajes de sistema predefinidos
   for mensaje in nuevos_sys:
     msgs_sys.append (mensaje)
