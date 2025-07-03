@@ -2095,7 +2095,7 @@ def imprimeCondacto (condacto, parametros, inalcanzable = False, nuevaLinea = Tr
         campo_txt.insertPlainText ('"')
   else:  # Condacto sin parámetros
     campo_txt.insertPlainText ((nombre + indirecto).rstrip().center (7).rstrip())
-  if inalcanzable or campo_txt.condactos[campo_txt.condactosPorCod[condacto]][3]:
+  if inalcanzable or campo_txt.condactos[campo_txt.condactosPorCod[condacto]][2]:
     return True
   return False
 
