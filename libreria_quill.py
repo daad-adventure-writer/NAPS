@@ -1218,6 +1218,7 @@ def lee_secs_ctrl (cadena):
 def nueva_bd ():
   """Crea una nueva base de datos de The Quill (versión de Spectrum)"""
   # Vaciamos los datos pertinentes de la base de datos que hubiese cargada anteriormente
+  del colores_inicio[:]
   del conexiones[:]
   del desc_locs[:]
   del desc_objs[:]
@@ -1227,6 +1228,8 @@ def nueva_bd ():
   del nombres_objs[:]
   del tablas_proceso[:]
   del vocabulario[:]
+  # Asignamos colores de inicio
+  colores_inicio.extend ((4, 0, 0, 0))  # Tinta verde, papel y borde negro, y sin brillo
   # Creamos la localidad 0
   desc_locs.append  ('Descripción de la localidad 0, la inicial.')
   conexiones.append ([])  # Ninguna conexión en esta localidad
