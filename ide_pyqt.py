@@ -1048,7 +1048,7 @@ class ModeloVocabulario (QAbstractTableModel):
   def data (self, index, role):
     if role == Qt.DisplayRole:
       if index.column() == 0:
-        return mod_actual.vocabulario[index.row()][0]  # Palabra
+        return daTextoImprimible (mod_actual.vocabulario[index.row()][0])  # Palabra
       if index.column() == 1:
         return mod_actual.vocabulario[index.row()][1]  # Código
       # Si llega aquí, es la tercera columna: el tipo
@@ -1690,6 +1690,8 @@ def daTextoImprimible (texto):
     else:
       convertido += c
     i += 1
+  if sys.version_info[0] < 3:
+    return convertido.decode ('iso-8859-15')
   return convertido
 
 def dialogoImportaBD ():
@@ -1771,7 +1773,7 @@ def editaVocabulario (indice):
   numFila  = indice.row()
   palVocab = mod_actual.vocabulario[numFila]
   if indice.column() == 0:  # Palabra
-    dialogo = ModalEntrada (dlg_vocabulario, _('Text of the word:'), palVocab[0])
+    dialogo = ModalEntrada (dlg_vocabulario, _('Text of the word:'), daTextoImprimible (palVocab[0]))
     dialogo.setWindowTitle (_('Edit'))
     if dialogo.exec_() == QDialog.Accepted:
       nuevaPal = (str (dialogo.textValue())[:mod_actual.LONGITUD_PAL].lower(), ) + palVocab[1:]
@@ -2620,7 +2622,7 @@ def postCarga (nombre):
       # Preferiremos terminación en R para verbos (heurística para que sean en forma infinitiva)
       if idYtipo not in pal_sinonimo or \
           (tipo == tipo_verbo and palabra[-1] == 'r' and pal_sinonimo[idYtipo][-1] != 'r'):
-        pal_sinonimo[idYtipo] = palabra
+        pal_sinonimo[idYtipo] = daTextoImprimible (palabra)
   # Recopilamos las palabras usadas como salidas en la tabla de conexiones
   for conexionesLocalidad in mod_actual.conexiones.values() if type (mod_actual.conexiones) == dict else mod_actual.conexiones:
     for codigo, destino in conexionesLocalidad:
