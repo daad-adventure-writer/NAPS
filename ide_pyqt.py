@@ -2501,7 +2501,7 @@ def pegaTexto (dialogoTextos, listaTextos):
   for t in range (len (textos)):  # Interpretamos las secuencias de control en los textos
     texto = textos[t].replace ('\\n', '\n')
     if mod_actual.NOMBRE_SISTEMA != 'DAAD':  # En DAAD no hay tabulador, allí se usa \t para el código que pasa al juego bajo
-      texto = textos.replace ('\\t', '\t')
+      texto = texto.replace ('\\t', '\t')
     textos[t] = mod_actual.escribe_secs_ctrl (texto)
   if len (destinos) > 1:  # Múltiples filas seleccionadas
     for d in range (len (destinos)):
@@ -2517,10 +2517,36 @@ def pegaTexto (dialogoTextos, listaTextos):
     modelo.endRemoveRows()
     modelo.beginInsertRows (QModelIndex(), numFila, numFila + len (textos) - 1)
     for t in range (len (textos)):
-      if numFila + t >= len (listaTextos):
-        listaTextos.append (textos[t])
-      else:
-        listaTextos[numFila + t] = textos[t]
+      nuevaFila = numFila + t  # Índice de la nueva fila
+      if type (listaTextos) == dict:  # Se trata de GAC
+        if nuevaFila in listaTextos:
+          posAnterior = listaTextos.index (nuevaFila)
+        else:
+          modelo.indicesTextos.insert (posAnterior + 1, nuevaFila)
+          posAnterior += 1
+          if listaTextos == mod_actual.desc_locs:  # Se ha creado una nueva localidad
+            mod_actual.conexiones[nuevaFila] = []
+          elif listaTextos == mod_actual.desc_objs:  # Se ha creado un nuevo objeto
+            mod_actual.atributos[nuevaFila]      = 0
+            mod_actual.locs_iniciales[nuevaFila] = IDS_LOCS['GAC']['NOTCREATED']
+            mod_actual.nombres_objs[nuevaFila]   = (nuevaFila, 255)
+        listaTextos[nuevaFila] = textos[t]
+      else:  # Son sistemas de la familia de Quill
+        if nuevaFila >= len (listaTextos):
+          modelo.indicesTextos.append (nuevaFila)
+          listaTextos.append (textos[t])
+          if listaTextos == mod_actual.desc_locs:  # Se ha creado una nueva localidad
+            mod_actual.conexiones.append ([])
+          elif listaTextos == mod_actual.desc_objs:  # Se ha creado un nuevo objeto
+            mod_actual.locs_iniciales.append (IDS_LOCS[None]['NOTCREATED'])
+            mod_actual.nombres_objs.append ((255, 255))
+            mod_actual.num_objetos[0] += 1
+            if 'atributos' in mod_actual.__dict__:
+              mod_actual.atributos.append (0)
+              if 'atributos_extra' in mod_actual.__dict__:
+                mod_actual.atributos_extra.append (0)
+        else:
+          listaTextos[nuevaFila] = textos[t]
     modelo.endInsertRows()
 
 def quitaEntradaProceso (posicion):
