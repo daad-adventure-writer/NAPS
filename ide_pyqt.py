@@ -2613,6 +2613,7 @@ def postCarga (nombre):
     tipo_verbo       = mod_actual.TIPOS_PAL.index (_('Verb'))
   else:  # Es Quill
     tipo_nombre = tipo_preposicion = tipo_verbo = 0
+  pal_sinonimo.clear()
   for palabra, codigo, tipo in mod_actual.vocabulario:
     idYtipos = [(codigo, tipo)]
     if (tipo == tipo_nombre      and codigo < mod_actual.NOMB_COMO_VERB[0] or  # Es nombre convertible en verbo
@@ -2624,6 +2625,7 @@ def postCarga (nombre):
           (tipo == tipo_verbo and palabra[-1] == 'r' and pal_sinonimo[idYtipo][-1] != 'r'):
         pal_sinonimo[idYtipo] = daTextoImprimible (palabra)
   # Recopilamos las palabras usadas como salidas en la tabla de conexiones
+  del pals_salida[:]
   for conexionesLocalidad in mod_actual.conexiones.values() if type (mod_actual.conexiones) == dict else mod_actual.conexiones:
     for codigo, destino in conexionesLocalidad:
       if codigo not in pals_salida:
