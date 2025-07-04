@@ -2630,6 +2630,10 @@ def postCarga (nombre):
     for codigo, destino in conexionesLocalidad:
       if codigo not in pals_salida:
         pals_salida.append (codigo)
+  if not pals_salida:  # No hay ninguna conexión, pondremos todas las de movimiento que haya
+    for palabra, codigo, tipo in mod_actual.vocabulario:
+      if codigo < (13 if mod_actual.NOMBRE_SISTEMA == 'QUILL' else 14) and codigo not in pals_salida and tipo in (tipo_nombre, tipo_verbo):
+        pals_salida.append (codigo)
   pals_salida.sort()
   # Preparamos las funciones de exportación
   for entrada in mod_actual.funcs_exportar:
