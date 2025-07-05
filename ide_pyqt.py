@@ -1561,7 +1561,7 @@ def creaAcciones ():
   accBanderas.setStatusTip   (_('Allows to check and modify the value of flags'))
   accContadores.setStatusTip (_('Displays the number of elements of each type'))
   accDescLocs.setStatusTip   (_('Allows to check location data and modify their descriptions'))
-  accDescObjs.setStatusTip   (_('Allows to check object data and modify their descriptions'))
+  accDescObjs.setStatusTip   (_("Allows to check and modify objects' data"))
   accDireccs.setStatusTip    (_('Allows to add and edit movement words'))
   accExportar.setStatusTip   (_('Exports the database to a file'))
   accImportar.setStatusTip   (_('Imports the database from a file'))
@@ -1774,7 +1774,8 @@ def editaObjeto (indice):
     dialogo = ModalEntradaTexto (dlg_desc_objs, mod_actual.desc_objs[numObjeto])
     if dialogo.exec_() == QDialog.Accepted:
       mod_actual.desc_objs[numObjeto] = dialogo.daTexto()
-  elif indice.column() == 1 or (adicional and indice.column() == 2):  # Localidad inicial o actual
+    return
+  if indice.column() == 1 or (adicional and indice.column() == 2):  # Localidad inicial o actual
     # Preparamos la lista de localidades a mostrar en el desplegable de la modal
     diccLocalidades  = {}
     locsPredefinidas = IDS_LOCS[mod_actual.NOMBRE_SISTEMA] if mod_actual.NOMBRE_SISTEMA in IDS_LOCS else IDS_LOCS[None]
@@ -1813,6 +1814,9 @@ def editaObjeto (indice):
           proc_interprete.stdin.write ('%' + str (numObjeto) + '=' + numLocalidad + '\n')
         else:  # Python 3+
           proc_interprete.stdin.write (bytes ('%' + str (numObjeto) + '=' + numLocalidad + '\n', locale.getpreferredencoding()))
+    return
+  if indice.column() == 2 + adicional and mod_actual.NUM_ATRIBUTOS[0] == 1:  # Pseudoatributo prenda en Quill para QL
+    muestraFallo (_('Not editable'), _('This value cannot be edited directly.') + '\n\n' + _('This is the pseudo-attribute "wearable", which cannot be directly modified. Its value depends on the code of the word assigned to this object. Assign to it a word with code value between 200 and 254 to make it "wearable", or a value lower than 200 to make it not "wearable".'), QMessageBox.Information)
 
 def editaVocabulario (indice):
   """Permite editar una entrada de vocabulario, tras hacer doble clic en su tabla"""
@@ -2265,14 +2269,17 @@ def muestraDescObjs ():
   """Muestra el diálogo para consultar las descripciones de objetos"""
   muestraTextos (dlg_desc_objs, mod_actual.desc_objs, 'desc_objetos', mdi_desc_objs)
 
-def muestraFallo (mensaje, detalle):
+def muestraFallo (mensaje, detalle, icono = QMessageBox.Warning):
   """Muestra un diálogo de fallo leve"""
   global dlg_fallo
   if not dlg_fallo:  # Diálogo no creado aún
     dlg_fallo = QMessageBox (selector)
     dlg_fallo.addButton (_('&Accept'), QMessageBox.AcceptRole)
-    dlg_fallo.setIcon (QMessageBox.Warning)
+  if icono == QMessageBox.Information:
+    dlg_fallo.setWindowTitle (_('Information'))
+  else:
     dlg_fallo.setWindowTitle (_('Failure'))
+  dlg_fallo.setIcon (icono)
   dlg_fallo.setText (mensaje)
   dlg_fallo.setInformativeText (detalle)
   dlg_fallo.exec_()
