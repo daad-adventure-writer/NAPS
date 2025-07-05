@@ -52,7 +52,7 @@ dlg_contadores  = None  # Diálogo de contadores
 dlg_fallo       = None  # Diálogo para mostrar fallos leves
 dlg_guardar     = None  # Diálogo de guardar fichero
 dlg_desc_locs   = None  # Diálogo para consultar y modificar las descripciones de localidades
-dlg_desc_objs   = None  # Diálogo para consultar y modificar las descripciones de objetos
+dlg_desc_objs   = None  # Diálogo para consultar y modificar los datos de objetos
 dlg_msg_sys     = None  # Diálogo para consultar y modificar los mensajes de sistema
 dlg_msg_usr     = None  # Diálogo para consultar y modificar los mensajes de usuario
 dlg_procesos    = None  # Diálogo para consultar y modificar las tablas de proceso
@@ -876,6 +876,11 @@ class ModalEntrada (QInputDialog):
       campo = spinbox.findChild (QLineEdit)
     else:
       campo = self.findChild (QLineEdit)
+    if not campo:  # No hay campo que sea editable
+      if combo:
+        # combo.setCurrentText (self.textoInicial)  # Esto no funcionará en PyQt4 al no tener ese método
+        combo.setCurrentIndex (combo.findText (self.textoInicial))
+      return
     if self.textoOriginal:  # De esta manera, se podrá recuperar el valor original deshaciendo
       campo.setText (self.textoOriginal)
       campo.selectAll()
@@ -911,7 +916,7 @@ class ModalEntradaTexto (QDialog):
     return mod_actual.escribe_secs_ctrl (str (self.campo.toPlainText()))
 
 class ModeloTextos (QAbstractTableModel):
-  """Modelo para las tablas de mensajes y de descripciones"""
+  """Modelo para las tablas de mensajes, heredado por las de localidades y objetos"""
   def __init__ (self, parent, listaTextos):
     QAbstractTableModel.__init__ (self, parent)
     self.indicesTextos = sorted (listaTextos.keys()) if type (listaTextos) == dict else list (range (len (listaTextos)))
@@ -1748,12 +1753,6 @@ def editaDescLoc (indice):
   if dialogo.exec_() == QDialog.Accepted:
     mod_actual.desc_locs[dlg_desc_locs.model().indicesTextos[indice.row()]] = dialogo.daTexto()
 
-def editaDescObj (indice):
-  """Permite editar el texto de una descripción de objeto, tras hacer doble click en su tabla"""
-  dialogo = ModalEntradaTexto (dlg_desc_objs, mod_actual.desc_objs[dlg_desc_objs.model().indicesTextos[indice.row()]])
-  if dialogo.exec_() == QDialog.Accepted:
-    mod_actual.desc_objs[dlg_desc_objs.model().indicesTextos[indice.row()]] = dialogo.daTexto()
-
 def editaMsgSys (indice):
   """Permite editar el texto de un mensaje de sistema, tras hacer doble click en su tabla"""
   dialogo = ModalEntradaTexto (dlg_msg_sys, mod_actual.msgs_sys[dlg_msg_sys.model().indicesTextos[indice.row()]])
@@ -1765,6 +1764,45 @@ def editaMsgUsr (indice):
   dialogo = ModalEntradaTexto (dlg_msg_usr, mod_actual.msgs_usr[dlg_msg_usr.model().indicesTextos[indice.row()]])
   if dialogo.exec_() == QDialog.Accepted:
     mod_actual.msgs_usr[dlg_msg_usr.model().indicesTextos[indice.row()]] = dialogo.daTexto()
+
+def editaObjeto (indice):
+  """Permite editar los datos de un objeto, tras hacer doble click en su tabla"""
+  numObjeto = dlg_desc_objs.model().indicesTextos[indice.row()]
+  # Parte común inicial: descripción, localidad inicial, y condicionalmente también localidad actual
+  adicional = 1 if proc_interprete else 0  # Número de columnas adicionales, según si se está ejecutando la BD
+  if indice.column() == 0:  # Descripción
+    dialogo = ModalEntradaTexto (dlg_desc_objs, mod_actual.desc_objs[numObjeto])
+    if dialogo.exec_() == QDialog.Accepted:
+      mod_actual.desc_objs[numObjeto] = dialogo.daTexto()
+  elif indice.column() == 1:  # Localidad inicial
+    # Preparamos la lista de localidades a mostrar en el desplegable de la modal
+    diccLocalidades  = {}
+    locsPredefinidas = IDS_LOCS[mod_actual.NOMBRE_SISTEMA] if mod_actual.NOMBRE_SISTEMA in IDS_LOCS else IDS_LOCS[None]
+    for numLocalidad in locsPredefinidas:
+      if type (numLocalidad) != int or locsPredefinidas[numLocalidad] == 'HERE':
+        continue
+      diccLocalidades[numLocalidad] = locsPredefinidas[numLocalidad]
+    for numLocalidad in mod_actual.desc_locs.keys() if type (mod_actual.desc_locs) == dict else range (len (mod_actual.desc_locs)):
+      textoLocalidad = mod_actual.lee_secs_ctrl (mod_actual.desc_locs[numLocalidad].lstrip())
+      if sys.version_info[0] < 3:
+        textoLocalidad = textoLocalidad.decode ('iso-8859-15')
+      if numLocalidad in diccLocalidades:  # Puede ocurrir al menos para la localidad inicial
+        diccLocalidades[numLocalidad] += ': ' + textoLocalidad
+      else:
+        diccLocalidades[numLocalidad] = textoLocalidad
+      if len (diccLocalidades[numLocalidad]) > 48:
+        diccLocalidades[numLocalidad] = diccLocalidades[numLocalidad][:48] + '...'
+    listaLocalidades = []
+    for numLocalidad in sorted (diccLocalidades.keys()):
+      listaLocalidades.append (str (numLocalidad) + ': ' + diccLocalidades[numLocalidad])
+    textoLocalidad = str (mod_actual.locs_iniciales[numObjeto]) + ': ' + diccLocalidades[mod_actual.locs_iniciales[numObjeto]]
+    dialogo = ModalEntrada (dlg_desc_objs, (_('Start location') if indice.column() == 1 else _('Current location')) + ':', textoLocalidad)
+    dialogo.setComboBoxItems (listaLocalidades)
+    dialogo.setWindowTitle   (_('Edit'))
+    if dialogo.exec_() == QDialog.Accepted:
+      textoLocalidad = dialogo.textValue()
+      numLocalidad   = textoLocalidad[:textoLocalidad.find (':')]
+      mod_actual.locs_iniciales[numObjeto] = int (numLocalidad)
 
 def editaVocabulario (indice):
   """Permite editar una entrada de vocabulario, tras hacer doble clic en su tabla"""
@@ -2320,7 +2358,7 @@ def muestraTextos (dialogo, listaTextos, tipoTextos, subventanaMdi):
     dlg_desc_locs = dialogo
     mdi_desc_locs = subventanaMdi
   elif tipoTextos == 'desc_objetos':
-    dialogo.doubleClicked.connect (editaDescObj)
+    dialogo.doubleClicked.connect (editaObjeto)
     dlg_desc_objs = dialogo
     mdi_desc_objs = subventanaMdi
   elif tipoTextos == 'msgs_sistema':
