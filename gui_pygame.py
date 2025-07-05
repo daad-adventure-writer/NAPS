@@ -688,13 +688,15 @@ def espera_tecla (tiempo = 0, numPasos = False):
         return ord ('\r')
       if ord (entrada[0]) == 0 and len (entrada) > 1 and ord (entrada[1]) in teclas_ascii_inv:
         return teclas_ascii_inv[ord (entrada[1])]
-      if entrada[0] in ('#', '$') and len (entrada) > 3:  # Cambio de valor de bandera o punto de ruptura
-        separador = '=' if entrada[0] == '#' else ','
+      if entrada[0] in '#$%' and len (entrada) > 3:  # Cambio de valor de bandera, punto de ruptura, o localidad actual de objeto
+        separador = ',' if entrada[0] == '$' else '='
         if type (entrada) != str:
           separador = separador.encode ('iso-8859-15')
         valores = entrada[1:].split (separador)
         if entrada[0] == '#':  # Cambio de valor de bandera
           banderas_viejas[int (valores[0])] = int (valores[1])  # Actualizamos el valor de la bandera en su módulo
+        elif entrada[0] == '%':  # Cambio de localidad actual de objeto
+          locs_objs_viejas[int (valores[0])] = int (valores[1])  # Actualizamos la localidad del objeto en su módulo
         else:  # Añadir o quitar punto de ruptura
           puntoRuptura = (int (valores[0]), int (valores[1]), int (valores[2]))
           if puntoRuptura in puntos_ruptura:

@@ -1774,7 +1774,7 @@ def editaObjeto (indice):
     dialogo = ModalEntradaTexto (dlg_desc_objs, mod_actual.desc_objs[numObjeto])
     if dialogo.exec_() == QDialog.Accepted:
       mod_actual.desc_objs[numObjeto] = dialogo.daTexto()
-  elif indice.column() == 1:  # Localidad inicial
+  elif indice.column() == 1 or (adicional and indice.column() == 2):  # Localidad inicial o actual
     # Preparamos la lista de localidades a mostrar en el desplegable de la modal
     diccLocalidades  = {}
     locsPredefinidas = IDS_LOCS[mod_actual.NOMBRE_SISTEMA] if mod_actual.NOMBRE_SISTEMA in IDS_LOCS else IDS_LOCS[None]
@@ -1795,14 +1795,24 @@ def editaObjeto (indice):
     listaLocalidades = []
     for numLocalidad in sorted (diccLocalidades.keys()):
       listaLocalidades.append (str (numLocalidad) + ': ' + diccLocalidades[numLocalidad])
-    textoLocalidad = str (mod_actual.locs_iniciales[numObjeto]) + ': ' + diccLocalidades[mod_actual.locs_iniciales[numObjeto]]
+    if indice.column() == 1:  # Localidad inicial
+      textoLocalidad = str (mod_actual.locs_iniciales[numObjeto]) + ': ' + diccLocalidades[mod_actual.locs_iniciales[numObjeto]]
+    else:  # Localidad actual
+      textoLocalidad = str (locs_objs[numObjeto]) + ': ' + diccLocalidades[locs_objs[numObjeto]]
     dialogo = ModalEntrada (dlg_desc_objs, (_('Start location') if indice.column() == 1 else _('Current location')) + ':', textoLocalidad)
     dialogo.setComboBoxItems (listaLocalidades)
     dialogo.setWindowTitle   (_('Edit'))
     if dialogo.exec_() == QDialog.Accepted:
       textoLocalidad = dialogo.textValue()
       numLocalidad   = textoLocalidad[:textoLocalidad.find (':')]
-      mod_actual.locs_iniciales[numObjeto] = int (numLocalidad)
+      if indice.column() == 1:  # Localidad inicial
+        mod_actual.locs_iniciales[numObjeto] = int (numLocalidad)
+      else:  # Localidad actual
+        locs_objs[numObjeto] = int (numLocalidad)
+        if sys.version_info[0] < 3:
+          proc_interprete.stdin.write ('%' + str (numObjeto) + '=' + numLocalidad + '\n')
+        else:  # Python 3+
+          proc_interprete.stdin.write (bytes ('%' + str (numObjeto) + '=' + numLocalidad + '\n', locale.getpreferredencoding()))
 
 def editaVocabulario (indice):
   """Permite editar una entrada de vocabulario, tras hacer doble clic en su tabla"""
