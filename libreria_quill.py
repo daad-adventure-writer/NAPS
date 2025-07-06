@@ -1002,8 +1002,8 @@ def guarda_bd_ql (bbdd):
   # Estas dos posiciones no están calculadas aún
   guarda_desplazamiento (-desplIni)  # Posición de las cabeceras de la tabla de eventos
   guarda_desplazamiento (-desplIni)  # Posición de las cabeceras de la tabla de estado
-  ocupado = tamCabecera - desplIni  # Espacio ocupado hasta ahora
-  guarda_desplazamiento (ocupado)  # Posición de la lista de posiciones de las descripciones de los objetos
+  ocupado = tamCabecera - desplIni   # Espacio ocupado hasta ahora
+  guarda_desplazamiento (ocupado)    # Posición de la lista de posiciones de las descripciones de los objetos
   ocupado += num_objetos[0] * tamDespl
   guarda_desplazamiento (ocupado)  # Posición de la lista de posiciones de las descripciones de las localidades
   ocupado += numLocs * tamDespl
@@ -1036,10 +1036,11 @@ def guarda_bd_ql (bbdd):
   # Guardamos las posiciones de las listas de conexiones de cada localidad
   for l in range (numLocs):
     guarda_desplazamiento (ocupado)
-    ocupado += (tamDespl * len (conexiones[l])) + 1
+    ocupado += (2 * len (conexiones[l])) + 1
   fich_sal.seek (CAB_POS_VOCAB)
   guarda_desplazamiento (ocupado)  # Posición del vocabulario
-  ocupado += (len (vocabulario) * (LONGITUD_PAL + 1)) + LONGITUD_PAL
+  tamVocabulario = len (vocabulario) + (0 if ('*', 255, 0) in vocabulario else 1)
+  ocupado += (tamVocabulario * (LONGITUD_PAL + 1)) + LONGITUD_PAL
   # Guardamos las cabeceras y entradas de las tablas de eventos y de estado
   for t in range (2):
     posicion = carga_desplazamiento4 (fich_sal.seek (CAB_POS_EVENTOS + t * tamDespl))
@@ -1088,7 +1089,7 @@ def guarda_bd_ql (bbdd):
       guarda_int1 (conexion[1])
     guarda_int1 (255)  # Fin de las conexiones de esta localidad
   # Guardamos el vocabulario
-  guardaVocabulario()
+  guardaVocabulario (optimizado = False)
   # Guardamos las localidades iniciales de los objetos
   fich_sal.seek (CAB_POS_LOCS_OBJS)
   guarda_desplazamiento (ocupado)  # Posición de las localidades iniciales de los objetos
@@ -1571,9 +1572,12 @@ def guardaPosMsgs (msgs, pos):
     ocupado += len (msgs[i]) + 1
   return ocupado
 
-def guardaVocabulario (conversion = None):
+def guardaVocabulario (conversion = None, optimizado = True):
   """Guarda la sección de vocabulario sobre el fichero de salida"""
-  for palabra in vocabulario:
+  listaVocabulario = list (vocabulario)
+  if strPlataforma == 'QL' and not optimizado and ('*', 255, 0) not in vocabulario:
+    listaVocabulario.append (('*', 255, 0))
+  for palabra in listaVocabulario:
     # Rellenamos el texto de la palabra con espacios al final
     cadena = palabra[0].upper()
     if conversion:
