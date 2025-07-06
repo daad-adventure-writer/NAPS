@@ -2720,62 +2720,70 @@ def pideNombre (codNombre, caracter = ''):
 
 El parámetro codNombre es el código del nombre que vendrá elegido por defecto en la modal
 El parámetro caracter es el primer carácter a escribir en el campo de la modal"""
-  diccNombres = {}
+  return pidePalabra (tipo_nombre, codNombre, caracter)
+
+def pidePalabra (tipoPalabra, codPalabra, caracter = ''):
+  """Pide al usuario una palabra del tipo dado y devuelve su número de código, o None en caso de error o cancelar la modal
+
+El parámetro tipoPalabra es el tipo de palabra de vocabulario que pedir al usuario
+El parámetro codPalabra es el código del nombre que vendrá elegido por defecto en la modal
+El parámetro caracter es el primer carácter a escribir en el campo de la modal"""
+  diccPalabras = {}
   for palabra, codigo, tipo in mod_actual.vocabulario:
-    if tipo != tipo_nombre:
+    if tipo != tipoPalabra:
       continue
-    if codigo in diccNombres:
-      diccNombres[codigo] += '|' + daTextoImprimible (palabra)
+    if codigo in diccPalabras:
+      diccPalabras[codigo] += '|' + daTextoImprimible (palabra)
     else:
-      diccNombres[codigo] = daTextoImprimible (palabra)
-  diccNombres[255] = _('(No noun)')
-  listaNombres = []
-  for numNombre in sorted (diccNombres.keys()):
-    listaNombres.append (str (numNombre) + ': ' + diccNombres[numNombre])
-  textoNombre = str (codNombre)
-  if codNombre in diccNombres:
-    textoNombre += ': ' + diccNombres[codNombre]
+      diccPalabras[codigo] = daTextoImprimible (palabra)
+  diccPalabras[255] = {tipo_nombre: _('(No noun)')}[tipoPalabra]
+  listaPalabras = []
+  for numPalabra in sorted (diccPalabras.keys()):
+    listaPalabras.append (str (numPalabra) + ': ' + diccPalabras[numPalabra])
+  textoPalabra = str (codPalabra)
+  if codPalabra in diccPalabras:
+    textoPalabra += ': ' + diccPalabras[codPalabra]
   if caracter:
-    dialogo = ModalEntrada (dlg_desc_objs, _('Noun') + ':', caracter, textoNombre)
+    dialogo = ModalEntrada (dlg_desc_objs, mod_actual.TIPOS_PAL[tipoPalabra] + ':', caracter, textoPalabra)
   else:
-    dialogo = ModalEntrada (dlg_desc_objs, _('Noun') + ':', textoNombre)
+    dialogo = ModalEntrada (dlg_desc_objs, mod_actual.TIPOS_PAL[tipoPalabra] + ':', textoPalabra)
   dialogo.setComboBoxEditable (True)
-  dialogo.setComboBoxItems    (listaNombres)
+  dialogo.setComboBoxItems    (listaPalabras)
   dialogo.setWindowTitle      (_('Edit'))
   if dialogo.exec_() == QDialog.Accepted:
-    textoNombre = dialogo.textValue().strip().lower()
-    if not textoNombre:
-      textoNombre = '255'
-    elif ':' in textoNombre:
-      textoNombre = textoNombre[:textoNombre.find (':')]
+    textoPalabra = dialogo.textValue().strip().lower()
+    if not textoPalabra:
+      textoPalabra = '255'
+    elif ':' in textoPalabra:
+      textoPalabra = textoPalabra[:textoPalabra.find (':')]
     try:
-      numNombre = int (textoNombre)
+      numPalabra = int (textoPalabra)
     except:
-      numNombre = None
-    if numNombre == None:  # Debe ser una palabra
-      textoNombre = textoNombre[:mod_actual.LONGITUD_PAL]
-      otroTipo    = None  # Si se ha encontrado la palabra en el vocabulario con otro tipo
+      numPalabra = None
+    if numPalabra == None:  # Debe ser una palabra
+      textoPalabra = textoPalabra[:mod_actual.LONGITUD_PAL]
+      otroTipo     = None  # Si se ha encontrado la palabra en el vocabulario con otro tipo
       for palabra, codigo, tipo in mod_actual.vocabulario:
-        if palabra == textoNombre:
-          if tipo == tipo_nombre:
-            numNombre = codigo
+        if palabra == textoPalabra:
+          if tipo == tipoPalabra:
+            numPalabra = codigo
             break
           otroTipo = tipo
-      if numNombre == None:
+      if numPalabra == None:
         if otroTipo != None:
-          muestraFallo (_('Wrong type for word'), _('The word "%(word)s" cannot be used here because its vocabulary type is %(wrongType)s, when it should be %(correctType)s.') % {'correctType': mod_actual.TIPOS_PAL[tipo_nombre], 'word': textoNombre, 'wrongType': mod_actual.TIPOS_PAL[otroTipo]})
+          muestraFallo (_('Wrong type for word'), _('The word "%(word)s" cannot be used here because its vocabulary type is %(wrongType)s, when it should be %(correctType)s.') % {'correctType': mod_actual.TIPOS_PAL[tipoPalabra], 'word': textoPalabra, 'wrongType': mod_actual.TIPOS_PAL[otroTipo]})
         else:
-          muestraFallo (_('Non-existent noun'), _('Noun "%s" not found in the vocabulary') % textoNombre)
+          muestraFallo (_('Not in vocabulary'), _('Word "%s" not found in the vocabulary') % textoPalabra)
         return
-    if numNombre != 255:
+    if numPalabra != 255:
       for palabra, codigo, tipo in mod_actual.vocabulario:
-        if tipo != tipo_nombre:
+        if tipo != tipoPalabra:
           continue
-        if codigo == numNombre:
+        if codigo == numPalabra:
           break
       else:
-        return muestraFallo (_('Non-existent noun'), _('Noun with code %d not found in the vocabulary') % numNombre)
-    return numNombre
+        return muestraFallo (_('Not in vocabulary'), _('Word with code %(code)d and type %(type)s not found in the vocabulary') % {'code': numPalabra, 'type': mod_actual.TIPOS_PAL[tipoPalabra]})
+    return numPalabra
 
 def quitaEntradaProceso (posicion):
   """Quita la entrada de proceso de la posición dada como parámetro"""
