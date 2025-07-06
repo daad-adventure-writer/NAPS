@@ -2724,6 +2724,31 @@ def pegaTexto (dialogoTextos, listaTextos):
             texto = texto.replace ('\\t', '\t')
           texto = mod_actual.escribe_secs_ctrl (texto)
           listaTextos[nuevaFila] = texto
+        elif (listaTextos == mod_actual.desc_locs  # Se está tratando de pegar salidas
+              and colActual + numColumna < 1 + len (pals_mov if accMostrarSal.isChecked() else pals_salida)):
+          try:
+            nuevoDestino = int (celdaTexto)
+          except:
+            nuevoDestino = -1
+          conexionesLocalidad = mod_actual.conexiones[nuevaFila]
+          locDestino = -1
+          for codigoMovimiento, destino in conexionesLocalidad:
+            if codigoMovimiento == (pals_mov if accMostrarSal.isChecked() else pals_salida)[colActual + numColumna - 1]:
+              locDestino = destino
+              break
+          else:  # No había ninguna salida en esa dirección
+            codigoMovimiento = (pals_mov if accMostrarSal.isChecked() else pals_salida)[colActual + numColumna - 1]
+          if locDestino > -1:  # Antes había salida en esa dirección
+            for c in range (len (conexionesLocalidad)):
+              codigo, destino = conexionesLocalidad[c]
+              if codigo == codigoMovimiento:
+                if nuevoDestino > -1:  # Actualizamos la salida que había
+                  conexionesLocalidad[c] = (codigo, nuevoDestino)
+                else:  # Quitamos la salida, por esta vacía la celda que pegamos o no tener un número
+                  del conexionesLocalidad[c]
+                break
+          elif nuevoDestino > -1:  # Antes no había salida en esa dirección pero ahora sí
+            conexionesLocalidad.append ((codigoMovimiento, nuevoDestino))
     modelo.endInsertRows()
 
 def quitaEntradaProceso (posicion):
