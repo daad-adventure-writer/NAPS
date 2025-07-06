@@ -52,12 +52,12 @@ dlg_banderas    = None  # Diálogo para consultar y modificar las banderas
 dlg_contadores  = None  # Diálogo de contadores
 dlg_fallo       = None  # Diálogo para mostrar fallos leves
 dlg_guardar     = None  # Diálogo de guardar fichero
-dlg_desc_locs   = None  # Diálogo para consultar y modificar las descripciones de localidades
-dlg_desc_objs   = None  # Diálogo para consultar y modificar los datos de objetos
-dlg_msg_sys     = None  # Diálogo para consultar y modificar los mensajes de sistema
-dlg_msg_usr     = None  # Diálogo para consultar y modificar los mensajes de usuario
-dlg_procesos    = None  # Diálogo para consultar y modificar las tablas de proceso
-dlg_vocabulario = None  # Diálogo para consultar y modificar el vocabulario
+dlg_desc_locs   = None  # type: QTableView|None # Diálogo para consultar y modificar los datos de localidades
+dlg_desc_objs   = None  # type: QTableView|None # Diálogo para consultar y modificar los datos de objetos
+dlg_msg_sys     = None  # type: QTableView|None # Diálogo para consultar y modificar los mensajes de sistema
+dlg_msg_usr     = None  # type: QTableView|None # Diálogo para consultar y modificar los mensajes de usuario
+dlg_procesos    = None  # type: QWidget|None    # Diálogo para consultar y modificar las tablas de proceso
+dlg_vocabulario = None  # type: QTableView|None # Diálogo para consultar y modificar el vocabulario
 mdi_banderas    = None  # Subventana MDI para dlg_banderas
 mdi_desc_locs   = None  # Subventana MDI para dlg_desc_locs
 mdi_desc_objs   = None  # Subventana MDI para dlg_desc_objs
@@ -1559,7 +1559,7 @@ def creaAcciones ():
   accAcercaDe.setStatusTip   (_('Shows information about the program'))
   accBanderas.setStatusTip   (_('Allows to check and modify the value of flags'))
   accContadores.setStatusTip (_('Displays the number of elements of each type'))
-  accDescLocs.setStatusTip   (_('Allows to check location data and modify their descriptions'))
+  accDescLocs.setStatusTip   (_("Allows to check and modify locations' data"))
   accDescObjs.setStatusTip   (_("Allows to check and modify objects' data"))
   accDireccs.setStatusTip    (_('Allows to add and edit movement words'))
   accExportar.setStatusTip   (_('Exports the database to a file'))
@@ -1729,6 +1729,7 @@ def dialogoImportaBD ():
     selector.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
 
 def editaBandera (numBandera):
+  # type: (int) -> None
   """Permite editar el valor de una bandera"""
   dialogo = ModalEntrada (dlg_banderas, _('Value of flag %d: ') % numBandera, str (banderas[numBandera]))
   dialogo.setInputMode   (QInputDialog.IntInput)
@@ -1746,25 +1747,79 @@ def editaBandera (numBandera):
       else:  # Python 3+
         proc_interprete.stdin.write (bytes ('#' + str (numBandera) + '=' + str (banderas[numBandera]) + '\n', locale.getpreferredencoding()))
 
-def editaDescLoc (indice):
-  """Permite editar el texto de una descripción de localidad, tras hacer doble click en su tabla"""
-  dialogo = ModalEntradaTexto (dlg_desc_locs, mod_actual.desc_locs[dlg_desc_locs.model().indicesTextos[indice.row()]])
+def editaLocalidad (indice):
+  # type: (QModelIndex) -> None
+  """Permite editar los datos de una localidad, tras hacer doble click en su tabla"""
+  locOrigen = dlg_desc_locs.model().indicesTextos[indice.row()]
+  if indice.column():  # Se edita una de las salidas
+    conexionesLocalidad = mod_actual.conexiones[locOrigen]
+    locDestino = -1
+    for codigoMovimiento, destino in conexionesLocalidad:
+      if codigoMovimiento == pals_salida[indice.column() - 1]:
+        locDestino = destino
+        break
+    else:  # No había ninguna salida en esa dirección
+      codigoMovimiento = pals_salida[indice.column() - 1]
+    # Preparamos la lista de localidades a mostrar en el desplegable de la modal
+    # TODO: hacer esto con una función, dado que tiene código común con editaObjeto
+    diccLocalidades = {}
+    if mod_actual.NOMBRE_SISTEMA != 'GAC':
+      diccLocalidades[IDS_LOCS[None]['INITIAL']] = 'INITIAL'
+    for numLocalidad in mod_actual.desc_locs.keys() if type (mod_actual.desc_locs) == dict else range (len (mod_actual.desc_locs)):
+      textoLocalidad = mod_actual.lee_secs_ctrl (mod_actual.desc_locs[numLocalidad].lstrip())
+      if sys.version_info[0] < 3:
+        textoLocalidad = textoLocalidad.decode ('iso-8859-15')
+      if numLocalidad in diccLocalidades:  # Puede ocurrir para la localidad inicial
+        diccLocalidades[numLocalidad] += ': ' + textoLocalidad
+      else:
+        diccLocalidades[numLocalidad] = textoLocalidad
+      if len (diccLocalidades[numLocalidad]) > 48:
+        diccLocalidades[numLocalidad] = diccLocalidades[numLocalidad][:48] + '...'
+    listaLocalidades = [_("(Can't go that way)")]
+    for numLocalidad in sorted (diccLocalidades.keys()):
+      listaLocalidades.append (str (numLocalidad) + ': ' + diccLocalidades[numLocalidad])
+    textoLocalidad = (str (locDestino) + ': ' + diccLocalidades[locDestino]) if locDestino > -1 else _("(Can't go that way)")
+    movimiento = ('"' + pal_sinonimo[(codigoMovimiento, tipo_verbo)] + '"') if (codigoMovimiento, tipo_verbo) in pal_sinonimo else str (codigoMovimiento)
+    dialogo = ModalEntrada (dlg_desc_objs, _('From location %(numOrigin)d: "%(descOrigin)s"\nMovement %(movement)s goes to location:') % {'descOrigin': diccLocalidades[locOrigen], 'movement': movimiento, 'numOrigin': locOrigen}, textoLocalidad)
+    dialogo.setComboBoxItems (listaLocalidades)
+    dialogo.setWindowTitle   (_('Edit'))
+    if dialogo.exec_() == QDialog.Accepted:
+      textoLocalidad = dialogo.textValue()
+      if locDestino > -1:  # Antes había salida en esa dirección
+        for c in range (len (conexionesLocalidad)):
+          codigo, destino = conexionesLocalidad[c]
+          if codigo == codigoMovimiento:
+            if ':' in textoLocalidad:  # Actualizamos la salida que había
+              nuevoDestino = int (textoLocalidad[:textoLocalidad.find (':')])
+              conexionesLocalidad[c] = (codigo, nuevoDestino)
+            else:  # Quitamos la salida, al haber elegido que ya no se pueda ir
+              del conexionesLocalidad[c]
+            break
+      elif ':' in textoLocalidad:  # Antes no había salida en esa dirección pero ahora sí
+        nuevoDestino = int (textoLocalidad[:textoLocalidad.find (':')])
+        conexionesLocalidad.append ((codigoMovimiento, nuevoDestino))
+    return
+  # Se edita la descripción de la localidad
+  dialogo = ModalEntradaTexto (dlg_desc_locs, mod_actual.desc_locs[locOrigen])
   if dialogo.exec_() == QDialog.Accepted:
-    mod_actual.desc_locs[dlg_desc_locs.model().indicesTextos[indice.row()]] = dialogo.daTexto()
+    mod_actual.desc_locs[locOrigen] = dialogo.daTexto()
 
 def editaMsgSys (indice):
+  # type: (QModelIndex) -> None
   """Permite editar el texto de un mensaje de sistema, tras hacer doble click en su tabla"""
   dialogo = ModalEntradaTexto (dlg_msg_sys, mod_actual.msgs_sys[dlg_msg_sys.model().indicesTextos[indice.row()]])
   if dialogo.exec_() == QDialog.Accepted:
     mod_actual.msgs_sys[dlg_msg_sys.model().indicesTextos[indice.row()]] = dialogo.daTexto()
 
 def editaMsgUsr (indice):
+  # type: (QModelIndex) -> None
   """Permite editar el texto de un mensaje de usuario, tras hacer doble click en su tabla"""
   dialogo = ModalEntradaTexto (dlg_msg_usr, mod_actual.msgs_usr[dlg_msg_usr.model().indicesTextos[indice.row()]])
   if dialogo.exec_() == QDialog.Accepted:
     mod_actual.msgs_usr[dlg_msg_usr.model().indicesTextos[indice.row()]] = dialogo.daTexto()
 
 def editaObjeto (indice):
+  # type: (QModelIndex) -> None
   """Permite editar los datos de un objeto, tras hacer doble click en su tabla"""
   numObjeto = dlg_desc_objs.model().indicesTextos[indice.row()]
   # Parte común inicial: descripción, localidad inicial, y condicionalmente también localidad actual
@@ -2426,7 +2481,7 @@ def muestraTextos (dialogo, listaTextos, tipoTextos, subventanaMdi):
   dialogo.setWindowTitle (titulo)
   subventanaMdi = selector.centralWidget().addSubWindow (dialogo)
   if tipoTextos == 'desc_localidades':
-    dialogo.doubleClicked.connect (editaDescLoc)
+    dialogo.doubleClicked.connect (editaLocalidad)
     dlg_desc_locs = dialogo
     mdi_desc_locs = subventanaMdi
   elif tipoTextos == 'desc_objetos':
