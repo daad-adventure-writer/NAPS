@@ -2681,6 +2681,7 @@ def pegaTexto (dialogoTextos, listaTextos):
           posAnterior = listaTextos.index (nuevaFila)
         else:
           modelo.indicesTextos.insert (posAnterior + 1, nuevaFila)
+          listaTextos[nuevaFila] = ''
           posAnterior += 1
           if listaTextos == mod_actual.desc_locs:  # Se ha creado una nueva localidad
             mod_actual.conexiones[nuevaFila] = []
@@ -2688,11 +2689,10 @@ def pegaTexto (dialogoTextos, listaTextos):
             mod_actual.atributos[nuevaFila]      = 0
             mod_actual.locs_iniciales[nuevaFila] = IDS_LOCS['GAC']['NOTCREATED']
             mod_actual.nombres_objs[nuevaFila]   = (nuevaFila, 255)
-        listaTextos[nuevaFila] = textos[t]
       else:  # Son sistemas de la familia de Quill
         if nuevaFila >= len (listaTextos):
           modelo.indicesTextos.append (nuevaFila)
-          listaTextos.append (textos[t])
+          listaTextos.append ('')
           if listaTextos == mod_actual.desc_locs:  # Se ha creado una nueva localidad
             mod_actual.conexiones.append ([])
           elif listaTextos == mod_actual.desc_objs:  # Se ha creado un nuevo objeto
@@ -2703,8 +2703,9 @@ def pegaTexto (dialogoTextos, listaTextos):
               mod_actual.atributos.append (0)
               if 'atributos_extra' in mod_actual.__dict__:
                 mod_actual.atributos_extra.append (0)
-        else:
-          listaTextos[nuevaFila] = textos[t]
+      numColumna = destinos[0].column()
+      if numColumna == 0:
+        listaTextos[nuevaFila] = textos[t]
     modelo.endInsertRows()
 
 def quitaEntradaProceso (posicion):
