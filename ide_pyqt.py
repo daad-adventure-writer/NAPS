@@ -588,20 +588,28 @@ class CampoTexto (QTextEdit):
                 if puntos_ruptura[numProceso][pe][0] > numEntrada:
                   break
                 puntos_ruptura[numProceso][pe] = (puntos_ruptura[numProceso][pe][0], puntos_ruptura[numProceso][pe][1] + 1, puntos_ruptura[numProceso][pe][2] + 1)
-      elif linea.userState() > -1 and self.overwriteMode():  # Estamos en la cabecera en modo de sobreescritura
-        if columna > 2:  # Es la segunda palabra de la cabecera, el nombre
-          numNombre = pideNombre (proceso[0][numEntrada][1], evento.text())
-          if numNombre != None:
-            cabecera = (proceso[0][numEntrada][0], numNombre)
-            proceso[0][numEntrada] = cabecera
-            cursor.movePosition (QTextCursor.EndOfBlock)
-            cursor.movePosition (QTextCursor.StartOfBlock, QTextCursor.KeepAnchor)
-            self.setTextCursor (cursor)
-            imprimeCabecera (cabecera[0], cabecera[1], numEntrada, numProceso)
-            cursor = self.textCursor()
-            cursor.movePosition (QTextCursor.StartOfBlock)
+      elif linea.userState() > -1:  # Estamos editando la cabecera
+        if columna > 5:  # Es la segunda palabra de la cabecera, el nombre
+          numPalabra = pideNombre (proceso[0][numEntrada][1], evento.text())
+        else:  # Es la primera palabra de la cabecera, el verbo
+          numPalabra = pideVerbo (proceso[0][numEntrada][0], evento.text())
+        if numPalabra != None:
+          if columna > 5:  # El nombre
+            cabecera = (proceso[0][numEntrada][0], numPalabra)
+          else:  # El verbo
+            cabecera = (numPalabra, proceso[0][numEntrada][1])
+          proceso[0][numEntrada] = cabecera
+          cursor.movePosition (QTextCursor.EndOfBlock)
+          cursor.movePosition (QTextCursor.StartOfBlock, QTextCursor.KeepAnchor)
+          self.setTextCursor (cursor)
+          imprimeCabecera (cabecera[0], cabecera[1], numEntrada, numProceso)
+          cursor = self.textCursor()
+          cursor.movePosition (QTextCursor.StartOfBlock)
+          if columna > 5:  # El nombre
             cursor.movePosition (QTextCursor.WordRight, n = 2 if cursor.block().text()[:1] == ' ' else 1)
-            self.setTextCursor (cursor)
+          elif cursor.block().text()[:1] == ' ':  # El verbo
+            cursor.movePosition (QTextCursor.WordRight, n = 1)
+          self.setTextCursor (cursor)
     elif evento.key() in (Qt.Key_At, Qt.Key_BracketLeft) and mod_actual.INDIRECCION:
       cursor  = self.textCursor()
       columna = cursor.positionInBlock()
@@ -2730,13 +2738,15 @@ El parámetro codPalabra es el código del nombre que vendrá elegido por defecto e
 El parámetro caracter es el primer carácter a escribir en el campo de la modal"""
   diccPalabras = {}
   for palabra, codigo, tipo in mod_actual.vocabulario:
-    if tipo != tipoPalabra:
+    if tipo != tipoPalabra and (tipoPalabra != tipo_verbo or
+        tipo == tipo_nombre      and codigo >= mod_actual.NOMB_COMO_VERB[0] or  # Es nombre no convertible en verbo
+        tipo == tipo_preposicion and codigo >= mod_actual.PREP_COMO_VERB):      # Es preposición no convertible en verbo
       continue
     if codigo in diccPalabras:
       diccPalabras[codigo] += '|' + daTextoImprimible (palabra)
     else:
       diccPalabras[codigo] = daTextoImprimible (palabra)
-  diccPalabras[255] = {tipo_nombre: _('(No noun)')}[tipoPalabra]
+  diccPalabras[255] = {tipo_nombre: _('(No noun)'), tipo_verbo: _('(No verb)')}[tipoPalabra]
   listaPalabras = []
   for numPalabra in sorted (diccPalabras.keys()):
     listaPalabras.append (str (numPalabra) + ': ' + diccPalabras[numPalabra])
@@ -2765,7 +2775,9 @@ El parámetro caracter es el primer carácter a escribir en el campo de la modal""
       otroTipo     = None  # Si se ha encontrado la palabra en el vocabulario con otro tipo
       for palabra, codigo, tipo in mod_actual.vocabulario:
         if palabra == textoPalabra:
-          if tipo == tipoPalabra:
+          if tipo == tipoPalabra or tipoPalabra == tipo_verbo and (
+              tipo == tipo_nombre      and codigo < mod_actual.NOMB_COMO_VERB[0] or  # Es nombre convertible en verbo
+              tipo == tipo_preposicion and codigo < mod_actual.PREP_COMO_VERB):      # Es preposición convertible en verbo
             numPalabra = codigo
             break
           otroTipo = tipo
@@ -2777,13 +2789,22 @@ El parámetro caracter es el primer carácter a escribir en el campo de la modal""
         return
     if numPalabra != 255:
       for palabra, codigo, tipo in mod_actual.vocabulario:
-        if tipo != tipoPalabra:
+        if tipo != tipoPalabra and (tipoPalabra != tipo_verbo or
+            tipo == tipo_nombre      and codigo >= mod_actual.NOMB_COMO_VERB[0] or  # Es nombre no convertible en verbo
+            tipo == tipo_preposicion and codigo >= mod_actual.PREP_COMO_VERB):      # Es preposición no convertible en verbo
           continue
         if codigo == numPalabra:
           break
       else:
         return muestraFallo (_('Not in vocabulary'), _('Word with code %(code)d and type %(type)s not found in the vocabulary') % {'code': numPalabra, 'type': mod_actual.TIPOS_PAL[tipoPalabra]})
     return numPalabra
+
+def pideVerbo (codVerbo, caracter = ''):
+  """Pide al usuario una palabra de tipo verbo y devuelve su número de código, o None en caso de error o cancelar la modal
+
+El parámetro codVerbo es el código del verbo que vendrá elegido por defecto en la modal
+El parámetro caracter es el primer carácter a escribir en el campo de la modal"""
+  return pidePalabra (tipo_verbo, codVerbo, caracter)
 
 def quitaEntradaProceso (posicion):
   """Quita la entrada de proceso de la posición dada como parámetro"""
@@ -2826,7 +2847,7 @@ def postCarga (nombre):
   """Realiza las acciones convenientes tras la carga satisfactoria de una BD
 
   Recibe como parámetro el nombre de la base de datos"""
-  global tipo_adjetivo, tipo_nombre, tipo_verbo
+  global tipo_adjetivo, tipo_nombre, tipo_preposicion, tipo_verbo
   # Apaño para que funcionen tal y como están las librerías con lista unificada de condactos
   # Lo hacemos aquí, porque la lista de condactos se puede extender tras cargar una BD
   if comprueba_tipo (mod_actual, 'condactos', dict) and (not comprueba_tipo (mod_actual, 'acciones', dict) or not mod_actual.acciones):
