@@ -274,7 +274,8 @@ acciones_c64pc = {
 
 condactos = {}  # Diccionario de condactos
 for codigo in condiciones:
-  condactos[codigo] = condiciones[codigo] + (False, False)
+  condiciones[codigo] = condiciones[codigo] + (False, )  # Marcamos así que las condiciones no cambian el flujo incondicionalmente
+  condactos[codigo]   = condiciones[codigo] + (False, )  # Marcamos que las condiciones no son acciones
 for codigo in acciones:
   condactos[100 + codigo] = acciones[codigo][:2] + (True, acciones[codigo][2])
 
