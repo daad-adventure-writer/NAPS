@@ -33,7 +33,7 @@ from prn_func   import _, maketrans, prn
 # Sólo se usará este módulo de condactos
 mods_condactos = ('condactos_quill',)
 
-colores_inicio = []   # Colores iniciales: tinta, papel, borde y opcionalmente brillo
+colores_inicio = []   # Colores iniciales: tinta, papel, borde y opcionalmente: brillo, ancho del borde
 conexiones     = []   # Listas de conexiones de cada localidad
 desc_locs      = []   # Descripciones de las localidades
 desc_objs      = []   # Descripciones de los objetos
@@ -391,11 +391,12 @@ Para compatibilidad con el IDE:
   bajo_nivel_cambia_despl  (despl_ini)
   # Cargamos los colores iniciales
   bajo_nivel_cambia_ent (fichero)
-  fichero.seek (-despl_ini + 2)
-  colores_inicio.append (carga_int1())  # Color de tinta
-  colores_inicio.append (carga_int1())  # Color de papel
-  fichero.read (1)  # Ancho del borde
-  colores_inicio.append (carga_int1())  # Color de borde
+  fichero.seek (-despl_ini + 1)
+  colores_inicio.append (carga_int1())     # Color de papel
+  colores_inicio.insert (0, carga_int1())  # Color de tinta
+  colores_inicio.append (carga_int1())     # ¿Brillo?
+  colores_inicio.append (carga_int1())     # Ancho del borde
+  colores_inicio.insert (2, carga_int1())  # Color de borde
   preparaPosCabecera ('qql', -despl_ini + 6)
   # Ponemos las acciones correctas para esta plataforma
   acciones.update (acciones_nuevas)
@@ -505,11 +506,14 @@ def guarda_bd (bbdd):
 
   guarda_int1 (0)  # ¿Plataforma?
   if formato == 'qql':
-    guarda_int1 (1)  # ¿Versión del formato?
+    guarda_int1 (colores_inicio[1])  # Color de papel
   guarda_int1 (colores_inicio[0])  # Color de tinta
-  guarda_int1 (colores_inicio[1])  # Color de papel
   if formato == 'qql':
-    guarda_int1 (2)  # Anchura del borde
+    guarda_int1 (colores_inicio[3] if len (colores_inicio) > 2 else 1)  # ¿Brillo?
+  else:
+    guarda_int1 (colores_inicio[1])  # Color de papel
+  if formato == 'qql':
+    guarda_int1 (colores_inicio[4] if len (colores_inicio) > 3 else 2)  # Anchura del borde
   guarda_int1 (colores_inicio[2])  # Color del borde
   guarda_int1 (max_llevables)
   guarda_int1 (num_objetos[0])
@@ -984,10 +988,10 @@ def guarda_bd_ql (bbdd):
   guardaInt4  (0)   # Reservado
   # Guardamos la cabecera de Quill
   guarda_int1 (0)  # ¿Plataforma?
-  guarda_int1 (1)  # ¿Versión del formato?
-  guarda_int1 (colores_inicio[0])  # Color de tinta
   guarda_int1 (colores_inicio[1])  # Color de papel
-  guarda_int1 (2)  # Anchura del borde
+  guarda_int1 (colores_inicio[0])  # Color de tinta
+  guarda_int1 (colores_inicio[3] if len (colores_inicio) > 3 else 0)  # XXX: ¿Es el brillo pero no se usa?
+  guarda_int1 (colores_inicio[4] if len (colores_inicio) > 4 else 2)  # Anchura del borde
   guarda_int1 (colores_inicio[2])  # Color del borde
   guarda_int1 (max_llevables)
   guarda_int1 (num_objetos[0])
@@ -1217,6 +1221,7 @@ def lee_secs_ctrl (cadena):
 
 def nueva_bd ():
   """Crea una nueva base de datos de The Quill (versión de Spectrum)"""
+  global max_llevables
   # Vaciamos los datos pertinentes de la base de datos que hubiese cargada anteriormente
   del colores_inicio[:]
   del conexiones[:]
@@ -1228,8 +1233,9 @@ def nueva_bd ():
   del nombres_objs[:]
   del tablas_proceso[:]
   del vocabulario[:]
-  # Asignamos colores de inicio
+  # Asignamos colores de inicio y número máximo de objetos llevables
   colores_inicio.extend ((4, 0, 0, 0))  # Tinta verde, papel y borde negro, y sin brillo
+  max_llevables = 4
   # Creamos la localidad 0
   desc_locs.append  (_("Location 0's description, the initial location."))
   conexiones.append ([])  # Ninguna conexión en esta localidad
