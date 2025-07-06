@@ -273,10 +273,13 @@ class CampoTexto (QTextEdit):
       self.condactos[condacto[0]]  = condacto + (codigo,)
       self.condactosPorCod[codigo] = condacto[0]
 
-  def _daColsValidas (self, textoLinea):
+  def _daColsValidas (self, linea):
     """Devuelve las posiciones válidas para el cursor en la línea de tabla de proceso con texto dado"""
     colsValidas  = []
     espacioAntes = False
+    textoLinea   = linea.text()
+    if textoLinea and textoLinea[0] != ' ' and linea.userState() > -1:  # Línea de cabecera cuyo texto inicia en la primera columna
+      colsValidas.append (0)
     for c in range (len (textoLinea)):
       if textoLinea[c] == ' ':
         espacioAntes = True
@@ -287,13 +290,14 @@ class CampoTexto (QTextEdit):
           break  # Dejamos de buscar nada más tras encontrar comillas
         colsValidas.append (c)
         espacioAntes = False
-    colsValidas.append (len (textoLinea))
+    if linea.userState() < 0:  # No es una línea de cabecera de entrada
+      colsValidas.append (len (textoLinea))
     return colsValidas
 
-  def _daColValida (self, numColumna, textoLinea, colsValidas = None):
+  def _daColValida (self, numColumna, linea, colsValidas = None):
     """Devuelve la posición válida más cercana para el cursor en la columna dada de la línea de tabla de proceso con texto dado"""
     if colsValidas == None:
-      colsValidas = self._daColsValidas (textoLinea)
+      colsValidas = self._daColsValidas (linea)
     if numColumna in colsValidas:
       return numColumna  # Era válida
     # Buscamos la columna válida más cercana
@@ -415,17 +419,17 @@ class CampoTexto (QTextEdit):
           cursor.movePosition (QTextCursor.WordRight)
       elif evento.key() == Qt.Key_Home:
         cursor.movePosition (QTextCursor.StartOfBlock)
-        if cursor.block().text():
+        if cursor.block().text() and cursor.block().text()[0] == ' ':
           cursor.movePosition (QTextCursor.WordRight)
-      elif evento.key() == Qt.Key_End:
-        cursor.movePosition (QTextCursor.EndOfBlock)
       else:  # Flecha izquierda o derecha
-        colsValidas = self._daColsValidas (cursor.block().text())
-        columna     = self._daColValida (cursor.positionInBlock(), cursor.block().text(), colsValidas)
+        colsValidas = self._daColsValidas (cursor.block())
+        columna     = self._daColValida (cursor.positionInBlock(), cursor.block(), colsValidas)
         posColumna  = colsValidas.index (columna)
         if evento.key() == Qt.Key_Left:
           colNueva = colsValidas[max (0, posColumna - 1)]
-        else:
+        elif evento.key() == Qt.Key_End:
+          colNueva = colsValidas[-1]
+        else:  # Flecha derecha
           colNueva = colsValidas[min (posColumna + 1, len (colsValidas) - 1)]
         cursor.setPosition (cursor.position() + (colNueva - columna))
       self.setTextCursor (cursor)
@@ -493,7 +497,7 @@ class CampoTexto (QTextEdit):
       cursor  = self.textCursor()
       columna = cursor.positionInBlock()
       linea   = cursor.block()
-      colsValidas = self._daColsValidas (linea.text())
+      colsValidas = self._daColsValidas (linea)
       if columna not in (colsValidas[0], colsValidas[-1]):
         return  # Intentando escribir texto donde no es posible
       if linea.text() and linea.userState() == -1:  # Una línea de entrada que no es la cabecera
@@ -590,7 +594,7 @@ class CampoTexto (QTextEdit):
       cursor  = self.textCursor()
       columna = cursor.positionInBlock()
       linea   = cursor.block()
-      colsValidas = self._daColsValidas (linea.text())
+      colsValidas = self._daColsValidas (linea)
       if not linea.text().trimmed() or linea.userState() > -1:
         return  # Intentando cambiar indirección en línea sin condacto
       numEntrada, posicion = self._daNumEntradaYLinea (linea)
@@ -608,7 +612,7 @@ class CampoTexto (QTextEdit):
       if columna in colsValidas:  # Recuperamos posición anterior correcta
         indice = colsValidas.index (columna)
         linea  = cursor.block()
-        colsValidas = self._daColsValidas (linea.text())
+        colsValidas = self._daColsValidas (linea)
         columna  = cursor.positionInBlock()
         colNueva = colsValidas[indice]
         cursor.setPosition (cursor.position() + (colNueva - columna))
@@ -621,8 +625,8 @@ class CampoTexto (QTextEdit):
         columna -= len (cursor.selectedText())  # Inicio del parámetro
       elif cursor.hasSelection():
         return  # Intentando escribir número donde no es posible
-      colsValidas = self._daColsValidas (linea.text())
-      columna     = self._daColValida (columna, linea.text(), colsValidas)
+      colsValidas = self._daColsValidas (linea)
+      columna     = self._daColValida (columna, linea, colsValidas)
       if columna == colsValidas[0] or (columna == colsValidas[-1] and len (colsValidas) < 3) or linea.text()[columna - 1] == '"':
         return  # Intentando escribir número donde no es posible
       if columna == colsValidas[-1]:  # Está al final del último parámetro
@@ -668,11 +672,10 @@ class CampoTexto (QTextEdit):
   def mouseReleaseEvent (self, evento):
     if not evento.button() & Qt.LeftButton or self.textCursor().hasSelection():
       return super (CampoTexto, self).mouseReleaseEvent (evento)
-    cursor     = self.cursorForPosition (evento.pos())
-    bloque     = cursor.block()
-    columna    = cursor.positionInBlock()
-    textoLinea = bloque.text()
-    colNueva   = self._daColValida (columna, textoLinea)
+    cursor   = self.cursorForPosition (evento.pos())
+    columna  = cursor.positionInBlock()
+    linea    = cursor.block()
+    colNueva = self._daColValida (columna, linea)
     cursor.setPosition (cursor.position() + (colNueva - columna))
     self.setTextCursor (cursor)
 
