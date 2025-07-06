@@ -32,6 +32,7 @@ import locale      # Para codificar bien la salida estándar
 import os          # Para curdir, listdir y path
 import subprocess  # Para ejecutar el intérprete
 import sys
+import time        # Para evitar reapertura indeseada de modal
 import types       # Para poder comprobar si algo es una función
 
 try:
@@ -569,8 +570,6 @@ class CampoTexto (QTextEdit):
             self.setTextCursor (cursor)
             # Actualizamos los puntos de ruptura de condactos en la entrada posteriores al añadido
             if numProceso in puntos_ruptura and not self.overwriteMode() and posicion < len (entrada) + 1:
-              # import pdb
-              # pdb.set_trace()
               if columna >= len (linea.text()):  # Era fin de línea, condacto añadido después
                 posicion += 1
               # Saltamos puntos de ruptura anteriores a la posición del condacto añadido
@@ -1874,8 +1873,8 @@ def editaObjeto (indice):
       mod_actual.nombres_objs[numObjeto] = (numNombre, mod_actual.nombres_objs[numObjeto][1])
 
 def editaVocabulario (indice):
+  # type: (QModelIndex) -> None
   """Permite editar una entrada de vocabulario, tras hacer doble clic en su tabla"""
-  dlg_vocabulario.indiceDobleClick = indice  # Para descartar evento activated posterior
   nuevaPal = None  # Entrada de vocabulario modificada
   numFila  = indice.row()
   palVocab = mod_actual.vocabulario[numFila]
@@ -1902,6 +1901,7 @@ def editaVocabulario (indice):
     if dialogo.exec_() == QDialog.Accepted and dialogo.textValue() in tiposPalabra.values():
       nuevaPal = (palVocab[0], palVocab[1],
                   list (tiposPalabra.keys())[list (tiposPalabra.values()).index (dialogo.textValue())])
+  dlg_vocabulario.activacionAnterior = time.time()  # Para descartar evento activated posterior
   if not nuevaPal or mod_actual.vocabulario[numFila] == nuevaPal:
     return  # No se ha modificado
   nuevaEntradaVocabulario (nuevaPal, numFila)
@@ -2464,6 +2464,7 @@ def muestraVistaVocab ():
   modeloOrden = QSortFilterProxyModel (dlg_vocabulario)
   modeloOrden.setSourceModel (ModeloVocabulario (dlg_vocabulario))
   dlg_vocabulario = QTableView (selector)
+  dlg_vocabulario.activacionAnterior = 0
   dlg_vocabulario.setModel (modeloOrden)
   dlg_vocabulario.setSortingEnabled (True)
   dlg_vocabulario.sortByColumn (0, Qt.AscendingOrder)  # Orden alfabético por texto de palabras
@@ -2539,12 +2540,9 @@ def nuevaEntradaVocabulario (entrada, numFilaAntes = None):
 
 def nuevaFilaVocabulario (indice, sinonimo = False):
   """Permite añadir una entrada de vocabulario, opcionalmente sinónimo de otra"""
-  try:
-    if dlg_vocabulario.indiceDobleClick == indice:
-      dlg_vocabulario.indiceDobleClick = None
-      return  # Descartamos el evento por ocurrir tras un doble click anterior
-  except:
-    pass
+  tiempo = time.time()
+  if tiempo <= dlg_vocabulario.activacionAnterior + 0.2:
+    return  # Descartamos el evento por ocurrir tras un doble click anterior
   if sinonimo and indice == None:
     seleccion = dlg_vocabulario.selectionModel().selection()
     filasSeleccionadas = set()
