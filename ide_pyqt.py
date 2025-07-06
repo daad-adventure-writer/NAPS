@@ -2656,12 +2656,22 @@ def pegaTexto (dialogoTextos, listaTextos):
   if texto[-1:] == '\n':  # Asumimos que es residuo del programa de hoja de cálculo, LibreOffice/OpenOffice lo dejan, Gnumeric no
     texto = texto[:-1]
   textos = texto.split ('\n')
-  for t in range (len (textos)):  # Interpretamos las secuencias de control en los textos
-    texto = textos[t].replace ('\\n', '\n')
-    if mod_actual.NOMBRE_SISTEMA != 'DAAD':  # En DAAD no hay tabulador, allí se usa \t para el código que pasa al juego bajo
-      texto = texto.replace ('\\t', '\t')
-    textos[t] = mod_actual.escribe_secs_ctrl (texto)
+  # Vemos si hay múltiples columnas en el texto a pegar
+  numColumnas    = 1
+  numTabuladores = texto.count ('\t')
+  if numTabuladores and numTabuladores % len (textos) == 0:  # Si es divisible el número de tabuladores entre el número de filas
+    tabsPorFila = numTabuladores // len (textos)
+    for t in range (len (textos)):
+      if textos[t].count ('\t') != tabsPorFila:
+        break
+    else:  # El mismo número de tabuladores en cada fila
+      numColumnas = tabsPorFila + 1
   if len (destinos) > 1:  # Múltiples filas seleccionadas
+    for t in range (len (textos)):  # Interpretamos las secuencias de control en los textos
+      texto = textos[t].replace ('\\n', '\n')
+      if mod_actual.NOMBRE_SISTEMA != 'DAAD':  # En DAAD no hay tabulador, allí se usa \t para el código que pasa al juego bajo
+        texto = texto.replace ('\\t', '\t')
+      textos[t] = mod_actual.escribe_secs_ctrl (texto)
     for d in range (len (destinos)):
       numFila = destinos[d].row()
       modelo.beginRemoveRows (QModelIndex(), numFila, numFila)
@@ -2703,9 +2713,17 @@ def pegaTexto (dialogoTextos, listaTextos):
               mod_actual.atributos.append (0)
               if 'atributos_extra' in mod_actual.__dict__:
                 mod_actual.atributos_extra.append (0)
-      numColumna = destinos[0].column()
-      if numColumna == 0:
-        listaTextos[nuevaFila] = textos[t]
+      celdasTexto = textos[t].split ('\t')
+      numColumna  = destinos[0].column()
+      for colActual in range (numColumnas):  # Para cada celda en el texto a pegar
+        celdaTexto = celdasTexto[colActual]
+        if colActual + numColumna == 0:  # Pegaremos sobre el campo de descripción o texto del mensaje
+          # Interpretamos las secuencias de control en el texto de la celda
+          texto = celdaTexto.replace ('\\n', '\n')
+          if mod_actual.NOMBRE_SISTEMA != 'DAAD':  # En DAAD no hay tabulador, allí se usa \t para el código que pasa al juego bajo
+            texto = texto.replace ('\\t', '\t')
+          texto = mod_actual.escribe_secs_ctrl (texto)
+          listaTextos[nuevaFila] = texto
     modelo.endInsertRows()
 
 def quitaEntradaProceso (posicion):
