@@ -1865,59 +1865,8 @@ def editaObjeto (indice):
   if indice.column() == 2 + adicional and mod_actual.NUM_ATRIBUTOS[0] == 1:  # Pseudoatributo prenda en Quill para QL
     return muestraFallo (_('Not editable'), _('This value cannot be edited directly.') + '\n\n' + _('This is the pseudo-attribute "wearable", which cannot be directly modified. Its value depends on the code of the word assigned to this object. Assign to it a word with code value between 200 and 254 to make it "wearable", or a value lower than 200 to make it not "wearable".'), QMessageBox.Information)
   if mod_actual.NUM_ATRIBUTOS[0] == 1 or indice.column() == 5 + adicional:  # Nombre
-    diccNombres = {}
-    for palabra, codigo, tipo in mod_actual.vocabulario:
-      if tipo != tipo_nombre:
-        continue
-      if codigo in diccNombres:
-        diccNombres[codigo] += '|' + palabra
-      else:
-        diccNombres[codigo] = palabra
-    diccNombres[255] = _('(No noun)')
-    listaNombres = []
-    for numNombre in sorted (diccNombres.keys()):
-      listaNombres.append (str (numNombre) + ': ' + diccNombres[numNombre])
-    nombre      = mod_actual.nombres_objs[numObjeto][0]
-    textoNombre = str (nombre)
-    if nombre in diccNombres:
-      textoNombre += ': ' + diccNombres[nombre]
-    dialogo = ModalEntrada (dlg_desc_objs, _('Noun') + ':', textoNombre)
-    dialogo.setComboBoxEditable (True)
-    dialogo.setComboBoxItems    (listaNombres)
-    dialogo.setWindowTitle      (_('Edit'))
-    if dialogo.exec_() == QDialog.Accepted:
-      textoNombre = dialogo.textValue().strip().lower()
-      if not textoNombre:
-        textoNombre = '255'
-      elif ':' in textoNombre:
-        textoNombre = textoNombre[:textoNombre.find (':')]
-      try:
-        numNombre = int (textoNombre)
-      except:
-        numNombre = None
-      if numNombre == None:  # Debe ser una palabra
-        textoNombre = textoNombre[:mod_actual.LONGITUD_PAL]
-        otroTipo    = None  # Si se ha encontrado la palabra en el vocabulario con otro tipo
-        for palabra, codigo, tipo in mod_actual.vocabulario:
-          if palabra == textoNombre:
-            if tipo == tipo_nombre:
-              numNombre = codigo
-              break
-            otroTipo = tipo
-        if numNombre == None:
-          if otroTipo != None:
-            muestraFallo (_('Wrong type for word'), _('The word "%(word)s" cannot be used here because its vocabulary type is %(wrongType)s, when it should be %(correctType)s.') % {'correctType': mod_actual.TIPOS_PAL[tipo_nombre], 'word': textoNombre, 'wrongType': mod_actual.TIPOS_PAL[otroTipo]})
-          else:
-            muestraFallo (_('Non-existent noun'), _('Noun "%s" not found in the vocabulary') % textoNombre)
-          return
-      if numNombre != 255:
-        for palabra, codigo, tipo in mod_actual.vocabulario:
-          if tipo != tipo_nombre:
-            continue
-          if codigo == numNombre:
-            break
-        else:
-          return muestraFallo (_('Non-existent noun'), _('Noun with code %d not found in the vocabulary') % numNombre)
+    numNombre = pideNombre (mod_actual.nombres_objs[numObjeto][0])
+    if numNombre != None:
       mod_actual.nombres_objs[numObjeto] = (numNombre, mod_actual.nombres_objs[numObjeto][1])
 
 def editaVocabulario (indice):
@@ -2750,6 +2699,64 @@ def pegaTexto (dialogoTextos, listaTextos):
           elif nuevoDestino > -1:  # Antes no había salida en esa dirección pero ahora sí
             conexionesLocalidad.append ((codigoMovimiento, nuevoDestino))
     modelo.endInsertRows()
+
+def pideNombre (codNombre):
+  """Pide al usuario una palabra de tipo nombre y devuelve su número de código, o None en caso de error o cancelar la modal
+
+El parámetro codNombre es el código del nombre que vendrá elegido por defecto en la modal"""
+  diccNombres = {}
+  for palabra, codigo, tipo in mod_actual.vocabulario:
+    if tipo != tipo_nombre:
+      continue
+    if codigo in diccNombres:
+      diccNombres[codigo] += '|' + daTextoImprimible (palabra)
+    else:
+      diccNombres[codigo] = daTextoImprimible (palabra)
+  diccNombres[255] = _('(No noun)')
+  listaNombres = []
+  for numNombre in sorted (diccNombres.keys()):
+    listaNombres.append (str (numNombre) + ': ' + diccNombres[numNombre])
+  textoNombre = str (codNombre)
+  if codNombre in diccNombres:
+    textoNombre += ': ' + diccNombres[codNombre]
+  dialogo = ModalEntrada (dlg_desc_objs, _('Noun') + ':', textoNombre)
+  dialogo.setComboBoxEditable (True)
+  dialogo.setComboBoxItems    (listaNombres)
+  dialogo.setWindowTitle      (_('Edit'))
+  if dialogo.exec_() == QDialog.Accepted:
+    textoNombre = dialogo.textValue().strip().lower()
+    if not textoNombre:
+      textoNombre = '255'
+    elif ':' in textoNombre:
+      textoNombre = textoNombre[:textoNombre.find (':')]
+    try:
+      numNombre = int (textoNombre)
+    except:
+      numNombre = None
+    if numNombre == None:  # Debe ser una palabra
+      textoNombre = textoNombre[:mod_actual.LONGITUD_PAL]
+      otroTipo    = None  # Si se ha encontrado la palabra en el vocabulario con otro tipo
+      for palabra, codigo, tipo in mod_actual.vocabulario:
+        if palabra == textoNombre:
+          if tipo == tipo_nombre:
+            numNombre = codigo
+            break
+          otroTipo = tipo
+      if numNombre == None:
+        if otroTipo != None:
+          muestraFallo (_('Wrong type for word'), _('The word "%(word)s" cannot be used here because its vocabulary type is %(wrongType)s, when it should be %(correctType)s.') % {'correctType': mod_actual.TIPOS_PAL[tipo_nombre], 'word': textoNombre, 'wrongType': mod_actual.TIPOS_PAL[otroTipo]})
+        else:
+          muestraFallo (_('Non-existent noun'), _('Noun "%s" not found in the vocabulary') % textoNombre)
+        return
+    if numNombre != 255:
+      for palabra, codigo, tipo in mod_actual.vocabulario:
+        if tipo != tipo_nombre:
+          continue
+        if codigo == numNombre:
+          break
+      else:
+        return muestraFallo (_('Non-existent noun'), _('Noun with code %d not found in the vocabulary') % numNombre)
+    return numNombre
 
 def quitaEntradaProceso (posicion):
   """Quita la entrada de proceso de la posición dada como parámetro"""
