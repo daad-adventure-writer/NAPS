@@ -72,6 +72,7 @@ pestanyas = None  # La barra de pestañas del diálogo de procesos
 
 mod_actual      = None    # Módulo de librería activo
 pal_sinonimo    = dict()  # Sinónimos preferidos para cada par código y tipo válido
+pals_mov        = []      # Códigos de palabra de movimiento en el vocabulario y conexiones
 pals_no_existen = []      # Códigos de palabra que no existen encontrados en tablas de proceso
 pals_salida     = []      # Códigos de palabra que se usan como salida en la tabla de conexiones
 
@@ -949,13 +950,13 @@ class ModeloLocalidades (ModeloTextos):
     ModeloTextos.__init__ (self, parent, listaTextos)
 
   def columnCount (self, parent):
-    return 1 + len (pals_salida)
+    return 1 + len (pals_mov if accMostrarSal.isChecked() else pals_salida)
 
   def data (self, index, role):
     if role == Qt.DisplayRole and index.column():
       conexionesLocalidad = mod_actual.conexiones[self.indicesTextos[index.row()]]
       for codigo, destino in conexionesLocalidad:
-        if codigo == pals_salida[index.column() - 1]:
+        if codigo == (pals_mov if accMostrarSal.isChecked() else pals_salida)[index.column() - 1]:
           return destino
       return ''
     return ModeloTextos.data (self, index, role)
@@ -963,6 +964,8 @@ class ModeloLocalidades (ModeloTextos):
   def headerData (self, section, orientation, role):
     if orientation == Qt.Horizontal and role == Qt.DisplayRole and section:
       # Si no está la palabra en el vocabulario, mostraremos el código
+      if accMostrarSal.isChecked():
+        return pal_sinonimo[(pals_mov[section - 1], tipo_verbo)] if (pals_mov[section - 1], tipo_verbo) in pal_sinonimo else pals_mov[section - 1]
       return pal_sinonimo[(pals_salida[section - 1], tipo_verbo)] if (pals_salida[section - 1], tipo_verbo) in pal_sinonimo else pals_salida[section - 1]
     return ModeloTextos.headerData (self, section, orientation, role)
 
@@ -1276,6 +1279,12 @@ def actualizaBanderas (cambiosBanderas):
   if dlg_banderas:
     dlg_banderas.layout().redibuja()
 
+def actualizaLocalidades ():
+  """Actualiza las columnas del diálogo de localidades al cambiar el checkbox de mostrar todas las palabras de movimiento o no"""
+  if dlg_desc_locs:
+    dlg_desc_locs.model().beginResetModel()
+    dlg_desc_locs.model().endResetModel()
+
 def actualizaObjetos (cambiosObjetos):
   """Actualiza el valor de los objetos"""
   global locs_objs, locs_objs_antes
@@ -1494,59 +1503,38 @@ def cierraDialogos ():
 
 def creaAcciones ():
   """Crea las acciones de menú y barra de botones"""
-  global acc1Paso, acc10Pasos, acc100Pasos, acc1000Pasos, accAcercaDe, accBanderas, accContadores, accDescLocs, accDescObjs, accDireccs, accExportar, accImportar, accMostrarLoc, accMostrarObj, accMostrarRec, accMostrarSys, accMostrarUsr, accMsgSys, accMsgUsr, accPasoAPaso, accSalir, accTblProcs, accTblVocab
+  global acc1Paso, acc10Pasos, acc100Pasos, acc1000Pasos, accAcercaDe, accBanderas, accContadores, accDescLocs, accDescObjs, accDireccs, accExportar, accImportar, accMostrarLoc, accMostrarObj, accMostrarRec, accMostrarSal, accMostrarSys, accMostrarUsr, accMsgSys, accMsgUsr, accPasoAPaso, accSalir, accTblProcs, accTblVocab
   acc1Paso      = QAction (icono ('pasos_1'),    _('1 step'),     selector)
   acc10Pasos    = QAction (icono ('pasos_10'),   _('10 steps'),   selector)
   acc100Pasos   = QAction (icono ('pasos_100'),  _('100 steps'),  selector)
   acc1000Pasos  = QAction (icono ('pasos_1000'), _('1000 steps'), selector)
   accAcercaDe   = QAction (icono_ide, _('&About NAPS IDE'), selector)
-  accBanderas   = QAction (icono ('banderas'), _('&Flags'), selector)
-  accContadores = QAction (icono ('contadores'), _('&Counters'), selector)
+  accBanderas   = QAction (icono ('banderas'),       _('&Flags'),         selector)
+  accContadores = QAction (icono ('contadores'),     _('&Counters'),      selector)
   accDescLocs   = QAction (icono ('desc_localidad'), _('&Location data'), selector)
   accDescObjs   = QAction (icono ('desc_objeto'),    _('&Object data'),   selector)
-  accDireccs    = QAction (icono ('direccion'), _('&Movement'), selector)
-  accExportar   = QAction (icono ('exportar'), _('&Export'), selector)
-  accImportar   = QAction (icono ('importar'), _('&Import'), selector)
+  accDireccs    = QAction (icono ('direccion'),      _('&Movement'),      selector)
+  accExportar   = QAction (icono ('exportar'),       _('&Export'),        selector)
+  accImportar   = QAction (icono ('importar'),       _('&Import'),        selector)
   accMostrarLoc = QAction (_('&Location descriptions'), selector)
   accMostrarObj = QAction (_('&Object descriptions'),   selector)
   accMostrarRec = QAction (_('&Trim to line width'),    selector)
+  accMostrarSal = QAction (_('All &movements'),         selector)  # TODO: hacer lo mismo para todos los atributos (extra)
   accMostrarSys = QAction (_('&System messages'),       selector)
   accMostrarUsr = QAction (_('&User messages'),         selector)
   accMsgSys     = QAction (icono ('msg_sistema'), _('&System messages'), selector)
   accMsgUsr     = QAction (icono ('msg_usuario'), _('&User messages'),   selector)
-  accPasoAPaso  = QAction (icono ('pasoapaso'), _('&Step by step'), selector)
-  accSalir      = QAction (icono ('salir'), _('&Quit'), selector)
-  accTblProcs   = QAction (icono ('proceso'), _('&Tables'), selector)
-  accTblVocab   = QAction (icono ('vocabulario'), _('&Table'), selector)
-  accMostrarLoc.setCheckable (True)
-  accMostrarObj.setCheckable (True)
-  accMostrarRec.setCheckable (True)
-  accMostrarSys.setCheckable (True)
-  accMostrarUsr.setCheckable (True)
-  accMostrarLoc.setChecked (True)
-  accMostrarObj.setChecked (True)
-  accMostrarRec.setChecked (True)
-  accMostrarSys.setChecked (True)
-  accMostrarUsr.setChecked (True)
-  acc1Paso.setEnabled      (False)
-  acc10Pasos.setEnabled    (False)
-  acc100Pasos.setEnabled   (False)
-  acc1000Pasos.setEnabled  (False)
-  accBanderas.setEnabled   (False)
-  accContadores.setEnabled (False)
-  accDescLocs.setEnabled   (False)
-  accDescObjs.setEnabled   (False)
-  accDireccs.setEnabled    (False)
-  accMostrarLoc.setEnabled (False)
-  accMostrarObj.setEnabled (False)
-  accMostrarRec.setEnabled (False)
-  accMostrarSys.setEnabled (False)
-  accMostrarUsr.setEnabled (False)
-  accMsgSys.setEnabled     (False)
-  accMsgUsr.setEnabled     (False)
-  accPasoAPaso.setEnabled  (False)
-  accTblProcs.setEnabled   (False)
-  accTblVocab.setEnabled   (False)
+  accPasoAPaso  = QAction (icono ('pasoapaso'),   _('&Step by step'),    selector)
+  accSalir      = QAction (icono ('salir'),       _('&Quit'),            selector)
+  accTblProcs   = QAction (icono ('proceso'),     _('&Tables'),          selector)
+  accTblVocab   = QAction (icono ('vocabulario'), _('&Table'),           selector)
+  for accion in (accMostrarLoc, accMostrarObj, accMostrarRec, accMostrarSal, accMostrarSys, accMostrarUsr):
+    accion.setCheckable (True)
+  for accion in (accMostrarLoc, accMostrarObj, accMostrarRec, accMostrarSys, accMostrarUsr):
+    accion.setChecked (True)
+  accMostrarSal.setChecked (False)
+  for accion in (acc1Paso, acc10Pasos, acc100Pasos, acc1000Pasos, accBanderas, accContadores, accDescLocs, accDescObjs, accDireccs, accMostrarLoc, accMostrarObj, accMostrarRec, accMostrarSal, accMostrarSys, accMostrarUsr, accMsgSys, accMsgUsr, accPasoAPaso, accTblProcs, accTblVocab):
+    accion.setEnabled (False)
   acc1Paso.setShortcut     ('F1')
   acc10Pasos.setShortcut   ('F2')
   acc100Pasos.setShortcut  ('F3')
@@ -1567,6 +1555,7 @@ def creaAcciones ():
   accMostrarLoc.setStatusTip (_('Show location descriptions when condacts reference them'))
   accMostrarObj.setStatusTip (_('Show object descriptions when condacts reference them'))
   accMostrarRec.setStatusTip (_('Trim texts to the available line width'))
+  accMostrarSal.setStatusTip (_('Show columns for all possible movement words'))
   accMostrarSys.setStatusTip (_('Show system messages when condacts reference them'))
   accMostrarUsr.setStatusTip (_('Show user messages when condacts reference them'))
   accMsgSys.setStatusTip     (_('Allows to check and modify system messages'))
@@ -1592,6 +1581,7 @@ def creaAcciones ():
   accMostrarObj.triggered.connect (actualizaProceso)
   accMostrarRec.triggered.connect (actualizaProceso)
   accMostrarSys.triggered.connect (actualizaProceso)
+  accMostrarSal.triggered.connect (actualizaLocalidades)
   accMostrarUsr.triggered.connect (actualizaProceso)
   accMsgSys.triggered.connect     (muestraMsgSys)
   accMsgUsr.triggered.connect     (muestraMsgUsr)
@@ -1647,9 +1637,12 @@ def creaMenus ():
   menuProcesos.addAction (accTblProcs)
   menuProcesos.addSeparator()
   menuProcesos.addMenu (menuProcsMostrar)
-  menuTextos = selector.menuBar().addMenu (_('&Texts'))
+  menuTextos        = selector.menuBar().addMenu (_('&Texts'))
+  menuTextosMostrar = QMenu (_('Show &columns'), menuTextos)
+  menuTextosMostrar.addAction (accMostrarSal)
   menuTextos.addAction (accDescLocs)
   menuTextos.addAction (accDescObjs)
+  menuTextos.addMenu (menuTextosMostrar)
   menuTextos.addSeparator()
   menuTextos.addAction (accMsgSys)
   menuTextos.addAction (accMsgUsr)
@@ -1755,11 +1748,11 @@ def editaLocalidad (indice):
     conexionesLocalidad = mod_actual.conexiones[locOrigen]
     locDestino = -1
     for codigoMovimiento, destino in conexionesLocalidad:
-      if codigoMovimiento == pals_salida[indice.column() - 1]:
+      if codigoMovimiento == (pals_mov if accMostrarSal.isChecked() else pals_salida)[indice.column() - 1]:
         locDestino = destino
         break
     else:  # No había ninguna salida en esa dirección
-      codigoMovimiento = pals_salida[indice.column() - 1]
+      codigoMovimiento = (pals_mov if accMostrarSal.isChecked() else pals_salida)[indice.column() - 1]
     # Preparamos la lista de localidades a mostrar en el desplegable de la modal
     # TODO: hacer esto con una función, dado que tiene código común con editaObjeto
     diccLocalidades = {}
@@ -2776,6 +2769,8 @@ def postCarga (nombre):
     tipo_verbo       = mod_actual.TIPOS_PAL.index (_('Verb'))
   else:  # Es Quill
     tipo_nombre = tipo_preposicion = tipo_verbo = 0
+  # Elegimos los sinónimos preferidos de cada palabra y recopilamos las palabras de dirección
+  del pals_mov[:]
   pal_sinonimo.clear()
   for palabra, codigo, tipo in mod_actual.vocabulario:
     idYtipos = [(codigo, tipo)]
@@ -2787,37 +2782,29 @@ def postCarga (nombre):
       if idYtipo not in pal_sinonimo or \
           (tipo == tipo_verbo and palabra[-1] == 'r' and pal_sinonimo[idYtipo][-1] != 'r'):
         pal_sinonimo[idYtipo] = daTextoImprimible (palabra)
+    if codigo < (13 if mod_actual.NOMBRE_SISTEMA == 'QUILL' else 14) and codigo not in pals_mov and tipo in (tipo_nombre, tipo_verbo):
+      pals_mov.append (codigo)
   # Recopilamos las palabras usadas como salidas en la tabla de conexiones
   del pals_salida[:]
   for conexionesLocalidad in mod_actual.conexiones.values() if type (mod_actual.conexiones) == dict else mod_actual.conexiones:
     for codigo, destino in conexionesLocalidad:
+      if codigo not in pals_mov:
+        pals_mov.append (codigo)
       if codigo not in pals_salida:
         pals_salida.append (codigo)
-  if not pals_salida:  # No hay ninguna conexión, pondremos todas las de movimiento que haya
-    for palabra, codigo, tipo in mod_actual.vocabulario:
-      if codigo < (13 if mod_actual.NOMBRE_SISTEMA == 'QUILL' else 14) and codigo not in pals_salida and tipo in (tipo_nombre, tipo_verbo):
-        pals_salida.append (codigo)
+  if not pals_salida:  # No hay ninguna conexión, pondremos todas las de dirección que haya
+    pals_salida.extend (pals_mov)
+  pals_mov.sort()
   pals_salida.sort()
   # Preparamos las funciones de exportación
   for entrada in mod_actual.funcs_exportar:
     if comprueba_tipo (mod_actual, entrada[0], types.FunctionType):
       info_exportar.append ((entrada[0], entrada[1], entrada[2]))
   # Habilitamos las acciones que requieran tener una base de datos cargada
-  accContadores.setEnabled (True)
-  accDescLocs.setEnabled   (True)
-  accDescObjs.setEnabled   (True)
-  accDireccs.setEnabled    (True)
-  accExportar.setEnabled   (len (info_exportar) > 0)
-  accMostrarLoc.setEnabled (True)
-  accMostrarObj.setEnabled (True)
-  accMostrarRec.setEnabled (True)
-  accMostrarSys.setEnabled (True)
-  accMostrarUsr.setEnabled (True)
-  accMsgSys.setEnabled     (True)
-  accMsgUsr.setEnabled     (True)
-  accPasoAPaso.setEnabled  (nombre_fich_bd != None)
-  accTblProcs.setEnabled   (True)
-  accTblVocab.setEnabled   (True)
+  for accion in (accContadores, accDescLocs, accDescObjs, accDireccs, accMostrarLoc, accMostrarObj, accMostrarRec, accMostrarSal, accMostrarSys, accMostrarUsr, accMsgSys, accMsgUsr, accTblProcs, accTblVocab):
+    accion.setEnabled (True)
+  accExportar.setEnabled  (len (info_exportar) > 0)
+  accPasoAPaso.setEnabled (nombre_fich_bd != None)
   # Cambiamos la acción importar de la barra de botones por la de exportar
   barra_botones.insertAction (accImportar, accExportar)
   barra_botones.removeAction (accImportar)
