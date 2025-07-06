@@ -500,11 +500,11 @@ class CampoTexto (QTextEdit):
       colsValidas = self._daColsValidas (linea)
       if columna not in (colsValidas[0], colsValidas[-1]):
         return  # Intentando escribir texto donde no es posible
+      numEntrada, posicion = self._daNumEntradaYLinea (linea)
+      numProceso = pestanyas.currentIndex()
+      proceso    = mod_actual.tablas_proceso[numProceso]  # El proceso seleccionado
       if linea.text() and linea.userState() == -1:  # Una línea de entrada que no es la cabecera
-        numEntrada, posicion = self._daNumEntradaYLinea (linea)
-        numProceso = pestanyas.currentIndex()
-        proceso    = mod_actual.tablas_proceso[numProceso]  # El proceso seleccionado
-        entrada    = proceso[1][numEntrada]  # La entrada seleccionada
+        entrada = proceso[1][numEntrada]  # La entrada seleccionada
         if self.overwriteMode() and posicion > 1 and posicion < len (entrada) + 2:
           dialogo = ModalEntrada (self, _('Choose a condact:'), evento.text(), self.condactosPorCod[entrada[posicion - 2][0]])
         else:
@@ -588,8 +588,20 @@ class CampoTexto (QTextEdit):
                 if puntos_ruptura[numProceso][pe][0] > numEntrada:
                   break
                 puntos_ruptura[numProceso][pe] = (puntos_ruptura[numProceso][pe][0], puntos_ruptura[numProceso][pe][1] + 1, puntos_ruptura[numProceso][pe][2] + 1)
-      elif linea.userState() > -1:  # Estamos en la cabecera
-        prn ('En cabecera')
+      elif linea.userState() > -1 and self.overwriteMode():  # Estamos en la cabecera en modo de sobreescritura
+        if columna > 2:  # Es la segunda palabra de la cabecera, el nombre
+          numNombre = pideNombre (proceso[0][numEntrada][1], evento.text())
+          if numNombre != None:
+            cabecera = (proceso[0][numEntrada][0], numNombre)
+            proceso[0][numEntrada] = cabecera
+            cursor.movePosition (QTextCursor.EndOfBlock)
+            cursor.movePosition (QTextCursor.StartOfBlock, QTextCursor.KeepAnchor)
+            self.setTextCursor (cursor)
+            imprimeCabecera (cabecera[0], cabecera[1], numEntrada, numProceso)
+            cursor = self.textCursor()
+            cursor.movePosition (QTextCursor.StartOfBlock)
+            cursor.movePosition (QTextCursor.WordRight, n = 2 if cursor.block().text()[:1] == ' ' else 1)
+            self.setTextCursor (cursor)
     elif evento.key() in (Qt.Key_At, Qt.Key_BracketLeft) and mod_actual.INDIRECCION:
       cursor  = self.textCursor()
       columna = cursor.positionInBlock()
@@ -2500,7 +2512,7 @@ def nuevaEntradaProceso (posicion):
   numProceso = pestanyas.currentIndex()
   proceso    = mod_actual.tablas_proceso[numProceso]  # El proceso seleccionado
   # Añadimos la nueva entrada
-  proceso[0].insert (posicion, [255, 255])
+  proceso[0].insert (posicion, (255, 255))
   proceso[1].insert (posicion, [])
   # Actualizamos los puntos de ruptura que quedan detrás de la nueva entrada
   if numProceso in puntos_ruptura:
@@ -2703,10 +2715,11 @@ def pegaTexto (dialogoTextos, listaTextos):
             conexionesLocalidad.append ((codigoMovimiento, nuevoDestino))
     modelo.endInsertRows()
 
-def pideNombre (codNombre):
+def pideNombre (codNombre, caracter = ''):
   """Pide al usuario una palabra de tipo nombre y devuelve su número de código, o None en caso de error o cancelar la modal
 
-El parámetro codNombre es el código del nombre que vendrá elegido por defecto en la modal"""
+El parámetro codNombre es el código del nombre que vendrá elegido por defecto en la modal
+El parámetro caracter es el primer carácter a escribir en el campo de la modal"""
   diccNombres = {}
   for palabra, codigo, tipo in mod_actual.vocabulario:
     if tipo != tipo_nombre:
@@ -2722,7 +2735,10 @@ El parámetro codNombre es el código del nombre que vendrá elegido por defecto en
   textoNombre = str (codNombre)
   if codNombre in diccNombres:
     textoNombre += ': ' + diccNombres[codNombre]
-  dialogo = ModalEntrada (dlg_desc_objs, _('Noun') + ':', textoNombre)
+  if caracter:
+    dialogo = ModalEntrada (dlg_desc_objs, _('Noun') + ':', caracter, textoNombre)
+  else:
+    dialogo = ModalEntrada (dlg_desc_objs, _('Noun') + ':', textoNombre)
   dialogo.setComboBoxEditable (True)
   dialogo.setComboBoxItems    (listaNombres)
   dialogo.setWindowTitle      (_('Edit'))
