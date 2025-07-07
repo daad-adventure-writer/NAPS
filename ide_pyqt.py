@@ -2728,13 +2728,14 @@ def pideNombre (codNombre, caracter = ''):
 
 El parámetro codNombre es el código del nombre que vendrá elegido por defecto en la modal
 El parámetro caracter es el primer carácter a escribir en el campo de la modal"""
-  return pidePalabra (tipo_nombre, codNombre, caracter)
+  return pidePalabra (tipo_nombre, codNombre, _('(No noun)'), caracter)
 
-def pidePalabra (tipoPalabra, codPalabra, caracter = ''):
+def pidePalabra (tipoPalabra, codPalabra, textoNinguna, caracter = ''):
   """Pide al usuario una palabra del tipo dado y devuelve su número de código, o None en caso de error o cancelar la modal
 
 El parámetro tipoPalabra es el tipo de palabra de vocabulario que pedir al usuario
 El parámetro codPalabra es el código del nombre que vendrá elegido por defecto en la modal
+El parámetro textoNinguna es el texto para la opción de ninguna palabra (la de código 255)
 El parámetro caracter es el primer carácter a escribir en el campo de la modal"""
   diccPalabras = {}
   for palabra, codigo, tipo in mod_actual.vocabulario:
@@ -2746,7 +2747,7 @@ El parámetro caracter es el primer carácter a escribir en el campo de la modal""
       diccPalabras[codigo] += '|' + daTextoImprimible (palabra)
     else:
       diccPalabras[codigo] = daTextoImprimible (palabra)
-  diccPalabras[255] = {tipo_nombre: _('(No noun)'), tipo_verbo: _('(No verb)')}[tipoPalabra]
+  diccPalabras[255] = textoNinguna
   listaPalabras = []
   for numPalabra in sorted (diccPalabras.keys()):
     listaPalabras.append (str (numPalabra) + ': ' + diccPalabras[numPalabra])
@@ -2804,7 +2805,7 @@ def pideVerbo (codVerbo, caracter = ''):
 
 El parámetro codVerbo es el código del verbo que vendrá elegido por defecto en la modal
 El parámetro caracter es el primer carácter a escribir en el campo de la modal"""
-  return pidePalabra (tipo_verbo, codVerbo, caracter)
+  return pidePalabra (tipo_verbo, codVerbo, _('(No verb)'), caracter)
 
 def quitaEntradaProceso (posicion):
   """Quita la entrada de proceso de la posición dada como parámetro"""
