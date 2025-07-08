@@ -323,7 +323,7 @@ def bucle_gac ():
         estado = 2
 
 def bucle_paws ():
-  """Bucle principal del intérprete, para PAWS y primeras versiones de DAAD"""
+  """Bucle principal del intérprete, para PAWS, SWAN y primeras versiones de DAAD"""
   estado = 0  # Estado del intérprete
   while True:
     if estado == 0:  # Inicialización
@@ -353,7 +353,7 @@ def bucle_paws ():
         estado = 1  # Saltamos a la descripción de la localidad
       else:
         # Mientras no tengamos una orden válida, reiniciaremos este estado
-        if obtener_orden() != True:
+        if obtener_orden() != True:  # Si la orden es válida
           estado = 3
     elif estado == 3:  # Incremento de turno y Tabla de respuestas
       if turnos:
@@ -372,7 +372,7 @@ def bucle_paws ():
       elif proceso_ok:  # Ha terminado con DONE u OK
         estado = 2
       # TODO: ¡parece que en Jabato sí lo hace! Al menos tras un DOALL sin objetos que encajen, y tras un NOTDONE
-      elif NOMBRE_SISTEMA in ('PAWS', 'QUILL'):  # Ni SWAN ni DAAD buscan automáticamente en la tabla de conexiones, para eso la aventura debe usar MOVE 38 y demás
+      elif NOMBRE_SISTEMA == 'PAWS':  # Ni SWAN ni DAAD buscan automáticamente en la tabla de conexiones, para eso la aventura debe usar MOVE 38 y demás
         estado = 4
       else:
         estado = 5
@@ -384,12 +384,63 @@ def bucle_paws ():
         banderas[BANDERA_LOC_ACTUAL] = destino
         estado = 1
     elif estado == 5:  # Tablas de respuestas y de conexiones exhaustas, o se terminó con NOTDONE
-      tiempoTimeout = banderas[48] if NOMBRE_SISTEMA != 'QUILL' and banderas[49] & 2 else 0
+      tiempoTimeout = banderas[48] if banderas[49] & 2 else 0
       if not proceso_acc:  # No se ha ejecutado ninguna "acción"
-        if banderas[BANDERA_VERBO] >= (13 if NOMBRE_SISTEMA == 'QUILL' else 14):  # No es verbo de dirección
+        if banderas[BANDERA_VERBO] >= 14:  # No es verbo de dirección
           gui.imprime_cadena (msgs_sys[8], tiempo = tiempoTimeout)  # No puedes hacer eso
-        elif NOMBRE_SISTEMA in ('QUILL', 'PAWS'):  # Ni SWAN ni DAAD imprimen este mensaje por sí mismos
+        elif NOMBRE_SISTEMA == 'PAWS':  # Ni SWAN ni DAAD imprimen este mensaje por sí mismos
           gui.imprime_cadena (msgs_sys[7], tiempo = tiempoTimeout)  # No puedes ir por ahí
+      estado = 2
+
+def bucle_quill ():
+  """Bucle principal del intérprete, para sistemas Quill"""
+  estado = 0  # Estado del intérprete
+  while True:
+    if estado == 0:  # Inicialización
+      inicializa()
+      estado = 1
+    elif estado == 1:  # Descripción de localidad
+      describe_localidad()
+      estado = 2
+    elif estado == 2:  # Ejecutar proceso 1 (tabla de estado) y obtener orden
+      valor = ejecuta_proceso (1)
+      if valor == False:  # Hay que reiniciar la aventura
+        estado = 0
+      elif valor == 7:  # Terminar completamente la aventura
+        return
+      # Si el proceso 1 termina con DESC, seguimos en este estado
+      elif valor == True:  # Ha terminado con DESC
+        estado = 1
+      else:  # Obtener orden
+        incrementa_turno()
+        # Mientras no tengamos una orden válida, reiniciaremos este estado
+        if obtener_orden() != True:  # Si la orden es válida
+          estado = 3
+    elif estado == 3:  # Búsqueda en tabla de conexiones
+      destino = busca_conexion (banderas[BANDERA_LOC_ACTUAL])  # De la localidad actual
+      if destino == None:
+        estado = 4
+      else:
+        banderas[BANDERA_LOC_ACTUAL] = destino
+        estado = 1
+    elif estado == 4:  # Ejecutar proceso 0 (tabla de eventos/respuestas)
+      valor = ejecuta_proceso (0)
+      if valor == False:  # Hay que reiniciar la aventura
+        estado = 0
+      elif valor == True:  # Ha terminado con DESC
+        estado = 1
+      elif valor == 7:  # Terminar completamente la aventura
+        return
+      elif proceso_ok:  # Ha terminado con DONE u OK
+        estado = 2
+      else:
+        estado = 5
+    elif estado == 5:  # Tabla de conexiones y de eventos/respuestas exhaustas
+      if not proceso_acc:  # No se ha ejecutado ninguna "acción"
+        if banderas[BANDERA_VERBO] < 13:  # Es verbo de dirección
+          gui.imprime_cadena (msgs_sys[7])  # No puedes ir por ahí
+        else:
+          gui.imprime_cadena (msgs_sys[8])  # No puedes hacer eso
       estado = 2
 
 def inicializa ():
@@ -1563,6 +1614,8 @@ if __name__ == '__main__':
   elif NOMBRE_SISTEMA == 'GAC':
     marcadores.extend ([0,] * NUM_MARCADORES)  # Banderas del sistema
     bucle_gac()
+  elif NOMBRE_SISTEMA == 'QUILL':
+    bucle_quill()
   else:
     bucle_paws()
 
