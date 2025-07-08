@@ -1410,7 +1410,10 @@ if __name__ == '__main__':
     elif extension == 'prg':
       gui.prepara_topes (args.columns if args.columns else 40, 25)
     elif args.columns or args.gui not in ('stdio', 'telegram'):
-      gui.prepara_topes (args.columns if args.columns else 42, 24)
+      if libreria.strPlataforma == 'QL':
+        gui.prepara_topes (args.columns if args.columns else 37, 22)
+      else:
+        gui.prepara_topes (42, 24)
   elif args.gui not in ('stdio', 'telegram'):
     gui.prepara_topes (53, 25)
 
@@ -1458,7 +1461,7 @@ if __name__ == '__main__':
       prn ('No hay ningún fichero ni carpeta con ese nombre:', args.ruta_graficos, file = sys.stderr)
 
   if NOMBRE_SISTEMA != 'DAAD':
-    if NOMBRE_SISTEMA != 'GAC':
+    if NOMBRE_SISTEMA != 'GAC' and libreria.strPlataforma != 'QL':
       gui.todo_mayusculas = True
     if not gui.paleta[0]:
       # Colores en este orden: negro, azul, rojo, magenta, verde, cyan, amarillo, blanco
