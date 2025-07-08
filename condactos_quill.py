@@ -241,6 +241,8 @@ def a0_SCORE ():
   gui.imprime_cadena (msgs_sys[msgCompletado])  # 'Has completado el '
   gui.imprime_cadena (str (banderas[banderaPuntos]))
   gui.imprime_cadena (txtPorcentaje)  # '%'
+  if NOMBRE_SISTEMA == 'QUILL':
+    gui.imprime_cadena ('\n')  # Al menos en QL lo hace
 
 def a0_TURNS ():
   """Imprime el número de turnos, con los mensajes de sistema 17 a 20, y el valor de las banderas 31 y 32 (61 y 62 en Quill para QL)"""
