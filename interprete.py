@@ -1115,8 +1115,8 @@ def incrementa_turno ():
   banderaTurnosLSB = 31
   banderaTurnosMSB = 32
   if NUM_BANDERAS[0] == 68:  # Quill para Sinclair QL
-    banderaTurnosLSB += 30
-    banderaTurnosMSB += 30
+    banderaTurnosLSB = 62
+    banderaTurnosMSB = 61
   elif NOMBRE_SISTEMA == 'GAC':
     banderaTurnosLSB += 95
     banderaTurnosMSB += 95

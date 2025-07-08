@@ -237,7 +237,7 @@ def a0_SCORE ():
   else:
     msgCompletado = 21
     txtPorcentaje = msgs_sys[22]
-  banderaPuntos = 30 + (30 if NUM_BANDERAS[0] == 64 else 0)
+  banderaPuntos = 30 + (30 if NUM_BANDERAS_ACC == 64 else 0)
   gui.imprime_cadena (msgs_sys[msgCompletado])  # 'Has completado el '
   gui.imprime_cadena (str (banderas[banderaPuntos]))
   gui.imprime_cadena (txtPorcentaje)  # '%'
@@ -246,9 +246,9 @@ def a0_TURNS ():
   """Imprime el número de turnos, con los mensajes de sistema 17 a 20, y el valor de las banderas 31 y 32 (61 y 62 en Quill para QL)"""
   banderaTurnosLSB = 31
   banderaTurnosMSB = 32
-  if NUM_BANDERAS[0] == 64:  # Quill para Sinclair QL
-    banderaTurnosLSB += 30
-    banderaTurnosMSB += 30
+  if NUM_BANDERAS_ACC == 64:  # Quill para Sinclair QL
+    banderaTurnosLSB = 62
+    banderaTurnosMSB = 61
   if NOMBRE_SISTEMA == 'QUILL' and libreria.pos_msgs_sys:  # Primeras versiones de Quill
     textoS     = 's'
     textoPunto = '.'
