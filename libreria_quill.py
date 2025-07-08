@@ -395,7 +395,7 @@ Para compatibilidad con el IDE:
   fichero.seek (-despl_ini + 1)
   colores_inicio.append (carga_int1())     # Color de papel
   colores_inicio.insert (0, carga_int1())  # Color de tinta
-  colores_inicio.append (carga_int1())     # ¿Brillo?
+  colores_inicio.append (carga_int1())     # Quill no usa este valor. Lo usaremos para almacenar valor de brillo
   colores_inicio.append (carga_int1())     # Ancho del borde
   colores_inicio.insert (2, carga_int1())  # Color de borde
   preparaPosCabecera ('qql', -despl_ini + 6)
@@ -509,8 +509,8 @@ def guarda_bd (bbdd):
   if formato == 'qql':
     guarda_int1 (colores_inicio[1])  # Color de papel
   guarda_int1 (colores_inicio[0])  # Color de tinta
-  if formato == 'qql':
-    guarda_int1 (colores_inicio[3] if len (colores_inicio) > 2 else 1)  # ¿Brillo?
+  if formato == 'qql' and len (colores_inicio) > 2:
+    guarda_int1 (colores_inicio[3])  # Quill no usa este valor. Lo usaremos para almacenar valor de brillo
   else:
     guarda_int1 (colores_inicio[1])  # Color de papel
   if formato == 'qql':
