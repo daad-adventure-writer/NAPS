@@ -2044,11 +2044,11 @@ def importaBD (nombreFicheroBD, indiceFuncion = None, nombreFicheroGfx = None):
   try:
     fichero = open (nombreFicheroBD, 'rb')
   except IOError as excepcion:
-    muestraFallo (_('Unable to open the file:\n' + nombreFicheroBD),
+    muestraFallo (_('Unable to open the file:\n') + nombreFicheroBD,
                   _('Cause:\n') + excepcion.args[1])
     return
   if '.' not in nombreFicheroBD:
-    muestraFallo (_('Unable to import a database from:\n' + nombreFicheroBD),
+    muestraFallo (_('Unable to import a database from:\n') + nombreFicheroBD,
                   _('Cause:\nThe file lacks an extension'))
     return
   modulos = []  # Módulos que soportan la extensión, junto con su función de carga
