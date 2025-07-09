@@ -1947,6 +1947,22 @@ def ejecutaPasos (indicePasos):
 def ejecutaPorPasos ():
   """Ejecuta la base de datos para depuración paso a paso"""
   global banderas, locs_objs, locs_objs_antes, pilas_pendientes, inicio_debug, proc_interprete
+  selector.setCursor (Qt.BusyCursor)  # Puntero de ratón de trabajo en segundo plano
+  rutaInterprete = os.path.join (os.path.dirname (os.path.realpath (__file__)), 'interprete.py')
+  argumentos     = [rutaInterprete, '--ide', '--system', mod_actual.NOMBRE_SISTEMA.lower(), nombre_fich_bd]
+  if nombre_fich_gfx:
+    argumentos.append (nombre_fich_gfx)
+  devnull = open (os.devnull, 'w')
+  for lanzador in ('python', 'python3', 'python2', 'py'):  # TODO: adaptarlo para versión portable de Windows en sistemas sin Python instalado
+    try:
+      proc_interprete = subprocess.Popen ([lanzador] + argumentos, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = devnull)
+      break
+    except:
+      continue
+  else:
+    selector.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
+    return  # TODO: mostrar mensaje de error
+
   banderas     = [0] * mod_actual.NUM_BANDERAS[0]  # Inicializamos las banderas
   inicio_debug = True
   # Inicializamos las localidades de los objetos
@@ -1957,13 +1973,6 @@ def ejecutaPorPasos ():
   accBanderas.setEnabled   (True)
   accPasoAPaso.setEnabled  (False)
   menu_BD_nueva.setEnabled (False)
-  selector.setCursor (Qt.BusyCursor)  # Puntero de ratón de trabajo en segundo plano
-  rutaInterprete = os.path.join (os.path.dirname (os.path.realpath (__file__)), 'interprete.py')
-  argumentos     = ['python', rutaInterprete, '--ide', '--system', mod_actual.NOMBRE_SISTEMA.lower(), nombre_fich_bd]
-  if nombre_fich_gfx:
-    argumentos.append (nombre_fich_gfx)
-  devnull = open (os.devnull, 'w')
-  proc_interprete  = subprocess.Popen (argumentos, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = devnull)
   pilas_pendientes = []
   hilo = ManejoInterprete (proc_interprete, aplicacion)
   hilo.cambiaBanderas.connect (actualizaBanderas)
