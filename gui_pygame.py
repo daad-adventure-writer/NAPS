@@ -1307,7 +1307,7 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
         esperaMas (tiempo)  # Paginación
     elif 0 in colores and not lineas[i]:  # La primera línea es sólo \n
       fuente.set_palette (colores[0])  # Cargamos el color inicial de la cadena
-    if cod_brillo or cods_tinta:
+    if cod_brillo or cods_tinta or strPlataforma == 'PC':
       imprime_linea (lineas[i], redibujar = redibujar, colores = colores, inicioLinea = iniLineas[i])
     else:
       imprime_linea (lineas[i], redibujar = redibujar, colores = colores)
@@ -1566,7 +1566,7 @@ def parseaColores (cadena, restauraColores = False):
   global brillo
   papel = color_subv[elegida][1]  # Color de papel/fondo
   tinta = daTinta()               # Color de tinta
-  if not cod_brillo and not cods_tinta:
+  if not cod_brillo and not cods_tinta and strPlataforma != 'PC':
     return cadena, {0: (paleta[brillo][tinta], paleta[brillo][papel])}
   if restauraColores:
     colores = {0: (paleta[brillo][tinta], paleta[brillo][papel])}
