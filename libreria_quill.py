@@ -318,7 +318,7 @@ Para compatibilidad con el IDE:
   despl_ini     = carga_int2_le() - 6
   fin_cadena    = 0
   inicio        = 0
-  nueva_linea   = ord ('\r')  # FIXME: no sé cuál es, el editor parece no dejar escribir nueva línea
+  nueva_linea   = 155  # Es este, aunque el editor parece no dejar escribir nueva línea
   plataforma    = 1    # Apaño para que el intérprete lo considere como Spectrum
   strPlataforma = 'Atari800'
   bajo_nivel_cambia_despl (despl_ini)
@@ -375,7 +375,7 @@ Para compatibilidad con el IDE:
   despl_ini     = 6242 if extension == 'dat' else -4912
   fin_cadena    = 0
   inicio        = 0
-  nueva_linea   = ord ('\r')  # FIXME: no sé cuál es, el editor parece no dejar escribir nueva línea
+  nueva_linea   = ord ('\r')  # Es este, aunque el editor parece no dejar escribir nueva línea
   plataforma    = 0
   strPlataforma = 'PC'
   bajo_nivel_cambia_endian (le = True)
@@ -1158,7 +1158,9 @@ def escribe_secs_ctrl (cadena):
   while i < len (cadena):
     c = cadena[i]
     o = ord (c)
-    if c == '\t':
+    if c == '\n':
+      convertida += nueva_linea
+    elif c == '\t':
       convertida += '\x06'  # Tabulador
     elif c == '\\':
       if cadena[i:i + 9] == '\\INVERSA_':
