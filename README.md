@@ -1,14 +1,21 @@
 NAPS - The New Age PAW-like System - Herramientas para sistemas PAW-like
-=========================================================================
+========================================================================
 
 Tabla de contenidos
 -------------------
 
+- [Introducción](#introducción)
 - [Intérprete PAW-like](#intérprete-paw-like)
 - [Entorno de desarrollo integrado (IDE)](#entorno-de-desarrollo-integrado-ide)
 - [Editor de bases de datos gráficas](#editor-de-bases-de-datos-gráficas)
 - [Instalación de los requisitos en Windows](#instalación-de-los-requisitos-en-windows)
 - [Agradecimientos](#agradecimientos)
+
+
+Introducción
+------------
+
+NAPS es un conjunto de herramientas para aventuras conversacionales de muchas plataformas, para poder ejecutarlas de forma nativa (sin necesidad de emulador); y también para desarrollarlas. Su soporte de sistemas de aventuras conversacionales es principalmente los sistemas de la familia de The Quill, de Gilsoft: The Quill, PAWS, SWAN y DAAD; pero aparte también soporta aventuras del sistema GAC.
 
 
 Intérprete PAW-like
@@ -30,9 +37,9 @@ Intérprete PAW-like
 
 Hacer doble click sobre ``interprete.py`` en caso de tener instalados los requisitos (necesitarás tener instalado también PyQt para utilizar el intérprete de esta manera), o bien sobre ``Intérprete NAPS.bat`` en caso de disponer de la versión portable para Windows de NAPS.
 
-Acto seguido, se mostrará un diálogo pidiendo que selecciones lo que deseas ejecutar, de entre las siguientes opciones: la carpeta donde están contenidos los ficheros del juego, el fichero de base de datos a ejecutar, el fichero de snapshot de Spectrum ZX del juego de Quill o PAWS que quieras ejecutar, o bien el fichero de código fuente de PAWS o DAAD que quieras ejecutar. Para más detalle, revisa la sección Formatos soportados.
+Acto seguido, se mostrará un diálogo pidiendo que selecciones lo que deseas ejecutar, de entre las siguientes opciones: la carpeta donde están contenidos los ficheros del juego, el fichero de base de datos a ejecutar, el fichero de snapshot .SNA de Spectrum ZX 48K del juego de Quill, PAWS o GAC que quieras ejecutar, o bien el fichero de código fuente de PAWS o DAAD que quieras ejecutar. Para más detalle, revisa la sección Formatos soportados.
 
-Si lo que quieres es jugar, siempre que puedas utiliza la primera opción de las mencionadas antes: la de elegir la carpeta donde están los ficheros del juego. Esta es la opción ideal para jugar, la más completa y fidedigna en cuanto a jugabilidad, en la cual el intérprete mostrará la imagen de portada si el juego tiene una, te pedirá elegir parte en caso de que la aventura tenga más de una, cargará y utilizará automáticamente los mejores gráficos disponibles para esa parte, y también la fuente tipográfica que proporcione la aventura. En el sistema SWAN, sólo esta opción permitirá la transición automática transparente entre partes, y sólo con ésta se podrá jugar a las partes de la segunda en adelante, que no funcionan como se espera si se intentan ejecutar directamente.
+Si lo que quieres es jugar, siempre que puedas utiliza la primera opción de las mencionadas antes: la de elegir la carpeta donde están los ficheros del juego. Esta es la opción ideal para jugar, la más completa y fidedigna en cuanto a jugabilidad, en la cual el intérprete mostrará la imagen de portada si el juego tiene una, te pedirá elegir parte en caso de que la aventura tenga más de una, cargará y utilizará automáticamente los mejores gráficos disponibles para esa parte, y también la fuente tipográfica que proporcione la aventura. En el sistema SWAN, sólo esta opción permitirá la transición automática transparente entre partes, y sólo con ésta se podrá jugar a las partes de la segunda en adelante, que no funcionan como se espera si se intentan ejecutar directamente. Al cargar snapshots de Spectrum, el intérprete también tratará de encontrar y utilizar la fuente tipográfica.
 
 Por tanto, para jugar en tu sistema operativo moderno (normalmente Windows o Linux) cualquiera de los juegos hechos con SWAN (como _Mindfighter_ y _Titan Find_) o con DAAD (como los juegos de Aventuras AD, y los que se publicaron posteriormente, tras la liberación en 2013 de las herramientas de DAAD), antes deberías haber guardado todos los ficheros de la aventura juntos en una carpeta, y luego tan sólo debes elegir esa carpeta en el intérprete de NAPS para ejecutar el juego.
 
@@ -75,7 +82,7 @@ Los siguientes para el sistema SWAN:
 | IBM PC          | (carpeta) | Aventura      |                    |
 | IBM PC          | .ADB      | Base de datos |                    |
 
-Y los siguientes para el sistema DAAD:
+Los siguientes para el sistema DAAD:
 
 | Plataforma      | Extensión | Tipo          | Notas              |
 | --------------- | --------- | ------------- | ------------------ |
@@ -88,9 +95,15 @@ Y los siguientes para el sistema DAAD:
 | Commodore Amiga | .DDB      | Base de datos |                    |
 | IBM PC          | (carpeta) | Aventura      |                    |
 | IBM PC          | .DDB      | Base de datos |                    |
-| IBM PC          | .DSF      | Código fuente | Compilador DRC     |
-| IBM PC          | .SCE      | Código fuente | Compilador DC      |
 | Spectrum ZX     | .DDB      | Base de datos |                    |
+| Todas           | .DSF      | Código fuente | Compilador DRC     |
+| Todas           | .SCE      | Código fuente | Compilador DC      |
+
+Y los siguientes para el sistema GAC:
+
+| Plataforma      | Extensión | Tipo          | Notas              |
+| --------------- | --------- | ------------- | ------------------ |
+| Spectrum ZX     | .SNA      | Aventura      |                    |
 
 **Uso desde línea de comandos:**
 
@@ -135,13 +148,35 @@ Entorno de desarrollo integrado (IDE)
 
 Hacer doble click sobre ``ide_pyqt.py`` en caso de tener instalados los requisitos, o bien sobre ``IDE y depurador NAPS.bat`` en caso de disponer de la versión portable para Windows de NAPS.
 
-El IDE de NAPS se puede utilizar para depurar aventuras, con soporte de ejecución paso por paso, posibilidad de ejecutar varios pasos de golpe (10, 100, ó 1.000), de interrumpir la ejecución en los condactos DEBUG, o en puntos de ruptura que marque el usuario desde el IDE; y soporte de visualización de las banderas y de modificar su valor en tiempo de ejecución.
+El IDE de NAPS se puede utilizar para depurar aventuras, con soporte de ejecución paso por paso, posibilidad de ejecutar varios pasos de golpe (10, 100, ó 1.000), de interrumpir la ejecución en los condactos DEBUG, o en puntos de ruptura que marque el usuario desde el IDE; soporte de visualización de banderas y ubicación de los objetos, y de modificar los valores de ambos en tiempo de ejecución.
 
 Las aventuras se pueden cargar en el IDE a partir de una base de datos, o desde código fuente en formato SCE (el formato de código fuente tradicional de las plataformas desde PAWS en adelante) o DSF (el formato de DAAD Reborn Compiler), por lo que no hace falta que se compilen para depurarlas con NAPS.
 
 El IDE permite visualizar de forma estructurada los datos de las aventuras que se carguen en él, resultando a menudo más práctico que revisar el código fuente con editores de texto u otros entornos de programación genéricos.
 
-De momento, permite modificar buena parte de los de datos de la aventura, y exportar bases de datos para varias plataformas, o bien exportarlas como código fuente en ambos formatos también: tanto SCE como DSF, compatibles con los compiladores DC y DRC respectivamente, además de con el propio intérprete e IDE de NAPS. Por tanto, el IDE cubre funcionalidad equivalente a la de un compilador, y a la de un descompilador.
+De momento, permite modificar gran parte de los de datos de la aventura, y exportar bases de datos para varias plataformas, o bien exportarlas como código fuente en ambos formatos también: tanto SCE como DSF, compatibles con los compiladores DC y DRC respectivamente, además de con el propio intérprete e IDE de NAPS. Por tanto, el IDE cubre funcionalidad equivalente a la de un compilador, y a la de un descompilador.
+
+Otro caso de uso interesante del IDE es la posibilidad de convertir con él aventuras entre diferentes plataformas y sistemas.
+
+**Formatos soportados:**
+
+Para importación, el IDE de NAPS soporta todos los formatos indicados arriba en la sección de mismo nombre que esta, respecto al intérprete de NAPS.
+
+Para exportación, el IDE soporta los siguientes formatos para el sistema Quill:
+
+| Plataforma      | Extensión | Tipo          | Notas              |
+| --------------- | --------- | ------------- | ------------------ |
+| Commodore 64    | .PRG      | Base de datos |                    |
+| Sinclair QL     | .QQL      | Base de datos |                    |
+
+Y los siguientes para el sistema DAAD:
+
+| Plataforma      | Extensión | Tipo          | Notas              |
+| --------------- | --------- | ------------- | ------------------ |
+| Las importables | .DDB      | Base de datos |                    |
+| Todas           | .DSF      | Código fuente | Compilador DRC     |
+| Todas           | .SCE      | Código fuente | Compilador DC      |
+
 
 **Uso desde línea de comandos:**
 
@@ -200,9 +235,10 @@ La siguiente es una lista de personas que han tenido influencia en el desarrollo
 - A Ximo Company por darme motivación, ideas y recomendaciones para que NAPS sea más amigable, para que funcione en Windows también, y sobre todo por desarrollar la integración de NAPS en EAAD bajo DAAD Ready.
 - A José Luis Cebrián por su apertura para compartir conocimientos sobre el funcionamiento de DAAD, y por su cooperación en detectar comportamiento incorrecto en NAPS que pasé por alto o desconocía cómo solventar, y a menudo indicarme con detalle cómo solucionarlo.
 - A Uto por su ayuda en numerosas ocasiones investigando las "técnicas secretas" de DAAD, muchas veces a base de pruebas reiteradas e ingeniería inversa. Y por ser ejemplo e inspiración como autor prolífico.
+- A Álvaro Alea por su colaboración para el soporte de la plataforma Sinclair QL, y su retroalimentación sobre el uso de NAPS.
 - A dddddd por compartir sus descubrimientos técnicos poco o nada documentados de PAWS, y motivarme para añadir características a NAPS. Fue por él que implementé la interfaz del intérprete para manejarlo por entrada y salida estándar.
 - A NatyPC como ejemplo e inspiración con su intérprete para MSX y sus investigaciones del formato de las bases de datos gráficas de DAAD.
 - A Joan CiberSheep y Pedro Fernández por reportarme errores detalladamente para poderlos solucionar.
-- A los diferentes autores de aventuras conversacionales que me compartieron bases de datos y código fuente para probar e implementar diferentes características en NAPS.
+- A los diferentes autores de aventuras conversacionales que me compartieron bases de datos y código fuente para probar, corregir e implementar diferentes características en NAPS.
 
 Esta lista desde luego no pretende ser completa, dado que es fácil haber pasado a alguien por alto.
