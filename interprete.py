@@ -1451,7 +1451,8 @@ if __name__ == '__main__':
     prn ('Error al tratar de cargar la base de datos: formato incompatible o fichero corrupto', file = sys.stderr)
     sys.exit()
 
-  if extension == 'sna' or libreria.plataforma == 1:  # Plataforma con menos de 53 columnas
+  if extension == 'sna' or libreria.plataforma == 1 or (args.columns and libreria.strPlataforma == 'PC'):
+    # Plataformas con menos de 53 columnas
     if extension == 'sna' and args.gui not in ('stdio', 'telegram'):
       # Trataremos de cargar fuente tipográfica desde el snapshot
       gui.conversion = libreria.conversion
@@ -1464,7 +1465,7 @@ if __name__ == '__main__':
       if libreria.strPlataforma == 'QL':
         gui.prepara_topes (args.columns if args.columns else 37, 22)
       else:
-        gui.prepara_topes (42, 24)
+        gui.prepara_topes (args.columns if args.columns else 42, 24)
   elif args.gui not in ('stdio', 'telegram'):
     gui.prepara_topes (53, 25)
 
