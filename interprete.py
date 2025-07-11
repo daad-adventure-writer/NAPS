@@ -1458,8 +1458,8 @@ if __name__ == '__main__':
       gui.udgs       = libreria.udgs
       gui.carga_fuente_zx (bbdd)
       gui.prepara_topes (args.columns if args.columns else 32, 24)
-    elif extension == 'prg':
-      gui.prepara_topes (args.columns if args.columns else 40, 25)
+    elif extension in ('dtb', 'prg'):  # Bases de datos de Commodore 64 o Atari 800
+      gui.prepara_topes (args.columns if args.columns else 40, 25 if libreria.strPlataforma == 'C64' else 24)
     elif args.columns or args.gui not in ('stdio', 'telegram'):
       if libreria.strPlataforma == 'QL':
         gui.prepara_topes (args.columns if args.columns else 37, 22)

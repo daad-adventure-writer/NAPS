@@ -71,10 +71,11 @@ funcs_exportar = (
   ('guarda_bd_ql',  ('qql',), _('Quill database for Sinclair QL')),
 )
 funcs_importar = (
-  ('carga_bd_c64', ('prg',),       _('Quill databases for Commodore 64')),
-  ('carga_bd_pc',  ('dat', 'exe'), _('Quill databases for PC AdventureWriter')),
-  ('carga_bd_ql',  ('qql',),       _('Quill databases for Sinclair QL')),
-  ('carga_bd_sna', ('sna',),       _('ZX 48K memory snapshots with Quill')),
+  ('carga_bd_a800', ('dtb', 'prg'), _('Quill databases for Atari 800 AdventureWriter')),
+  ('carga_bd_c64',  ('prg',),       _('Quill databases for Commodore 64')),
+  ('carga_bd_pc',   ('dat', 'exe'), _('Quill databases for PC AdventureWriter')),
+  ('carga_bd_ql',   ('qql',),       _('Quill databases for Sinclair QL')),
+  ('carga_bd_sna',  ('sna',),       _('ZX 48K memory snapshots with Quill')),
 )
 # Función que crea una nueva base de datos (vacía)
 func_nueva = 'nueva_bd'
@@ -246,13 +247,13 @@ acciones_nuevas = {
   26 : ('WEAR',    'o', False),
 }
 
-# Reemplazo de acciones en Commodore 64, y en AdventureWriter para PC
+# Reemplazo de acciones en Commodore 64, y en AdventureWriter para Atari 800 y PC
 acciones_c64pc = {
   11 : ('CLS',     '',   False),
   12 : ('DROPALL', '',   False),
   13 : ('PAUSE',   'u',  False),
-  14 : ('PAPER',   'u',  False),  # Llamada SCREEN en AdventureWriter para PC
-  15 : ('INK',     'u',  False),  # Llamada TEXT   en AdventureWriter para PC
+  14 : ('PAPER',   'u',  False),  # Llamada SCREEN en AdventureWriter para Atari 800 y PC
+  15 : ('INK',     'u',  False),  # Llamada TEXT   en AdventureWriter para Atari 800 y PC
   16 : ('BORDER',  'u',  False),
   17 : ('GOTO',    'l',  False),
   18 : ('MESSAGE', 'm',  False),
@@ -271,6 +272,12 @@ acciones_c64pc = {
   31 : ('LET',     'fu', False),
   32 : ('BEEP',    'uu', False),  # Llamada SID en Commodore 64, y SOUND en AdventureWriter para PC
 }
+
+# Reemplazo de acciones en Atari 800
+acciones_a800 = dict(acciones_c64pc)
+acciones_a800.update({
+  32 : ('SOUND', 'uuuu', False),
+})
 
 condactos = {}  # Diccionario de condactos
 for codigo in condiciones:
@@ -293,6 +300,36 @@ ascii_a_petscii = maketrans (''.join (('%c' % c for c in range (256))), ascii_pa
 def cadena_es_mayor (cadena1, cadena2):
   """Devuelve si la cadena1 es mayor a la cadena2 en el juego de caracteres de este sistema"""
   return cadena1 > cadena2
+
+def carga_bd_a800 (fichero, longitud):
+  """Carga la base de datos entera desde una base de datos de AdventureWriter para Atari 800
+
+Para compatibilidad con el IDE:
+- Recibe como primer parámetro un fichero abierto
+- Recibe como segundo parámetro la longitud del fichero abierto
+- Devuelve False si ha ocurrido algún error"""
+  global carga_desplazamiento, despl_ini, fin_cadena, nueva_linea, plataforma, strPlataforma
+  carga_desplazamiento = carga_desplazamiento2
+  bajo_nivel_cambia_endian (le = True)
+  bajo_nivel_cambia_ent    (fichero)
+  fichero.seek (0)
+  if carga_int2_le() != 65535:  # Los ficheros de aventura y base de datos de Atari 800 comienzan así
+    return False
+  despl_ini     = carga_int2_le() - 6
+  fin_cadena    = 0
+  inicio        = 0
+  nueva_linea   = ord ('\r')  # FIXME: no sé cuál es, el editor parece no dejar escribir nueva línea
+  plataforma    = 1    # Apaño para que el intérprete lo considere como Spectrum
+  strPlataforma = 'Atari800'
+  bajo_nivel_cambia_despl (despl_ini)
+  # TODO: cargar y usar colores iniciales, que son muy distintos en esta plataforma, con 256 colores posibles
+  colores_inicio.extend ((7, 0, 0, 0))  # Tinta blanca, papel y borde negro, y sin brillo
+  preparaPosCabecera ('a800', inicio + 10)
+  # Ponemos las acciones correctas para esta plataforma
+  acciones.update (acciones_a800)
+  for codigo in acciones_a800:
+    condactos[100 + codigo] = acciones_a800[codigo][:2] + (True, acciones_a800[codigo][2])
+  return cargaBD (fichero, longitud)
 
 def carga_bd_c64 (fichero, longitud):
   """Carga la base de datos entera desde una base de datos de Quill para Commodore 64
@@ -991,7 +1028,7 @@ def guarda_bd_ql (bbdd):
   guarda_int1 (0)  # ¿Plataforma?
   guarda_int1 (colores_inicio[1])  # Color de papel
   guarda_int1 (colores_inicio[0])  # Color de tinta
-  guarda_int1 (colores_inicio[3] if len (colores_inicio) > 3 else 0)  # XXX: ¿Es el brillo pero no se usa?
+  guarda_int1 (colores_inicio[3] if len (colores_inicio) > 3 else 0)  # No se usa, guardaré aquí el brillo
   guarda_int1 (colores_inicio[4] if len (colores_inicio) > 4 else 2)  # Anchura del borde
   guarda_int1 (colores_inicio[2])  # Color del borde
   guarda_int1 (max_llevables)
@@ -1163,7 +1200,7 @@ def escribe_secs_ctrl (cadena):
         convertida += c
       # TODO: interpretar el resto de secuencias escapadas con barra invertida (\)
     else:
-      if inversa and strPlataforma == 'PC':
+      if inversa and strPlataforma in ('Atari800', 'PC'):
         convertida += chr (o + 128)
       else:
         convertida += c
@@ -1178,7 +1215,7 @@ def lee_secs_ctrl (cadena):
   while i < len (cadena):
     c = cadena[i]
     o = ord (c)
-    if o > 127 and strPlataforma == 'PC':
+    if o > 127 and strPlataforma in ('Atari800', 'PC'):
       if not inversa:
         convertida += '\\INVERSA_01'
       inversa = True
@@ -1335,7 +1372,7 @@ Para compatibilidad con el IDE:
       cargaMensajesSistema()
     else:
       cargaCadenas (CAB_NUM_MSGS_SYS, CAB_POS_LST_POS_MSGS_SYS, msgs_sys)
-      if strPlataforma not in ('C64', 'PC'):  # No cargamos nombres de objetos en C64 y PC, donde no hay
+      if strPlataforma not in ('Atari800', 'C64', 'PC'):  # No cargamos nombres de objetos en Atari 800, C64 ni PC, donde no hay
         cargaNombresObjetos()
     cargaConexiones()
     cargaLocalidadesObjetos()
@@ -1610,7 +1647,7 @@ def preparaPosCabecera (formato, inicio):
     CAB_POS_VOCAB            = inicio + 34  # Posición del vocabulario
     CAB_POS_LOCS_OBJS        = inicio + 38  # Posición de localidades iniciales de objetos
     CAB_POS_NOMS_OBJS        = inicio + 42  # Posición de los nombres de los objetos
-  elif formato in ('c64', 'pc', 'sna48k'):
+  elif formato in ('a800', 'c64', 'pc', 'sna48k'):
     CAB_NUM_MSGS_SYS         = inicio + 4   # Número de mensajes de sistema
     CAB_POS_EVENTOS          = inicio + 5   # Posición de la tabla de eventos
     CAB_POS_ESTADO           = inicio + 7   # Posición de la tabla de estado

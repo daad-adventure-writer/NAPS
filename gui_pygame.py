@@ -1307,7 +1307,7 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
         esperaMas (tiempo)  # Paginación
     elif 0 in colores and not lineas[i]:  # La primera línea es sólo \n
       fuente.set_palette (colores[0])  # Cargamos el color inicial de la cadena
-    if cod_brillo or cods_tinta or strPlataforma == 'PC':
+    if cod_brillo or cods_tinta or strPlataforma in ('Atari800', 'PC'):
       imprime_linea (lineas[i], redibujar = redibujar, colores = colores, inicioLinea = iniLineas[i])
     else:
       imprime_linea (lineas[i], redibujar = redibujar, colores = colores)
@@ -1566,7 +1566,7 @@ def parseaColores (cadena, restauraColores = False):
   global brillo
   papel = color_subv[elegida][1]  # Color de papel/fondo
   tinta = daTinta()               # Color de tinta
-  if not cod_brillo and not cods_tinta and strPlataforma != 'PC':
+  if not cod_brillo and not cods_tinta and strPlataforma not in ('Atari800', 'PC'):
     return cadena, {0: (paleta[brillo][tinta], paleta[brillo][papel])}
   if restauraColores:
     colores = {0: (paleta[brillo][tinta], paleta[brillo][papel])}
@@ -1634,7 +1634,7 @@ def parseaColores (cadena, restauraColores = False):
       omitir = 2
     elif cadena[i] not in izquierda and cadena[i] in noEnFuente:
       sinColores += noEnFuente[cadena[i]]
-    elif NOMBRE_SISTEMA == 'QUILL' and strPlataforma == 'PC' and c > 127:  # Es un carácter en inversa
+    elif NOMBRE_SISTEMA == 'QUILL' and strPlataforma in ('Atari800', 'PC') and c > 127:  # Es un carácter en inversa
       if not inversa:  # Sólo lo hacemos para el primer carácter consecutivo en inversa
         color = papel
         papel = tinta
@@ -1645,7 +1645,7 @@ def parseaColores (cadena, restauraColores = False):
     elif paleta[1] and c < 32 and c != ord ('\n'):  # Códigos de control de Spectrum ZX inválidos o desconocidos
       continue
     else:
-      if inversa and NOMBRE_SISTEMA == 'QUILL' and strPlataforma == 'PC':  # Este carácter terminará la impresión en inversa, al no estar en inversa
+      if inversa and NOMBRE_SISTEMA == 'QUILL' and strPlataforma in ('Atari800', 'PC'):  # Este carácter terminará la impresión en inversa, al no estar en inversa
         color = papel
         papel = tinta
         tinta = color

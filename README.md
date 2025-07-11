@@ -40,15 +40,17 @@ Y si lo que quieres es probar una de las aventuras en uno de estos sistemas tipo
 
 **Formatos soportados:**
 
-Nota: en la columna Extensión de las siguientes tablas, _(carpeta)_ se refiere a la carpeta donde se encuentran los ficheros de la aventura, y en la columna Tipo, el término _aventura_ se refiere a una base de datos empaquetada junto a un intérprete.
+Nota: en la columna Extensión de las siguientes tablas, _(carpeta)_ se refiere a la carpeta donde se encuentran los ficheros de la aventura. En la columna Tipo, el término _aventura_ se refiere a una base de datos empaquetada junto a un intérprete. Y en la columna Notas, _AdventureWriter_ indica que en esa plataforma el programa se comercializó con ese nombre, AdventureWriter, en lugar de The Quill.
 
 El intérprete de NAPS soporta los siguientes formatos para el sistema Quill:
 
 | Plataforma      | Extensión | Tipo          | Notas              |
 | --------------- | --------- | ------------- | ------------------ |
+| Atari 800       | .DTB      | Base de datos | AdventureWriter    |
+| Atari 800       | .PRG      | Aventura      | AdventureWriter    |
 | Commodore 64    | .PRG      | Base de datos |                    |
-| IBM PC          | .DAT      | Base de datos | PC AdventureWriter |
-| IBM PC          | .EXE      | Aventura      | PC AdventureWriter |
+| IBM PC          | .DAT      | Base de datos | AdventureWriter    |
+| IBM PC          | .EXE      | Aventura      | AdventureWriter    |
 | Sinclair QL     | .QQL      | Base de datos |                    |
 | Spectrum ZX     | .SNA      | Aventura      |                    |
 
@@ -88,7 +90,7 @@ Y los siguientes para el sistema DAAD:
 | IBM PC          | .DDB      | Base de datos |                    |
 | IBM PC          | .DSF      | Código fuente | Compilador DRC     |
 | IBM PC          | .SCE      | Código fuente | Compilador DC      |
-| Spectrum ZX     | .DDB      | Aventura      |                    |
+| Spectrum ZX     | .DDB      | Base de datos |                    |
 
 **Uso desde línea de comandos:**
 
