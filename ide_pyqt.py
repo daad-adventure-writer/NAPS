@@ -788,7 +788,11 @@ class ManejoExportacion (QThread):
 
   def run (self):
     global error_exportacion
-    error_exportacion = mod_actual.__dict__[info_exportar[self.indiceFiltro][0]] (self.fichero)
+    try:
+      error_exportacion = mod_actual.__dict__[info_exportar[self.indiceFiltro][0]] (self.fichero)
+    except:
+      import traceback
+      error_exportacion = ((_('Unable to export the database'), _('Cause:\n') + '\n' + traceback.format_exc()))
     if self.dialogoProgreso:
       self.dialogoProgreso.close()
       self.dialogoProgreso = None
