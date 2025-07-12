@@ -1757,7 +1757,7 @@ def guardaPosMsgs (msgs, pos):
 def guardaVocabulario (conversion = None, optimizado = True):
   """Guarda la sección de vocabulario sobre el fichero de salida"""
   listaVocabulario = list (vocabulario)
-  if strPlataforma == 'QL' and not optimizado and ('*', 255, 0) not in vocabulario:
+  if not optimizado and ('*', 255, 0) not in vocabulario:
     listaVocabulario.append (('*', 255, 0))
   for palabra in listaVocabulario:
     # Rellenamos el texto de la palabra con espacios al final
