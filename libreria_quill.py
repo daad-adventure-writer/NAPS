@@ -1226,7 +1226,7 @@ def escribe_secs_ctrl (cadena):
     c = cadena[i]
     o = ord (c)
     if c == '\n':
-      convertida += nueva_linea
+      convertida += chr (nueva_linea)
     elif c == '\t':
       convertida += '\x06'  # Tabulador
     elif c == '\\':
