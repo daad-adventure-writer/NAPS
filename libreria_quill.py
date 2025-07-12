@@ -186,7 +186,7 @@ condiciones = {
 
 # Diccionarios de acciones
 
-acciones = {
+acciones_comun = {
    0 : ('INVEN',   '',   True),
    1 : ('DESC',    '',   True),
    2 : ('QUIT',    '',   False),
@@ -287,8 +287,10 @@ acciones_plataforma = {
   'C64':      acciones_c64pc,
   'PC':       acciones_c64pc,
   'QL':       acciones_nuevas,
+  'ZX':       acciones_nuevas,
 }
 
+acciones  = dict (acciones_comun)
 condactos = {}  # Diccionario de condactos
 for codigo in condiciones:
   condiciones[codigo] = condiciones[codigo] + (False, )  # Marcamos así que las condiciones no cambian el flujo incondicionalmente
@@ -343,10 +345,6 @@ Para compatibilidad con el IDE:
   # TODO: cargar y usar colores iniciales, que son muy distintos en esta plataforma, con 256 colores posibles
   colores_inicio.extend ((7, 0, 0, 0))  # Tinta blanca, papel y borde negro, y sin brillo
   preparaPosCabecera ('a800', inicio + 10)
-  # Ponemos las acciones correctas para esta plataforma
-  acciones.update (acciones_a800)
-  for codigo in acciones_a800:
-    condactos[100 + codigo] = acciones_a800[codigo][:2] + (True, acciones_a800[codigo][2])
   return cargaBD (fichero, longitud)
 
 def carga_bd_c64 (fichero, longitud):
@@ -374,10 +372,6 @@ Para compatibilidad con el IDE:
   colores_inicio.append (carga_int1())  # Color de papel
   colores_inicio.append (carga_int1())  # Color de borde
   preparaPosCabecera ('c64', 6)
-  # Ponemos las acciones correctas para esta plataforma
-  acciones.update (acciones_c64pc)
-  for codigo in acciones_c64pc:
-    condactos[100 + codigo] = acciones_c64pc[codigo][:2] + (True, acciones_c64pc[codigo][2])
   return cargaBD (fichero, longitud)
 
 def carga_bd_pc (fichero, longitud):
@@ -412,10 +406,6 @@ Para compatibilidad con el IDE:
   colores_inicio.append (carga_int1())  # Color de papel
   colores_inicio.append (carga_int1())  # Color de borde
   preparaPosCabecera ('pc', inicio + 6)
-  # Ponemos las acciones correctas para esta plataforma
-  acciones.update (acciones_c64pc)
-  for codigo in acciones_c64pc:
-    condactos[100 + codigo] = acciones_c64pc[codigo][:2] + (True, acciones_c64pc[codigo][2])
   return cargaBD (fichero, longitud)
 
 def carga_bd_ql (fichero, longitud):
@@ -454,10 +444,6 @@ Para compatibilidad con el IDE:
   colores_inicio.append (carga_int1())     # Ancho del borde
   colores_inicio.insert (2, carga_int1())  # Color de borde
   preparaPosCabecera ('qql', -despl_ini + 6)
-  # Ponemos las acciones correctas para esta plataforma
-  acciones.update (acciones_nuevas)
-  for codigo in acciones_nuevas:
-    condactos[100 + codigo] = acciones_nuevas[codigo][:2] + (True, acciones_nuevas[codigo][2])
   return cargaBD (fichero, longitud)
 
 def carga_bd_sna (fichero, longitud):
@@ -502,12 +488,7 @@ Para compatibilidad con el IDE:
       formato = 'sna48k_old'
       # TODO: cargar UDGs presentes en este formato, añadiéndolos a la fuente tipográfica
   preparaPosCabecera (formato, posBD)
-  if formato == 'sna48k':
-    # Ponemos las acciones correctas para esta versión de la plataforma
-    acciones.update (acciones_nuevas)
-    for codigo in acciones_nuevas:
-      condactos[100 + codigo] = acciones_nuevas[codigo][:2] + (True, acciones_nuevas[codigo][2])
-  return cargaBD (fichero, longitud)
+  return cargaBD (fichero, longitud, formato == 'sna48k')
 
 def guarda_bd (bbdd):
   """Almacena la base de datos entera en el fichero de salida, de forma optimizada. Devuelve None si no hubo error, o mensaje resumido y detallado del error"""
@@ -1395,6 +1376,19 @@ def nueva_bd ():
 
 # Funciones auxiliares que sólo se usan en este módulo
 
+def actualizaAcciones (nuevasAcciones):
+  """Actualiza los diccionarios de acciones y condactos quitando las acciones anteriores y poniendo las de la plataforma actual"""
+  acciones.clear()
+  acciones.update (acciones_comun)
+  if strPlataforma in acciones_plataforma and nuevasAcciones:
+    acciones.update (acciones_plataforma[strPlataforma])
+  # Quitamos todas las acciones que hubiese en condactos y ponemos ahí las recién preparadas
+  for codigo in list (condactos.keys()):
+    if codigo > 99:
+      del condactos[codigo]
+  for codigo in acciones:
+    condactos[100 + codigo] = acciones[codigo][:2] + (True, acciones[codigo][2])
+
 def anyadeArea (rangoInicio, rangoFin, areas):
   # type: (int, int, List[List[int, int]]) -> None
   """Añade un área de rango dado a la lista de áreas ordenadas del fichero dada, ordenadamente y extendiendo o integrando áreas contiguas. El rango dado no debe solapar ninguna otra área"""
@@ -1433,7 +1427,7 @@ def buscaSecuenciasEnAreas (arbolSecuencias, areas, secuencias, inicioFich):
         break
   return secuenciasEnAreas
 
-def cargaBD (fichero, longitud):
+def cargaBD (fichero, longitud, nuevasAcciones = True):
   """Carga la base de datos entera desde el fichero de entrada
 
 Para compatibilidad con el IDE:
@@ -1458,6 +1452,7 @@ Para compatibilidad con el IDE:
     cargaConexiones()
     cargaLocalidadesObjetos()
     cargaVocabulario()
+    actualizaAcciones (nuevasAcciones)  # Ponemos las acciones correctas para esta plataforma
     cargaTablasProcesos()
   except:
     return False
@@ -1642,7 +1637,7 @@ def convierteCondacto (codigoCondacto, nombreCondacto, plataforma):
     condactos_destino[plataforma] = {}
     for codigo in condiciones:
       condactos_destino[plataforma][condiciones[codigo][0]] = (codigo, ) + condiciones[codigo][1:]
-    for diccAcciones in (acciones, acciones_plataforma[plataforma]):
+    for diccAcciones in (acciones_comun, acciones_plataforma[plataforma]):
       for codigo in diccAcciones:
         condactos_destino[plataforma][diccAcciones[codigo][0]] = (100 + codigo, ) + diccAcciones[codigo][1:2] + (True, diccAcciones[codigo][2])
   if nombreCondacto not in condactos_destino[plataforma]:
