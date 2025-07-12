@@ -142,6 +142,7 @@ nombres_necesarios = (('acciones',          dict),
                       ('msgs_usr',          list),
                       ('NOMB_COMO_VERB',    list),
                       ('NOMBRE_SISTEMA',    str),
+                      ('NOMBRES_PROCS',     (dict, list, tuple)),
                       ('nombres_objs',      (dict, list)),
                       ('NUM_ATRIBUTOS',     list),
                       ('NUM_BANDERAS',      list),
@@ -2400,7 +2401,7 @@ def muestraProcesos ():
   for numero in procesos:
     strNumero = str (numero)
     titulo    = _('Process ') + strNumero
-    if 'NOMBRES_PROCS' in mod_actual.__dict__:
+    if mod_actual.NOMBRES_PROCS:
       if (type (mod_actual.NOMBRES_PROCS) in (list, tuple) and numero < len (mod_actual.NOMBRES_PROCS)) or \
          (type (mod_actual.NOMBRES_PROCS) == dict and numero in mod_actual.NOMBRES_PROCS):
         titulo = mod_actual.NOMBRES_PROCS[numero]
