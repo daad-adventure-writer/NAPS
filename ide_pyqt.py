@@ -2011,7 +2011,8 @@ def exportaBD ():
     if os.path.isfile (nombreFichero):
       dlgSiNo = QMessageBox (selector)
       dlgSiNo.addButton (_('&Yes'), QMessageBox.YesRole)
-      dlgSiNo.addButton (_('&No'), QMessageBox.NoRole)
+      botonNo = dlgSiNo.addButton (_('&No'), QMessageBox.NoRole)
+      dlgSiNo.setDefaultButton(botonNo)
       dlgSiNo.setIcon (QMessageBox.Warning)
       dlgSiNo.setWindowTitle (_('Overwrite'))
       dlgSiNo.setText (_('A file already exists with path and name:\n\n') + nombreFichero)
