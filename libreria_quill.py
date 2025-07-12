@@ -666,14 +666,12 @@ def guarda_bd (bbdd):
           if not algunaAccion:
             secuencia.append (255)  # Fin de condiciones
           algunaAccion = True
-        nombreCondacto  = condactos[condacto][0]
-        condactoDestino = convierteCondacto (condacto, nombreCondacto, plataformaDestino)  # Código del condacto en la plataforma de destino
-        if condactoDestino == None:
-          mensaje = _("Export failed because condact %(name)s doesn't exist on target platform %(platform)s") % {'name': nombreCondacto, 'platform': plataformas[plataformaDestino]}
-          prn ('ERROR:', mensaje, file = sys.stderr)  # Por si se exportaba desde otro sitio que no sea el IDE
-          return (_('Missing condact'), mensaje)
         entradaOcurrencia = (t, e)  # El lugar de esta ocurrencia (número de proceso y de entrada en éste)
-        parametrosDestino = convierteParametros (condacto, nombreCondacto, parametros, plataformaDestino, entradaOcurrencia)  # Parámetros para la plataforma de destino
+        nombreCondacto    = condactos[condacto][0]
+        condactoDestino, nombreCondacto, parametrosDestino = convierteCondacto (condacto, nombreCondacto, parametros, plataformaDestino, entradaOcurrencia)  # Condacto en plataforma de destino
+        if condactoDestino == None:  # Hay error y el mensaje está en nombreCondacto
+          prn ('ERROR:', nombreCondacto, file = sys.stderr)  # Por si se exportaba desde otro sitio que no sea el IDE
+          return (_('Missing condact'), nombreCondacto)
         secuencia.append (condactoDestino - (100 if algunaAccion else 0))
         secuencia.extend (parametrosDestino)
         if algunaAccion and condactos_destino[plataformaDestino][nombreCondacto][3]:
@@ -985,14 +983,12 @@ def guarda_bd_c64 (bbdd):
           if not algunaAccion:
             guarda_int1 (255)  # Fin de condiciones
           algunaAccion = True
-        nombreCondacto  = condactos[condacto][0]
-        condactoDestino = convierteCondacto (condacto, nombreCondacto, 'C64')  # Código del condacto en la plataforma de destino
-        if condactoDestino == None:
-          mensaje = _("Export failed because condact %(name)s doesn't exist on target platform %(platform)s") % {'name': nombreCondacto, 'platform': plataformas['C64']}
-          prn ('ERROR:', mensaje, file = sys.stderr)  # Por si se exportaba desde otro sitio que no sea el IDE
-          return (_('Missing condact'), mensaje)
         entradaOcurrencia = (t, e)  # El lugar de esta ocurrencia (número de proceso y de entrada en éste)
-        parametrosDestino = convierteParametros (condacto, nombreCondacto, parametros, 'C64', entradaOcurrencia)  # Parámetros para la plataforma de destino
+        nombreCondacto    = condactos[condacto][0]
+        condactoDestino, nombreCondacto, parametrosDestino = convierteCondacto (condacto, nombreCondacto, parametros, 'C64', entradaOcurrencia)  # Condacto en plataforma de destino
+        if condactoDestino == None:  # Hay error y el mensaje está en nombreCondacto
+          prn ('ERROR:', nombreCondacto, file = sys.stderr)  # Por si se exportaba desde otro sitio que no sea el IDE
+          return (_('Missing condact'), nombreCondacto)
         guarda_int1 (condactoDestino - (100 if algunaAccion else 0))
         for parametro in parametrosDestino:
           guarda_int1 (parametro)
@@ -1157,14 +1153,12 @@ def guarda_bd_ql (bbdd):
           if not algunaAccion:
             guarda_int1 (255)  # Fin de condiciones
           algunaAccion = True
-        nombreCondacto  = condactos[condacto][0]
-        condactoDestino = convierteCondacto (condacto, nombreCondacto, 'QL')  # Código del condacto en la plataforma de destino
-        if condactoDestino == None:
-          mensaje = _("Export failed because condact %(name)s doesn't exist on target platform %(platform)s") % {'name': nombreCondacto, 'platform': plataformas['QL']}
-          prn ('ERROR:', mensaje, file = sys.stderr)  # Por si se exportaba desde otro sitio que no sea el IDE
-          return (_('Missing condact'), mensaje)
         entradaOcurrencia = (t, e)  # El lugar de esta ocurrencia (número de proceso y de entrada en éste)
-        parametrosDestino = convierteParametros (condacto, nombreCondacto, parametros, 'QL', entradaOcurrencia)  # Parámetros para la plataforma de destino
+        nombreCondacto    = condactos[condacto][0]
+        condactoDestino, nombreCondacto, parametrosDestino = convierteCondacto (condacto, nombreCondacto, parametros, 'QL', entradaOcurrencia)  # Condacto en plataforma de destino
+        if condactoDestino == None:  # Hay error y el mensaje está en nombreCondacto
+          prn ('ERROR:', nombreCondacto, file = sys.stderr)  # Por si se exportaba desde otro sitio que no sea el IDE
+          return (_('Missing condact'), nombreCondacto)
         guarda_int1 (condactoDestino - (100 if algunaAccion else 0))
         for parametro in parametrosDestino:
           guarda_int1 (parametro)
@@ -1630,8 +1624,8 @@ def cargaVocabulario ():
     # Quill guarda las palabras en mayúsculas
     vocabulario.append ((palabra.lower(), carga_int1(), 0))
 
-def convierteCondacto (codigoCondacto, nombreCondacto, plataforma):
-  """Devuelve el código del condacto de nombre dado en la plataforma de destino dada, anotando en el diccionario adaptados las ocurrencias de cambios de código. Devuelve None si la plataforma de destino no tiene ese condacto"""
+def convierteCondacto (codigoCondacto, nombreCondacto, parametros, plataforma, posicionOcurrencia):
+  """Devuelve el código, nombre y parámetros convertidos del condacto dado con los parámetros dados y en la plataforma de destino dada, anotando en el diccionario adaptados las ocurrencias de cambios realizados. Las ocurrencias serán una cuenta para los cambios no importantes, y la lista de posiciones donde están para los importantes. Devuelve None y el mensaje de error si la plataforma de destino no tiene ese condacto y no se ha podido reemplazar por otro"""
   global condactos_destino
   try:
     condactos_destino
@@ -1645,25 +1639,40 @@ def convierteCondacto (codigoCondacto, nombreCondacto, plataforma):
     for diccAcciones in (acciones_comun, acciones_plataforma[plataforma]):
       for codigo in diccAcciones:
         condactos_destino[plataforma][diccAcciones[codigo][0]] = (100 + codigo, ) + diccAcciones[codigo][1:2] + (True, diccAcciones[codigo][2])
-  if nombreCondacto not in condactos_destino[plataforma]:
-    return None
-  condactoDestino = condactos_destino[plataforma][nombreCondacto][0]  # Código del condacto en la plataforma de destino
-  if condactoDestino != codigoCondacto:
+
+  if nombreCondacto not in condactos_destino[plataforma]:  # Ese condacto no está en la plataforma de destino
+    if len (condactos[codigoCondacto][1]) == 0 and 'ANYKEY' in condactos_destino[plataforma]:
+      condactoDestino = condactos_destino[plataforma]['ANYKEY'][0]  # No tiene parámetros, intentamos cambiarlo por ANYKEY
+      reemplazo     = 'ANYKEY'
+    elif len (condactos[codigoCondacto][1]) == 1 and 'PAUSE' in condactos_destino[plataforma]:
+      condactoDestino = condactos_destino[plataforma]['PAUSE'][0]  # Tiene un solo parámetro, intentamos cambiarlo por PAUSE
+      reemplazo     = 'PAUSE'
+    else:
+      return None, _("Export failed because condact %(name)s doesn't exist on target platform %(platform)s") % {'name': nombreCondacto, 'platform': plataformas[plataforma]}, None
+  else:
+    condactoDestino = condactos_destino[plataforma][nombreCondacto][0]  # Código del condacto en la plataforma de destino
+    reemplazo       = None
+
+  if condactoDestino != codigoCondacto or reemplazo:
     if nombreCondacto not in adaptados:
       adaptados[nombreCondacto] = {}
+    if reemplazo:
+      mensaje = _('Inexistent condact %(name)s on %(platform)s, replaced by %(replacement)s')
+      if mensaje not in adaptados[nombreCondacto]:
+        adaptados[nombreCondacto][mensaje] = [{'name': nombreCondacto, 'platform': plataformas[plataforma], 'replacement': reemplazo}, []]
+      if posicionOcurrencia not in adaptados[nombreCondacto][mensaje][1]:
+        adaptados[nombreCondacto][mensaje][1].append (posicionOcurrencia)
+      return condactoDestino, reemplazo, parametros
     mensaje = _('Condact %(name)s changed from code %(origCode)d to %(destCode)d')
     if mensaje in adaptados[nombreCondacto]:
       adaptados[nombreCondacto][mensaje][1] += 1  # Incrementamos el número de ocurrencias
     else:
       adaptados[nombreCondacto][mensaje] = [{'destCode': condactoDestino % 100, 'name': nombreCondacto, 'origCode': codigoCondacto % 100}, 1]
-  return condactoDestino
 
-def convierteParametros (codigoCondacto, nombreCondacto, parametros, plataforma, posicionOcurrencia):
-  """Devuelve los parámetros para el condacto de código (en la plataforma de origen) y nombre dado adaptados a la plataforma de destino dada, anotando en el diccionario adaptados las ocurrencias de cambio de número de parámetros, en concreto la posición donde estaba dada"""
   numParametrosDest = len (condactos_destino[plataforma][nombreCondacto][1])
   numParametrosOrig = len (condactos[codigoCondacto][1])
   if numParametrosDest == numParametrosOrig:
-    return parametros
+    return condactoDestino, nombreCondacto, parametros
   if nombreCondacto not in adaptados:
     adaptados[nombreCondacto] = {}
   mensaje = _('Number of parameters for condact %(name)s changed from %(lenBefore)d to %(lenAfter)d')
@@ -1672,9 +1681,9 @@ def convierteParametros (codigoCondacto, nombreCondacto, parametros, plataforma,
   if posicionOcurrencia not in adaptados[nombreCondacto][mensaje][1]:
     adaptados[nombreCondacto][mensaje][1].append (posicionOcurrencia)
   if numParametrosDest > numParametrosOrig:  # Tendrá más parámetros que antes
-    return parametros + ([0] * (numParametrosDest - numParametrosOrig))
+    return condactoDestino, nombreCondacto, parametros + ([0] * (numParametrosDest - numParametrosOrig))
   # Tendrá menos parámetros que antes
-  return parametros[:numParametrosDest]
+  return condactoDestino, nombreCondacto, parametros[:numParametrosDest]
 
 def daCadena (cadena, finCadena, nuevaLinea, conversion = None):
   """Devuelve una cadena en el formato de Quill"""

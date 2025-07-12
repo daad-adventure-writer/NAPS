@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 24.04\n"
 "Report-Msgid-Bugs-To: jmfo1982@gmail.com\n"
-"POT-Creation-Date: 2025-07-12 18:42+0200\n"
+"POT-Creation-Date: 2025-07-12 19:57+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: TWO LETTER ISO LANGUAGE CODE\n"
@@ -1277,7 +1277,7 @@ msgstr ""
 msgid " turn"
 msgstr ""
 
-#: libreria_quill.py:106 libreria_quill.py:1351
+#: libreria_quill.py:106 libreria_quill.py:1345
 msgid "s"
 msgstr ""
 
@@ -1337,87 +1337,93 @@ msgstr ""
 msgid "Status table"
 msgstr ""
 
-#: libreria_quill.py:672 libreria_quill.py:991 libreria_quill.py:1163
+#: libreria_quill.py:674 libreria_quill.py:991 libreria_quill.py:1161
+msgid "Missing condact"
+msgstr ""
+
+#: libreria_quill.py:1340
+msgid "Location 0's description, the initial location."
+msgstr ""
+
+#: libreria_quill.py:1343
+msgid "n"
+msgstr ""
+
+#: libreria_quill.py:1344
+msgid "nort"
+msgstr ""
+
+#: libreria_quill.py:1346
+msgid "sout"
+msgstr ""
+
+#: libreria_quill.py:1347
+msgid "e"
+msgstr ""
+
+#: libreria_quill.py:1348
+msgid "east"
+msgstr ""
+
+#: libreria_quill.py:1349
+msgid "w"
+msgstr ""
+
+#: libreria_quill.py:1350
+msgid "west"
+msgstr ""
+
+#: libreria_quill.py:1351
+msgid "i"
+msgstr ""
+
+#: libreria_quill.py:1352
+msgid "inve"
+msgstr ""
+
+#: libreria_quill.py:1353
+msgid "desc"
+msgstr ""
+
+#: libreria_quill.py:1354
+msgid "look"
+msgstr ""
+
+#: libreria_quill.py:1355
+msgid "quit"
+msgstr ""
+
+#: libreria_quill.py:1356
+msgid "ligh"
+msgstr ""
+
+#: libreria_quill.py:1358
+msgid "Object 0's description, source of light."
+msgstr ""
+
+#: libreria_quill.py:1363
+msgid "Text of message 0."
+msgstr ""
+
+#: libreria_quill.py:1652
 #, python-format
 msgid ""
 "Export failed because condact %(name)s doesn't exist on target platform "
 "%(platform)s"
 msgstr ""
 
-#: libreria_quill.py:674 libreria_quill.py:993 libreria_quill.py:1165
-msgid "Missing condact"
+#: libreria_quill.py:1661
+#, python-format
+msgid ""
+"Inexistent condact %(name)s on %(platform)s, replaced by %(replacement)s"
 msgstr ""
 
-#: libreria_quill.py:1346
-msgid "Location 0's description, the initial location."
-msgstr ""
-
-#: libreria_quill.py:1349
-msgid "n"
-msgstr ""
-
-#: libreria_quill.py:1350
-msgid "nort"
-msgstr ""
-
-#: libreria_quill.py:1352
-msgid "sout"
-msgstr ""
-
-#: libreria_quill.py:1353
-msgid "e"
-msgstr ""
-
-#: libreria_quill.py:1354
-msgid "east"
-msgstr ""
-
-#: libreria_quill.py:1355
-msgid "w"
-msgstr ""
-
-#: libreria_quill.py:1356
-msgid "west"
-msgstr ""
-
-#: libreria_quill.py:1357
-msgid "i"
-msgstr ""
-
-#: libreria_quill.py:1358
-msgid "inve"
-msgstr ""
-
-#: libreria_quill.py:1359
-msgid "desc"
-msgstr ""
-
-#: libreria_quill.py:1360
-msgid "look"
-msgstr ""
-
-#: libreria_quill.py:1361
-msgid "quit"
-msgstr ""
-
-#: libreria_quill.py:1362
-msgid "ligh"
-msgstr ""
-
-#: libreria_quill.py:1364
-msgid "Object 0's description, source of light."
-msgstr ""
-
-#: libreria_quill.py:1369
-msgid "Text of message 0."
-msgstr ""
-
-#: libreria_quill.py:1654
+#: libreria_quill.py:1667
 #, python-format
 msgid "Condact %(name)s changed from code %(origCode)d to %(destCode)d"
 msgstr ""
 
-#: libreria_quill.py:1669
+#: libreria_quill.py:1679
 #, python-format
 msgid ""
 "Number of parameters for condact %(name)s changed from %(lenBefore)d to "
