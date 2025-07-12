@@ -224,9 +224,6 @@ acciones_comun = {
   34 : ('MINUS',   'fu', False),
   35 : ('LET',     'fu', False),
   36 : ('BEEP',    'uu', False),
-  37 : ('RAMSAVE', '',   False),
-  38 : ('RAMLOAD', '',   False),
-  39 : ('SYSMESS', 's',  False),
 }
 
 # Reemplazo de acciones en nuevas versiones de Quill
@@ -275,6 +272,14 @@ acciones_c64pc = {
   32 : ('BEEP',    'uu', False),  # Llamada SID en Commodore 64, y SOUND en AdventureWriter para PC
 }
 
+# Reemplazo de acciones en Sinclair QL
+acciones_ql = dict (acciones_nuevas)
+acciones_ql.update ({
+  37 : ('RAMSAVE', '',   False),
+  38 : ('RAMLOAD', '',   False),
+  39 : ('SYSMESS', 's',  False),
+})
+
 # Reemplazo de acciones en Atari 800
 acciones_a800 = dict (acciones_c64pc)
 acciones_a800.update ({
@@ -286,7 +291,7 @@ acciones_plataforma = {
   'Atari800': acciones_a800,
   'C64':      acciones_c64pc,
   'PC':       acciones_c64pc,
-  'QL':       acciones_nuevas,
+  'QL':       acciones_ql,
   'ZX':       acciones_nuevas,
 }
 
