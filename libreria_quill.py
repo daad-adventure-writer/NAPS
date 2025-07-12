@@ -66,6 +66,7 @@ ids_locs = {  0 : 'INICIAL',
 
 # Funciones que importan bases de datos desde ficheros
 funcs_exportar = (
+  ('guarda_bd',     ('dtb',), _('Optimized Quill database for Atari 800')),
   ('guarda_bd',     ('prg',), _('Optimized Quill database for Commodore 64')),
   ('guarda_bd',     ('qql',), _('Optimized Quill database for Sinclair QL')),
   ('guarda_bd_c64', ('prg',), _('Quill database for Commodore 64')),
@@ -542,6 +543,21 @@ def guarda_bd (bbdd):
     preparaPosCabecera (formato, desplIniFich + 4)
     # Guardamos la cabecera de Commodore 64
     guarda_desplazamiento (0)  # Desplazamiento donde se cargará en memoria la BD
+  elif formato == 'dtb':  # Atari 800
+    plataformaDestino = 'Atari800'
+    desplIniMem  = 7418
+    tamCabecera  = 37
+    tamMaxBD     = 31680
+    carga_desplazamiento  = carga_desplazamiento2
+    guarda_desplazamiento = guarda_desplazamiento2
+    bajo_nivel_cambia_despl  (desplIniMem)
+    bajo_nivel_cambia_endian (le = True)
+    preparaPosCabecera ('a800', 10)
+    # Guardamos la cabecera de Atari 800
+    guarda_int2_le (65535)  # Marca de ejecutable
+    guarda_int2_le (7424)   # Desplazamiento donde se cargará en memoria la BD
+    # Dejamos espacio para la posición siguiente tras la base de datos
+    guarda_desplazamiento (-desplIniMem)
   else:  # formato == 'qql'
     plataformaDestino = 'QL'
     desplIniFich = 30
@@ -566,14 +582,22 @@ def guarda_bd (bbdd):
   guarda_int1 (0)  # ¿Plataforma?
   if formato == 'qql':
     guarda_int1 (colores_inicio[1])  # Color de papel
-  guarda_int1 (colores_inicio[0])  # Color de tinta
+  if formato == 'dtb':  # Atari 800
+    guarda_int1 (13)  # Contraste de la tinta
+  else:
+    guarda_int1 (colores_inicio[0])  # Color de tinta
   if formato == 'qql' and len (colores_inicio) > 2:
     guarda_int1 (colores_inicio[3])  # Quill no usa este valor. Lo usaremos para almacenar valor de brillo
+  elif formato == 'dtb':
+    guarda_int1 (176)  # Papel verde oscuro
   else:
     guarda_int1 (colores_inicio[1])  # Color de papel
   if formato == 'qql':
     guarda_int1 (colores_inicio[4] if len (colores_inicio) > 3 else 2)  # Anchura del borde
-  guarda_int1 (colores_inicio[2])  # Color del borde
+  if formato == 'dtb':
+    guarda_int1 (176)  # Borde verde oscuro
+  else:
+    guarda_int1 (colores_inicio[2])  # Color del borde
   guarda_int1 (max_llevables)
   guarda_int1 (num_objetos[0])
   guarda_int1 (numLocs)
@@ -617,7 +641,10 @@ def guarda_bd (bbdd):
   guarda_desplazamiento (ocupado)
   ocupado += numLocs * tamDespl
   # Dejamos espacio para la posición del vocabulario
-  areasYaEscritas.append ([desplIniFich, CAB_POS_VOCAB])
+  if formato == 'dtb':
+    areasYaEscritas.extend (([0, 2 * tamDespl], [3 * tamDespl, CAB_POS_VOCAB]))
+  else:
+    areasYaEscritas.append ([desplIniFich, CAB_POS_VOCAB])
   guarda_desplazamiento (-desplIniMem)
   # Dejamos espacio para la posición de las localidades iniciales de los objetos
   guarda_desplazamiento (-desplIniMem)
@@ -925,6 +952,9 @@ def guarda_bd (bbdd):
   # Guardamos la posición siguiente tras la base de datos
   fich_sal.seek (CAB_POS_NOMS_OBJS + (tamDespl if formato == 'qql' else 0))
   guarda_desplazamiento (ocupado)
+  if formato == 'dtb':  # Atari 800
+    fich_sal.seek (4)
+    guarda_desplazamiento (ocupado)
 
 def guarda_bd_c64 (bbdd):
   """Almacena la base de datos entera en el fichero de salida, para Commodore 64, replicando el formato original. Devuelve None si no hubo error, o mensaje resumido y detallado del error"""

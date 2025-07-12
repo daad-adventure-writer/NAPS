@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 24.04\n"
 "Report-Msgid-Bugs-To: jmfo1982@gmail.com\n"
-"POT-Creation-Date: 2025-07-12 15:28+0200\n"
+"POT-Creation-Date: 2025-07-12 15:49+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: TWO LETTER ISO LANGUAGE CODE\n"
@@ -510,7 +510,7 @@ msgstr ""
 msgid "Adjective"
 msgstr ""
 
-#: ide_pyqt.py:1074 libreria_quill.py:141
+#: ide_pyqt.py:1074 libreria_quill.py:142
 msgid "Word"
 msgstr ""
 
@@ -1145,271 +1145,275 @@ msgid "Each turn"
 msgstr ""
 
 #: libreria_quill.py:69
-msgid "Optimized Quill database for Commodore 64"
+msgid "Optimized Quill database for Atari 800"
 msgstr ""
 
 #: libreria_quill.py:70
-msgid "Optimized Quill database for Sinclair QL"
+msgid "Optimized Quill database for Commodore 64"
 msgstr ""
 
 #: libreria_quill.py:71
-msgid "Quill database for Commodore 64"
+msgid "Optimized Quill database for Sinclair QL"
 msgstr ""
 
 #: libreria_quill.py:72
+msgid "Quill database for Commodore 64"
+msgstr ""
+
+#: libreria_quill.py:73
 msgid "Quill database for Sinclair QL"
 msgstr ""
 
-#: libreria_quill.py:75
+#: libreria_quill.py:76
 msgid "Quill databases for Atari 800 AdventureWriter"
 msgstr ""
 
-#: libreria_quill.py:76
+#: libreria_quill.py:77
 msgid "Quill databases for Commodore 64"
 msgstr ""
 
-#: libreria_quill.py:77
+#: libreria_quill.py:78
 msgid "Quill databases for PC AdventureWriter"
 msgstr ""
 
-#: libreria_quill.py:78
+#: libreria_quill.py:79
 msgid "Quill databases for Sinclair QL"
 msgstr ""
 
-#: libreria_quill.py:79
+#: libreria_quill.py:80
 msgid "ZX 48K memory snapshots with Quill"
 msgstr ""
 
-#: libreria_quill.py:86
+#: libreria_quill.py:87
 msgid "Everything is dark. I can't see."
 msgstr ""
 
-#: libreria_quill.py:87
-msgid "I also see:-"
-msgstr ""
-
 #: libreria_quill.py:88
-msgid ""
-"\n"
-"I'm waiting for your command."
+msgid "I also see:-"
 msgstr ""
 
 #: libreria_quill.py:89
 msgid ""
 "\n"
-"I'm ready for a new command."
+"I'm waiting for your command."
 msgstr ""
 
 #: libreria_quill.py:90
 msgid ""
 "\n"
-"Tell me what to do."
+"I'm ready for a new command."
 msgstr ""
 
 #: libreria_quill.py:91
 msgid ""
 "\n"
-"Give me your instruction."
+"Tell me what to do."
 msgstr ""
 
 #: libreria_quill.py:92
+msgid ""
+"\n"
+"Give me your instruction."
+msgstr ""
+
+#: libreria_quill.py:93
 msgid ""
 "Sorry, I don't understand.\n"
 "Try with other words."
 msgstr ""
 
-#: libreria_quill.py:93
+#: libreria_quill.py:94
 msgid "I can't go that way."
 msgstr ""
 
-#: libreria_quill.py:94
+#: libreria_quill.py:95
 msgid "I can't do that."
 msgstr ""
 
-#: libreria_quill.py:95
+#: libreria_quill.py:96
 msgid "I have:-"
 msgstr ""
 
-#: libreria_quill.py:96
+#: libreria_quill.py:97
 msgid "(worn)"
 msgstr ""
 
-#: libreria_quill.py:97
+#: libreria_quill.py:98
 msgid "Nothing at all."
 msgstr ""
 
-#: libreria_quill.py:98
+#: libreria_quill.py:99
 msgid "Are you sure you want to quit?"
 msgstr ""
 
-#: libreria_quill.py:99
+#: libreria_quill.py:100
 msgid ""
 "\n"
 "GAME OVER\n"
 "Do you want another try?"
 msgstr ""
 
-#: libreria_quill.py:100
+#: libreria_quill.py:101
 msgid "Goodbye. Have a nice day."
 msgstr ""
 
-#: libreria_quill.py:101
+#: libreria_quill.py:102
 msgid "Alright."
 msgstr ""
 
-#: libreria_quill.py:102
+#: libreria_quill.py:103
 msgid "Press any key to continue"
 msgstr ""
 
-#: libreria_quill.py:103
+#: libreria_quill.py:104
 msgid "You took "
 msgstr ""
 
-#: libreria_quill.py:104
+#: libreria_quill.py:105
 msgid " turn"
 msgstr ""
 
-#: libreria_quill.py:105 libreria_quill.py:1335
+#: libreria_quill.py:106 libreria_quill.py:1365
 msgid "s"
 msgstr ""
 
-#: libreria_quill.py:106
+#: libreria_quill.py:107
 msgid "."
 msgstr ""
 
-#: libreria_quill.py:107
+#: libreria_quill.py:108
 msgid "You completed "
 msgstr ""
 
-#: libreria_quill.py:108
+#: libreria_quill.py:109
 msgid "%"
 msgstr ""
 
-#: libreria_quill.py:109
+#: libreria_quill.py:110
 msgid "I'm not wearing that."
 msgstr ""
 
-#: libreria_quill.py:110
+#: libreria_quill.py:111
 msgid "I can't. My hands are full."
 msgstr ""
 
-#: libreria_quill.py:111
+#: libreria_quill.py:112
 msgid "I already have that."
 msgstr ""
 
-#: libreria_quill.py:112
+#: libreria_quill.py:113
 msgid "That's not here."
 msgstr ""
 
-#: libreria_quill.py:113
+#: libreria_quill.py:114
 msgid "I can't carry more things."
 msgstr ""
 
-#: libreria_quill.py:114
+#: libreria_quill.py:115
 msgid "I don't have that."
 msgstr ""
 
-#: libreria_quill.py:115
+#: libreria_quill.py:116
 msgid "It's already worn."
 msgstr ""
 
-#: libreria_quill.py:116
+#: libreria_quill.py:117
 msgid "Y"
 msgstr ""
 
-#: libreria_quill.py:117
+#: libreria_quill.py:118
 msgid "N"
 msgstr ""
 
-#: libreria_quill.py:139
+#: libreria_quill.py:140
 msgid "Event table"
 msgstr ""
 
-#: libreria_quill.py:139
+#: libreria_quill.py:140
 msgid "Status table"
 msgstr ""
 
-#: libreria_quill.py:659 libreria_quill.py:975 libreria_quill.py:1147
+#: libreria_quill.py:686 libreria_quill.py:1005 libreria_quill.py:1177
 #, python-format
 msgid ""
 "Export failed because condact %(name)s doesn't exist on target platform "
 "%(platform)s"
 msgstr ""
 
-#: libreria_quill.py:661 libreria_quill.py:977 libreria_quill.py:1149
+#: libreria_quill.py:688 libreria_quill.py:1007 libreria_quill.py:1179
 msgid "Missing condact"
 msgstr ""
 
-#: libreria_quill.py:1330
+#: libreria_quill.py:1360
 msgid "Location 0's description, the initial location."
 msgstr ""
 
-#: libreria_quill.py:1333
+#: libreria_quill.py:1363
 msgid "n"
 msgstr ""
 
-#: libreria_quill.py:1334
+#: libreria_quill.py:1364
 msgid "nort"
 msgstr ""
 
-#: libreria_quill.py:1336
+#: libreria_quill.py:1366
 msgid "sout"
 msgstr ""
 
-#: libreria_quill.py:1337
+#: libreria_quill.py:1367
 msgid "e"
 msgstr ""
 
-#: libreria_quill.py:1338
+#: libreria_quill.py:1368
 msgid "east"
 msgstr ""
 
-#: libreria_quill.py:1339
+#: libreria_quill.py:1369
 msgid "w"
 msgstr ""
 
-#: libreria_quill.py:1340
+#: libreria_quill.py:1370
 msgid "west"
 msgstr ""
 
-#: libreria_quill.py:1341
+#: libreria_quill.py:1371
 msgid "i"
 msgstr ""
 
-#: libreria_quill.py:1342
+#: libreria_quill.py:1372
 msgid "inve"
 msgstr ""
 
-#: libreria_quill.py:1343
+#: libreria_quill.py:1373
 msgid "desc"
 msgstr ""
 
-#: libreria_quill.py:1344
+#: libreria_quill.py:1374
 msgid "look"
 msgstr ""
 
-#: libreria_quill.py:1345
+#: libreria_quill.py:1375
 msgid "quit"
 msgstr ""
 
-#: libreria_quill.py:1346
+#: libreria_quill.py:1376
 msgid "ligh"
 msgstr ""
 
-#: libreria_quill.py:1348
+#: libreria_quill.py:1378
 msgid "Object 0's description, source of light."
 msgstr ""
 
-#: libreria_quill.py:1353
+#: libreria_quill.py:1383
 msgid "Text of message 0."
 msgstr ""
 
-#: libreria_quill.py:1625
+#: libreria_quill.py:1655
 #, python-format
 msgid "Condact %(name)s changed from code %(origCode)d to %(destCode)d"
 msgstr ""
 
-#: libreria_quill.py:1640
+#: libreria_quill.py:1670
 #, python-format
 msgid ""
 "Number of parameters for condact %(name)s changed from %(lenBefore)d to "
