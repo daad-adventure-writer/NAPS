@@ -493,7 +493,7 @@ Para compatibilidad con el IDE:
 
 def guarda_bd (bbdd):
   """Almacena la base de datos entera en el fichero de salida, de forma optimizada"""
-  global fich_sal, guarda_desplazamiento
+  global carga_desplazamiento, fich_sal, guarda_desplazamiento
   extension = os.path.splitext (bbdd.name)[1][1:].lower()
   formato   = 'c64' if extension == 'prg' else extension
   areasYaEscritas = []  # Áreas del fichero ya escritas, para deduplicar datos ya existentes en la base de datos
@@ -517,6 +517,7 @@ def guarda_bd (bbdd):
     desplIniMem  = 2048
     tamCabecera  = 31
     tamMaxBD     = 35071
+    carga_desplazamiento  = carga_desplazamiento2
     guarda_desplazamiento = guarda_desplazamiento2
     bajo_nivel_cambia_despl  (desplIniMem)
     bajo_nivel_cambia_endian (le = True)
@@ -527,6 +528,7 @@ def guarda_bd (bbdd):
     desplIniFich = 30
     tamCabecera  = 60
     tamDespl     = 4
+    carga_desplazamiento  = carga_desplazamiento4
     guardaInt4            = guarda_int4_be
     guarda_desplazamiento = guarda_desplazamiento4
     bajo_nivel_cambia_endian (le = False)
