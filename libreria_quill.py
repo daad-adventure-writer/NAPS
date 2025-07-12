@@ -49,6 +49,7 @@ udgs           = []   # UDGs (caracteres gráficos definidos por el usuario)
 vocabulario    = []   # Vocabulario
 
 despl_ini       = 0           # Desplazamiento inicial para cargar desde memoria
+fin_cadena      = 0           # Código del carácter de fin de cadena
 max_llevables   = 0           # Número máximo de objetos que puede llevar el jugador
 nada_tras_flujo = []          # Si omitiremos los condactos que haya después de los de cambio de flujo incondicional
 nueva_linea     = ord ('\n')  # Código del carácter de nueva línea
@@ -506,6 +507,8 @@ def guarda_bd (bbdd):
   conversion   = None             # Conversión de juego de caracteres
   desplIniFich = 0                # Posición donde empieza la BD en el fichero
   desplIniMem  = 0                # Posición donde se cargará en memoria la BD
+  finCadena    = 0                # Carácter de fin de cadena
+  nuevaLinea   = ord ('\r')       # Carácter de nueva línea
   numLocs      = len (desc_locs)  # Número de localidades
   numMsgsUsr   = len (msgs_usr)   # Número de mensajes de usuario
   numMsgsSys   = len (msgs_sys)   # Número de mensajes de sistema
@@ -520,6 +523,7 @@ def guarda_bd (bbdd):
     conversion   = ascii_a_petscii
     desplIniFich = 2
     desplIniMem  = 2048
+    nuevaLinea   = 141
     tamCabecera  = 31
     tamMaxBD     = 35071
     carga_desplazamiento  = carga_desplazamiento2
@@ -532,6 +536,7 @@ def guarda_bd (bbdd):
   elif formato == 'dtb':  # Atari 800
     plataformaDestino = 'Atari800'
     desplIniMem  = 7418
+    nuevaLinea   = 155
     tamCabecera  = 37
     tamMaxBD     = 31680
     carga_desplazamiento  = carga_desplazamiento2
@@ -547,6 +552,7 @@ def guarda_bd (bbdd):
   else:  # formato == 'qql'
     plataformaDestino = 'QL'
     desplIniFich = 30
+    nuevaLinea   = 254
     tamCabecera  = 60
     tamDespl     = 4
     carga_desplazamiento  = carga_desplazamiento4
@@ -712,10 +718,12 @@ def guarda_bd (bbdd):
     secuencia.append (255)  # Fin de las conexiones de esta localidad
     porColocar[posicion + c * tamDespl] = secuencia
   # Recopilamos los textos de la aventura
+  # TODO: eliminar espacios superfluos a final de línea en cada línea cuando se parten con nueva línea, salvo la última
+  #       ojo que puede haber espacios no superfluos, si causan nueva línea adicional por superar ancho de línea o si cambian el color de fondo
   for posCabecera, mensajes in ((CAB_POS_LST_POS_OBJS, desc_objs), (CAB_POS_LST_POS_LOCS, desc_locs), (CAB_POS_LST_POS_MSGS_USR, msgs_usr), (CAB_POS_LST_POS_MSGS_SYS, msgs_sys)):
     posicion = carga_desplazamiento (posCabecera) + desplIniFich
     for m in range (len (mensajes)):
-      secuencia = daCadena (mensajes[m], finCadena = 0, nuevaLinea = 141, conversion = conversion)
+      secuencia = daCadena (mensajes[m], finCadena, nuevaLinea, conversion)
       porColocar[posicion + m * tamDespl] = secuencia
 
   # Detectamos las secuencias reubicables duplicadas
