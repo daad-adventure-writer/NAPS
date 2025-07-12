@@ -787,7 +787,8 @@ class ManejoExportacion (QThread):
       self.dialogoProgreso.setValue (valorProgreso)
 
   def run (self):
-    mod_actual.__dict__[info_exportar[self.indiceFiltro][0]] (self.fichero)
+    global error_exportacion
+    error_exportacion = mod_actual.__dict__[info_exportar[self.indiceFiltro][0]] (self.fichero)
     if self.dialogoProgreso:
       self.dialogoProgreso.close()
       self.dialogoProgreso = None
@@ -1715,6 +1716,18 @@ def daTextoImprimible (texto):
     return convertido.decode ('iso-8859-15')
   return convertido
 
+def daTituloProceso (numero):
+  """Devuelve el título del proceso de número dado según el módulo de su sistema"""
+  strNumero = str (numero)
+  titulo    = _('Process ') + strNumero
+  if mod_actual.NOMBRES_PROCS:
+    if (type (mod_actual.NOMBRES_PROCS) in (list, tuple) and numero < len (mod_actual.NOMBRES_PROCS)) or \
+       (type (mod_actual.NOMBRES_PROCS) == dict and numero in mod_actual.NOMBRES_PROCS):
+      titulo = mod_actual.NOMBRES_PROCS[numero]
+    elif type (mod_actual.NOMBRES_PROCS) == dict and None in mod_actual.NOMBRES_PROCS:
+      titulo = mod_actual.NOMBRES_PROCS[None] + ' ' + strNumero
+  return titulo
+
 def dialogoImportaBD ():
   """Deja al usuario elegir un fichero de base datos, y lo intenta importar"""
   global dlg_abrir
@@ -2034,6 +2047,31 @@ def exportaBD ():
 def finExportacion (fichero):
   fichero.close()
   selector.setCursor (Qt.ArrowCursor)  # Puntero de ratón normal
+  if error_exportacion:
+    muestraFallo (error_exportacion[0], error_exportacion[1])
+  elif 'adaptados' in mod_actual.__dict__ and mod_actual.adaptados:
+    # Mostramos primero las que indican dónde están las ocurrencias, que deberán revisarse a mano
+    detalles = ''
+    for nomCondacto in mod_actual.adaptados:
+      for mensaje, (reemplazoFormato, ocurrencias) in mod_actual.adaptados[nomCondacto].items():
+        if type (ocurrencias) == int:  # Es solo el número de ocurrencias
+          continue
+        # Es una lista de posiciones de las ocurrencias
+        detalles += ('\n' if detalles else '') + mensaje % reemplazoFormato
+        detalles += _('\n\tOccurrences:\n')
+        for numProceso, numEntrada in ocurrencias:
+          tituloProceso = daTituloProceso (numProceso)
+          detalles += '\t' + tituloProceso + ', ' + _('entry') + ' ' + str (numEntrada) + '\n'
+    if detalles:
+      muestraFallo (_('Risky export adaptations'), _('The following adaptations need to be manually reviewed and corrected as needed:\n\n') + detalles, titulo = _('Warning'))
+    detalles = ''
+    for nomCondacto in mod_actual.adaptados:
+      for mensaje, (reemplazoFormato, ocurrencias) in mod_actual.adaptados[nomCondacto].items():
+        if type (ocurrencias) == int:  # Es solo el número de ocurrencias
+          detalles += ('\n' if detalles else '') + mensaje % reemplazoFormato
+          detalles += ': ' + (_('1 occurrence') if ocurrencias == 1 else _('%d occurrences') % ocurrencias) + '\n'
+    if detalles:
+      muestraFallo (_('Normal export adaptations'), detalles, QMessageBox.Information)
 
 def icono (nombre):
   """Devuelve un QIcon, sacando la imagen de la carpeta de iconos"""
@@ -2355,16 +2393,19 @@ def muestraDescObjs ():
   """Muestra el diálogo para consultar las descripciones de objetos"""
   muestraTextos (dlg_desc_objs, mod_actual.desc_objs, 'desc_objetos', mdi_desc_objs)
 
-def muestraFallo (mensaje, detalle, icono = QMessageBox.Warning):
+def muestraFallo (mensaje, detalle, icono = QMessageBox.Warning, titulo = ''):
   """Muestra un diálogo de fallo leve"""
   global dlg_fallo
   if not dlg_fallo:  # Diálogo no creado aún
     dlg_fallo = QMessageBox (selector)
     dlg_fallo.addButton (_('&Accept'), QMessageBox.AcceptRole)
-  if icono == QMessageBox.Information:
-    dlg_fallo.setWindowTitle (_('Information'))
+  if titulo:
+    dlg_fallo.setWindowTitle (titulo)
   else:
-    dlg_fallo.setWindowTitle (_('Failure'))
+    if icono == QMessageBox.Information:
+      dlg_fallo.setWindowTitle (_('Information'))
+    else:
+      dlg_fallo.setWindowTitle (_('Failure'))
   dlg_fallo.setIcon (icono)
   dlg_fallo.setText (mensaje)
   dlg_fallo.setInformativeText (detalle)
@@ -2401,13 +2442,7 @@ def muestraProcesos ():
   procesos = sorted (mod_actual.tablas_proceso.keys()) if type (mod_actual.tablas_proceso) == dict else range (len (mod_actual.tablas_proceso))
   for numero in procesos:
     strNumero = str (numero)
-    titulo    = _('Process ') + strNumero
-    if mod_actual.NOMBRES_PROCS:
-      if (type (mod_actual.NOMBRES_PROCS) in (list, tuple) and numero < len (mod_actual.NOMBRES_PROCS)) or \
-         (type (mod_actual.NOMBRES_PROCS) == dict and numero in mod_actual.NOMBRES_PROCS):
-        titulo = mod_actual.NOMBRES_PROCS[numero]
-      elif type (mod_actual.NOMBRES_PROCS) == dict and None in mod_actual.NOMBRES_PROCS:
-        titulo = mod_actual.NOMBRES_PROCS[None] + ' ' + strNumero
+    titulo    = daTituloProceso (numero)
     if len (procesos) < 6:  # Hay pocos procesos, espacio de sobra
       pestanyas.addTab (titulo)
     else:

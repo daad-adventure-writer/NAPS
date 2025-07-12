@@ -33,11 +33,12 @@ from prn_func   import _, maketrans, prn
 # Sólo se usará este módulo de condactos
 mods_condactos = ('condactos_quill',)
 
+adaptados      = {}   # Condactos que se han adaptado al convertir de una plataforma a otra (para el IDE)
 colores_inicio = []   # Colores iniciales: tinta, papel, borde y opcionalmente: brillo, ancho del borde
 conexiones     = []   # Listas de conexiones de cada localidad
 desc_locs      = []   # Descripciones de las localidades
 desc_objs      = []   # Descripciones de los objetos
-dlg_progreso   = []   # Diálogo de progreso al exportar
+dlg_progreso   = []   # Diálogo de progreso al exportar (para el IDE)
 locs_iniciales = []   # Localidades iniciales de los objetos
 msgs_sys       = []   # Mensajes de sistema
 msgs_usr       = []   # Mensajes de usuario
@@ -274,10 +275,18 @@ acciones_c64pc = {
 }
 
 # Reemplazo de acciones en Atari 800
-acciones_a800 = dict(acciones_c64pc)
-acciones_a800.update({
+acciones_a800 = dict (acciones_c64pc)
+acciones_a800.update ({
   32 : ('SOUND', 'uuuu', False),
 })
+
+# Diccionarios de actualización de acciones para cada plataforma
+acciones_plataforma = {
+  'Atari800': acciones_a800,
+  'C64':      acciones_c64pc,
+  'PC':       acciones_c64pc,
+  'QL':       acciones_nuevas,
+}
 
 condactos = {}  # Diccionario de condactos
 for codigo in condiciones:
@@ -293,6 +302,14 @@ petscii = ''.join (('%c' % c for c in range (65))) + 'abcdefghijklmnopqrstuvwxyz
 petscii_a_ascii = maketrans (''.join (('%c' % c for c in range (256))), petscii)
 ascii_para_petscii = ''.join (('%c' % c for c in tuple (range (65)) + tuple (range (193, 219)) + tuple (range (91, 97)))) + 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' + ''.join (('%c' % c for c in range (123, 256)))
 ascii_a_petscii = maketrans (''.join (('%c' % c for c in range (256))), ascii_para_petscii)
+
+# Nombre completo de cada plataforma por su identificador en strPlataforma
+plataformas = {
+  'Atari800': 'Atari 800',
+  'C64':      'Commodore 64',
+  'PC':       'IBM PC',
+  'QL':       'Sinclair QL',
+}
 
 
 # Funciones que utiliza el IDE o el intérprete directamente
@@ -492,7 +509,7 @@ Para compatibilidad con el IDE:
   return cargaBD (fichero, longitud)
 
 def guarda_bd (bbdd):
-  """Almacena la base de datos entera en el fichero de salida, de forma optimizada"""
+  """Almacena la base de datos entera en el fichero de salida, de forma optimizada. Devuelve None si no hubo error, o mensaje resumido y detallado del error"""
   global carga_desplazamiento, fich_sal, guarda_desplazamiento
   extension = os.path.splitext (bbdd.name)[1][1:].lower()
   formato   = 'c64' if extension == 'prg' else extension
@@ -512,6 +529,7 @@ def guarda_bd (bbdd):
   bajo_nivel_cambia_ent   (bbdd)
   bajo_nivel_cambia_sal   (bbdd)
   if formato == 'c64':
+    plataformaDestino = 'C64'
     conversion   = ascii_a_petscii
     desplIniFich = 2
     desplIniMem  = 2048
@@ -525,6 +543,7 @@ def guarda_bd (bbdd):
     # Guardamos la cabecera de Commodore 64
     guarda_desplazamiento (0)  # Desplazamiento donde se cargará en memoria la BD
   else:  # formato == 'qql'
+    plataformaDestino = 'QL'
     desplIniFich = 30
     tamCabecera  = 60
     tamDespl     = 4
@@ -615,6 +634,7 @@ def guarda_bd (bbdd):
 
   # Guardamos las cabeceras de las tablas de eventos y de estado, dejando espacio para las posiciones de las entradas
   # De paso, recopilaremos el código de las entradas como reubicables
+  adaptados.clear()  # Condactos que se han adaptado al convertir de una plataforma a otra
   for t in range (2):
     cabeceras, entradas = tablasLimpias[t]
     for e in range (len (entradas)):
@@ -633,9 +653,17 @@ def guarda_bd (bbdd):
           if not algunaAccion:
             secuencia.append (255)  # Fin de condiciones
           algunaAccion = True
-        secuencia.append (condacto - (100 if algunaAccion else 0))
-        secuencia.extend (parametros)
-        if algunaAccion and condactos[condacto][3]:
+        nombreCondacto  = condactos[condacto][0]
+        condactoDestino = convierteCondacto (condacto, nombreCondacto, plataformaDestino)  # Código del condacto en la plataforma de destino
+        if condactoDestino == None:
+          mensaje = _("Export failed because condact %(name)s doesn't exist on target platform %(platform)s") % {'name': nombreCondacto, 'platform': plataformas[plataformaDestino]}
+          prn ('ERROR:', mensaje, file = sys.stderr)  # Por si se exportaba desde otro sitio que no sea el IDE
+          return (_('Missing condact'), mensaje)
+        entradaOcurrencia = (t, e)  # El lugar de esta ocurrencia (número de proceso y de entrada en éste)
+        parametrosDestino = convierteParametros (condacto, nombreCondacto, parametros, plataformaDestino, entradaOcurrencia)  # Parámetros para la plataforma de destino
+        secuencia.append (condactoDestino - (100 if algunaAccion else 0))
+        secuencia.extend (parametrosDestino)
+        if algunaAccion and condactos_destino[plataformaDestino][nombreCondacto][3]:
           accionFlujo = True
           break  # Esta acción cambia el flujo de ejecución incondicionalmente
       if not accionFlujo:
@@ -695,6 +723,7 @@ def guarda_bd (bbdd):
         duplicadasInv[posicion].append (posicion2)
   for posicion in duplicadas:
     del porColocar[posicion]
+  # prn (len (porColocar), len (duplicadasInv), file = sys.stderr)
 
   # Colocamos las secciones reubicables
 
@@ -734,6 +763,7 @@ def guarda_bd (bbdd):
           guarda_desplazamiento (posSecuencia)
           anyadeArea (posicion, posicion + tamDespl, areasYaEscritas)
         del porColocar[posiciones[0]]
+      # prn (len (porColocar), len (duplicadasInv), file = sys.stderr)
       cambia_progreso.emit (- len (porColocar) - len (duplicadasInv))
       if not porColocar:
         break  # Ya las hemos colocado todas
@@ -887,6 +917,7 @@ def guarda_bd (bbdd):
           eliminados += 1
         if not ahorrosColocar[ahorro]:
           del ahorrosColocar[ahorro]
+    # prn (len (porColocar), len (duplicadasInv), file = sys.stderr)
     if not dlg_progreso[0].wasCanceled():
       cambia_progreso.emit (- len (porColocar) - len (duplicadasInv))
     iteracion += 1
@@ -896,7 +927,7 @@ def guarda_bd (bbdd):
   guarda_desplazamiento (ocupado)
 
 def guarda_bd_c64 (bbdd):
-  """Almacena la base de datos entera en el fichero de salida, para Commodore 64, replicando el formato original"""
+  """Almacena la base de datos entera en el fichero de salida, para Commodore 64, replicando el formato original. Devuelve None si no hubo error, o mensaje resumido y detallado del error"""
   global fich_sal, guarda_desplazamiento
   fich_sal     = bbdd
   desplIniFich = 2                # Posición donde empieza la BD en el fichero
@@ -924,23 +955,32 @@ def guarda_bd_c64 (bbdd):
   guarda_int1 (numMsgsSys)
   ocupado = tamCabecera  # Espacio ocupado hasta ahora
   # Guardamos las entradas y cabeceras de las tablas de eventos y de estado
+  adaptados.clear()  # Condactos que se han adaptado al convertir de una plataforma a otra
   fich_sal.seek (desplIniFich + ocupado)
   for t in range (2):
     cabeceras, entradas = tablas_proceso[t]
     # Guardamos el contenido de las entradas
     posiciones = []  # Posición de cada entrada
-    for entrada in entradas:
+    for e in range (len (entradas)):
       posiciones.append (ocupado)
       algunaAccion = False
-      for condacto, parametros in entrada:
+      for condacto, parametros in entradas[e]:
         if condacto >= 100:
           if not algunaAccion:
             guarda_int1 (255)  # Fin de condiciones
           algunaAccion = True
-        guarda_int1 (condacto - (100 if algunaAccion else 0))
-        for parametro in parametros:
+        nombreCondacto  = condactos[condacto][0]
+        condactoDestino = convierteCondacto (condacto, nombreCondacto, 'C64')  # Código del condacto en la plataforma de destino
+        if condactoDestino == None:
+          mensaje = _("Export failed because condact %(name)s doesn't exist on target platform %(platform)s") % {'name': nombreCondacto, 'platform': plataformas['C64']}
+          prn ('ERROR:', mensaje, file = sys.stderr)  # Por si se exportaba desde otro sitio que no sea el IDE
+          return (_('Missing condact'), mensaje)
+        entradaOcurrencia = (t, e)  # El lugar de esta ocurrencia (número de proceso y de entrada en éste)
+        parametrosDestino = convierteParametros (condacto, nombreCondacto, parametros, 'C64', entradaOcurrencia)  # Parámetros para la plataforma de destino
+        guarda_int1 (condactoDestino - (100 if algunaAccion else 0))
+        for parametro in parametrosDestino:
           guarda_int1 (parametro)
-        ocupado += 1 + len (parametros)
+        ocupado += 1 + len (parametrosDestino)
       if not algunaAccion:
         guarda_int1 (255)  # Fin de condiciones
       guarda_int1 (255)  # Fin de acciones y entrada
@@ -1001,7 +1041,7 @@ def guarda_bd_c64 (bbdd):
   guarda_desplazamiento (33023)    # Posición justo detrás de la base de datos si esta fuera de tamaño máximo
 
 def guarda_bd_ql (bbdd):
-  """Almacena la base de datos entera en el fichero de salida, para Sinclair QL, replicando el formato original"""
+  """Almacena la base de datos entera en el fichero de salida, para Sinclair QL, replicando el formato original. Devuelve None si no hubo error, o mensaje resumido y detallado del error"""
   global fich_sal, guarda_desplazamiento
   fich_sal     = bbdd
   desplIniFich = 30               # Posición donde empieza la BD en el fichero
@@ -1082,12 +1122,12 @@ def guarda_bd_ql (bbdd):
   tamVocabulario = len (vocabulario) + (0 if ('*', 255, 0) in vocabulario else 1)
   ocupado += (tamVocabulario * (LONGITUD_PAL + 1)) + LONGITUD_PAL
   # Guardamos las cabeceras y entradas de las tablas de eventos y de estado
+  adaptados.clear()  # Condactos que se han adaptado al convertir de una plataforma a otra
   for t in range (2):
     posicion = carga_desplazamiento4 (fich_sal.seek (CAB_POS_EVENTOS + t * tamDespl))
     fich_sal.seek (ocupado)  # Necesario si no hay entradas de proceso
     cabeceras, entradas = tablas_proceso[t]
-    e = 0
-    while e < len (entradas):
+    for e in range (len (entradas)):
       # Guardamos la cabecera de la entrada
       fich_sal.seek (posicion + e * (2 + tamDespl))
       guarda_int1 (cabeceras[e][0])    # Palabra 1 (normalmente verbo)
@@ -1101,15 +1141,22 @@ def guarda_bd_ql (bbdd):
           if not algunaAccion:
             guarda_int1 (255)  # Fin de condiciones
           algunaAccion = True
-        guarda_int1 (condacto - (100 if algunaAccion else 0))
-        for parametro in parametros:
+        nombreCondacto  = condactos[condacto][0]
+        condactoDestino = convierteCondacto (condacto, nombreCondacto, 'QL')  # Código del condacto en la plataforma de destino
+        if condactoDestino == None:
+          mensaje = _("Export failed because condact %(name)s doesn't exist on target platform %(platform)s") % {'name': nombreCondacto, 'platform': plataformas['QL']}
+          prn ('ERROR:', mensaje, file = sys.stderr)  # Por si se exportaba desde otro sitio que no sea el IDE
+          return (_('Missing condact'), mensaje)
+        entradaOcurrencia = (t, e)  # El lugar de esta ocurrencia (número de proceso y de entrada en éste)
+        parametrosDestino = convierteParametros (condacto, nombreCondacto, parametros, 'QL', entradaOcurrencia)  # Parámetros para la plataforma de destino
+        guarda_int1 (condactoDestino - (100 if algunaAccion else 0))
+        for parametro in parametrosDestino:
           guarda_int1 (parametro)
-        ocupado += 1 + len (parametros)
+        ocupado += 1 + len (parametrosDestino)
       if not algunaAccion:
         guarda_int1 (255)  # Fin de condiciones
       guarda_int1 (255)  # Fin de acciones y entrada
       ocupado += 2  # Las marcas de fin de condiciones y acciones
-      e += 1
     # Guardamos la entrada vacía final, de relleno
     guarda_int1 (255)  # Fin de condiciones
     guarda_int1 (255)  # Fin de acciones y entrada
@@ -1552,6 +1599,52 @@ def cargaVocabulario ():
       palabra = palabra.translate (petscii_a_ascii)
     # Quill guarda las palabras en mayúsculas
     vocabulario.append ((palabra.lower(), carga_int1(), 0))
+
+def convierteCondacto (codigoCondacto, nombreCondacto, plataforma):
+  """Devuelve el código del condacto de nombre dado en la plataforma de destino dada, anotando en el diccionario adaptados las ocurrencias de cambios de código. Devuelve None si la plataforma de destino no tiene ese condacto"""
+  global condactos_destino
+  try:
+    condactos_destino
+  except:
+    condactos_destino = {}
+  if plataforma not in condactos_destino:
+    # Preparamos diccionario de condactos en la plataforma de destino indexados por nombre
+    condactos_destino[plataforma] = {}
+    for codigo in condiciones:
+      condactos_destino[plataforma][condiciones[codigo][0]] = (codigo, ) + condiciones[codigo][1:]
+    for diccAcciones in (acciones, acciones_plataforma[plataforma]):
+      for codigo in diccAcciones:
+        condactos_destino[plataforma][diccAcciones[codigo][0]] = (100 + codigo, ) + diccAcciones[codigo][1:2] + (True, diccAcciones[codigo][2])
+  if nombreCondacto not in condactos_destino[plataforma]:
+    return None
+  condactoDestino = condactos_destino[plataforma][nombreCondacto][0]  # Código del condacto en la plataforma de destino
+  if condactoDestino != codigoCondacto:
+    if nombreCondacto not in adaptados:
+      adaptados[nombreCondacto] = {}
+    mensaje = _('Condact %(name)s changed from code %(origCode)d to %(destCode)d')
+    if mensaje in adaptados[nombreCondacto]:
+      adaptados[nombreCondacto][mensaje][1] += 1  # Incrementamos el número de ocurrencias
+    else:
+      adaptados[nombreCondacto][mensaje] = [{'destCode': condactoDestino % 100, 'name': nombreCondacto, 'origCode': codigoCondacto % 100}, 1]
+  return condactoDestino
+
+def convierteParametros (codigoCondacto, nombreCondacto, parametros, plataforma, posicionOcurrencia):
+  """Devuelve los parámetros para el condacto de código (en la plataforma de origen) y nombre dado adaptados a la plataforma de destino dada, anotando en el diccionario adaptados las ocurrencias de cambio de número de parámetros, en concreto la posición donde estaba dada"""
+  numParametrosDest = len (condactos_destino[plataforma][nombreCondacto][1])
+  numParametrosOrig = len (condactos[codigoCondacto][1])
+  if numParametrosDest == numParametrosOrig:
+    return parametros
+  if nombreCondacto not in adaptados:
+    adaptados[nombreCondacto] = {}
+  mensaje = _('Number of parameters for condact %(name)s changed from %(lenBefore)d to %(lenAfter)d')
+  if mensaje not in adaptados[nombreCondacto]:
+    adaptados[nombreCondacto][mensaje] = [{'lenAfter': numParametrosDest, 'lenBefore': numParametrosOrig, 'name': nombreCondacto}, []]
+  if posicionOcurrencia not in adaptados[nombreCondacto][mensaje][1]:
+    adaptados[nombreCondacto][mensaje][1].append (posicionOcurrencia)
+  if numParametrosDest > numParametrosOrig:  # Tendrá más parámetros que antes
+    return parametros + ([0] * (numParametrosDest - numParametrosOrig))
+  # Tendrá menos parámetros que antes
+  return parametros[:numParametrosDest]
 
 def daCadena (cadena, finCadena, nuevaLinea, conversion = None):
   """Devuelve una cadena en el formato de Quill"""
