@@ -1179,7 +1179,7 @@ def guarda_bd_ql (bbdd):
     guarda_int1 (255)  # Fin de condiciones
     guarda_int1 (255)  # Fin de acciones y entrada
     # Guardamos la cabecera de entrada vacía final
-    fich_sal.seek (posicion + e * (2 + tamDespl))
+    fich_sal.seek (posicion + len (entradas) * (2 + tamDespl))
     guarda_int2_be (0)               # Marca de fin
     guarda_desplazamiento (ocupado)  # Posición de la entrada de relleno
     ocupado += 2
