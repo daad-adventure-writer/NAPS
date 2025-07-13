@@ -3013,8 +3013,9 @@ def postCarga (nombre):
     if comprueba_tipo (mod_actual, entrada[0], types.FunctionType):
       info_exportar.append ((entrada[0], entrada[1], entrada[2]))
   # Habilitamos las acciones que requieran tener una base de datos cargada
-  for accion in (accContadores, accDescLocs, accDescObjs, accDireccs, accMostrarLoc, accMostrarObj, accMostrarRec, accMostrarSal, accMostrarSys, accMostrarUsr, accMsgSys, accMsgUsr, accTblProcs, accTblVocab):
+  for accion in (accContadores, accDescLocs, accDescObjs, accDireccs, accMostrarLoc, accMostrarObj, accMostrarRec, accMostrarSal, accMostrarSys, accMostrarUsr, accMsgSys, accTblProcs, accTblVocab):
     accion.setEnabled (True)
+  accMsgUsr.setEnabled (mod_actual.NOMBRE_SISTEMA != 'GAC')
   accExportar.setEnabled  (len (info_exportar) > 0)
   accPasoAPaso.setEnabled (nombre_fich_bd != None)
   # Cambiamos la acción importar de la barra de botones por la de exportar
