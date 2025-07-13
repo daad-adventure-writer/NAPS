@@ -1564,6 +1564,14 @@ def cierraDialogos ():
   dlg_procesos    = None
   dlg_vocabulario = None
 
+def copiaTexto (dialogoTextos, listaTextos):
+  """Copia al portapapeles la selección de un diálogo de textos"""
+  indices = dialogoTextos.selectionModel().selectedIndexes()
+  textoCopiado = ''
+  for indice in indices:
+    textoCopiado += ('\n' if textoCopiado else '') + mod_actual.lee_secs_ctrl (listaTextos[dialogoTextos.model().indicesTextos[indice.row()]])
+  aplicacion.clipboard().setText (textoCopiado)
+
 def creaAcciones ():
   """Crea las acciones de menú y barra de botones"""
   global acc1Paso, acc10Pasos, acc100Pasos, acc1000Pasos, accAcercaDe, accBanderas, accContadores, accDescLocs, accDescObjs, accDetener, accDireccs, accExportar, accImportar, accMostrarLoc, accMostrarObj, accMostrarRec, accMostrarSal, accMostrarSys, accMostrarUsr, accMsgSys, accMsgUsr, accPasoAPaso, accSalir, accTblProcs, accTblVocab
@@ -2697,14 +2705,6 @@ def nuevaFilaVocabulario (indice, sinonimo = False):
       return
     nuevaPal.append (list (tiposPalabra.keys())[list (tiposPalabra.values()).index (dialogo.textValue())])
   nuevaEntradaVocabulario (tuple (nuevaPal))
-
-def copiaTexto (dialogoTextos, listaTextos):
-  """Copia al portapapeles la selección de un diálogo de textos"""
-  indices = dialogoTextos.selectionModel().selectedIndexes()
-  textoCopiado = ''
-  for indice in indices:
-    textoCopiado += ('\n' if textoCopiado else '') + mod_actual.lee_secs_ctrl (listaTextos[dialogoTextos.model().indicesTextos[indice.row()]])
-  aplicacion.clipboard().setText (textoCopiado)
 
 def pegaTexto (dialogoTextos, listaTextos):
   """Pega desde el portapapeles sobre un diálogo de textos"""
