@@ -1452,10 +1452,9 @@ Para compatibilidad con el IDE:
       cargaMensajesSistema()
     else:
       cargaCadenas (CAB_NUM_MSGS_SYS, CAB_POS_LST_POS_MSGS_SYS, msgs_sys)
-      if strPlataforma not in ('Atari800', 'C64', 'PC'):  # No cargamos nombres de objetos en Atari 800, C64 ni PC, donde no hay
-        cargaNombresObjetos()
     cargaConexiones()
     cargaLocalidadesObjetos()
+    cargaNombresObjetos()
     cargaVocabulario()
     actualizaAcciones (nuevasAcciones)  # Ponemos las acciones correctas para esta plataforma
     cargaTablasProcesos()
@@ -1528,7 +1527,12 @@ def cargaLocalidadesObjetos ():
     locs_iniciales.append (carga_int1())
 
 def cargaNombresObjetos ():
-  """Carga los nombres y adjetivos de los objetos"""
+  """Carga o rellena los nombres y adjetivos de los objetos"""
+  # No hay nombres de objetos en Atari 800, C64, PC, ni versiones de Quill con posiciones fijas de mensajes de sistema
+  if pos_msgs_sys or strPlataforma in ('Atari800', 'C64', 'PC'):
+    for i in range (num_objetos[0]):
+      nombres_objs.append ((255, 255))
+    return
   # Vamos a la posición de los nombres de los objetos
   fich_ent.seek (carga_desplazamiento (CAB_POS_NOMS_OBJS))
   # Cargamos el nombre de cada objeto
