@@ -173,6 +173,13 @@ def a0_DONE ():
   """Concluye la ejecución de la tabla actual, terminando satisfactoriamente"""
   return 3
 
+def a0_DROPALL ():
+  """Mueve a la localidad actual todos los objetos llevados y puestos"""
+  for objno in range (num_objetos[0]):
+    if locs_objs[objno] in (253, 254):
+      locs_objs[objno] = banderas[BANDERA_LOC_ACTUAL]
+  banderas[1] = 0  # Número de objetos llevados
+
 def a0_END ():
   """Pregunta si se desea volver a empezar (MS13), y si la respuesta empieza por la primera letra del MS31, imprime el MS14 y termina completamente la ejecución de la aventura. Si no, reinicia la aventura"""
   respuesta = gui.lee_cadena (msgs_sys[13] + ('' if gui.NOMBRE_GUI == 'telegram' else '\n>'))
