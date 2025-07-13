@@ -1225,9 +1225,7 @@ def escribe_secs_ctrl (cadena):
   while i < len (cadena):
     c = cadena[i]
     o = ord (c)
-    if c == '\n':
-      convertida += chr (nueva_linea)
-    elif c == '\t':
+    if c == '\t':
       convertida += '\x06'  # Tabulador
     elif c == '\\':
       if cadena[i:i + 9] == '\\INVERSA_':
