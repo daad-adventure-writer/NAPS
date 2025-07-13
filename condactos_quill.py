@@ -174,7 +174,7 @@ def a0_DONE ():
   return 3
 
 def a0_DROPALL ():
-  """Mueve a la localidad actual todos los objetos llevados y puestos"""
+  """Mueve todos los objetos llevados y puestos a la localidad actual, y deja la cuenta de objetos llevados (bandera 1) a 0"""
   for objno in range (num_objetos[0]):
     if locs_objs[objno] in (253, 254):
       locs_objs[objno] = banderas[BANDERA_LOC_ACTUAL]

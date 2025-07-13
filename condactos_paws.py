@@ -239,12 +239,6 @@ def a0_BELL ():
   """Emite un pitido"""
   prn ('a0_BELL no implementado', file = sys.stderr)
 
-def a0_DROPALL ():
-  """Mueve todos los objetos llevados y puestos a la localidad actual, y deja la cuenta de objetos llevados (bandera 1) a 0"""
-  for objno in range (len (locs_objs)):
-    if locs_objs[objno] in (253, 254):
-      locs_objs[objno] = banderas[38]
-
 def a0_END ():
   """Pregunta si se desea volver a empezar (MS13), y si la respuesta empieza por la primera letra del MS31, imprime el MS14 y termina completamente la ejecución de la aventura. Si no, reinicia la aventura"""
   respuesta = gui.lee_cadena (msgs_sys[13] + msgs_sys[33])
