@@ -1304,7 +1304,7 @@ if __name__ == '__main__':
       except:
         QDialog = None
 
-  argsParser = argparse.ArgumentParser (sys.argv[0], description = 'Intérprete de Quill/PAWS/SWAN/DAAD en Python')
+  argsParser = argparse.ArgumentParser (sys.argv[0], description = 'Intérprete de Quill/PAWS/SWAN/DAAD y GAC en Python')
   argsParser.add_argument ('-c', '--columns', type = int, choices = range (32, 43), help = 'número de columnas a usar al imitar Spectrum')
   argsParser.add_argument ('--conversion', metavar = 'módulo', help = 'convertir caracteres con valores del diccionario conversion en el módulo Python dado')
   argsParser.add_argument ('-D', '--debug', action = 'store_true', help = 'ejecutar los condactos paso a paso')
@@ -1314,7 +1314,7 @@ if __name__ == '__main__':
   argsParser.add_argument ('-s', '--scale', type = int, choices = range (1, 10), help = 'factor de escalado para la ventana')
   argsParser.add_argument ('--system', choices = ('gac', 'quill', 'paws', 'swan', 'daad'), help = 'usar este sistema en lugar de autodetectarlo')
   argsParser.add_argument ('--title', type = str, help = argparse.SUPPRESS)
-  argsParser.add_argument ('bbdd', metavar = 'bd_cf_o_carpeta', nargs = '?' if QDialog else 1, help = 'base de datos, snapshot, código fuente, o carpeta de Quill/PAWS/SWAN/DAAD a ejecutar')
+  argsParser.add_argument ('bbdd', metavar = 'bd_cf_o_carpeta', nargs = '?' if QDialog else 1, help = 'base de datos, snapshot, código fuente, o carpeta de Quill/PAWS/SWAN/DAAD o GAC a ejecutar')
   argsParser.add_argument ('ruta_graficos', metavar = 'bd_o_carpeta_gráficos', nargs = '?', help = 'base de datos gráfica o carpeta de la que tomar las imágenes (con nombre pic###.png)')
   args  = argsParser.parse_args()
   ide   = args.ide
