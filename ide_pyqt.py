@@ -1323,6 +1323,37 @@ def actualizaObjetos (cambiosObjetos):
   if dlg_desc_objs:
     dlg_desc_objs.repaint()
 
+def actualizaPalabrasMostradas ():
+  """Actualiza las listas de palabras que se mostrarán en el IDE, las equivalencias entre código y texto que mostrar del vocabulario"""
+  # Elegimos los sinónimos preferidos de cada palabra y recopilamos las palabras de dirección
+  del pals_mov[:]
+  pal_sinonimo.clear()
+  for palabra, codigo, tipo in mod_actual.vocabulario:
+    idYtipos = [(codigo, tipo)]
+    if (tipo == tipo_nombre      and codigo < mod_actual.NOMB_COMO_VERB[0] or  # Es nombre convertible en verbo
+        tipo == tipo_preposicion and codigo < mod_actual.PREP_COMO_VERB):      # Es preposición convertible en verbo
+      idYtipos.append ((codigo, tipo_verbo))
+    for idYtipo in idYtipos:
+      # Preferiremos terminación en R para verbos (heurística para que sean en forma infinitiva)
+      if idYtipo not in pal_sinonimo or \
+          (tipo == tipo_verbo and palabra[-1] == 'r' and pal_sinonimo[idYtipo][-1] != 'r'):
+        pal_sinonimo[idYtipo] = daTextoImprimible (palabra)
+    if codigo < (13 if mod_actual.NOMBRE_SISTEMA == 'QUILL' else 14) and codigo not in pals_mov and tipo in (tipo_nombre, tipo_verbo):
+      pals_mov.append (codigo)
+  # Recopilamos las palabras usadas como salidas en la tabla de conexiones
+  del pals_salida[:]
+  for conexionesLocalidad in mod_actual.conexiones.values() if type (mod_actual.conexiones) == dict else mod_actual.conexiones:
+    for codigo, destino in conexionesLocalidad:
+      if codigo not in pals_mov:
+        pals_mov.append (codigo)
+      if codigo not in pals_salida:
+        pals_salida.append (codigo)
+  if not pals_salida:  # No hay ninguna conexión, pondremos todas las de dirección que haya
+    pals_salida.extend (pals_mov)
+  pals_mov.sort()
+  pals_salida.sort()
+  actualizaLocalidades()  # Por si cambian las columnas por cambiar las palabras de salidas
+
 def actualizaProceso ():
   """Redibuja el proceso actualmente mostrado, si hay alguno"""
   if dlg_procesos:
@@ -2607,6 +2638,7 @@ def nuevaEntradaVocabulario (entrada, numFilaAntes = None):
   mod_actual.vocabulario.insert (pos, entrada)
   modeloVocab.endInsertRows()
   dlg_vocabulario.model().invalidate()  # Que reordene la tabla como corresponda
+  actualizaPalabrasMostradas()
 
 def nuevaFilaVocabulario (indice, sinonimo = False):
   """Permite añadir una entrada de vocabulario, opcionalmente sinónimo de otra"""
@@ -2919,33 +2951,8 @@ def postCarga (nombre):
     tipo_verbo       = mod_actual.TIPOS_PAL.index (_('Verb'))
   else:  # Es Quill
     tipo_nombre = tipo_preposicion = tipo_verbo = 0
-  # Elegimos los sinónimos preferidos de cada palabra y recopilamos las palabras de dirección
-  del pals_mov[:]
-  pal_sinonimo.clear()
-  for palabra, codigo, tipo in mod_actual.vocabulario:
-    idYtipos = [(codigo, tipo)]
-    if (tipo == tipo_nombre      and codigo < mod_actual.NOMB_COMO_VERB[0] or  # Es nombre convertible en verbo
-        tipo == tipo_preposicion and codigo < mod_actual.PREP_COMO_VERB):      # Es preposición convertible en verbo
-      idYtipos.append ((codigo, tipo_verbo))
-    for idYtipo in idYtipos:
-      # Preferiremos terminación en R para verbos (heurística para que sean en forma infinitiva)
-      if idYtipo not in pal_sinonimo or \
-          (tipo == tipo_verbo and palabra[-1] == 'r' and pal_sinonimo[idYtipo][-1] != 'r'):
-        pal_sinonimo[idYtipo] = daTextoImprimible (palabra)
-    if codigo < (13 if mod_actual.NOMBRE_SISTEMA == 'QUILL' else 14) and codigo not in pals_mov and tipo in (tipo_nombre, tipo_verbo):
-      pals_mov.append (codigo)
-  # Recopilamos las palabras usadas como salidas en la tabla de conexiones
-  del pals_salida[:]
-  for conexionesLocalidad in mod_actual.conexiones.values() if type (mod_actual.conexiones) == dict else mod_actual.conexiones:
-    for codigo, destino in conexionesLocalidad:
-      if codigo not in pals_mov:
-        pals_mov.append (codigo)
-      if codigo not in pals_salida:
-        pals_salida.append (codigo)
-  if not pals_salida:  # No hay ninguna conexión, pondremos todas las de dirección que haya
-    pals_salida.extend (pals_mov)
-  pals_mov.sort()
-  pals_salida.sort()
+  # Actualizamos los textos que mostrará el IDE sobre las palabras de vocabulario
+  actualizaPalabrasMostradas()
   # Preparamos las funciones de exportación
   for entrada in mod_actual.funcs_exportar:
     if comprueba_tipo (mod_actual, entrada[0], types.FunctionType):
