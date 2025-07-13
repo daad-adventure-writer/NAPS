@@ -166,6 +166,7 @@ Para exportación, el IDE soporta los siguientes formatos para el sistema Quill:
 
 | Plataforma      | Extensión | Tipo          | Notas              |
 | --------------- | --------- | ------------- | ------------------ |
+| Atari 800       | .DTB      | Base de datos | AdventureWriter    |
 | Commodore 64    | .PRG      | Base de datos |                    |
 | Sinclair QL     | .QQL      | Base de datos |                    |
 
