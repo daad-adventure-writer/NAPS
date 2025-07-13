@@ -293,11 +293,11 @@ def a1_DROP (objno):
   elif locs_objs[objno] not in (253, 254):  # Ni llevado ni puesto
     imprime_mensaje (msgs_sys[25 if libreria.pos_msgs_sys else 28])
   else:
+    if locs_objs[objno] == 254:  # Lo llevaba
+      banderas[1] = max (0, banderas[1] - 1)
+    locs_objs[objno] = banderas[BANDERA_LOC_ACTUAL]
     return
   return 3  # Lo mismo que hace DONE
-  if locs_objs[objno] == 254:  # Lo llevaba
-    banderas[1] = max (0, banderas[1] - 1)
-  locs_objs[objno] = banderas[BANDERA_LOC_ACTUAL]
 
 def a1_GET (objno):
   """Si el objeto se lleva (inventario o puesto), imprime MS25. Si el objeto no está presente, imprime MS26. Si se superaría el máximo de objetos llevables, imprime MS27. En caso de una de estas condiciones de fallo, termina con DONE. En caso contrario (éxito), mueve el objeto al inventario (254) e incrementa la bandera 1"""
