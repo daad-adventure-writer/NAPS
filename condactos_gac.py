@@ -218,6 +218,10 @@ def a0_MESS ():
     return
   gui.imprime_cadena (msgs_sys[numMensaje])
 
+def a0_MINU ():
+  """Añade a la pila de datos la resta de los dos últimos valores en la pila de datos"""
+  pila_datos.append (pila_datos.pop() - pila_datos.pop())  # TODO: ver si este es el orden correcto
+
 def a0_NO1 ():
   """Añade a la pila de datos el primer nombre de la SL actual"""
   pila_datos.append (banderas[BANDERA_NOMBRE])
