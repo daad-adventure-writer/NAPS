@@ -363,6 +363,10 @@ def a1_SET (flagno):
   """Pone el valor de la bandera flagno a 255"""
   banderas[flagno] = 255
 
+def a1_SYSMESS (mesno):
+  """Imprime el mensaje de sistema dado por mesno, en los colores actuales"""
+  imprime_mensaje (msgs_sys[mesno])
+
 def a1_WEAR (objno):
   """Si el objeto está puesto, imprime MS29. Si el objeto no se lleva, imprime MS28. En caso de una de estas condiciones de fallo, termina con DONE. En caso contrario (éxito), mueve el objeto a puestos (253), y decrementa la bandera 1"""
   if locs_objs[objno] == 253:

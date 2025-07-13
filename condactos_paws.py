@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Condactos PAWS estándar
-# Copyright (C) 2010, 2018-2024 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2018-2025 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -647,10 +647,6 @@ def a1_SET (flagno):
     a0_ANYKEY()
     return 7
   banderas[flagno] = 255
-
-def a1_SYSMESS (mesno):
-  """Imprime el mensaje de sistema dado por mesno, en los colores actuales"""
-  imprime_mensaje (msgs_sys[mesno])
 
 def a1_WEIGHT (flagno):
   """Calcula el peso total de los objetos llevados por el jugador, y lo guarda en la bandera flagno
