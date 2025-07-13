@@ -1456,6 +1456,40 @@ def actualizaVentanaJuego ():
   mdi_juego = PantallaJuego (selector)
   accDetener.triggered.connect (mdi_juego.close)
 
+def borraTexto (dialogoTextos, numFila):
+  """Elimina de la lista de textos del diálogo dado, el texto con el índice de fila dado si el sistema es GAC, o el último de la lista si no lo es"""
+  if mod_actual.NOMBRE_SISTEMA != 'GAC' and numFila != len (dialogoTextos.model().listaTextos) - 1:
+    return
+  indiceFila = dialogoTextos.model().indicesTextos[numFila] if mod_actual.NOMBRE_SISTEMA == 'GAC' else numFila
+  dialogoTextos.model().beginRemoveRows (QModelIndex(), numFila, numFila)
+  del dialogoTextos.model().listaTextos[indiceFila]
+  del dialogoTextos.model().indicesTextos[numFila]
+  dialogoTextos.model().endRemoveRows()
+  # Borramos los datos asociados según el tipo de diálogo
+  if dialogoTextos == dlg_desc_locs:  # Se ha borrado una localidad
+    del mod_actual.conexiones[indiceFila]
+    # Quitamos conexiones que iban a esta localidad
+    for conexion in mod_actual.conexiones.values() if type (mod_actual.conexiones) == dict else mod_actual.conexiones:
+      for c in range (len (conexion) - 1, -1, -1):
+        if conexion[c][1] == indiceFila:
+          del conexion[c]
+    # Movemos los objetos inicialmente en esta localidad a la de no creados
+    sistemaEnIdsLocs = mod_actual.NOMBRE_SISTEMA
+    if sistemaEnIdsLocs not in IDS_LOCS:
+      sistemaEnIdsLocs = None
+    for l in mod_actual.locs_iniciales if mod_actual.NOMBRE_SISTEMA == 'GAC' else range (len (mod_actual.locs_iniciales)):
+      if mod_actual.locs_iniciales[l] == indiceFila:
+        mod_actual.locs_iniciales[l] = IDS_LOCS[sistemaEnIdsLocs]['NOTCREATED']
+  elif dialogoTextos == dlg_desc_objs:  # Se ha borrado un objeto
+    del mod_actual.locs_iniciales[indiceFila]
+    del mod_actual.nombres_objs[indiceFila]
+    if mod_actual.NOMBRE_SISTEMA != 'GAC':
+      mod_actual.num_objetos[0] -= 1
+    if 'atributos' in mod_actual.__dict__:
+      del mod_actual.atributos[indiceFila]
+      if 'atributos_extra' in mod_actual.__dict__:
+        del mod_actual.atributos_extra[indiceFila]
+
 # FIXME: Diferencias entre PAWS estándar y DAAD
 def cambiaProceso (numero, numEntrada = None):
   """Llamada al cambiar de pestaña en el diálogo de procesos"""
@@ -2342,6 +2376,7 @@ def irAEntradaProceso ():
 def menuContextualTextos (dialogoTextos, listaTextos, punto):
   """Muestra el menú contextual para un diálogo de textos"""
   contextual   = QMenu (dialogoTextos)
+  accionBorrar = QAction (_('Delete'), selector)  # Necesario poner como padre selector para que funcione el status tip
   accionCopiar = QAction (_('&Copy'),  contextual)
   accionPegar  = QAction (_('&Paste'), contextual)
   accionCopiar.setShortcut (QKeySequence.Copy)
@@ -2350,6 +2385,19 @@ def menuContextualTextos (dialogoTextos, listaTextos, punto):
   accionPegar.triggered.connect  (lambda: pegaTexto  (dialogoTextos, listaTextos))
   contextual.addAction (accionCopiar)
   contextual.addAction (accionPegar)
+  contextual.addSeparator()
+  contextual.addAction (accionBorrar)
+  numFila = dialogoTextos.indexAt (punto).row()
+  if mod_actual.NOMBRE_SISTEMA == 'GAC' or numFila == len (dialogoTextos.model().listaTextos) - 1:
+    textoEstadoBorrar = {
+      dlg_desc_locs: _('Deletes this location and its connections'),
+      dlg_desc_objs: _('Deletes this object and its data (attributes, words, etc.)'),
+      dlg_msg_sys:   _('Deletes this system message'),
+      dlg_msg_usr:   _('Deletes this user message')}[dialogoTextos]
+    accionBorrar.setStatusTip (textoEstadoBorrar)
+    accionBorrar.triggered.connect (lambda: borraTexto (dialogoTextos, numFila))
+  else:
+    accionBorrar.setEnabled (False)
   contextual.exec_ (dialogoTextos.viewport().mapToGlobal (punto))
 
 def menuContextualVocabulario (punto):
