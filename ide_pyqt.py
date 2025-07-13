@@ -868,6 +868,7 @@ class ManejoInterprete (QThread):
     acc100Pasos.setEnabled   (False)
     acc1000Pasos.setEnabled  (False)
     accBanderas.setEnabled   (False)
+    accDetener.setEnabled    (False)
     accPasoAPaso.setEnabled  (True)
     menu_BD_nueva.setEnabled (len (info_nueva) > 0)
     if dlg_desc_objs:
@@ -1160,6 +1161,7 @@ class PantallaJuego (QMdiSubWindow):
 
   def closeEvent (self, evento):
     global mdi_banderas, mdi_juego
+    accDetener.triggered.disconnect()
     if proc_interprete:
       proc_interprete.kill()
     evento.accept()
@@ -1452,6 +1454,7 @@ def actualizaVentanaJuego ():
       pass  # La crearemos de nuevo
   # Creamos la subventana
   mdi_juego = PantallaJuego (selector)
+  accDetener.triggered.connect (mdi_juego.close)
 
 # FIXME: Diferencias entre PAWS estándar y DAAD
 def cambiaProceso (numero, numEntrada = None):
@@ -1563,7 +1566,7 @@ def cierraDialogos ():
 
 def creaAcciones ():
   """Crea las acciones de menú y barra de botones"""
-  global acc1Paso, acc10Pasos, acc100Pasos, acc1000Pasos, accAcercaDe, accBanderas, accContadores, accDescLocs, accDescObjs, accDireccs, accExportar, accImportar, accMostrarLoc, accMostrarObj, accMostrarRec, accMostrarSal, accMostrarSys, accMostrarUsr, accMsgSys, accMsgUsr, accPasoAPaso, accSalir, accTblProcs, accTblVocab
+  global acc1Paso, acc10Pasos, acc100Pasos, acc1000Pasos, accAcercaDe, accBanderas, accContadores, accDescLocs, accDescObjs, accDetener, accDireccs, accExportar, accImportar, accMostrarLoc, accMostrarObj, accMostrarRec, accMostrarSal, accMostrarSys, accMostrarUsr, accMsgSys, accMsgUsr, accPasoAPaso, accSalir, accTblProcs, accTblVocab
   acc1Paso      = QAction (icono ('pasos_1'),    _('1 step'),     selector)
   acc10Pasos    = QAction (icono ('pasos_10'),   _('10 steps'),   selector)
   acc100Pasos   = QAction (icono ('pasos_100'),  _('100 steps'),  selector)
@@ -1573,6 +1576,7 @@ def creaAcciones ():
   accContadores = QAction (icono ('contadores'),     _('&Counters'),      selector)
   accDescLocs   = QAction (icono ('desc_localidad'), _('&Location data'), selector)
   accDescObjs   = QAction (icono ('desc_objeto'),    _('&Object data'),   selector)
+  accDetener    = QAction (icono ('detener'),        _('St&op'),          selector)
   accDireccs    = QAction (icono ('direccion'),      _('&Movement'),      selector)
   accExportar   = QAction (icono ('exportar'),       _('&Export'),        selector)
   accImportar   = QAction (icono ('importar'),       _('&Import'),        selector)
@@ -1593,7 +1597,7 @@ def creaAcciones ():
   for accion in (accMostrarLoc, accMostrarObj, accMostrarRec, accMostrarSys, accMostrarUsr):
     accion.setChecked (True)
   accMostrarSal.setChecked (False)
-  for accion in (acc1Paso, acc10Pasos, acc100Pasos, acc1000Pasos, accBanderas, accContadores, accDescLocs, accDescObjs, accDireccs, accMostrarLoc, accMostrarObj, accMostrarRec, accMostrarSal, accMostrarSys, accMostrarUsr, accMsgSys, accMsgUsr, accPasoAPaso, accTblProcs, accTblVocab):
+  for accion in (acc1Paso, acc10Pasos, acc100Pasos, acc1000Pasos, accBanderas, accContadores, accDescLocs, accDescObjs, accDetener, accDireccs, accMostrarLoc, accMostrarObj, accMostrarRec, accMostrarSal, accMostrarSys, accMostrarUsr, accMsgSys, accMsgUsr, accPasoAPaso, accTblProcs, accTblVocab):
     accion.setEnabled (False)
   acc1Paso.setShortcut     ('F1')
   acc10Pasos.setShortcut   ('F2')
@@ -1609,6 +1613,7 @@ def creaAcciones ():
   accContadores.setStatusTip (_('Displays the number of elements of each type'))
   accDescLocs.setStatusTip   (_("Allows to check and modify locations' data"))
   accDescObjs.setStatusTip   (_("Allows to check and modify objects' data"))
+  accDetener.setStatusTip    (_('Terminates the execution of the database'))
   accDireccs.setStatusTip    (_('Allows to add and edit movement words'))
   accExportar.setStatusTip   (_('Exports the database to a file'))
   accImportar.setStatusTip   (_('Imports the database from a file'))
@@ -1678,6 +1683,7 @@ def creaMenus ():
   menuBD.addSeparator()
   menuBD.addAction (accSalir)
   menuEjecutar = selector.menuBar().addMenu (_('&Run'))
+  menuEjecutar.addAction (accDetener)
   menuEjecutar.addAction (accPasoAPaso)
   menuEjecutar.addSeparator()
   menuEjecutar.addAction (acc1Paso)
@@ -2020,6 +2026,7 @@ def ejecutaPorPasos ():
     locs_objs[numObjeto] = mod_actual.locs_iniciales[numObjeto]
   locs_objs_antes = locs_objs.copy()
   accBanderas.setEnabled   (True)
+  accDetener.setEnabled    (True)
   accPasoAPaso.setEnabled  (False)
   menu_BD_nueva.setEnabled (False)
   pilas_pendientes = []
