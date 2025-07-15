@@ -1911,11 +1911,13 @@ def editaLocalidad (indice):
       elif ':' in textoLocalidad:  # Antes no había salida en esa dirección pero ahora sí
         nuevoDestino = int (textoLocalidad[:textoLocalidad.find (':')])
         conexionesLocalidad.append ((codigoMovimiento, nuevoDestino))
+    dlg_desc_locs.activacionAnterior = time.time()  # Para descartar evento activated posterior
     return
   # Se edita la descripción de la localidad
   dialogo = ModalEntradaTexto (dlg_desc_locs, mod_actual.desc_locs[locOrigen])
   if dialogo.exec_() == QDialog.Accepted:
     mod_actual.desc_locs[locOrigen] = dialogo.daTexto()
+  dlg_desc_locs.activacionAnterior = time.time()  # Para descartar evento activated posterior
 
 def editaMsgSys (indice):
   # type: (QModelIndex) -> None
@@ -1923,6 +1925,7 @@ def editaMsgSys (indice):
   dialogo = ModalEntradaTexto (dlg_msg_sys, mod_actual.msgs_sys[dlg_msg_sys.model().indicesTextos[indice.row()]])
   if dialogo.exec_() == QDialog.Accepted:
     mod_actual.msgs_sys[dlg_msg_sys.model().indicesTextos[indice.row()]] = dialogo.daTexto()
+  dlg_msg_sys.activacionAnterior = time.time()  # Para descartar evento activated posterior
 
 def editaMsgUsr (indice):
   # type: (QModelIndex) -> None
@@ -1930,6 +1933,7 @@ def editaMsgUsr (indice):
   dialogo = ModalEntradaTexto (dlg_msg_usr, mod_actual.msgs_usr[dlg_msg_usr.model().indicesTextos[indice.row()]])
   if dialogo.exec_() == QDialog.Accepted:
     mod_actual.msgs_usr[dlg_msg_usr.model().indicesTextos[indice.row()]] = dialogo.daTexto()
+  dlg_msg_usr.activacionAnterior = time.time()  # Para descartar evento activated posterior
 
 def editaObjeto (indice):
   # type: (QModelIndex) -> None
@@ -1941,6 +1945,7 @@ def editaObjeto (indice):
     dialogo = ModalEntradaTexto (dlg_desc_objs, mod_actual.desc_objs[numObjeto])
     if dialogo.exec_() == QDialog.Accepted:
       mod_actual.desc_objs[numObjeto] = dialogo.daTexto()
+    dlg_desc_objs.activacionAnterior = time.time()  # Para descartar evento activated posterior
     return
   if indice.column() == 1 or (adicional and indice.column() == 2):  # Localidad inicial o actual
     # Preparamos la lista de localidades a mostrar en el desplegable de la modal
@@ -1981,13 +1986,17 @@ def editaObjeto (indice):
           proc_interprete.stdin.write ('%' + str (numObjeto) + '=' + numLocalidad + '\n')
         else:  # Python 3+
           proc_interprete.stdin.write (bytes ('%' + str (numObjeto) + '=' + numLocalidad + '\n', locale.getpreferredencoding()))
+    dlg_desc_objs.activacionAnterior = time.time()  # Para descartar evento activated posterior
     return
   if indice.column() == 2 + adicional and mod_actual.NUM_ATRIBUTOS[0] == 1:  # Pseudoatributo prenda en Quill para QL
-    return muestraFallo (_('Not editable'), _('This value cannot be edited directly.') + '\n\n' + _('This is the pseudo-attribute "wearable", which cannot be directly modified. Its value depends on the code of the word assigned to this object. Assign to it a word with code value between 200 and 254 to make it "wearable", or a value lower than 200 to make it not "wearable".'), QMessageBox.Information)
+    muestraFallo (_('Not editable'), _('This value cannot be edited directly.') + '\n\n' + _('This is the pseudo-attribute "wearable", which cannot be directly modified. Its value depends on the code of the word assigned to this object. Assign to it a word with code value between 200 and 254 to make it "wearable", or a value lower than 200 to make it not "wearable".'), QMessageBox.Information)
+    dlg_desc_objs.activacionAnterior = time.time()  # Para descartar evento activated posterior
+    return
   if mod_actual.NUM_ATRIBUTOS[0] == 1 or indice.column() == 5 + adicional:  # Nombre
     numNombre = pideNombre (mod_actual.nombres_objs[numObjeto][0])
     if numNombre != None:
       mod_actual.nombres_objs[numObjeto] = (numNombre, mod_actual.nombres_objs[numObjeto][1])
+  dlg_desc_objs.activacionAnterior = time.time()  # Para descartar evento activated posterior
 
 def editaVocabulario (indice):
   # type: (QModelIndex) -> None
@@ -2375,16 +2384,32 @@ def irAEntradaProceso ():
 
 def menuContextualTextos (dialogoTextos, listaTextos, punto):
   """Muestra el menú contextual para un diálogo de textos"""
+  textoEstadoNueva = {
+    dlg_desc_locs: _('Adds a new location'),
+    dlg_desc_objs: _('Adds a new object'),
+    dlg_msg_sys:   _('Adds a new system message'),
+    dlg_msg_usr:   _('Adds a new user message')}[dialogoTextos]
+  textoNueva = {
+    dlg_desc_locs: _('&New location'),
+    dlg_desc_objs: _('&New object'),
+    dlg_msg_sys:   _('&New message'),
+    dlg_msg_usr:   _('&New message')}[dialogoTextos]
   contextual   = QMenu (dialogoTextos)
   accionBorrar = QAction (_('Delete'), selector)  # Necesario poner como padre selector para que funcione el status tip
   accionCopiar = QAction (_('&Copy'),  contextual)
+  accionNueva  = QAction (textoNueva,  selector)
   accionPegar  = QAction (_('&Paste'), contextual)
   accionCopiar.setShortcut (QKeySequence.Copy)
   accionPegar.setShortcut  (QKeySequence.Paste)
+  accionNueva.setShortcut  (QKeySequence (Qt.Key_Enter))
+  accionNueva.setStatusTip (textoEstadoNueva)
   accionCopiar.triggered.connect (lambda: copiaTexto (dialogoTextos, listaTextos))
+  accionNueva.triggered.connect  (lambda: nuevoTexto (dialogoTextos, listaTextos))
   accionPegar.triggered.connect  (lambda: pegaTexto  (dialogoTextos, listaTextos))
   contextual.addAction (accionCopiar)
   contextual.addAction (accionPegar)
+  contextual.addSeparator()
+  contextual.addAction (accionNueva)
   contextual.addSeparator()
   contextual.addAction (accionBorrar)
   numFila = dialogoTextos.indexAt (punto).row()
@@ -2575,6 +2600,7 @@ def muestraTextos (dialogo, listaTextos, tipoTextos, subventanaMdi):
   # Creamos el diálogo
   selector.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
   dialogo = QTableView (selector)
+  dialogo.activacionAnterior = 0
   dialogo.setContextMenuPolicy (Qt.CustomContextMenu)
   if tipoTextos in ('desc_localidades', 'desc_objetos'):
     dialogo.setModel ((ModeloObjetos if tipoTextos == 'desc_objetos' else ModeloLocalidades) (dialogo, listaTextos))
@@ -2590,18 +2616,22 @@ def muestraTextos (dialogo, listaTextos, tipoTextos, subventanaMdi):
   dialogo.setWindowTitle (titulo)
   subventanaMdi = selector.centralWidget().addSubWindow (dialogo)
   if tipoTextos == 'desc_localidades':
+    dialogo.activated.connect (lambda: nuevoTexto (dialogo, mod_actual.desc_locs))
     dialogo.doubleClicked.connect (editaLocalidad)
     dlg_desc_locs = dialogo
     mdi_desc_locs = subventanaMdi
   elif tipoTextos == 'desc_objetos':
+    dialogo.activated.connect (lambda: nuevoTexto (dialogo, mod_actual.desc_objs))
     dialogo.doubleClicked.connect (editaObjeto)
     dlg_desc_objs = dialogo
     mdi_desc_objs = subventanaMdi
   elif tipoTextos == 'msgs_sistema':
+    dialogo.activated.connect (lambda: nuevoTexto (dialogo, mod_actual.msgs_sys))
     dialogo.doubleClicked.connect (editaMsgSys)
     dlg_msg_sys = dialogo
     mdi_msg_sys = subventanaMdi
   else:
+    dialogo.activated.connect (lambda: nuevoTexto (dialogo, mod_actual.msgs_usr))
     dialogo.doubleClicked.connect (editaMsgUsr)
     dlg_msg_usr = dialogo
     mdi_msg_usr = subventanaMdi
@@ -2753,6 +2783,69 @@ def nuevaFilaVocabulario (indice, sinonimo = False):
       return
     nuevaPal.append (list (tiposPalabra.keys())[list (tiposPalabra.values()).index (dialogo.textValue())])
   nuevaEntradaVocabulario (tuple (nuevaPal))
+
+def nuevoTexto (dialogoTextos, listaTextos):
+  """Añade una nueva fila en un diálogo de textos"""
+  tiempo = time.time()
+  if tiempo <= dialogoTextos.activacionAnterior + 0.2:
+    return  # Descartamos el evento por ocurrir tras un doble click anterior
+  modelo = dialogoTextos.model()
+  if mod_actual.NOMBRE_SISTEMA == 'GAC':
+    # Obtenemos el código del texto
+    textoNueva = {
+      dlg_desc_locs: _('&New location', 1),
+      dlg_desc_objs: _('&New object',   1),
+      dlg_msg_sys:   _('&New message',  1),
+      dlg_msg_usr:   _('&New message',  1)}[dialogoTextos]
+    dialogo = ModalEntrada (dialogoTextos, _('Code') + ':', '')
+    dialogo.setInputMode   (QInputDialog.IntInput)
+    dialogo.setWindowTitle (textoNueva)
+    if dialogoTextos == dlg_desc_locs:
+      dialogo.setIntRange (1, 9999)
+    else:
+      dialogo.setIntRange (1, 255)
+    while True:
+      if dialogo.exec_() != QDialog.Accepted:
+        return
+      if dialogo.intValue() in modelo.indicesTextos:
+        muestraFallo (_('Invalid code'), _("There's already an item on the table with the code you entered. Please choose another one"))
+        continue
+      codigo = dialogo.intValue()
+      break
+    # Vemos en qué fila de la tabla se añadirá
+    nuevaFila = 0
+    for numFila in range (len (modelo.indicesTextos)):
+      if modelo.indicesTextos[numFila] < codigo:
+        nuevaFila = numFila + 1
+      else:
+        break
+  else:  # Son sistemas de la familia de Quill
+    codigo    = len (listaTextos)
+    nuevaFila = len (listaTextos)
+  # Añadimos el nuevo elemento
+  modelo.beginInsertRows (QModelIndex(), nuevaFila, nuevaFila)
+  modelo.indicesTextos.insert (nuevaFila, codigo)
+  if mod_actual.NOMBRE_SISTEMA == 'GAC':
+    listaTextos[codigo] = ''
+    if listaTextos == mod_actual.desc_locs:  # Se ha creado una nueva localidad
+      mod_actual.conexiones[codigo] = []
+    elif listaTextos == mod_actual.desc_objs:  # Se ha creado un nuevo objeto
+      mod_actual.atributos[codigo]      = 0
+      mod_actual.locs_iniciales[codigo] = IDS_LOCS['GAC']['NOTCREATED']
+      mod_actual.nombres_objs[codigo]   = (codigo, 255)
+  else:  # Son sistemas de la familia de Quill
+    listaTextos.append ('')
+    if listaTextos == mod_actual.desc_locs:  # Se ha creado una nueva localidad
+      mod_actual.conexiones.append ([])
+    elif listaTextos == mod_actual.desc_objs:  # Se ha creado un nuevo objeto
+      mod_actual.locs_iniciales.append (IDS_LOCS[None]['NOTCREATED'])
+      mod_actual.nombres_objs.append ((255, 255))
+      mod_actual.num_objetos[0] += 1
+      if 'atributos' in mod_actual.__dict__:
+        mod_actual.atributos.append (0)
+        if 'atributos_extra' in mod_actual.__dict__:
+          mod_actual.atributos_extra.append (0)
+  modelo.endInsertRows()
 
 def pegaTexto (dialogoTextos, listaTextos):
   """Pega desde el portapapeles sobre un diálogo de textos"""
