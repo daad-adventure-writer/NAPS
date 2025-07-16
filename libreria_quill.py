@@ -1228,26 +1228,47 @@ def escribe_secs_ctrl (cadena):
     if c == '\t':
       convertida += '\x06'  # Tabulador
     elif c == '\\':
-      if cadena[i + 1:i + len (_('INVERSE')) + 2] == _('INVERSE') + '_':
+      if cadena[i + 1:i + len (_('BRIGHT')) + 2] == (_('BRIGHT') + '_') and strPlataforma == 'ZX':
+        brillo = cadena[i + len (_('BRIGHT')) + 2:i + len (_('BRIGHT')) + 4] not in ('0', '00')
+        convertida += chr (19) + chr (1 if brillo else 0)
+        i += len (_('BRIGHT')) + 3
+      elif cadena[i + 1:i + len (_('FLASH')) + 2] == (_('FLASH') + '_') and strPlataforma == 'ZX':
+        flash = cadena[i + len (_('FLASH')) + 2:i + len (_('FLASH')) + 4] not in ('0', '00')
+        convertida += chr (18) + chr (1 if flash else 0)
+        i += len (_('FLASH')) + 3
+      elif cadena[i + 1:i + len (_('INVERSE')) + 2] == _('INVERSE') + '_':
         inversa = cadena[i + len (_('INVERSE')) + 2:i + len (_('INVERSE')) + 4] not in ('0', '00')
         if strPlataforma == 'C64':
           convertida += chr (18 if inversa else 146)
         elif strPlataforma == 'ZX':
-          convertida += chr (20)
+          convertida += chr (20) + chr (1 if inversa else 0)
         i += len (_('INVERSE')) + 3
-      elif cadena[i + 1:i + len (_('INK')) + 2] == (_('INK') + '_') and strPlataforma == 'C64':
+      elif cadena[i + 1:i + len (_('INK')) + 2] == (_('INK') + '_'):
         try:
-          codigo = int (cadena[i + len (_('INK')) + 2: i + len (_('INK')) + 4])
+          codigo = int (cadena[i + len (_('INK')) + 2: i + len (_('INK')) + 4], 16)
         except:
           codigo = 999
-        if codigo < len (cods_tinta):
+        if strPlataforma == 'C64' and codigo < len (cods_tinta):
           for codigoColor in cods_tinta:
             if cods_tinta[codigoColor] == codigo:
               convertida += chr (codigoColor)
               break
           i += len (_('INK')) + 3
+        elif strPlataforma == 'ZX' and codigo < 8:
+          convertida += chr (16) + chr (codigo)
+          i += len (_('INK')) + 3
         else:  # No es un número de color permitido
           convertida += c  # Lo trataremos literalmente como ese texto \TINTA_loquesea
+      elif cadena[i + 1:i + len (_('PAPER')) + 2] == (_('PAPER') + '_') and strPlataforma == 'ZX':
+        try:
+          codigo = int (cadena[i + len (_('PAPER')) + 2: i + len (_('PAPER')) + 4], 16)
+        except:
+          codigo = 999
+        if codigo < 8:
+          convertida += chr (17) + chr (codigo)
+          i += len (_('PAPER')) + 3
+        else:  # No es un número de color permitido
+          convertida += c  # Lo trataremos literalmente como ese texto \PAPEL_loquesea
       elif cadena[i + 1:i + len (_('TAB')) + 2] == (_('TAB') + '_') and strPlataforma == 'ZX':
         columna = cadena[i + len (_('TAB')) + 2:i + len (_('TAB')) + 4]
         try:
@@ -1255,7 +1276,7 @@ def escribe_secs_ctrl (cadena):
           convertida += chr (23) + chr (columna)
         except:
           pass
-        i += len (_('TAB')) + 2
+        i += len (_('TAB')) + 3
       elif cadena[i + 1:i + 2] == 'x':  # Códigos escritos en hexadecimal
         try:
           codigo = int (cadena[i + 2: i + 4], 16)
