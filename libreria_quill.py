@@ -74,6 +74,7 @@ funcs_exportar = (
   ('guarda_bd_ql',  ('qql',), _('Quill database for Sinclair QL')),
 )
 funcs_importar = (
+  ('carga_bd_cpc',  ('bin',),       _('Quill databases for Amstrad CPC')),
   ('carga_bd_a800', ('dtb', 'prg'), _('Quill databases for Atari 800 AdventureWriter')),
   ('carga_bd_c64',  ('prg',),       _('Quill databases for Commodore 64')),
   ('carga_bd_pc',   ('dat', 'exe'), _('Quill databases for PC AdventureWriter')),
@@ -273,6 +274,19 @@ acciones_c64pc = {
   32 : ('BEEP',    'uu', False),  # Llamada SID en Commodore 64, y SOUND en AdventureWriter para PC
 }
 
+# Reemplazo de acciones en Amstrad CPC
+acciones_cpc = dict (acciones_nuevas)
+acciones_cpc.update ({
+  19 : ('INK', 'uu', False),
+})
+#del acciones_cpc[18]  # TODO: investigar. Es PAPER, en teoría inexistente en Amstrad CPC
+
+# Reemplazo de acciones en Atari 800
+acciones_a800 = dict (acciones_c64pc)
+acciones_a800.update ({
+  32 : ('SOUND', 'uuuu', False),
+})
+
 # Reemplazo de acciones en Sinclair QL
 acciones_ql = dict (acciones_nuevas)
 acciones_ql.update ({
@@ -281,16 +295,11 @@ acciones_ql.update ({
   39 : ('SYSMESS', 's',  False),
 })
 
-# Reemplazo de acciones en Atari 800
-acciones_a800 = dict (acciones_c64pc)
-acciones_a800.update ({
-  32 : ('SOUND', 'uuuu', False),
-})
-
 # Diccionarios de actualización de acciones para cada plataforma
 acciones_plataforma = {
   'Atari800': acciones_a800,
   'C64':      acciones_c64pc,
+  'CPC':      acciones_cpc,
   'PC':       acciones_c64pc,
   'QL':       acciones_ql,
   'ZX':       acciones_nuevas,
@@ -316,6 +325,7 @@ ascii_a_petscii = maketrans (''.join (('%c' % c for c in range (256))), ascii_pa
 plataformas = {
   'Atari800': 'Atari 800',
   'C64':      'Commodore 64',
+  'CPC':      'Amstrad CPC',
   'PC':       'IBM PC',
   'QL':       'Sinclair QL',
 }
@@ -378,6 +388,34 @@ Para compatibilidad con el IDE:
   colores_inicio.append (carga_int1())  # Color de papel
   colores_inicio.append (carga_int1())  # Color de borde
   preparaPosCabecera ('c64', 6)
+  return cargaBD (fichero, longitud)
+
+def carga_bd_cpc (fichero, longitud):
+  """Carga la base de datos entera desde una base de datos de Quill para Amstrad CPC
+
+Para compatibilidad con el IDE:
+- Recibe como primer parámetro un fichero abierto
+- Recibe como segundo parámetro la longitud del fichero abierto
+- Devuelve False si ha ocurrido algún error"""
+  global carga_desplazamiento, despl_ini, fin_cadena, nueva_linea, plataforma, strPlataforma
+  carga_desplazamiento = carga_desplazamiento2
+  despl_ini     = 6987
+  fin_cadena    = 0
+  nueva_linea   = 20
+  plataforma    = 1   # Apaño para que el intérprete lo considere como Spectrum
+  strPlataforma = 'CPC'
+  bajo_nivel_cambia_endian (le = True)
+  bajo_nivel_cambia_ent    (fichero)
+  bajo_nivel_cambia_despl  (despl_ini)
+  inicio = 128
+  # Cargamos los colores iniciales
+  fichero.seek (inicio + 1)
+  colores_inicio.append (carga_int1())     # Color de papel (tinta 0)
+  colores_inicio.insert (0, carga_int1())  # Color de tinta (tinta 1)
+  colores_inicio.append (carga_int1())     # Color de tinta 2
+  colores_inicio.append (carga_int1())     # Color de tinta 3
+  colores_inicio.insert (2, carga_int1())  # Color de borde
+  preparaPosCabecera ('cpc', inicio + 6)
   return cargaBD (fichero, longitud)
 
 def carga_bd_pc (fichero, longitud):
@@ -1832,7 +1870,7 @@ def preparaPosCabecera (formato, inicio):
     CAB_POS_VOCAB            = inicio + 34  # Posición del vocabulario
     CAB_POS_LOCS_OBJS        = inicio + 38  # Posición de localidades iniciales de objetos
     CAB_POS_NOMS_OBJS        = inicio + 42  # Posición de los nombres de los objetos
-  elif formato in ('a800', 'c64', 'pc', 'sna48k'):
+  elif formato in ('a800', 'c64', 'cpc', 'pc', 'sna48k'):
     CAB_NUM_MSGS_SYS         = inicio + 4   # Número de mensajes de sistema
     CAB_POS_EVENTOS          = inicio + 5   # Posición de la tabla de eventos
     CAB_POS_ESTADO           = inicio + 7   # Posición de la tabla de estado
