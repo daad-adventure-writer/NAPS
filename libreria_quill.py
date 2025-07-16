@@ -1523,7 +1523,7 @@ cadenas es la lista donde almacenar las cadenas que se carguen"""
       caracter = carga_int1() ^ 255
       if caracter == fin_cadena:  # Fin de esta cadena
         break
-      if saltaSiguiente or (caracter in (range (16, 21))):  # Códigos de control
+      if saltaSiguiente or (strPlataforma == 'ZX' and caracter in (range (16, 22))):  # Códigos de control de Spectrum ZX
         cadena.append (chr (caracter))
         saltaSiguiente = not saltaSiguiente
       elif caracter == nueva_linea:  # Un carácter de nueva línea en la cadena
@@ -1589,7 +1589,7 @@ def cargaMensajesSistema ():
       caracter = carga_int1() ^ 255
       if caracter == fin_cadena:  # Fin de esta cadena
         break
-      if saltaSiguiente or (caracter in (range (16, 21))):  # Códigos de control
+      if saltaSiguiente or (strPlataforma == 'ZX' and caracter in (range (16, 22))):  # Códigos de control de Spectrum ZX
         cadena += chr (caracter)
         saltaSiguiente = not saltaSiguiente
         continue
