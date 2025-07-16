@@ -1229,13 +1229,25 @@ def escribe_secs_ctrl (cadena):
       convertida += '\x06'  # Tabulador
     elif c == '\\':
       if cadena[i + 1:i + len (_('BRIGHT')) + 2] == (_('BRIGHT') + '_') and strPlataforma == 'ZX':
-        brillo = cadena[i + len (_('BRIGHT')) + 2:i + len (_('BRIGHT')) + 4] not in ('0', '00')
-        convertida += chr (19) + chr (1 if brillo else 0)
-        i += len (_('BRIGHT')) + 3
+        try:
+          codigo = int (cadena[i + len (_('BRIGHT')) + 2: i + len (_('BRIGHT')) + 4], 16)
+        except:
+          codigo = 999
+        if codigo < 256:
+          convertida += chr (19) + chr (8 if codigo == 8 else (1 if codigo else 0))
+          i += len (_('BRIGHT')) + 3
+        else:
+          convertida += c  # Lo trataremos literalmente como ese texto \BRILLO_loquesea
       elif cadena[i + 1:i + len (_('FLASH')) + 2] == (_('FLASH') + '_') and strPlataforma == 'ZX':
-        flash = cadena[i + len (_('FLASH')) + 2:i + len (_('FLASH')) + 4] not in ('0', '00')
-        convertida += chr (18) + chr (1 if flash else 0)
-        i += len (_('FLASH')) + 3
+        try:
+          codigo = int (cadena[i + len (_('FLASH')) + 2: i + len (_('FLASH')) + 4], 16)
+        except:
+          codigo = 999
+        if codigo < 256:
+          convertida += chr (19) + chr (8 if codigo == 8 else (1 if codigo else 0))
+          i += len (_('FLASH')) + 3
+        else:
+          convertida += c  # Lo trataremos literalmente como ese texto \FLASH_loquesea
       elif cadena[i + 1:i + len (_('INVERSE')) + 2] == _('INVERSE') + '_':
         inversa = cadena[i + len (_('INVERSE')) + 2:i + len (_('INVERSE')) + 4] not in ('0', '00')
         if strPlataforma == 'C64':
@@ -1254,7 +1266,7 @@ def escribe_secs_ctrl (cadena):
               convertida += chr (codigoColor)
               break
           i += len (_('INK')) + 3
-        elif strPlataforma == 'ZX' and codigo < 8:
+        elif strPlataforma == 'ZX' and codigo < 10:  # Aparte de los colores 0-7, están los valores 8 (transparente) y 9 (contraste)
           convertida += chr (16) + chr (codigo)
           i += len (_('INK')) + 3
         else:  # No es un número de color permitido
@@ -1264,7 +1276,7 @@ def escribe_secs_ctrl (cadena):
           codigo = int (cadena[i + len (_('PAPER')) + 2: i + len (_('PAPER')) + 4], 16)
         except:
           codigo = 999
-        if codigo < 8:
+        if codigo < 10:  # Aparte de los colores 0-7, están los valores 8 (transparente) y 9 (contraste)
           convertida += chr (17) + chr (codigo)
           i += len (_('PAPER')) + 3
         else:  # No es un número de color permitido
