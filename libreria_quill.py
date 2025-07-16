@@ -1271,6 +1271,10 @@ def escribe_secs_ctrl (cadena):
           i += len (_('INK')) + 3
         else:  # No es un número de color permitido
           convertida += c  # Lo trataremos literalmente como ese texto \TINTA_loquesea
+      elif cadena[i + 1:i + len (_('OVER')) + 2] == (_('OVER') + '_') and strPlataforma == 'ZX':
+        encima = cadena[i + len (_('OVER')) + 2:i + len (_('OVER')) + 4] not in ('0', '00')
+        convertida += chr (21) + chr (1 if encima else 0)
+        i += len (_('OVER')) + 3
       elif cadena[i + 1:i + len (_('PAPER')) + 2] == (_('PAPER') + '_') and strPlataforma == 'ZX':
         try:
           codigo = int (cadena[i + len (_('PAPER')) + 2: i + len (_('PAPER')) + 4], 16)
@@ -1328,7 +1332,7 @@ def lee_secs_ctrl (cadena):
       convertida += '\\n'
     elif o == 6 and strPlataforma == 'ZX':  # Tabulador
       convertida += '\\t'
-    elif strPlataforma == 'ZX' and o in range (16, 21) and (i + 1) < len (cadena):
+    elif strPlataforma == 'ZX' and o in range (16, 22) and (i + 1) < len (cadena):
       convertida += '\\'
       if o == 16:
         convertida += _('INK')
@@ -1338,8 +1342,10 @@ def lee_secs_ctrl (cadena):
         convertida += _('FLASH')
       elif o == 19:
         convertida += _('BRIGHT')
-      else:  # o == 20
+      elif o == 20:
         convertida += _('INVERSE')
+      else:  # o == 21
+        convertida += _('OVER')
       convertida += '_%02X' % ord (cadena[i + 1])
       i += 1  # El siguiente carácter ya se ha procesado
     elif o in (18, 146) and strPlataforma == 'C64':  # Cambio de inversa

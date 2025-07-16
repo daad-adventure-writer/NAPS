@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 24.04\n"
 "Report-Msgid-Bugs-To: jmfo1982@gmail.com\n"
-"POT-Creation-Date: 2025-07-16 16:11+0200\n"
-"PO-Revision-Date: 2025-07-16 16:16+0200\n"
+"POT-Creation-Date: 2025-07-16 19:09+0200\n"
+"PO-Revision-Date: 2025-07-16 19:10+0200\n"
 "Last-Translator: José Manuel Ferrer Ortiz <jmfo1982@gmail.com>\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -1339,7 +1339,7 @@ msgstr ""
 msgid " turn"
 msgstr ""
 
-#: libreria_quill.py:107 libreria_quill.py:1351
+#: libreria_quill.py:107 libreria_quill.py:1390
 msgid "s"
 msgstr ""
 
@@ -1403,114 +1403,125 @@ msgstr ""
 msgid "Missing condact"
 msgstr ""
 
-#: libreria_quill.py:1231 libreria_quill.py:1287 libreria_quill.py:1292
-#: libreria_quill.py:1309 libreria_quill.py:1313 libreria_quill.py:1325
-msgid "INVERSE"
-msgstr ""
-
-#: libreria_quill.py:1238 libreria_quill.py:1301 libreria_quill.py:1318
-msgid "INK"
-msgstr ""
-
-#: libreria_quill.py:1251 libreria_quill.py:1315
-msgid "TAB"
-msgstr ""
-
-#: libreria_quill.py:1303
-msgid "PAPER"
-msgstr ""
-
-#: libreria_quill.py:1305
-msgid "FLASH"
-msgstr ""
-
-#: libreria_quill.py:1307
+#: libreria_quill.py:1231 libreria_quill.py:1233 libreria_quill.py:1238
+#: libreria_quill.py:1344
 msgid "BRIGHT"
 msgstr ""
 
-#: libreria_quill.py:1346
+#: libreria_quill.py:1241 libreria_quill.py:1243 libreria_quill.py:1248
+#: libreria_quill.py:1342
+msgid "FLASH"
+msgstr ""
+
+#: libreria_quill.py:1251 libreria_quill.py:1252 libreria_quill.py:1257
+#: libreria_quill.py:1324 libreria_quill.py:1329 libreria_quill.py:1346
+#: libreria_quill.py:1352 libreria_quill.py:1364
+msgid "INVERSE"
+msgstr ""
+
+#: libreria_quill.py:1258 libreria_quill.py:1260 libreria_quill.py:1268
+#: libreria_quill.py:1271 libreria_quill.py:1338 libreria_quill.py:1357
+msgid "INK"
+msgstr ""
+
+#: libreria_quill.py:1274 libreria_quill.py:1275 libreria_quill.py:1277
+#: libreria_quill.py:1348
+msgid "OVER"
+msgstr ""
+
+#: libreria_quill.py:1278 libreria_quill.py:1280 libreria_quill.py:1285
+#: libreria_quill.py:1340
+msgid "PAPER"
+msgstr ""
+
+#: libreria_quill.py:1288 libreria_quill.py:1289 libreria_quill.py:1295
+#: libreria_quill.py:1354
+msgid "TAB"
+msgstr ""
+
+#: libreria_quill.py:1385
 msgid "Location 0's description, the initial location."
 msgstr ""
 
-#: libreria_quill.py:1349
+#: libreria_quill.py:1388
 msgid "n"
 msgstr ""
 
-#: libreria_quill.py:1350
+#: libreria_quill.py:1389
 msgid "nort"
 msgstr ""
 
-#: libreria_quill.py:1352
+#: libreria_quill.py:1391
 msgid "sout"
 msgstr ""
 
-#: libreria_quill.py:1353
+#: libreria_quill.py:1392
 msgid "e"
 msgstr ""
 
-#: libreria_quill.py:1354
+#: libreria_quill.py:1393
 msgid "east"
 msgstr ""
 
-#: libreria_quill.py:1355
+#: libreria_quill.py:1394
 msgid "w"
 msgstr ""
 
-#: libreria_quill.py:1356
+#: libreria_quill.py:1395
 msgid "west"
 msgstr ""
 
-#: libreria_quill.py:1357
+#: libreria_quill.py:1396
 msgid "i"
 msgstr ""
 
-#: libreria_quill.py:1358
+#: libreria_quill.py:1397
 msgid "inve"
 msgstr ""
 
-#: libreria_quill.py:1359
+#: libreria_quill.py:1398
 msgid "desc"
 msgstr ""
 
-#: libreria_quill.py:1360
+#: libreria_quill.py:1399
 msgid "look"
 msgstr ""
 
-#: libreria_quill.py:1361
+#: libreria_quill.py:1400
 msgid "quit"
 msgstr ""
 
-#: libreria_quill.py:1362
+#: libreria_quill.py:1401
 msgid "ligh"
 msgstr ""
 
-#: libreria_quill.py:1364
+#: libreria_quill.py:1403
 msgid "Object 0's description, source of light."
 msgstr ""
 
-#: libreria_quill.py:1369
+#: libreria_quill.py:1408
 msgid "Text of message 0."
 msgstr ""
 
-#: libreria_quill.py:1661
+#: libreria_quill.py:1700
 #, python-format
 msgid ""
 "Export failed because condact %(name)s doesn't exist on target platform "
 "%(platform)s"
 msgstr ""
 
-#: libreria_quill.py:1670
+#: libreria_quill.py:1709
 #, python-format
 msgid ""
 "Inexistent condact %(name)s on %(platform)s, replaced by %(replacement)s"
 msgstr ""
 
-#: libreria_quill.py:1676
+#: libreria_quill.py:1715
 #, python-format
 msgid "Condact %(name)s changed from code %(origCode)d to %(destCode)d"
 msgstr ""
 
-#: libreria_quill.py:1688
+#: libreria_quill.py:1727
 #, python-format
 msgid ""
 "Number of parameters for condact %(name)s changed from %(lenBefore)d to "
