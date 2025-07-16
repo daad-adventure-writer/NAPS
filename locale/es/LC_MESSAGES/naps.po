@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 24.04\n"
 "Report-Msgid-Bugs-To: jmfo1982@gmail.com\n"
-"POT-Creation-Date: 2025-07-15 21:11+0200\n"
-"PO-Revision-Date: 2025-07-15 21:19+0200\n"
+"POT-Creation-Date: 2025-07-16 16:11+0200\n"
+"PO-Revision-Date: 2025-07-16 16:18+0200\n"
 "Last-Translator: José Manuel Ferrer Ortiz <jmfo1982@gmail.com>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
@@ -1498,6 +1498,31 @@ msgstr "Tabla de estado"
 #: libreria_quill.py:680 libreria_quill.py:999 libreria_quill.py:1169
 msgid "Missing condact"
 msgstr "Falta un condacto"
+
+#: libreria_quill.py:1231 libreria_quill.py:1287 libreria_quill.py:1292
+#: libreria_quill.py:1309 libreria_quill.py:1313 libreria_quill.py:1325
+msgid "INVERSE"
+msgstr "INVERSA"
+
+#: libreria_quill.py:1238 libreria_quill.py:1301 libreria_quill.py:1318
+msgid "INK"
+msgstr "TINTA"
+
+#: libreria_quill.py:1251 libreria_quill.py:1315
+msgid "TAB"
+msgstr "TABULAR"
+
+#: libreria_quill.py:1303
+msgid "PAPER"
+msgstr "PAPEL"
+
+#: libreria_quill.py:1305
+msgid "FLASH"
+msgstr "INTERMITENTE"
+
+#: libreria_quill.py:1307
+msgid "BRIGHT"
+msgstr "BRILLO"
 
 #: libreria_quill.py:1346
 msgid "Location 0's description, the initial location."

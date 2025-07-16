@@ -1228,16 +1228,16 @@ def escribe_secs_ctrl (cadena):
     if c == '\t':
       convertida += '\x06'  # Tabulador
     elif c == '\\':
-      if cadena[i:i + 9] == '\\INVERSA_':
-        inversa = cadena[i + 9:i + 11] not in ('0', '00')
+      if cadena[i + 1:i + len (_('INVERSE')) + 2] == _('INVERSE') + '_':
+        inversa = cadena[i + len (_('INVERSE')) + 2:i + len (_('INVERSE')) + 4] not in ('0', '00')
         if strPlataforma == 'C64':
           convertida += chr (18 if inversa else 146)
         elif strPlataforma == 'ZX':
           convertida += chr (20)
-        i += 10
-      elif cadena[i:i + 7] == '\\TINTA_' and strPlataforma == 'C64':
+        i += len (_('INVERSE')) + 3
+      elif cadena[i + 1:i + len (_('INK')) + 2] == (_('INK') + '_') and strPlataforma == 'C64':
         try:
-          codigo = int (cadena[i + 7: i + 9])
+          codigo = int (cadena[i + len (_('INK')) + 2: i + len (_('INK')) + 4])
         except:
           codigo = 999
         if codigo < len (cods_tinta):
@@ -1245,18 +1245,18 @@ def escribe_secs_ctrl (cadena):
             if cods_tinta[codigoColor] == codigo:
               convertida += chr (codigoColor)
               break
-          i += 8
+          i += len (_('INK')) + 3
         else:  # No es un número de color permitido
           convertida += c  # Lo trataremos literalmente como ese texto \TINTA_loquesea
-      elif cadena[i:i + 5] == '\\TAB_' and strPlataforma == 'ZX':
-        columna = cadena[i + 5:i + 7]
+      elif cadena[i + 1:i + len (_('TAB')) + 2] == (_('TAB') + '_') and strPlataforma == 'ZX':
+        columna = cadena[i + len (_('TAB')) + 2:i + len (_('TAB')) + 4]
         try:
           columna     = int (columna, 16)
           convertida += chr (23) + chr (columna)
         except:
           pass
-        i += 5
-      elif cadena[i:i + 2] == '\\x':  # Códigos escritos en hexadecimal
+        i += len (_('TAB')) + 2
+      elif cadena[i + 1:i + 2] == 'x':  # Códigos escritos en hexadecimal
         try:
           codigo = int (cadena[i + 2: i + 4], 16)
         except:
@@ -1284,12 +1284,12 @@ def lee_secs_ctrl (cadena):
     o = ord (c)
     if o > 127 and strPlataforma in ('Atari800', 'PC'):
       if not inversa:
-        convertida += '\\INVERSA_01'
+        convertida += '\\' + _('INVERSE') + '_01'
       inversa = True
       c = chr (o - 128)
     else:
       if inversa:
-        convertida += '\\INVERSA_00'
+        convertida += '\\' + _('INVERSE') + '_00'
       inversa = False
     if c == '\n':
       convertida += '\\n'
@@ -1298,31 +1298,31 @@ def lee_secs_ctrl (cadena):
     elif strPlataforma == 'ZX' and o in range (16, 21) and (i + 1) < len (cadena):
       convertida += '\\'
       if o == 16:
-        convertida += 'TINTA'
+        convertida += _('INK')
       elif o == 17:
-        convertida += 'PAPEL'
+        convertida += _('PAPER')
       elif o == 18:
-        convertida += 'FLASH'
+        convertida += _('FLASH')
       elif o == 19:
-        convertida += 'BRILLO'
+        convertida += _('BRIGHT')
       else:  # o == 20
-        convertida += 'INVERSA'
+        convertida += _('INVERSE')
       convertida += '_%02X' % ord (cadena[i + 1])
       i += 1  # El siguiente carácter ya se ha procesado
     elif o in (18, 146) and strPlataforma == 'C64':  # Cambio de inversa
-      convertida += '\\INVERSA_0' + ('1' if o == 18 else '0')
+      convertida += '\\' + _('INVERSE') + '_0' + ('1' if o == 18 else '0')
     elif o == 23 and strPlataforma == 'ZX':  # Salto a columna en la misma fila
-      convertida += '\\TAB_%02X' % ord (cadena[i + 1])
+      convertida += '\\' + _('TAB') + '_%02X' % ord (cadena[i + 1])
       i += 2  # El siguiente carácter ya se ha procesado y el de después se ignora
     elif o in cods_tinta:
-      convertida += '\\TINTA_%02X' % cods_tinta[o]
+      convertida += '\\' + _('INK') + '_%02X' % cods_tinta[o]
     elif c == '\\':
       convertida += '\\\\'
     else:
       convertida += c
     i += 1
   if inversa:
-    convertida += '\\INVERSA_00'
+    convertida += '\\' + _('INVERSE') + '_00'
   return convertida
 
 def nueva_bd ():
