@@ -53,6 +53,7 @@ El intérprete de NAPS soporta los siguientes formatos para el sistema Quill:
 
 | Plataforma      | Extensión | Tipo          | Notas              |
 | --------------- | --------- | ------------- | ------------------ |
+| Amstrad CPC     | .BIN      | Base de datos |                    |
 | Atari 800       | .DTB      | Base de datos | AdventureWriter    |
 | Atari 800       | .PRG      | Aventura      | AdventureWriter    |
 | Commodore 64    | .PRG      | Base de datos |                    |

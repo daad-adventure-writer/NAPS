@@ -133,6 +133,7 @@ topes_gfx   = [53, 25]         # Ancho y alto del último gráfico dibujado en la 
 ancho_juego = 320              # Ancho de la ventana de juego
 resolucion  = (320, 200)       # Resolución gráfica de salida, sin escalar
 color_tinta = None             # Color de tinta por defecto
+tintas_cpc  = []               # Colores disponibles para Amstrad CPC de entre los de su paleta
 
 
 # Constantes que se exportan (fuera del paquete)
@@ -334,6 +335,14 @@ def cambia_color_brillo (valor):
   """Cambia el valor de brillo de la subventana actual según el valor dado"""
   global brillo
   brillo = 1 if valor else 0
+
+def cambia_tintas_cpc (tintas):
+  """Cambia las tintas de CPC por las dadas"""
+  for c in range (len (tintas)):
+    if len (tintas_cpc) < c + 1:
+      tintas_cpc.append (tintas[c])
+    else:
+      tintas_cpc[c] = tintas[c]
 
 def cambia_color_papel (color):
   """Cambia el color de papel/fondo al escribir la subventana actual por el dado"""
@@ -1235,7 +1244,7 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
         juego -= 32
     elif ordOrig == cod_juego_bajo:
       juego = 0
-    elif ordinal in (len (izquierda) - 2, len (izquierda) - 3):  # Penúltimo o antepenúltimo carácter: tabulador o movimiento de cursor
+    elif cod_columna and cod_tabulador and ordinal in (len (izquierda) - 2, len (izquierda) - 3):  # Penúltimo o antepenúltimo carácter: tabulador o movimiento de cursor
       numEspacios  = 0
       posTabulador = iniLineas[-1] + len (linea)
       if cadena[c] == '\t':  # Es un tabulador
@@ -1307,7 +1316,7 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
         esperaMas (tiempo)  # Paginación
     elif 0 in colores and not lineas[i]:  # La primera línea es sólo \n
       fuente.set_palette (colores[0])  # Cargamos el color inicial de la cadena
-    if cod_brillo or cods_tinta or strPlataforma in ('Atari800', 'PC'):
+    if cod_brillo or cods_tinta or strPlataforma in ('Atari800', 'CPC', 'PC'):
       imprime_linea (lineas[i], redibujar = redibujar, colores = colores, inicioLinea = iniLineas[i])
     else:
       imprime_linea (lineas[i], redibujar = redibujar, colores = colores)
@@ -1566,7 +1575,7 @@ def parseaColores (cadena, restauraColores = False):
   global brillo
   papel = color_subv[elegida][1]  # Color de papel/fondo
   tinta = daTinta()               # Color de tinta
-  if not cod_brillo and not cods_tinta and strPlataforma not in ('Atari800', 'PC'):
+  if not cod_brillo and not cods_tinta and strPlataforma not in ('Atari800', 'CPC', 'PC'):
     return cadena, {0: (paleta[brillo][tinta], paleta[brillo][papel])}
   if restauraColores:
     colores = {0: (paleta[brillo][tinta], paleta[brillo][papel])}
@@ -1627,6 +1636,13 @@ def parseaColores (cadena, restauraColores = False):
     elif c in cods_tinta:
       tinta = cods_tinta[c]
       colores[len (sinColores)] = (paleta[brillo][tinta], paleta[brillo][papel])  # Color de tinta y papel a aplicar
+    elif strPlataforma == 'CPC' and c in range (1, 9):
+      if c < 5:
+        tinta = tintas_cpc[c - 1]
+        colores[len (sinColores)] = (paleta[0][tinta], paleta[0][papel])  # Color de tinta y papel a aplicar
+      else:
+        papel = tintas_cpc[c - 5]
+        colores[len (sinColores)] = (paleta[0][tinta], paleta[0][papel])  # Color de tinta y papel a aplicar
     elif c == cod_tabulador:
       sinColores += '\t'
     elif c == cod_columna:

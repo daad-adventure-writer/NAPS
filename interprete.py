@@ -454,6 +454,8 @@ def inicializa ():
     gui.cambia_color_borde (libreria.colores_inicio[2])
     if len (libreria.colores_inicio) > 3:
       gui.cambia_color_brillo (libreria.colores_inicio[3])
+      if len (libreria.colores_inicio) > 5 and libreria.strPlataforma == 'CPC':
+        gui.cambia_tintas_cpc ([libreria.colores_inicio[1], libreria.colores_inicio[0]] + libreria.colores_inicio[4:])
     gui.elige_subventana (gui.elegida)  # Para que se apliquen los colores iniciales a la fuente
 
   # Las banderas son puestas a 0, las primeras 248 en el caso de las primeras versiones de DAAD, y todas en los demás
@@ -1459,8 +1461,8 @@ if __name__ == '__main__':
       gui.udgs       = libreria.udgs
       gui.carga_fuente_zx (bbdd)
       gui.prepara_topes (args.columns if args.columns else 32, 24)
-    elif extension in ('dtb', 'prg'):  # Bases de datos de Commodore 64 o Atari 800
-      gui.prepara_topes (args.columns if args.columns else 40, 25 if libreria.strPlataforma == 'C64' else 24)
+    elif extension in ('bin', 'dtb', 'prg'):  # Bases de datos de Amstrad CPC, Commodore 64 o Atari 800
+      gui.prepara_topes (args.columns if args.columns else 40, 24 if libreria.strPlataforma == 'Atari800' else 25)
     elif args.columns or args.gui not in ('stdio', 'telegram'):
       if libreria.strPlataforma == 'QL':
         gui.prepara_topes (args.columns if args.columns else 37, 22)
@@ -1540,7 +1542,18 @@ if __name__ == '__main__':
       else:  # Es QUILL
         gui.partir_espacio = False
         gui.strPlataforma  = libreria.strPlataforma
-        if gui.strPlataforma == 'C64':  # Plataforma Commodore 64
+        if gui.strPlataforma == 'CPC':  # Plataforma Amstrad CPC
+          gui.cod_inversa_ini = 9
+          gui.cod_inversa_fin = 9
+          del gui.paleta[0][:]
+          del gui.paleta[1][:]
+          # Colores en este orden: negro, azul, azul brillante, rojo, magenta, morado, rojo brillante, púrpura, magenta brillante,
+          #                        verde, cyan, azul cielo, amarillo, gris, azul pastel, naranja, rosa, magenta pastel,
+          #                        verde brillante, verde marino, cyan brillante, verde lima, verde pastel, cyan pastel, amarillo brillante, amarillo pastel, blanco
+          gui.paleta[0].extend (((0, 0, 0), (0, 0, 128), (0, 0, 255), (128, 0, 0), (128, 0, 128), (128, 0, 255), (255, 0, 0), (255, 0, 128), (255, 0, 255),
+              (0, 128, 0), (0, 128, 128), (0, 128, 255), (128, 128, 0), (128, 128, 128), (128, 128, 255), (255, 128, 0), (255, 128, 128), (255, 128, 255),
+              (0, 255, 0), (0, 255, 128), (0, 255, 255), (128, 255, 0), (128, 255, 128), (128, 255, 255), (255, 255, 0), (255, 255, 128), (255, 255, 255)))
+        elif gui.strPlataforma == 'C64':  # Plataforma Commodore 64
           gui.cod_inversa_ini = 18
           gui.cod_inversa_fin = 146
           gui.cods_tinta      = libreria.cods_tinta

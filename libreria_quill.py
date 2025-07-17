@@ -34,7 +34,7 @@ from prn_func   import _, maketrans, prn
 mods_condactos = ('condactos_quill',)
 
 adaptados      = {}   # Condactos que se han adaptado al convertir de una plataforma a otra (para el IDE)
-colores_inicio = []   # Colores iniciales: tinta, papel, borde y opcionalmente: brillo, ancho del borde
+colores_inicio = []   # Colores iniciales: tinta, papel, borde y opcionalmente: brillo, otros según plataforma
 conexiones     = []   # Listas de conexiones de cada localidad
 desc_locs      = []   # Descripciones de las localidades
 desc_objs      = []   # Descripciones de los objetos
@@ -415,6 +415,7 @@ Para compatibilidad con el IDE:
   colores_inicio.append (carga_int1())     # Color de tinta 2
   colores_inicio.append (carga_int1())     # Color de tinta 3
   colores_inicio.insert (2, carga_int1())  # Color de borde
+  colores_inicio.insert (3, 0)             # Sin brillo
   preparaPosCabecera ('cpc', inicio + 6)
   return cargaBD (fichero, longitud)
 
@@ -1263,7 +1264,7 @@ def escribe_secs_ctrl (cadena):
   while i < len (cadena):
     c = cadena[i]
     o = ord (c)
-    if c == '\t':
+    if c == '\t' and strPlataforma == 'ZX':
       convertida += '\x06'  # Tabulador
     elif c == '\\':
       if cadena[i + 1:i + len (_('BRIGHT')) + 2] == (_('BRIGHT') + '_') and strPlataforma == 'ZX':
@@ -1290,6 +1291,8 @@ def escribe_secs_ctrl (cadena):
         inversa = cadena[i + len (_('INVERSE')) + 2:i + len (_('INVERSE')) + 4] not in ('0', '00')
         if strPlataforma == 'C64':
           convertida += chr (18 if inversa else 146)
+        elif strPlataforma == 'CPC':
+          convertida += chr (9)
         elif strPlataforma == 'ZX':
           convertida += chr (20) + chr (1 if inversa else 0)
         i += len (_('INVERSE')) + 3
@@ -1304,6 +1307,9 @@ def escribe_secs_ctrl (cadena):
               convertida += chr (codigoColor)
               break
           i += len (_('INK')) + 3
+        elif strPlataforma == 'CPC' and codigo < 4:
+          convertida += chr (codigo + 1)
+          i += len (_('INK')) + 3
         elif strPlataforma == 'ZX' and codigo < 10:  # Aparte de los colores 0-7, están los valores 8 (transparente) y 9 (contraste)
           convertida += chr (16) + chr (codigo)
           i += len (_('INK')) + 3
@@ -1313,12 +1319,15 @@ def escribe_secs_ctrl (cadena):
         encima = cadena[i + len (_('OVER')) + 2:i + len (_('OVER')) + 4] not in ('0', '00')
         convertida += chr (21) + chr (1 if encima else 0)
         i += len (_('OVER')) + 3
-      elif cadena[i + 1:i + len (_('PAPER')) + 2] == (_('PAPER') + '_') and strPlataforma == 'ZX':
+      elif cadena[i + 1:i + len (_('PAPER')) + 2] == (_('PAPER') + '_'):
         try:
           codigo = int (cadena[i + len (_('PAPER')) + 2: i + len (_('PAPER')) + 4], 16)
         except:
           codigo = 999
-        if codigo < 10:  # Aparte de los colores 0-7, están los valores 8 (transparente) y 9 (contraste)
+        if strPlataforma == 'CPC' and codigo < 4:
+          convertida += chr (codigo + 5)
+          i += len (_('PAPER')) + 3
+        elif strPlataforma == 'ZX' and codigo < 10:  # Aparte de los colores 0-7, están los valores 8 (transparente) y 9 (contraste)
           convertida += chr (17) + chr (codigo)
           i += len (_('PAPER')) + 3
         else:  # No es un número de color permitido
@@ -1362,7 +1371,7 @@ def lee_secs_ctrl (cadena):
         convertida += '\\' + _('INVERSE') + '_01'
       inversa = True
       c = chr (o - 128)
-    else:
+    elif strPlataforma in ('Atari800', 'PC'):
       if inversa:
         convertida += '\\' + _('INVERSE') + '_00'
       inversa = False
@@ -1370,6 +1379,14 @@ def lee_secs_ctrl (cadena):
       convertida += '\\n'
     elif o == 6 and strPlataforma == 'ZX':  # Tabulador
       convertida += '\\t'
+    elif strPlataforma == 'CPC' and o in range (1, 9):
+      if o < 5:
+        convertida += '\\' + _('INK') + '_%02X' % (o - 1)
+      else:
+        convertida += '\\' + _('PAPER') + '_%02X' % (o - 5)
+    elif o == 9 and strPlataforma == 'CPC':
+      convertida += '\\' + _('INVERSE') + ('_00' if inversa else '_01')
+      inversa     = not inversa
     elif strPlataforma == 'ZX' and o in range (16, 22) and (i + 1) < len (cadena):
       convertida += '\\'
       if o == 16:
