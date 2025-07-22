@@ -469,10 +469,10 @@ Para compatibilidad con el IDE:
   BANDERA_VERBO[0]      = 64
   BANDERA_NOMBRE[0]     = 65
   BANDERA_LLEVABLES[0]  = 66
-  BANDERA_LOC_ACTUAL[0] = 67
+  BANDERA_LOC_ACTUAL[0] = 63
   NUM_ATRIBUTOS[0]      = 1
-  NUM_BANDERAS[0]       = 68
-  NUM_BANDERAS_ACC[0]   = 64
+  NUM_BANDERAS[0]       = 67
+  NUM_BANDERAS_ACC[0]   = 63
   fichero.seek (0)
   if fichero.read (18) == b']!QDOS File Header':  # Tiene cabecera QDOS puesta por el emulador
     despl_ini = -30  # Es de 30 bytes en sQLux

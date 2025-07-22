@@ -175,9 +175,9 @@ def abre_ventana (traza, escalar, bbdd):
   if traza and 'NUM_BANDERAS' in globals():  # Añadiremos espacio para las banderas
     if NUM_BANDERAS[0] > 140:  # Sistemas desde PAWS en adelante
       resolucion = (resolucion[0] + ((5 * 6) + 3) * 8 - 2, 32 * 8)
-    elif NUM_BANDERAS[0] > 64:  # Sistema GAC
+    elif NUM_BANDERAS[0] > 67:  # Sistema GAC
       resolucion = (resolucion[0] + ((5 * 6) + 3) * 5 - 2, 32 * 8)
-    elif NUM_BANDERAS[0] == 64:  # Sistema Quill para Sinclair QL
+    elif NUM_BANDERAS[0] == 67:  # Sistema Quill para Sinclair QL
       resolucion = (resolucion[0] + ((5 * 6) + 3) * (3 + int (math.ceil (float (num_objetos[0]) / limite[1]))), resolucion[1])
     else:  # Resto de sistemas Quill, con 33 banderas
       resolucion = (resolucion[0] + ((5 * 6) + 3) * (2 + int (math.ceil (float (num_objetos[0]) / limite[1]))), resolucion[1])
@@ -1001,7 +1001,7 @@ def imprime_banderas (banderas):
     prn ('flg', cambiosBanderas)
     return
   cifrasBandera = 2
-  if NUM_BANDERAS[0] > 64:
+  if NUM_BANDERAS[0] > 67:
     numFilas = 32
   else:
     numFilas = limite[1]
@@ -1074,7 +1074,7 @@ def imprime_locs_objs (locs_objs):
     alias = ({0: 'N', 32767: 'C'}, {0: 'NC', 32767: 'CA'}, {0: 'NCR', 32767: 'CAR'})
   else:
     alias = ({252: 'N', 253: 'W', 254: 'C'}, {252: 'NC', 253: 'WO', 254: 'CA'}, {252: 'NCR', 253: 'WOR', 254: 'CAR'})
-  if NUM_BANDERAS[0] > 64:  # Posición bajo la ventana de juego
+  if NUM_BANDERAS[0] > 67:  # Posición bajo la ventana de juego
     colInicial  = 0
     colFinal    = ancho_juego
     filaInicial = limite[1] * 8
@@ -1082,7 +1082,7 @@ def imprime_locs_objs (locs_objs):
     # coloresObjetos = ((0, 192, 192), (96, 192, 96),  (192, 192, 0))   # Colores cálidos
     coloresObjetos = ((0, 192, 192), (64, 128, 192), (128, 64, 192))  # Colores fríos
   else:  # Posición a la derecha de las banderas
-    colInicial  = ancho_juego + ((5 * 6) + 3) * (3 if NUM_BANDERAS[0] == 64 else 2)
+    colInicial  = ancho_juego + ((5 * 6) + 3) * (3 if NUM_BANDERAS[0] == 67 else 2)
     colFinal    = resolucion[0]
     filaInicial = 0
     numFilas    = limite[1]

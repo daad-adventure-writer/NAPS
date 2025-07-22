@@ -1167,7 +1167,7 @@ def incrementa_turno ():
   """Incrementa el número de turnos jugados"""
   banderaTurnosLSB = 31
   banderaTurnosMSB = 32
-  if NUM_BANDERAS[0] == 68:  # Quill para Sinclair QL
+  if NUM_BANDERAS[0] == 67:  # Quill para Sinclair QL
     banderaTurnosLSB = 62
     banderaTurnosMSB = 61
   elif NOMBRE_SISTEMA == 'GAC':
