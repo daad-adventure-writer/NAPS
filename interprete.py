@@ -1542,7 +1542,7 @@ if __name__ == '__main__':
       else:  # Es QUILL
         gui.partir_espacio = False
         gui.strPlataforma  = libreria.strPlataforma
-        if gui.strPlataforma == 'CPC':  # Plataforma Amstrad CPC
+        if gui.strPlataforma == 'CPC':  # Amstrad CPC
           gui.cod_inversa_ini = 9
           gui.cod_inversa_fin = 9
           del gui.paleta[0][:]
@@ -1553,7 +1553,7 @@ if __name__ == '__main__':
           gui.paleta[0].extend (((0, 0, 0), (0, 0, 128), (0, 0, 255), (128, 0, 0), (128, 0, 128), (128, 0, 255), (255, 0, 0), (255, 0, 128), (255, 0, 255),
               (0, 128, 0), (0, 128, 128), (0, 128, 255), (128, 128, 0), (128, 128, 128), (128, 128, 255), (255, 128, 0), (255, 128, 128), (255, 128, 255),
               (0, 255, 0), (0, 255, 128), (0, 255, 255), (128, 255, 0), (128, 255, 128), (128, 255, 255), (255, 255, 0), (255, 255, 128), (255, 255, 255)))
-        elif gui.strPlataforma == 'C64':  # Plataforma Commodore 64
+        elif gui.strPlataforma == 'C64':  # Commodore 64
           gui.cod_inversa_ini = 18
           gui.cod_inversa_fin = 146
           gui.cods_tinta      = libreria.cods_tinta
@@ -1563,6 +1563,11 @@ if __name__ == '__main__':
           #                        naranja, marrón, rojo claro, gris oscuro, gris, verde claro, azul claro, gris claro
           gui.paleta[0].extend (((0, 0, 0), (255, 255, 255), (136, 0, 0), (170, 255, 238), (204, 68, 204), (0, 204, 85), (0, 0, 170), (238, 238, 119),
                                 (221, 136, 85), (102, 68, 0), (255, 119, 119), (51, 51, 51), (119, 119, 119), (170, 255, 102), (0, 136, 255), (187, 187, 187)))
+        elif gui.strPlataforma == 'QL':  # Spectrum QL
+          gui.cod_inversa_ini = 24
+          gui.cod_reset       = 25
+          gui.cods_tinta      = libreria.cods_tinta
+          gui.colores_inicio  = libreria.colores_inicio
   else:  # Es DAAD
     gui.nueva_version = nueva_version
     if not gui.paleta[0]:

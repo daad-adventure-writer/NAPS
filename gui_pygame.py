@@ -92,6 +92,7 @@ cod_inversa_ini  = None      # Carácter que si se encuentra en una cadena, activ
 cod_juego_alto   = None      # Carácter que si se encuentra en una cadena, pasará al juego de caracteres alto
 cod_juego_bajo   = None      # Carácter que si se encuentra en una cadena, pasará al juego de caracteres bajo
 cod_papel        = None      # Carácter que si se encuentra en una cadena, cambiará el color de papel/fondo de la letra
+cod_reset        = None      # Carácter que si se encuentra en una cadena, aplicará los colores de inicio para tinta y papel
 cod_tabulador    = None      # Carácter que si se encuentra en una cadena, pondrá espacios hasta mitad o final de línea
 cod_tinta        = None      # Carácter que si se encuentra en una cadena, cambiará el color de tinta de la letra
 cods_tinta       = {}        # Caracteres que si se encuentran en una cadena, cambiará el color de tinta por el del valor
@@ -1324,7 +1325,7 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
       lineas_mas[elegida] += 1
       if iniLineas[i + 1] - 1 in colores:  # Cambiamos los colores si al final de la línea cambiaban
         fuente.set_palette (colores[iniLineas[i + 1] - 1])
-      if textoNormal and cursor[0] + len (lineas[i]) < tope[0]:  # Cabían más caracteres al final de la línea
+      if textoNormal and strPlataforma != 'QL' and cursor[0] + len (lineas[i]) < tope[0]:  # Cabían más caracteres al final de la línea
         cursor[0] += len (lineas[i])
         imprime_linea (chr (16) * (tope[0] - cursor[0]))
   if lineas:  # Había alguna línea
@@ -1582,15 +1583,19 @@ def parseaColores (cadena, restauraColores = False):
   else:
     colores = {}
   inversa    = False  # Si se invierten o no papel y fondo
-  omitir     = 0      # Número de caracteres pendientes de omitir (los dejará tal cual están)
+  omitir     = 0      # Número de caracteres pendientes de omitir por completo
   sigBrillo  = False  # Si el siguiente carácter indica si se pone o quita brillo al color de tinta
   sigFlash   = False  # Si el siguiente carácter indica si se pone o quita efecto flash
   sigInversa = False  # Si el siguiente carácter indica si se invierten o no papel y fondo
   sigPapel   = False  # Si el siguiente carácter indica el color de papel/fondo
   sigTinta   = False  # Si el siguiente carácter indica el color de tinta
   sinColores = ''     # Cadena sin los códigos de control de colores
+  talCual    = 0      # Número de caracteres pendientes de omitir dejándolos tal cual están
   for i in range (len (cadena)):
     if omitir:
+      omitir -= 1
+      continue
+    if talCual:
       omitir     -= 1
       sinColores += cadena[i]
       continue
@@ -1633,8 +1638,16 @@ def parseaColores (cadena, restauraColores = False):
         sigPapel = True
       else:
         sigTinta = True
+    elif c == cod_reset:
+      inversa = False
+      tinta, papel = colores_inicio[:2]
+      colores[len (sinColores)] = (paleta[brillo][tinta], paleta[brillo][papel])  # Color de tinta y papel a aplicar
     elif c in cods_tinta:
-      tinta = cods_tinta[c]
+      if strPlataforma == 'QL' and i < len (cadena) - 1 and ord (cadena[i + 1]) == cod_inversa_ini:
+        papel  = cods_tinta[c]
+        omitir = 1
+      else:
+        tinta = cods_tinta[c]
       colores[len (sinColores)] = (paleta[brillo][tinta], paleta[brillo][papel])  # Color de tinta y papel a aplicar
     elif strPlataforma == 'CPC' and c in range (1, 9):
       if c < 5:
@@ -1647,7 +1660,7 @@ def parseaColores (cadena, restauraColores = False):
       sinColores += '\t'
     elif c == cod_columna:
       sinColores += '\r'
-      omitir = 2
+      talCual = 2
     elif cadena[i] not in izquierda and cadena[i] in noEnFuente:
       sinColores += noEnFuente[cadena[i]]
     elif NOMBRE_SISTEMA == 'QUILL' and strPlataforma in ('Atari800', 'PC') and c > 127:  # Es un carácter en inversa

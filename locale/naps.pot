@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 24.04\n"
 "Report-Msgid-Bugs-To: jmfo1982@gmail.com\n"
-"POT-Creation-Date: 2025-07-17 00:22+0200\n"
+"POT-Creation-Date: 2025-07-23 20:39+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: TWO LETTER ISO LANGUAGE CODE\n"
@@ -1343,7 +1343,7 @@ msgstr ""
 msgid " turn"
 msgstr ""
 
-#: libreria_quill.py:108 libreria_quill.py:1428
+#: libreria_quill.py:108 libreria_quill.py:1471
 msgid "s"
 msgstr ""
 
@@ -1403,129 +1403,137 @@ msgstr ""
 msgid "Status table"
 msgstr ""
 
-#: libreria_quill.py:718 libreria_quill.py:1037 libreria_quill.py:1207
+#: libreria_quill.py:720 libreria_quill.py:1039 libreria_quill.py:1209
 msgid "Missing condact"
 msgstr ""
 
-#: libreria_quill.py:1269 libreria_quill.py:1271 libreria_quill.py:1276
-#: libreria_quill.py:1382
+#: libreria_quill.py:1271 libreria_quill.py:1273 libreria_quill.py:1278
+#: libreria_quill.py:1425
 msgid "BRIGHT"
 msgstr ""
 
-#: libreria_quill.py:1279 libreria_quill.py:1281 libreria_quill.py:1286
-#: libreria_quill.py:1380
+#: libreria_quill.py:1281 libreria_quill.py:1283 libreria_quill.py:1288
+#: libreria_quill.py:1423
 msgid "FLASH"
 msgstr ""
 
-#: libreria_quill.py:1289 libreria_quill.py:1290 libreria_quill.py:1295
-#: libreria_quill.py:1362 libreria_quill.py:1367 libreria_quill.py:1384
-#: libreria_quill.py:1390 libreria_quill.py:1402
+#: libreria_quill.py:1291 libreria_quill.py:1292 libreria_quill.py:1301
+#: libreria_quill.py:1383 libreria_quill.py:1388 libreria_quill.py:1400
+#: libreria_quill.py:1413 libreria_quill.py:1427 libreria_quill.py:1433
+#: libreria_quill.py:1445
 msgid "INVERSE"
 msgstr ""
 
-#: libreria_quill.py:1296 libreria_quill.py:1298 libreria_quill.py:1306
-#: libreria_quill.py:1309 libreria_quill.py:1376 libreria_quill.py:1395
+#: libreria_quill.py:1302 libreria_quill.py:1304 libreria_quill.py:1312
+#: libreria_quill.py:1315 libreria_quill.py:1318 libreria_quill.py:1321
+#: libreria_quill.py:1396 libreria_quill.py:1410 libreria_quill.py:1419
+#: libreria_quill.py:1438
 msgid "INK"
 msgstr ""
 
-#: libreria_quill.py:1312 libreria_quill.py:1313 libreria_quill.py:1315
-#: libreria_quill.py:1386
+#: libreria_quill.py:1324 libreria_quill.py:1325 libreria_quill.py:1327
+#: libreria_quill.py:1429
 msgid "OVER"
 msgstr ""
 
-#: libreria_quill.py:1316 libreria_quill.py:1318 libreria_quill.py:1323
-#: libreria_quill.py:1378
+#: libreria_quill.py:1328 libreria_quill.py:1330 libreria_quill.py:1335
+#: libreria_quill.py:1338 libreria_quill.py:1341 libreria_quill.py:1398
+#: libreria_quill.py:1407 libreria_quill.py:1421
 msgid "PAPER"
 msgstr ""
 
-#: libreria_quill.py:1326 libreria_quill.py:1327 libreria_quill.py:1333
-#: libreria_quill.py:1392
+#: libreria_quill.py:1344 libreria_quill.py:1346 libreria_quill.py:1415
+msgid "RESET"
+msgstr ""
+
+#: libreria_quill.py:1347 libreria_quill.py:1348 libreria_quill.py:1354
+#: libreria_quill.py:1435
 msgid "TAB"
 msgstr ""
 
-#: libreria_quill.py:1423
+#: libreria_quill.py:1466
 msgid "Location 0's description, the initial location."
 msgstr ""
 
-#: libreria_quill.py:1426
+#: libreria_quill.py:1469
 msgid "n"
 msgstr ""
 
-#: libreria_quill.py:1427
+#: libreria_quill.py:1470
 msgid "nort"
 msgstr ""
 
-#: libreria_quill.py:1429
+#: libreria_quill.py:1472
 msgid "sout"
 msgstr ""
 
-#: libreria_quill.py:1430
+#: libreria_quill.py:1473
 msgid "e"
 msgstr ""
 
-#: libreria_quill.py:1431
+#: libreria_quill.py:1474
 msgid "east"
 msgstr ""
 
-#: libreria_quill.py:1432
+#: libreria_quill.py:1475
 msgid "w"
 msgstr ""
 
-#: libreria_quill.py:1433
+#: libreria_quill.py:1476
 msgid "west"
 msgstr ""
 
-#: libreria_quill.py:1434
+#: libreria_quill.py:1477
 msgid "i"
 msgstr ""
 
-#: libreria_quill.py:1435
+#: libreria_quill.py:1478
 msgid "inve"
 msgstr ""
 
-#: libreria_quill.py:1436
+#: libreria_quill.py:1479
 msgid "desc"
 msgstr ""
 
-#: libreria_quill.py:1437
+#: libreria_quill.py:1480
 msgid "look"
 msgstr ""
 
-#: libreria_quill.py:1438
+#: libreria_quill.py:1481
 msgid "quit"
 msgstr ""
 
-#: libreria_quill.py:1439
+#: libreria_quill.py:1482
 msgid "ligh"
 msgstr ""
 
-#: libreria_quill.py:1441
+#: libreria_quill.py:1484
 msgid "Object 0's description, source of light."
 msgstr ""
 
-#: libreria_quill.py:1446
+#: libreria_quill.py:1489
 msgid "Text of message 0."
 msgstr ""
 
-#: libreria_quill.py:1738
+#: libreria_quill.py:1781
 #, python-format
 msgid ""
 "Export failed because condact %(name)s doesn't exist on target platform "
 "%(platform)s"
 msgstr ""
 
-#: libreria_quill.py:1747
+#: libreria_quill.py:1790
 #, python-format
 msgid ""
 "Inexistent condact %(name)s on %(platform)s, replaced by %(replacement)s"
 msgstr ""
 
-#: libreria_quill.py:1753
+#: libreria_quill.py:1796
 #, python-format
 msgid "Condact %(name)s changed from code %(origCode)d to %(destCode)d"
 msgstr ""
 
-#: libreria_quill.py:1765
+#: libreria_quill.py:1808
 #, python-format
 msgid ""
 "Number of parameters for condact %(name)s changed from %(lenBefore)d to "

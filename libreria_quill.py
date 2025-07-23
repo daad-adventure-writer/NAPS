@@ -473,6 +473,7 @@ Para compatibilidad con el IDE:
   NUM_ATRIBUTOS[0]      = 1
   NUM_BANDERAS[0]       = 67
   NUM_BANDERAS_ACC[0]   = 63
+  cods_tinta.update ({16: 0, 17: 1, 18: 2, 19: 3, 20: 4, 21: 5, 22: 6, 23: 7})
   fichero.seek (0)
   if fichero.read (18) == b']!QDOS File Header':  # Tiene cabecera QDOS puesta por el emulador
     despl_ini = -30  # Es de 30 bytes en sQLux
@@ -1293,6 +1294,8 @@ def escribe_secs_ctrl (cadena):
           convertida += chr (18 if inversa else 146)
         elif strPlataforma == 'CPC':
           convertida += chr (9)
+        elif strPlataforma == 'QL':
+          convertida += chr (24)
         elif strPlataforma == 'ZX':
           convertida += chr (20) + chr (1 if inversa else 0)
         i += len (_('INVERSE')) + 3
@@ -1309,6 +1312,9 @@ def escribe_secs_ctrl (cadena):
           i += len (_('INK')) + 3
         elif strPlataforma == 'CPC' and codigo < 4:
           convertida += chr (codigo + 1)
+          i += len (_('INK')) + 3
+        elif strPlataforma == 'QL' and codigo < 8:
+          convertida += chr (16 + codigo)
           i += len (_('INK')) + 3
         elif strPlataforma == 'ZX' and codigo < 10:  # Aparte de los colores 0-7, están los valores 8 (transparente) y 9 (contraste)
           convertida += chr (16) + chr (codigo)
@@ -1327,11 +1333,17 @@ def escribe_secs_ctrl (cadena):
         if strPlataforma == 'CPC' and codigo < 4:
           convertida += chr (codigo + 5)
           i += len (_('PAPER')) + 3
+        elif strPlataforma == 'QL' and codigo < 8:
+          convertida += chr (16 + codigo) + chr (24)
+          i += len (_('PAPER')) + 3
         elif strPlataforma == 'ZX' and codigo < 10:  # Aparte de los colores 0-7, están los valores 8 (transparente) y 9 (contraste)
           convertida += chr (17) + chr (codigo)
           i += len (_('PAPER')) + 3
         else:  # No es un número de color permitido
           convertida += c  # Lo trataremos literalmente como ese texto \PAPEL_loquesea
+      elif cadena[i + 1:i + len (_('RESET')) + 1] == _('RESET') and strPlataforma == 'QL':
+        convertida += chr (25)
+        i += len (_('RESET'))
       elif cadena[i + 1:i + len (_('TAB')) + 2] == (_('TAB') + '_') and strPlataforma == 'ZX':
         columna = cadena[i + len (_('TAB')) + 2:i + len (_('TAB')) + 4]
         try:
@@ -1387,6 +1399,20 @@ def lee_secs_ctrl (cadena):
     elif o == 9 and strPlataforma == 'CPC':
       convertida += '\\' + _('INVERSE') + ('_00' if inversa else '_01')
       inversa     = not inversa
+    elif strPlataforma == 'QL' and o in range (16, 26):
+      convertida += '\\'
+      if o < 24:
+        if (i + 1) < len (cadena):
+          if ord (cadena [i + 1]) == 24:
+            convertida += _('PAPER')
+            i += 1  # El siguiente carácter ya se ha procesado
+          else:
+            convertida += _('INK')
+          convertida += '_%02X' % (o - 16)
+      elif o == 24:
+        convertida += _('INVERSE') + '_01'
+      else:  # o == 25
+        convertida += _('RESET')
     elif strPlataforma == 'ZX' and o in range (16, 22) and (i + 1) < len (cadena):
       convertida += '\\'
       if o == 16:
