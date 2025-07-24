@@ -143,8 +143,11 @@ def da_peso (objeto, nivel = 0):
 def imprime_mensaje (texto):
   if not texto:
     return
+  if NOMBRE_SISTEMA == 'QUILL':
+    gui.imprime_cadena (texto)
+    return
   objetoReferido = ''
-  if NOMBRE_SISTEMA != 'QUILL' and banderas[51] < len (desc_objs):
+  if banderas[51] < len (desc_objs):
     objetoReferido = desc_objs[banderas[51]]
     if '.' in objetoReferido:
       objetoReferido = objetoReferido[:objetoReferido.index ('.')]
@@ -161,7 +164,7 @@ def imprime_mensaje (texto):
       partes.append (texto[iniParte:])
   else:
     partes = [texto]
-  tiempoTimeout = banderas[48] if NOMBRE_SISTEMA != 'QUILL' and banderas[49] & 2 else 0
+  tiempoTimeout = banderas[48] if banderas[49] & 2 else 0
   for parte in partes:
     if parte == '\x0b':  # Equivale a \b
       busca_condacto ('a0_CLS') ()
