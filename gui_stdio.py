@@ -157,8 +157,10 @@ def abre_ventana (traza, factorEscala, bbdd):
     for codigo, color in tuple (cods_tinta.items()):
       del (cods_tinta[codigo])
       cods_tinta[chr (codigo)] = color
-    cod_inversa_fin = chr (cod_inversa_fin)
-    cod_inversa_ini = chr (cod_inversa_ini)
+    if cod_inversa_fin != None:
+      cod_inversa_fin = chr (cod_inversa_fin)
+    if cod_inversa_ini != None:
+      cod_inversa_ini = chr (cod_inversa_ini)
 
 def borra_pantalla (desdeCursor = False, noRedibujar = False):
   """Limpia la subventana de impresión"""
