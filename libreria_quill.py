@@ -618,14 +618,14 @@ def guarda_bd (bbdd):
     guarda_int1 (13)  # Contraste de la tinta
   else:
     guarda_int1 (colores_inicio[0])  # Color de tinta
-  if formato == 'qql' and len (colores_inicio) > 2:
+  if formato == 'qql' and len (colores_inicio) > 3:
     guarda_int1 (colores_inicio[3])  # Quill no usa este valor. Lo usaremos para almacenar valor de brillo
   elif formato == 'dtb':
     guarda_int1 (176)  # Papel verde oscuro
   else:
     guarda_int1 (colores_inicio[1])  # Color de papel
   if formato == 'qql':
-    guarda_int1 (colores_inicio[4] if len (colores_inicio) > 3 else 2)  # Anchura del borde
+    guarda_int1 (colores_inicio[4] if len (colores_inicio) > 4 else 2)  # Anchura del borde
   if formato == 'dtb':
     guarda_int1 (176)  # Borde verde oscuro
   else:
