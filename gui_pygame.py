@@ -1682,7 +1682,7 @@ def parseaColores (cadena, restauraColores = False):
         inversa = False
       sinColores += cadena[i]
   if version_info[0] < 3:  # La versión de Python es 2.X
-    sinColores = sinColores.encode ('iso-8859-15')
+    sinColores = sinColores.encode ('iso-8859-15', errors = 'replace')
   return sinColores, colores
 
 def precargaGraficos ():

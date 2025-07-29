@@ -943,6 +943,11 @@ class ModalEntradaTexto (QDialog):
 
   def daTexto (self):
     """Devuelve el texto editado"""
+    if sys.version_info[0] < 3:
+      texto = self.campo.toPlainText()
+      if not isinstance (texto, unicode):
+        texto = texto.decode ('utf8', errors = 'replace')
+      return mod_actual.escribe_secs_ctrl (texto.encode ('iso-8859-15', errors = 'replace'))
     return mod_actual.escribe_secs_ctrl (str (self.campo.toPlainText()))
 
 class ModeloTextos (QAbstractTableModel):
@@ -1796,7 +1801,9 @@ def daTextoImprimible (texto):
       convertido += c
     i += 1
   if sys.version_info[0] < 3:
-    return convertido.decode ('iso-8859-15')
+    if not isinstance (convertido, unicode):
+      convertido = convertido.decode ('iso-8859-15', errors = 'replace')
+    return convertido.encode ('utf8', errors = 'replace')
   return convertido
 
 def daTituloProceso (numero):

@@ -321,6 +321,10 @@ petscii_a_ascii = maketrans (''.join (('%c' % c for c in range (256))), petscii)
 ascii_para_petscii = ''.join (('%c' % c for c in tuple (range (65)) + tuple (range (193, 219)) + tuple (range (91, 97)))) + 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' + ''.join (('%c' % c for c in range (123, 256)))
 ascii_a_petscii = maketrans (''.join (('%c' % c for c in range (256))), ascii_para_petscii)
 
+conversion_plataforma = {
+  'QL': {'`': '£', '\x81': 'ã', '\x82': 'å', '\x83': 'é', '\x84': 'ö', '\x85': 'õ', '\x86': 'ø', '\x87': 'ü', '\x88': 'ç', '\x89': 'ñ', '\x8a': 'æ', '\x8b': '½', '\x8c': 'á', '\x8d': 'à', '\x8e': 'â', '\x8f': 'ë', '\x90': 'è', '\x91': 'ê', '\x92': 'ï', '\x93': 'í', '\x94': 'ì', '\x95': 'î', '\x96': 'ó', '\x97': 'ò', '\x98': 'ô', '\x99': 'ú', '\x9a': 'ù', '\x9b': 'û', '\x9c': 'ß', '\x9d': '¢', '\x9e': '¥', '\x9f': '`', '\xa0': 'Ä', '¡': 'Ã', '¢': 'Â', '£': 'É', '\xa4': 'Ö', '¥': 'Õ', '§': 'Ü', '\xa8': 'Ç', '©': 'Ñ', 'ª': 'Æ', '«': '¼', '¬': u'\u03b1', '\xad': u'\u03b4', '®': u'\u0398', '¯': u'\u03bb', '°': 'µ', '±': u'\u03c0', '²': u'\u03a6', '³': '¡', '\xb4': '¿', 'µ': u'\u1e62', '¶': '§', '·': u'\u00a4', '\xb8': '«', '¹': '»', '»': '÷', '\xbc': u'\u2190', '\xbd': u'\u2192', '\xbe': u'\u2191', '¿': u'\u2193'},
+}
+
 # Nombre completo de cada plataforma por su identificador en strPlataforma
 plataformas = {
   'Atari800': 'Atari 800',
@@ -474,6 +478,7 @@ Para compatibilidad con el IDE:
   NUM_BANDERAS[0]       = 67
   NUM_BANDERAS_ACC[0]   = 63
   cods_tinta.update ({16: 0, 17: 1, 18: 2, 19: 3, 20: 4, 21: 5, 22: 6, 23: 7})
+  conversion.update (conversion_plataforma['QL'])
   fichero.seek (0)
   if fichero.read (18) == b']!QDOS File Header':  # Tiene cabecera QDOS puesta por el emulador
     despl_ini = -30  # Es de 30 bytes en sQLux
@@ -760,10 +765,14 @@ def guarda_bd (bbdd):
   # Recopilamos los textos de la aventura
   # TODO: eliminar espacios superfluos a final de línea en cada línea cuando se parten con nueva línea, salvo la última
   #       ojo que puede haber espacios no superfluos, si causan nueva línea adicional por superar ancho de línea o si cambian el color de fondo
+  diccConversion = {}
+  if plataformaDestino in conversion_plataforma:
+    for entrada, salida in conversion_plataforma[plataformaDestino].items():
+      diccConversion[salida] = ord (entrada)
   for posCabecera, mensajes in ((CAB_POS_LST_POS_OBJS, desc_objs), (CAB_POS_LST_POS_LOCS, desc_locs), (CAB_POS_LST_POS_MSGS_USR, msgs_usr), (CAB_POS_LST_POS_MSGS_SYS, msgs_sys)):
     posicion = carga_desplazamiento (posCabecera) + desplIniFich
     for m in range (len (mensajes)):
-      secuencia = daCadena (mensajes[m], finCadena, nuevaLinea, conversion)
+      secuencia = daCadena (mensajes[m], finCadena, nuevaLinea, conversion, diccConversion)
       porColocar[posicion + m * tamDespl] = secuencia
 
   # Detectamos las secuencias reubicables duplicadas
@@ -1224,9 +1233,12 @@ def guarda_bd_ql (bbdd):
     guarda_desplazamiento (ocupado)  # Posición de la entrada de relleno
     ocupado += 2
   # Guardamos los textos de la aventura
+  diccConversion = {}
+  for entrada, salida in conversion_plataforma['QL'].items():
+    diccConversion[salida] = ord (entrada)
   fich_sal.seek (carga_desplazamiento4 (desplIniFich + tamCabecera))  # Vamos a la posición de la descripción del objeto 0
   for mensajes in (desc_objs, desc_locs, msgs_usr, msgs_sys):
-    guardaMsgs (mensajes, finCadena = 0, nuevaLinea = 254)
+    guardaMsgs (mensajes, finCadena = 0, nuevaLinea = 254, diccConversion = diccConversion)
   # Guardamos las listas de conexiones de cada localidad
   for lista in conexiones:
     for conexion in lista:
@@ -1609,6 +1621,8 @@ cadenas es la lista donde almacenar las cadenas que se carguen"""
         saltaSiguiente = not saltaSiguiente
       elif caracter == nueva_linea:  # Un carácter de nueva línea en la cadena
         cadena.append ('\n')
+      elif chr (caracter) in conversion:
+        cadena.append (conversion[chr (caracter)])
       else:
         cadena.append (chr (caracter))
     if strPlataforma == 'C64':
@@ -1769,6 +1783,8 @@ def convierteCondacto (codigoCondacto, nombreCondacto, parametros, plataforma, p
     for diccAcciones in (acciones_comun, acciones_plataforma[plataforma]):
       for codigo in diccAcciones:
         condactos_destino[plataforma][diccAcciones[codigo][0]] = (100 + codigo, ) + diccAcciones[codigo][1:2] + (True, diccAcciones[codigo][2])
+    # import pprint
+    # pprint.pprint (sorted (condactos_destino[plataforma].items(), key = lambda item: item[1][0]))
 
   if nombreCondacto not in condactos_destino[plataforma]:  # Ese condacto no está en la plataforma de destino
     if len (condactos[codigoCondacto][1]) == 0 and 'ANYKEY' in condactos_destino[plataforma]:
@@ -1815,7 +1831,7 @@ def convierteCondacto (codigoCondacto, nombreCondacto, parametros, plataforma, p
   # Tendrá menos parámetros que antes
   return condactoDestino, nombreCondacto, parametros[:numParametrosDest]
 
-def daCadena (cadena, finCadena, nuevaLinea, conversion = None):
+def daCadena (cadena, finCadena, nuevaLinea, conversion = None, diccConversion = {}):
   """Devuelve una cadena en el formato de Quill"""
   if conversion:
     cadena = cadena.translate (conversion)
@@ -1823,6 +1839,8 @@ def daCadena (cadena, finCadena, nuevaLinea, conversion = None):
   for caracter in cadena:
     if caracter == '\n':
       caracter = nuevaLinea
+    elif caracter in diccConversion:
+      caracter = diccConversion[caracter]
     else:
       caracter = ord (caracter)
     resultado.append (caracter ^ 255)
@@ -1845,23 +1863,25 @@ def daVocabulario (conversion = None):
   resultado.append (0)  # Fin del vocabulario
   return resultado
 
-def guardaCadena (cadena, finCadena, nuevaLinea, conversion = None):
+def guardaCadena (cadena, finCadena, nuevaLinea, conversion = None, diccConversion = {}):
   """Guarda una cadena en el formato de Quill"""
   if conversion:
     cadena = cadena.translate (conversion)
   for caracter in cadena:
     if caracter == '\n':
       caracter = nuevaLinea
+    elif caracter in diccConversion:
+      caracter = diccConversion[caracter]
     else:
       caracter = ord (caracter)
     guarda_int1 (caracter ^ 255)
   guarda_int1 (finCadena ^ 255)  # Fin de cadena
 
-def guardaMsgs (msgs, finCadena, nuevaLinea, conversion = None):
+def guardaMsgs (msgs, finCadena, nuevaLinea, conversion = None, diccConversion = {}):
   """Guarda una sección de mensajes sobre el fichero de salida, y devuelve cuántos bytes ocupa la sección"""
   ocupado = 0
   for mensaje in msgs:
-    guardaCadena (mensaje, finCadena, nuevaLinea, conversion)
+    guardaCadena (mensaje, finCadena, nuevaLinea, conversion, diccConversion)
     ocupado += len (mensaje) + 1
   return ocupado
 
