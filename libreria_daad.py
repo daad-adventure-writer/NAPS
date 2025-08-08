@@ -63,15 +63,16 @@ func_nueva = ''
 
 # Constantes que se exportan (fuera del paquete)
 
-EXT_SAVEGAME   = 'agp'   # Extensión para las partidas guardadas
-INDIRECCION    = True    # El parser soporta indirección (para el IDE)
-LONGITUD_PAL   = 5       # Longitud máxima para las palabras de vocabulario
-NOMBRE_SISTEMA = 'DAAD'  # Nombre de este sistema
-NUM_ATRIBUTOS  = [2]     # Número de atributos de objeto
-NUM_BANDERAS   = [256]   # Número de banderas del parser
-NOMB_COMO_VERB = [20]    # Número de nombres convertibles a verbo
-PREP_COMO_VERB = 0       # Número de preposiciones convertibles a verbo
-NOMBRES_PROCS  = []      # Nombres de las primeras tablas de proceso (para el IDE)
+EXT_SAVEGAME     = 'agp'   # Extensión para las partidas guardadas
+INDIRECCION      = True    # El parser soporta indirección (para el IDE)
+LONGITUD_PAL     = 5       # Longitud máxima para las palabras de vocabulario
+NOMBRE_SISTEMA   = 'DAAD'  # Nombre de este sistema
+NUM_ATRIBUTOS    = [2]     # Número de atributos de objeto
+NUM_BANDERAS     = [256]   # Número de banderas del parser
+NUM_BANDERAS_ACC = [256]   # Número de banderas del parser accesibles por el programador
+NOMB_COMO_VERB   = [20]    # Número de nombres convertibles a verbo
+PREP_COMO_VERB   = 0       # Número de preposiciones convertibles a verbo
+NOMBRES_PROCS    = []      # Nombres de las primeras tablas de proceso (para el IDE)
 # Nombres de los tipos de palabra (para el IDE y el intérprete)
 TIPOS_PAL    = (_('Verb'), _('Adverb'), _('Noun'), _('Adjective'), _('Preposition'), _('Conjugation'), _('Pronoun'))
 TIPOS_PAL_ES = ('Verbo', 'Adverbio', 'Nombre', 'Adjetivo', 'Preposicion', 'Conjuncion', 'Pronombre')
