@@ -263,7 +263,7 @@ def a0_TURNS ():
     textoPunto = '.'
   else:
     textoS     = msgs_sys[19]
-    textoPunto = '.'
+    textoPunto = msgs_sys[20]
   gui.imprime_cadena (msgs_sys[17])  # 'Has jugado '
   turnos = banderas[banderaTurnosLSB] + banderas[banderaTurnosMSB] * 256
   gui.imprime_cadena (str (turnos))
