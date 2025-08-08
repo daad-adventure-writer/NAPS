@@ -94,6 +94,7 @@ abreviaturas   = []
 alinear        = False  # Si alineamos con relleno (padding) las listas de desplazamientos a posiciones pares
 compatibilidad = True   # Modo de compatibilidad con los intérpretes originales
 despl_ini      = 0      # Desplazamiento inicial para cargar desde memoria
+id_plataforma  = ''     # Identificador de plataforma como cadena
 
 # Desplazamientos iniciales para cargar desde memoria, de las plataformas en las que éste no es 0
 despl_ini_plat = {

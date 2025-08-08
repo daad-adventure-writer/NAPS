@@ -1317,7 +1317,7 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
         esperaMas (tiempo)  # Paginación
     elif 0 in colores and not lineas[i]:  # La primera línea es sólo \n
       fuente.set_palette (colores[0])  # Cargamos el color inicial de la cadena
-    if cod_brillo or cods_tinta or strPlataforma in ('Atari800', 'CPC', 'PC'):
+    if cod_brillo or cods_tinta or id_plataforma in ('Atari800', 'CPC', 'PC'):
       imprime_linea (lineas[i], redibujar = redibujar, colores = colores, inicioLinea = iniLineas[i])
     else:
       imprime_linea (lineas[i], redibujar = redibujar, colores = colores)
@@ -1325,7 +1325,7 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
       lineas_mas[elegida] += 1
       if iniLineas[i + 1] - 1 in colores:  # Cambiamos los colores si al final de la línea cambiaban
         fuente.set_palette (colores[iniLineas[i + 1] - 1])
-      if textoNormal and strPlataforma != 'QL' and cursor[0] + len (lineas[i]) < tope[0]:  # Cabían más caracteres al final de la línea
+      if textoNormal and id_plataforma != 'QL' and cursor[0] + len (lineas[i]) < tope[0]:  # Cabían más caracteres al final de la línea
         cursor[0] += len (lineas[i])
         imprime_linea (chr (16) * (tope[0] - cursor[0]))
   if lineas:  # Había alguna línea
@@ -1576,7 +1576,7 @@ def parseaColores (cadena, restauraColores = False):
   global brillo
   papel = color_subv[elegida][1]  # Color de papel/fondo
   tinta = daTinta()               # Color de tinta
-  if not cod_brillo and not cods_tinta and strPlataforma not in ('Atari800', 'CPC', 'PC'):
+  if not cod_brillo and not cods_tinta and id_plataforma not in ('Atari800', 'CPC', 'PC'):
     return cadena, {0: (paleta[brillo][tinta], paleta[brillo][papel])}
   if restauraColores:
     colores = {0: (paleta[brillo][tinta], paleta[brillo][papel])}
@@ -1643,13 +1643,13 @@ def parseaColores (cadena, restauraColores = False):
       tinta, papel = colores_inicio[:2]
       colores[len (sinColores)] = (paleta[brillo][tinta], paleta[brillo][papel])  # Color de tinta y papel a aplicar
     elif c in cods_tinta:
-      if strPlataforma == 'QL' and i < len (cadena) - 1 and ord (cadena[i + 1]) == cod_inversa_ini:
+      if id_plataforma == 'QL' and i < len (cadena) - 1 and ord (cadena[i + 1]) == cod_inversa_ini:
         papel  = cods_tinta[c]
         omitir = 1
       else:
         tinta = cods_tinta[c]
       colores[len (sinColores)] = (paleta[brillo][tinta], paleta[brillo][papel])  # Color de tinta y papel a aplicar
-    elif strPlataforma == 'CPC' and c in range (1, 9):
+    elif id_plataforma == 'CPC' and c in range (1, 9):
       if c < 5:
         tinta = tintas_cpc[c - 1]
         colores[len (sinColores)] = (paleta[0][tinta], paleta[0][papel])  # Color de tinta y papel a aplicar
@@ -1663,7 +1663,7 @@ def parseaColores (cadena, restauraColores = False):
       talCual = 2
     elif cadena[i] not in izquierda and cadena[i] in noEnFuente:
       sinColores += noEnFuente[cadena[i]]
-    elif NOMBRE_SISTEMA == 'QUILL' and strPlataforma in ('Atari800', 'PC') and c > 127:  # Es un carácter en inversa
+    elif NOMBRE_SISTEMA == 'QUILL' and id_plataforma in ('Atari800', 'PC') and c > 127:  # Es un carácter en inversa
       if not inversa:  # Sólo lo hacemos para el primer carácter consecutivo en inversa
         color = papel
         papel = tinta
@@ -1674,7 +1674,7 @@ def parseaColores (cadena, restauraColores = False):
     elif paleta[1] and c < 32 and c != ord ('\n'):  # Códigos de control de Spectrum ZX inválidos o desconocidos
       continue
     else:
-      if inversa and NOMBRE_SISTEMA == 'QUILL' and strPlataforma in ('Atari800', 'PC'):  # Este carácter terminará la impresión en inversa, al no estar en inversa
+      if inversa and NOMBRE_SISTEMA == 'QUILL' and id_plataforma in ('Atari800', 'PC'):  # Este carácter terminará la impresión en inversa, al no estar en inversa
         color = papel
         papel = tinta
         tinta = color

@@ -457,7 +457,7 @@ def inicializa ():
     gui.cambia_color_borde (libreria.colores_inicio[2])
     if len (libreria.colores_inicio) > 3:
       gui.cambia_color_brillo (libreria.colores_inicio[3])
-      if len (libreria.colores_inicio) > 5 and libreria.strPlataforma == 'CPC':
+      if len (libreria.colores_inicio) > 5 and libreria.id_plataforma == 'CPC':
         gui.cambia_tintas_cpc ([libreria.colores_inicio[1], libreria.colores_inicio[0]] + libreria.colores_inicio[4:])
     gui.elige_subventana (gui.elegida)  # Para que se apliquen los colores iniciales a la fuente
 
@@ -1377,6 +1377,7 @@ if __name__ == '__main__':
 
   if os.path.isdir (args.bbdd):
     gui.NOMBRE_SISTEMA = 'DAAD'
+    gui.id_plataforma  = ''
     libreria    = __import__ ('libreria_daad')
     partes, gfx = libreria.busca_partes (args.bbdd)
     if not partes:
@@ -1441,6 +1442,7 @@ if __name__ == '__main__':
       correcto = False
     if correcto:
       libreria = modulo
+      gui.id_plataforma  = libreria.id_plataforma
       gui.num_objetos    = libreria.num_objetos
       gui.NOMBRE_SISTEMA = libreria.NOMBRE_SISTEMA
       gui.NUM_BANDERAS   = libreria.NUM_BANDERAS
@@ -1456,7 +1458,7 @@ if __name__ == '__main__':
     prn ('Error al tratar de cargar la base de datos: formato incompatible o fichero corrupto', file = sys.stderr)
     sys.exit()
 
-  if extension == 'sna' or libreria.plataforma == 1 or (args.columns and libreria.strPlataforma == 'PC'):
+  if extension == 'sna' or libreria.plataforma == 1 or (args.columns and libreria.id_plataforma == 'PC'):
     # Plataformas con menos de 53 columnas
     if extension == 'sna' and args.gui not in ('stdio', 'telegram'):
       # Trataremos de cargar fuente tipográfica desde el snapshot
@@ -1465,9 +1467,9 @@ if __name__ == '__main__':
       gui.carga_fuente_zx (bbdd)
       gui.prepara_topes (args.columns if args.columns else 32, 24)
     elif extension in ('bin', 'dtb', 'prg'):  # Bases de datos de Amstrad CPC, Commodore 64 o Atari 800
-      gui.prepara_topes (args.columns if args.columns else 40, 24 if libreria.strPlataforma == 'Atari800' else 25)
+      gui.prepara_topes (args.columns if args.columns else 40, 24 if libreria.id_plataforma == 'Atari800' else 25)
     elif args.columns or args.gui not in ('stdio', 'telegram'):
-      if libreria.strPlataforma == 'QL':
+      if libreria.id_plataforma == 'QL':
         gui.prepara_topes (args.columns if args.columns else 37, 22)
       else:
         gui.prepara_topes (args.columns if args.columns else 42, 24)
@@ -1518,7 +1520,7 @@ if __name__ == '__main__':
       prn ('No hay ningún fichero ni carpeta con ese nombre:', args.ruta_graficos, file = sys.stderr)
 
   if NOMBRE_SISTEMA != 'DAAD':
-    if NOMBRE_SISTEMA != 'GAC' and libreria.strPlataforma != 'QL':
+    if NOMBRE_SISTEMA != 'GAC' and libreria.id_plataforma != 'QL':
       gui.todo_mayusculas = True
     if not gui.paleta[0]:
       # Colores en este orden: negro, azul, rojo, magenta, verde, cyan, amarillo, blanco
@@ -1532,7 +1534,7 @@ if __name__ == '__main__':
       gui.cod_juego_alto = 48  # @
       gui.cod_juego_bajo = 48
     elif NOMBRE_SISTEMA == 'QUILL' or (NOMBRE_SISTEMA == 'PAWS' and extension == 'sna'):  # Quill, o PAWS de Spectrum
-      if NOMBRE_SISTEMA == 'PAWS' or libreria.strPlataforma == 'ZX':
+      if NOMBRE_SISTEMA == 'PAWS' or libreria.id_plataforma == 'ZX':
         gui.cod_brillo    = 19
         gui.cod_columna   = 23
         gui.cod_flash     = 18
@@ -1544,8 +1546,7 @@ if __name__ == '__main__':
         gui.cambia_cursor (msgs_sys[34])
       else:  # Es QUILL
         gui.partir_espacio = False
-        gui.strPlataforma  = libreria.strPlataforma
-        if gui.strPlataforma == 'CPC':  # Amstrad CPC
+        if gui.id_plataforma == 'CPC':  # Amstrad CPC
           gui.cod_inversa_ini = 9
           gui.cod_inversa_fin = 9
           del gui.paleta[0][:]
@@ -1556,7 +1557,7 @@ if __name__ == '__main__':
           gui.paleta[0].extend (((0, 0, 0), (0, 0, 128), (0, 0, 255), (128, 0, 0), (128, 0, 128), (128, 0, 255), (255, 0, 0), (255, 0, 128), (255, 0, 255),
               (0, 128, 0), (0, 128, 128), (0, 128, 255), (128, 128, 0), (128, 128, 128), (128, 128, 255), (255, 128, 0), (255, 128, 128), (255, 128, 255),
               (0, 255, 0), (0, 255, 128), (0, 255, 255), (128, 255, 0), (128, 255, 128), (128, 255, 255), (255, 255, 0), (255, 255, 128), (255, 255, 255)))
-        elif gui.strPlataforma == 'C64':  # Commodore 64
+        elif gui.id_plataforma == 'C64':  # Commodore 64
           gui.cod_inversa_ini = 18
           gui.cod_inversa_fin = 146
           gui.cods_tinta      = libreria.cods_tinta
@@ -1566,7 +1567,7 @@ if __name__ == '__main__':
           #                        naranja, marrón, rojo claro, gris oscuro, gris, verde claro, azul claro, gris claro
           gui.paleta[0].extend (((0, 0, 0), (255, 255, 255), (136, 0, 0), (170, 255, 238), (204, 68, 204), (0, 204, 85), (0, 0, 170), (238, 238, 119),
                                 (221, 136, 85), (102, 68, 0), (255, 119, 119), (51, 51, 51), (119, 119, 119), (170, 255, 102), (0, 136, 255), (187, 187, 187)))
-        elif gui.strPlataforma == 'QL':  # Spectrum QL
+        elif gui.id_plataforma == 'QL':  # Spectrum QL
           gui.cod_inversa_ini = 24
           gui.cod_reset       = 25
           gui.cods_tinta      = libreria.cods_tinta

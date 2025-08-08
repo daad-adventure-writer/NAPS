@@ -102,6 +102,7 @@ CAB_LONG_FICH             = 30  # Longitud de la base de datos
 alinear         = False  # Si alineamos con relleno (padding) las listas de desplazamientos a posiciones pares
 compatibilidad  = True   # Modo de compatibilidad con los intérpretes originales
 despl_ini       = 0      # Desplazamiento inicial para cargar desde memoria
+id_plataforma   = ''     # Identificador de plataforma como cadena
 nada_tras_flujo = []     # Si omitiremos los condactos que haya después de los de cambio de flujo incondicional
 nueva_version   = []     # Si la base de datos es de las últimas versiones de DAAD, vacío = no
 plataforma      = None   # Número de plataforma en la base de datos

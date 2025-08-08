@@ -83,6 +83,7 @@ compatibilidad   = True        # Modo de compatibilidad con los intérpretes orig
 conversion       = {}          # Tabla de conversión de caracteres
 despl_ini        = 0           # Desplazamiento inicial para cargar desde memoria
 fin_cadena       = ord ('\n')  # Carácter de fin de cadena
+id_plataforma    = ''          # Identificador de plataforma como cadena
 nueva_linea      = ord ('\r')  # Carácter de nueva línea
 num_abreviaturas = 129         # Número de abreviaturas cuando se comprime el texto
 
@@ -233,12 +234,15 @@ def cadena_es_mayor (cadena1, cadena2):
   """Devuelve si la cadena1 es mayor a la cadena2 en el juego de caracteres de este sistema"""
   return cadena1 > cadena2
 
-# Carga la base de datos entera desde el fichero de entrada
-# Para compatibilidad con el IDE:
-# - Recibe como primer parámetro un fichero abierto
-# - Recibe como segundo parámetro la longitud del fichero abierto
-# - Devuelve False si ha ocurrido algún error
 def carga_bd (fichero, longitud):
+  """"Carga la base de datos entera desde un fichero de base de datos PDB de PAWS PC
+
+Para compatibilidad con el IDE:
+- Recibe como primer parámetro un fichero abierto
+- Recibe como segundo parámetro la longitud del fichero abierto
+- Devuelve False si ha ocurrido algún error"""
+  global id_plataforma
+  id_plataforma = 'PC'
   preparaPosCabecera ('pdb')
   return cargaBD (fichero, longitud)
 
@@ -249,8 +253,10 @@ Para compatibilidad con el IDE:
 - Recibe como primer parámetro un fichero abierto
 - Recibe como segundo parámetro la longitud del fichero abierto
 - Devuelve False si ha ocurrido algún error"""
+  global id_plataforma
   if longitud != 49179:
     return False  # No parece un fichero de imagen de memoria de Spectrum 48K
+  id_plataforma = 'ZX'
   # Detectamos la posición de la cabecera de la base de datos
   bajo_nivel_cambia_ent (fichero)
   posicion = busca_secuencia ((16, None, 17, None, 18, None, 19, None, 20, None, 21))
@@ -277,10 +283,11 @@ def carga_sce (fichero, longitud):
   - Recibe como primer parámetro un fichero abierto
   - Recibe como segundo parámetro la longitud del fichero abierto
   - Devuelve False si ha ocurrido algún error"""
-  global plataforma, version
+  global id_plataforma, plataforma, version
   # Los dos valores siguientes son necesarios para el intérprete y esta librería, pondremos valores de PAWS PC
   plataforma = 2  # TODO: asignar valor 1 cuando se detecte que es Amstrad CPC (indica letra de unidad en sección /CTL)
   version    = 1
+  id_plataforma = 'PC'
   retorno = alto_nivel.carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, atributos, [], condactos, {}, conexiones, desc_locs, desc_objs, locs_iniciales, msgs_usr, msgs_sys, nombres_objs, [], num_objetos, tablas_proceso, vocabulario, escribe_secs_ctrl)
   # Liberamos la memoria utilizada para la carga
   import gc

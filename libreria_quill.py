@@ -146,7 +146,7 @@ TIPOS_PAL_ES     = ('Palabra',)
 
 cods_tinta    = {}  # Caracteres que si se encuentran en una cadena, cambiará el color de tinta por el del valor
 conversion    = {}  # Tabla de conversión de caracteres
-strPlataforma = ''  # Identificador de plataforma como cadena
+id_plataforma = ''  # Identificador de plataforma como cadena
 
 
 # Diccionarios de condactos
@@ -325,7 +325,7 @@ conversion_plataforma = {
   'QL': {'`': '£', '\x81': 'ã', '\x82': 'å', '\x83': 'é', '\x84': 'ö', '\x85': 'õ', '\x86': 'ø', '\x87': 'ü', '\x88': 'ç', '\x89': 'ñ', '\x8a': 'æ', '\x8b': '½', '\x8c': 'á', '\x8d': 'à', '\x8e': 'â', '\x8f': 'ë', '\x90': 'è', '\x91': 'ê', '\x92': 'ï', '\x93': 'í', '\x94': 'ì', '\x95': 'î', '\x96': 'ó', '\x97': 'ò', '\x98': 'ô', '\x99': 'ú', '\x9a': 'ù', '\x9b': 'û', '\x9c': 'ß', '\x9d': '¢', '\x9e': '¥', '\x9f': '`', '\xa0': 'Ä', '¡': 'Ã', '¢': 'Â', '£': 'É', '\xa4': 'Ö', '¥': 'Õ', '§': 'Ü', '\xa8': 'Ç', '©': 'Ñ', 'ª': 'Æ', '«': '¼', '¬': u'\u03b1', '\xad': u'\u03b4', '®': u'\u0398', '¯': u'\u03bb', '°': 'µ', '±': u'\u03c0', '²': u'\u03a6', '³': '¡', '\xb4': '¿', 'µ': u'\u1e62', '¶': '§', '·': u'\u00a4', '\xb8': '«', '¹': '»', '»': '÷', '\xbc': u'\u2190', '\xbd': u'\u2192', '\xbe': u'\u2191', '¿': u'\u2193'},
 }
 
-# Nombre completo de cada plataforma por su identificador en strPlataforma
+# Nombre completo de cada plataforma por su identificador en id_plataforma
 plataformas = {
   'Atari800': 'Atari 800',
   'C64':      'Commodore 64',
@@ -348,7 +348,7 @@ Para compatibilidad con el IDE:
 - Recibe como primer parámetro un fichero abierto
 - Recibe como segundo parámetro la longitud del fichero abierto
 - Devuelve False si ha ocurrido algún error"""
-  global carga_desplazamiento, despl_ini, fin_cadena, nueva_linea, plataforma, strPlataforma
+  global carga_desplazamiento, despl_ini, fin_cadena, nueva_linea, plataforma, id_plataforma
   carga_desplazamiento = carga_desplazamiento2
   bajo_nivel_cambia_endian (le = True)
   bajo_nivel_cambia_ent    (fichero)
@@ -360,7 +360,7 @@ Para compatibilidad con el IDE:
   inicio        = 0
   nueva_linea   = 155  # Es este, aunque el editor parece no dejar escribir nueva línea
   plataforma    = 1    # Apaño para que el intérprete lo considere como Spectrum
-  strPlataforma = 'Atari800'
+  id_plataforma = 'Atari800'
   bajo_nivel_cambia_despl (despl_ini)
   # TODO: cargar y usar colores iniciales, que son muy distintos en esta plataforma, con 256 colores posibles
   colores_inicio.extend ((7, 0, 0, 0))  # Tinta blanca, papel y borde negro, y sin brillo
@@ -374,7 +374,7 @@ Para compatibilidad con el IDE:
 - Recibe como primer parámetro un fichero abierto
 - Recibe como segundo parámetro la longitud del fichero abierto
 - Devuelve False si ha ocurrido algún error"""
-  global carga_desplazamiento, despl_ini, fin_cadena, nueva_linea, plataforma, strPlataforma
+  global carga_desplazamiento, despl_ini, fin_cadena, nueva_linea, plataforma, id_plataforma
   carga_desplazamiento = carga_desplazamiento2
   bajo_nivel_cambia_endian (le = True)
   bajo_nivel_cambia_ent    (fichero)
@@ -383,7 +383,7 @@ Para compatibilidad con el IDE:
   fin_cadena    = 0
   nueva_linea   = 141  # El 13 también podría ser, pero tal vez no se use
   plataforma    = 1    # Apaño para que el intérprete lo considere como Spectrum
-  strPlataforma = 'C64'
+  id_plataforma = 'C64'
   cods_tinta.update ({5: 1, 25: 2, 30: 5, 31: 6, 129: 8, 144: 0, 149: 9, 150: 10, 151: 11, 152: 12, 153: 13, 154: 14, 155: 15, 156: 4, 158: 7, 159: 3})
   bajo_nivel_cambia_despl (despl_ini)
   # Cargamos los colores iniciales
@@ -394,6 +394,7 @@ Para compatibilidad con el IDE:
   preparaPosCabecera ('c64', 6)
   return cargaBD (fichero, longitud)
 
+# TODO: soporte de aventuras de Amstrad CPC
 def carga_bd_cpc (fichero, longitud):
   """Carga la base de datos entera desde una base de datos de Quill para Amstrad CPC
 
@@ -401,13 +402,13 @@ Para compatibilidad con el IDE:
 - Recibe como primer parámetro un fichero abierto
 - Recibe como segundo parámetro la longitud del fichero abierto
 - Devuelve False si ha ocurrido algún error"""
-  global carga_desplazamiento, despl_ini, fin_cadena, nueva_linea, plataforma, strPlataforma
+  global carga_desplazamiento, despl_ini, fin_cadena, nueva_linea, plataforma, id_plataforma
   carga_desplazamiento = carga_desplazamiento2
   despl_ini     = 6987
   fin_cadena    = 0
   nueva_linea   = 20
   plataforma    = 1   # Apaño para que el intérprete lo considere como Spectrum
-  strPlataforma = 'CPC'
+  id_plataforma = 'CPC'
   bajo_nivel_cambia_endian (le = True)
   bajo_nivel_cambia_ent    (fichero)
   bajo_nivel_cambia_despl  (despl_ini)
@@ -430,7 +431,7 @@ Para compatibilidad con el IDE:
 - Recibe como primer parámetro un fichero abierto
 - Recibe como segundo parámetro la longitud del fichero abierto
 - Devuelve False si ha ocurrido algún error"""
-  global carga_desplazamiento, despl_ini, fin_cadena, nueva_linea, plataforma, strPlataforma
+  global carga_desplazamiento, despl_ini, fin_cadena, nueva_linea, plataforma, id_plataforma
   carga_desplazamiento = carga_desplazamiento2
   extension     = os.path.splitext (fichero.name)[1][1:].lower()
   despl_ini     = 6242 if extension == 'dat' else -4912
@@ -438,7 +439,7 @@ Para compatibilidad con el IDE:
   inicio        = 0
   nueva_linea   = ord ('\r')  # Es este, aunque el editor parece no dejar escribir nueva línea
   plataforma    = 0
-  strPlataforma = 'PC'
+  id_plataforma = 'PC'
   bajo_nivel_cambia_endian (le = True)
   bajo_nivel_cambia_ent    (fichero)
   bajo_nivel_cambia_despl  (despl_ini)
@@ -464,12 +465,12 @@ Para compatibilidad con el IDE:
 - Recibe como primer parámetro un fichero abierto
 - Recibe como segundo parámetro la longitud del fichero abierto
 - Devuelve False si ha ocurrido algún error"""
-  global carga_desplazamiento, despl_ini, fin_cadena, nueva_linea, plataforma, strPlataforma
+  global carga_desplazamiento, despl_ini, fin_cadena, nueva_linea, plataforma, id_plataforma
   carga_desplazamiento  = carga_desplazamiento4  # Así es en las bases de datos de Quill para QL
   fin_cadena            = 0                      # Así es en las bases de datos de Quill para QL
   nueva_linea           = 254                    # Así es en las bases de datos de Quill para QL
   plataforma            = 1                      # Apaño para que el intérprete lo considere como Spectrum
-  strPlataforma         = 'QL'
+  id_plataforma         = 'QL'
   BANDERA_VERBO[0]      = 64
   BANDERA_NOMBRE[0]     = 65
   BANDERA_LLEVABLES[0]  = 66
@@ -504,12 +505,12 @@ Para compatibilidad con el IDE:
 - Recibe como primer parámetro un fichero abierto
 - Recibe como segundo parámetro la longitud del fichero abierto
 - Devuelve False si ha ocurrido algún error"""
-  global carga_desplazamiento, despl_ini, fin_cadena, nueva_linea, pos_msgs_sys, strPlataforma
+  global carga_desplazamiento, despl_ini, fin_cadena, nueva_linea, pos_msgs_sys, id_plataforma
   # if longitud not in (49179, 131103):  # Tamaño de 48K y de 128K
   if longitud != 49179:
     return False  # No parece un fichero de imagen de memoria de Spectrum 48K
   carga_desplazamiento = carga_desplazamiento2
-  strPlataforma        = 'ZX'
+  id_plataforma        = 'ZX'
   # Detectamos la posición de la cabecera de la base de datos
   bajo_nivel_cambia_ent (fichero)
   posicion = busca_secuencia ((16, None, 17, None, 18, None, 19, None, 20, None, 21))
@@ -1277,10 +1278,10 @@ def escribe_secs_ctrl (cadena):
   while i < len (cadena):
     c = cadena[i]
     o = ord (c)
-    if c == '\t' and strPlataforma == 'ZX':
+    if c == '\t' and id_plataforma == 'ZX':
       convertida += '\x06'  # Tabulador
     elif c == '\\':
-      if cadena[i + 1:i + len (_('BRIGHT')) + 2] == (_('BRIGHT') + '_') and strPlataforma == 'ZX':
+      if cadena[i + 1:i + len (_('BRIGHT')) + 2] == (_('BRIGHT') + '_') and id_plataforma == 'ZX':
         try:
           codigo = int (cadena[i + len (_('BRIGHT')) + 2: i + len (_('BRIGHT')) + 4], 16)
         except:
@@ -1290,7 +1291,7 @@ def escribe_secs_ctrl (cadena):
           i += len (_('BRIGHT')) + 3
         else:
           convertida += c  # Lo trataremos literalmente como ese texto \BRILLO_loquesea
-      elif cadena[i + 1:i + len (_('FLASH')) + 2] == (_('FLASH') + '_') and strPlataforma == 'ZX':
+      elif cadena[i + 1:i + len (_('FLASH')) + 2] == (_('FLASH') + '_') and id_plataforma == 'ZX':
         try:
           codigo = int (cadena[i + len (_('FLASH')) + 2: i + len (_('FLASH')) + 4], 16)
         except:
@@ -1302,13 +1303,13 @@ def escribe_secs_ctrl (cadena):
           convertida += c  # Lo trataremos literalmente como ese texto \FLASH_loquesea
       elif cadena[i + 1:i + len (_('INVERSE')) + 2] == _('INVERSE') + '_':
         inversa = cadena[i + len (_('INVERSE')) + 2:i + len (_('INVERSE')) + 4] not in ('0', '00')
-        if strPlataforma == 'C64':
+        if id_plataforma == 'C64':
           convertida += chr (18 if inversa else 146)
-        elif strPlataforma == 'CPC':
+        elif id_plataforma == 'CPC':
           convertida += chr (9)
-        elif strPlataforma == 'QL':
+        elif id_plataforma == 'QL':
           convertida += chr (24)
-        elif strPlataforma == 'ZX':
+        elif id_plataforma == 'ZX':
           convertida += chr (20) + chr (1 if inversa else 0)
         i += len (_('INVERSE')) + 3
       elif cadena[i + 1:i + len (_('INK')) + 2] == (_('INK') + '_'):
@@ -1316,24 +1317,24 @@ def escribe_secs_ctrl (cadena):
           codigo = int (cadena[i + len (_('INK')) + 2: i + len (_('INK')) + 4], 16)
         except:
           codigo = 999
-        if strPlataforma == 'C64' and codigo < len (cods_tinta):
+        if id_plataforma == 'C64' and codigo < len (cods_tinta):
           for codigoColor in cods_tinta:
             if cods_tinta[codigoColor] == codigo:
               convertida += chr (codigoColor)
               break
           i += len (_('INK')) + 3
-        elif strPlataforma == 'CPC' and codigo < 4:
+        elif id_plataforma == 'CPC' and codigo < 4:
           convertida += chr (codigo + 1)
           i += len (_('INK')) + 3
-        elif strPlataforma == 'QL' and codigo < 8:
+        elif id_plataforma == 'QL' and codigo < 8:
           convertida += chr (16 + codigo)
           i += len (_('INK')) + 3
-        elif strPlataforma == 'ZX' and codigo < 10:  # Aparte de los colores 0-7, están los valores 8 (transparente) y 9 (contraste)
+        elif id_plataforma == 'ZX' and codigo < 10:  # Aparte de los colores 0-7, están los valores 8 (transparente) y 9 (contraste)
           convertida += chr (16) + chr (codigo)
           i += len (_('INK')) + 3
         else:  # No es un número de color permitido
           convertida += c  # Lo trataremos literalmente como ese texto \TINTA_loquesea
-      elif cadena[i + 1:i + len (_('OVER')) + 2] == (_('OVER') + '_') and strPlataforma == 'ZX':
+      elif cadena[i + 1:i + len (_('OVER')) + 2] == (_('OVER') + '_') and id_plataforma == 'ZX':
         encima = cadena[i + len (_('OVER')) + 2:i + len (_('OVER')) + 4] not in ('0', '00')
         convertida += chr (21) + chr (1 if encima else 0)
         i += len (_('OVER')) + 3
@@ -1342,21 +1343,21 @@ def escribe_secs_ctrl (cadena):
           codigo = int (cadena[i + len (_('PAPER')) + 2: i + len (_('PAPER')) + 4], 16)
         except:
           codigo = 999
-        if strPlataforma == 'CPC' and codigo < 4:
+        if id_plataforma == 'CPC' and codigo < 4:
           convertida += chr (codigo + 5)
           i += len (_('PAPER')) + 3
-        elif strPlataforma == 'QL' and codigo < 8:
+        elif id_plataforma == 'QL' and codigo < 8:
           convertida += chr (16 + codigo) + chr (24)
           i += len (_('PAPER')) + 3
-        elif strPlataforma == 'ZX' and codigo < 10:  # Aparte de los colores 0-7, están los valores 8 (transparente) y 9 (contraste)
+        elif id_plataforma == 'ZX' and codigo < 10:  # Aparte de los colores 0-7, están los valores 8 (transparente) y 9 (contraste)
           convertida += chr (17) + chr (codigo)
           i += len (_('PAPER')) + 3
         else:  # No es un número de color permitido
           convertida += c  # Lo trataremos literalmente como ese texto \PAPEL_loquesea
-      elif cadena[i + 1:i + len (_('RESET')) + 1] == _('RESET') and strPlataforma == 'QL':
+      elif cadena[i + 1:i + len (_('RESET')) + 1] == _('RESET') and id_plataforma == 'QL':
         convertida += chr (25)
         i += len (_('RESET'))
-      elif cadena[i + 1:i + len (_('TAB')) + 2] == (_('TAB') + '_') and strPlataforma == 'ZX':
+      elif cadena[i + 1:i + len (_('TAB')) + 2] == (_('TAB') + '_') and id_plataforma == 'ZX':
         columna = cadena[i + len (_('TAB')) + 2:i + len (_('TAB')) + 4]
         try:
           columna     = int (columna, 16)
@@ -1375,7 +1376,7 @@ def escribe_secs_ctrl (cadena):
         convertida += c
       # TODO: interpretar el resto de secuencias escapadas con barra invertida (\)
     else:
-      if inversa and strPlataforma in ('Atari800', 'PC'):
+      if inversa and id_plataforma in ('Atari800', 'PC'):
         convertida += chr (o + 128)
       else:
         convertida += c
@@ -1390,28 +1391,28 @@ def lee_secs_ctrl (cadena):
   while i < len (cadena):
     c = cadena[i]
     o = ord (c)
-    if o > 127 and strPlataforma in ('Atari800', 'PC'):
+    if o > 127 and id_plataforma in ('Atari800', 'PC'):
       if not inversa:
         convertida += '\\' + _('INVERSE') + '_01'
       inversa = True
       c = chr (o - 128)
-    elif strPlataforma in ('Atari800', 'PC'):
+    elif id_plataforma in ('Atari800', 'PC'):
       if inversa:
         convertida += '\\' + _('INVERSE') + '_00'
       inversa = False
     if c == '\n':
       convertida += '\\n'
-    elif o == 6 and strPlataforma == 'ZX':  # Tabulador
+    elif o == 6 and id_plataforma == 'ZX':  # Tabulador
       convertida += '\\t'
-    elif strPlataforma == 'CPC' and o in range (1, 9):
+    elif id_plataforma == 'CPC' and o in range (1, 9):
       if o < 5:
         convertida += '\\' + _('INK') + '_%02X' % (o - 1)
       else:
         convertida += '\\' + _('PAPER') + '_%02X' % (o - 5)
-    elif o == 9 and strPlataforma == 'CPC':
+    elif o == 9 and id_plataforma == 'CPC':
       convertida += '\\' + _('INVERSE') + ('_00' if inversa else '_01')
       inversa     = not inversa
-    elif strPlataforma == 'QL' and o in range (16, 26):
+    elif id_plataforma == 'QL' and o in range (16, 26):
       convertida += '\\'
       if o < 24:
         if (i + 1) < len (cadena):
@@ -1425,7 +1426,7 @@ def lee_secs_ctrl (cadena):
         convertida += _('INVERSE') + '_01'
       else:  # o == 25
         convertida += _('RESET')
-    elif strPlataforma == 'ZX' and o in range (16, 22) and (i + 1) < len (cadena):
+    elif id_plataforma == 'ZX' and o in range (16, 22) and (i + 1) < len (cadena):
       convertida += '\\'
       if o == 16:
         convertida += _('INK')
@@ -1441,9 +1442,9 @@ def lee_secs_ctrl (cadena):
         convertida += _('OVER')
       convertida += '_%02X' % ord (cadena[i + 1])
       i += 1  # El siguiente carácter ya se ha procesado
-    elif o in (18, 146) and strPlataforma == 'C64':  # Cambio de inversa
+    elif o in (18, 146) and id_plataforma == 'C64':  # Cambio de inversa
       convertida += '\\' + _('INVERSE') + '_0' + ('1' if o == 18 else '0')
-    elif o == 23 and strPlataforma == 'ZX':  # Salto a columna en la misma fila
+    elif o == 23 and id_plataforma == 'ZX':  # Salto a columna en la misma fila
       convertida += '\\' + _('TAB') + '_%02X' % ord (cadena[i + 1])
       i += 2  # El siguiente carácter ya se ha procesado y el de después se ignora
     elif o in cods_tinta:
@@ -1517,8 +1518,8 @@ def actualizaAcciones (nuevasAcciones):
   """Actualiza los diccionarios de acciones y condactos quitando las acciones anteriores y poniendo las de la plataforma actual"""
   acciones.clear()
   acciones.update (acciones_comun)
-  if strPlataforma in acciones_plataforma and nuevasAcciones:
-    acciones.update (acciones_plataforma[strPlataforma])
+  if id_plataforma in acciones_plataforma and nuevasAcciones:
+    acciones.update (acciones_plataforma[id_plataforma])
   # Quitamos todas las acciones que hubiese en condactos y ponemos ahí las recién preparadas
   for codigo in list (condactos.keys()):
     if codigo > 99:
@@ -1616,7 +1617,7 @@ cadenas es la lista donde almacenar las cadenas que se carguen"""
       caracter = carga_int1() ^ 255
       if caracter == fin_cadena:  # Fin de esta cadena
         break
-      if saltaSiguiente or (strPlataforma == 'ZX' and caracter in (range (16, 22))):  # Códigos de control de Spectrum ZX
+      if saltaSiguiente or (id_plataforma == 'ZX' and caracter in (range (16, 22))):  # Códigos de control de Spectrum ZX
         cadena.append (chr (caracter))
         saltaSiguiente = not saltaSiguiente
       elif caracter == nueva_linea:  # Un carácter de nueva línea en la cadena
@@ -1625,7 +1626,7 @@ cadenas es la lista donde almacenar las cadenas que se carguen"""
         cadena.append (conversion[chr (caracter)])
       else:
         cadena.append (chr (caracter))
-    if strPlataforma == 'C64':
+    if id_plataforma == 'C64':
       cadenas.append (''.join (cadena).translate (petscii_a_ascii))
     else:
       cadenas.append (''.join (cadena))
@@ -1663,7 +1664,7 @@ def cargaLocalidadesObjetos ():
 def cargaNombresObjetos ():
   """Carga o rellena los nombres y adjetivos de los objetos"""
   # No hay nombres de objetos en Atari 800, C64, PC, ni versiones de Quill con posiciones fijas de mensajes de sistema
-  if pos_msgs_sys or strPlataforma in ('Atari800', 'C64', 'PC'):
+  if pos_msgs_sys or id_plataforma in ('Atari800', 'C64', 'PC'):
     for i in range (num_objetos[0]):
       nombres_objs.append ((255, 255))
     return
@@ -1684,7 +1685,7 @@ def cargaMensajesSistema ():
       caracter = carga_int1() ^ 255
       if caracter == fin_cadena:  # Fin de esta cadena
         break
-      if saltaSiguiente or (strPlataforma == 'ZX' and caracter in (range (16, 22))):  # Códigos de control de Spectrum ZX
+      if saltaSiguiente or (id_plataforma == 'ZX' and caracter in (range (16, 22))):  # Códigos de control de Spectrum ZX
         cadena += chr (caracter)
         saltaSiguiente = not saltaSiguiente
         continue
@@ -1763,7 +1764,7 @@ def cargaVocabulario ():
       caracter = carga_int1() ^ 255
       palabra.append (chr (caracter))
     palabra = ''.join (palabra).rstrip()  # Quill guarda las palabras de menos de cuatro letras con espacios al final
-    if strPlataforma == 'C64':
+    if id_plataforma == 'C64':
       palabra = palabra.translate (petscii_a_ascii)
     # Quill guarda las palabras en mayúsculas
     vocabulario.append ((palabra.lower(), carga_int1(), 0))

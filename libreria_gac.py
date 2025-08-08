@@ -104,6 +104,7 @@ abreviaturas   = []
 alinear        = False  # Si alineamos con relleno (padding) las listas de desplazamientos a posiciones pares
 compatibilidad = True   # Modo de compatibilidad con los intérpretes originales
 despl_ini      = 0      # Desplazamiento inicial para cargar desde memoria
+id_plataforma  = ''     # Identificador de plataforma como cadena
 palabras       = []     # Palabras que se usan para el vocabulario y los textos
 pos_cabecera   = 0      # Posición en el fichero donde inicia la base de datos
 
