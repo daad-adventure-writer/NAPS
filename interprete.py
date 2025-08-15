@@ -459,7 +459,10 @@ def inicializa ():
       gui.cambia_color_brillo (libreria.colores_inicio[3])
       if len (libreria.colores_inicio) > 5 and libreria.id_plataforma == 'CPC':
         gui.cambia_tintas_cpc ([libreria.colores_inicio[1], libreria.colores_inicio[0]] + libreria.colores_inicio[4:])
-    gui.elige_subventana (gui.elegida)  # Para que se apliquen los colores iniciales a la fuente
+    if NOMBRE_SISTEMA == 'PAWS':
+      gui.cambia_fuente (libreria.fuente_inicial[0])
+    else:
+      gui.elige_subventana (gui.elegida)  # Para que se apliquen los colores iniciales a la fuente
 
   # Las banderas son puestas a 0, las primeras 248 en el caso de las primeras versiones de DAAD, y todas en los demás
   for i in range (248 if NOMBRE_SISTEMA == 'DAAD' and not nueva_version else NUM_BANDERAS[0]):
@@ -1462,11 +1465,14 @@ if __name__ == '__main__':
     # Plataformas con menos de 53 columnas
     if extension == 'sna' and args.gui not in ('stdio', 'telegram'):
       # Trataremos de cargar fuente tipográfica desde el snapshot
-      if libreria.NOMBRE_SISTEMA == 'PAWS':
-        gui.pos_fuentes = libreria.pos_fuentes
       gui.conversion = libreria.conversion
       gui.udgs       = libreria.udgs
-      gui.carga_fuente_zx (bbdd)
+      if libreria.NOMBRE_SISTEMA == 'PAWS':
+        gui.carga_fuente_zx (bbdd, 0)
+        for posFuente in libreria.pos_fuentes:
+          gui.carga_fuente_zx (bbdd, posFuente)
+      else:
+        gui.carga_fuente_zx (bbdd)
       gui.prepara_topes (args.columns if args.columns else 32, 24)
     elif extension in ('bin', 'dtb', 'prg'):  # Bases de datos de Amstrad CPC, Commodore 64 o Atari 800
       gui.prepara_topes (args.columns if args.columns else 40, 24 if libreria.id_plataforma == 'Atari800' else 25)

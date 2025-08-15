@@ -72,9 +72,10 @@ forzar_escala = name == 'nt' and pygame.version.vernum < (1, 9, 5)  # Que escale
 ventana       = None
 
 ancho_caracter = 6
-fuente = pygame.image.load (path.dirname (path.realpath (__file__)) + path.sep + 'fuente.png')  # Fuente tipográfica
+fuente = pygame.image.load (path.dirname (path.realpath (__file__)) + path.sep + 'fuente.png')  # Fuente tipográfica seleccionada
 fuente.set_palette (graficos_bitmap.paletaBN)
 fuente_estandar = fuente
+fuentes_zx      = []
 
 cad_cursor = '_'
 chr_cursor = pygame.Surface ((8, 8))  # Carácter con transparencia, para marcar posición de input
@@ -362,6 +363,16 @@ def cambia_cursor (cadenaCursor):
   global cad_cursor
   cad_cursor = cadenaCursor
 
+def cambia_fuente (numFuente):
+  """Cambia la fuente seleccionada por la de índice dado si es válido, de lo contrario no hace nada"""
+  global fuente
+  if numFuente >= len (fuentes_zx):
+    return
+  if traza:
+    prn ('Fuente cambiada a la', numFuente)
+  fuente = fuentes_zx[numFuente]
+  elige_subventana (elegida)  # Para que se apliquen los colores actuales a la fuente
+
 def cambia_subv_input (stream, opciones):
   """Cambia la subventana de entrada por el stream dado, con las opciones dadas, según el condacto INPUT"""
   global subv_input, opcs_input
@@ -417,7 +428,7 @@ def carga_bd_pics (rutaBDGfx):
   if graficos_bitmap.recursos:
     precargaGraficos()
 
-def carga_fuente_zx (fichero):
+def carga_fuente_zx (fichero, posFuente = None):
   # type: (BinaryIO) -> None
   """Carga una fuente tipográfica de 8x8 de GAC, QUILL o PAWS desde el fichero abierto dado con snapshot de ZX Spectrum"""
   global ancho_caracter, fuente, izquierda
@@ -428,19 +439,21 @@ def carga_fuente_zx (fichero):
   for c, convertido in conversion.items():
     izquierda = izquierda.replace (c, convertido)
   fuente_zx = pygame.image.load (path.dirname (path.realpath (__file__)) + path.sep + 'fuente_zx_8x8.png')
-  if NOMBRE_SISTEMA == 'PAWS':
-    if pos_fuentes:
-      imagen, palImg = graficos_bitmap.carga_fuente_zx_8 (fichero, pos_fuentes[0])
+  if posFuente != None:
+    if posFuente == 0:
+      fuente = fuente_zx
     else:
-      imagen = None
+      imagen, palImg = graficos_bitmap.carga_fuente_zx_8 (fichero, posFuente)
+      bufferImg = bytes (bytearray (imagen))
+      fuente    = pygame.image.frombuffer (bufferImg, (628, 48), 'P')
   else:
     imagen, palImg = graficos_bitmap.carga_fuente_zx_8 (fichero)
-  if not imagen:
-    fuente = fuente_zx
-    fuente.set_palette (graficos_bitmap.paletaBN)
-    return
-  bufferImg = bytes (bytearray (imagen))
-  fuente    = pygame.image.frombuffer (bufferImg, (628, 48), 'P')
+    if not imagen:
+      fuente = fuente_zx
+      fuente.set_palette (graficos_bitmap.paletaBN)
+      return
+    bufferImg = bytes (bytearray (imagen))
+    fuente    = pygame.image.frombuffer (bufferImg, (628, 48), 'P')
   fuente.set_palette (graficos_bitmap.paletaNB)
   # Copiamos caracteres de símbolos gráficos estándar (sobre las posiciones de la fuente 96 a la 111)
   fuente_zx.set_palette (graficos_bitmap.paletaNB)
@@ -455,6 +468,8 @@ def carga_fuente_zx (fichero):
     for u in range (numUDGs):
       c = 112 + u  # Número de carácter en la fuente
       fuente.blit (imagenUDGs, ((c % 63) * 10, (c // 63) * 10), (u * 8, 0, 8, 8))
+  if posFuente != None:
+    fuentes_zx.append (fuente)
 
 def carga_paleta_defecto ():
   """Carga a la paleta por defecto para el modo gráfico"""
@@ -1178,7 +1193,7 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
   if cadena == '\n':  # TODO: sacar a función nueva_linea
     lineas_mas[elegida] += 1
     restante = tope[0] - cursor[0]  # Columnas restantes que quedan en la línea
-    colores  = {0: (daColorTinta(), daColorPapel())} if restauraColores else {}
+    colores  = {0: (daColorTinta(), daColorPapel(), None)} if restauraColores else {}
     imprime_linea ([chr (16)] * restante, redibujar = redibujar, colores = colores)
     if cursor[1] >= tope[1] - 1:
       scrollLineas (1, subventana, tope)
@@ -1322,7 +1337,9 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
       if lineas_mas[elegida] == (tope[1] - 1) and (textoNormal or i < len (lineas) - 1) and (not subv_input or elegida != subv_input):
         esperaMas (tiempo)  # Paginación
     elif 0 in colores and not lineas[i]:  # La primera línea es sólo \n
-      fuente.set_palette (colores[0])  # Cargamos el color inicial de la cadena
+      if colores[0][2] != None:
+        cambia_fuente (colores[0][2])  # Cargamos la fuente actual
+      fuente.set_palette (tuple (colores[0][:2]))  # Cargamos el color inicial de la cadena
     if cod_brillo or cods_tinta or id_plataforma in ('Atari800', 'CPC', 'PC'):
       imprime_linea (lineas[i], redibujar = redibujar, colores = colores, inicioLinea = iniLineas[i])
     else:
@@ -1330,7 +1347,9 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
     if i < len (lineas) - 1:  # Sólo si la línea se ha completado
       lineas_mas[elegida] += 1
       if iniLineas[i + 1] - 1 in colores:  # Cambiamos los colores si al final de la línea cambiaban
-        fuente.set_palette (colores[iniLineas[i + 1] - 1])
+        if colores[iniLineas[i + 1] - 1][2] != None:
+          cambia_fuente (colores[iniLineas[i + 1] - 1][2])  # Cargamos la fuente actual
+        fuente.set_palette (tuple (colores[iniLineas[i + 1] - 1][:2]))
       if textoNormal and id_plataforma != 'QL' and cursor[0] + len (lineas[i]) < tope[0]:  # Cabían más caracteres al final de la línea
         cursor[0] += len (lineas[i])
         imprime_linea (chr (16) * (tope[0] - cursor[0]))
@@ -1346,7 +1365,9 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
       cursor = [cursor[0] + len (lineas[-1]), cursor[1]]
     cursores[elegida] = cursor  # Actualizamos el cursor de la subventana
     if len (cadena) in colores:  # Cambiaban los colores al final de la cadena
-      fuente.set_palette (colores[len (cadena)])  # Cargamos el color final de la cadena
+      if colores[len (cadena)][2] != None:
+        cambia_fuente (colores[len (cadena)][2])  # Cargamos la fuente actual
+      fuente.set_palette (tuple (colores[len (cadena)][:2]))  # Cargamos el color final de la cadena
   if traza:
     prn ('Fin de impresión, cursor en', cursor)
   return lineas
@@ -1367,7 +1388,9 @@ Los caracteres de linea deben estar convertidos a posiciones en la tipografía"""
     if ancho_caracter == 8:
       c -= 16 if c < 128 or NOMBRE_SISTEMA == 'SWAN' else 32
     if i + inicioLinea in colores:
-      fuente.set_palette (colores[i + inicioLinea])
+      if colores[i + inicioLinea][2] != None:
+        cambia_fuente (colores[i + inicioLinea][2])  # Cargamos la fuente actual
+      fuente.set_palette (tuple (colores[i + inicioLinea][:2]))
     # Curioso, aquí fuente tiene dos significados correctos :)
     # (SPOILER: Como sinónimo de origen y como sinónimo de tipografía)
     ventana.blit (fuente, (destinoXchr, destinoY),
@@ -1578,16 +1601,17 @@ def factorEscalaMaximo ():
   return factorMaximo
 
 def parseaColores (cadena, restauraColores = False):
-  """Procesa los códigos de control de colores, devolviendo la cadena sin ellos, y un diccionario posición: colores a aplicar"""
+  """Procesa los códigos de control de cambio de color y fuente, devolviendo la cadena sin ellos, y un diccionario posición: colores e índice de fuente a aplicar"""
   global brillo
   papel = color_subv[elegida][1]  # Color de papel/fondo
   tinta = daTinta()               # Color de tinta
   if not cod_brillo and not cods_tinta and id_plataforma not in ('Atari800', 'CPC', 'PC'):
-    return cadena, {0: (paleta[brillo][tinta], paleta[brillo][papel])}
+    return cadena, {0: (paleta[brillo][tinta], paleta[brillo][papel], None)}
   if restauraColores:
-    colores = {0: (paleta[brillo][tinta], paleta[brillo][papel])}
+    colores = {0: (paleta[brillo][tinta], paleta[brillo][papel], None)}
   else:
     colores = {}
+  fuente     = None   # Índice de fuente actual
   inversa    = False  # Si se invierten o no papel y fondo
   omitir     = 0      # Número de caracteres pendientes de omitir por completo
   sigBrillo  = False  # Si el siguiente carácter indica si se pone o quita brillo al color de tinta
@@ -1612,27 +1636,30 @@ def parseaColores (cadena, restauraColores = False):
         sigBrillo = False
       elif sigFlash:
         sigFlash = False
+        continue
       elif sigInversa:
-        if inversa and not c or not inversa and c:  # Si se ha activado o desactivado inversa
-          color = papel
-          papel = tinta
-          tinta = color
-        inversa    = True if c else False
         sigInversa = False
+        if inversa and not c or not inversa and c:  # Si se ha activado o desactivado inversa
+          color   = papel
+          papel   = tinta
+          tinta   = color
+          inversa = True if c else False
+        else:
+          continue
       elif sigPapel:
         papel    = c % len (paleta[brillo])
         sigPapel = False
       else:
         sigTinta = False
         tinta    = c % len (paleta[brillo])
-      colores[len (sinColores)] = (paleta[brillo][tinta], paleta[brillo][papel])  # Color de tinta y papel a aplicar
     elif c in (cod_inversa_fin, cod_inversa_ini):
       if c == cod_inversa_ini and not inversa or c == cod_inversa_fin and inversa:  # Si se ha activado o desactivado inversa
         color   = papel
         papel   = tinta
         tinta   = color
         inversa = not inversa
-        colores[len (sinColores)] = (paleta[brillo][tinta], paleta[brillo][papel])  # Color de tinta y papel a aplicar
+      else:
+        continue
     elif c in (cod_brillo, cod_flash, cod_inversa, cod_papel, cod_tinta):
       if c == cod_brillo:
         sigBrillo = True
@@ -1644,49 +1671,60 @@ def parseaColores (cadena, restauraColores = False):
         sigPapel = True
       else:
         sigTinta = True
+      continue
     elif c == cod_reset:
       inversa = False
       tinta, papel = colores_inicio[:2]
-      colores[len (sinColores)] = (paleta[brillo][tinta], paleta[brillo][papel])  # Color de tinta y papel a aplicar
     elif c in cods_tinta:
       if id_plataforma == 'QL' and i < len (cadena) - 1 and ord (cadena[i + 1]) == cod_inversa_ini:
         papel  = cods_tinta[c]
         omitir = 1
       else:
         tinta = cods_tinta[c]
-      colores[len (sinColores)] = (paleta[brillo][tinta], paleta[brillo][papel])  # Color de tinta y papel a aplicar
     elif id_plataforma == 'CPC' and c in range (1, 9):
       if c < 5:
         tinta = tintas_cpc[c - 1]
-        colores[len (sinColores)] = (paleta[0][tinta], paleta[0][papel])  # Color de tinta y papel a aplicar
       else:
         papel = tintas_cpc[c - 5]
-        colores[len (sinColores)] = (paleta[0][tinta], paleta[0][papel])  # Color de tinta y papel a aplicar
+    elif c < 6 and NOMBRE_SISTEMA == 'PAWS' and id_plataforma == 'ZX':
+      if c >= len (fuentes_zx):
+        continue
+      fuente = c
     elif c == cod_tabulador:
       sinColores += '\t'
+      continue
     elif c == cod_columna:
       sinColores += '\r'
       talCual = 2
+      continue
     elif cadena[i] not in izquierda and cadena[i] in noEnFuente:
       sinColores += noEnFuente[cadena[i]]
+      continue
     elif NOMBRE_SISTEMA == 'QUILL' and id_plataforma in ('Atari800', 'PC') and c > 127:  # Es un carácter en inversa
       if not inversa:  # Sólo lo hacemos para el primer carácter consecutivo en inversa
-        color = papel
-        papel = tinta
-        tinta = color
-        colores[len (sinColores)] = (paleta[brillo][tinta], paleta[brillo][papel])  # Color de tinta y papel invertidos
-      inversa     = True
-      sinColores += chr (c - 128)
+        # Invertimos color de tinta y papel
+        color       = papel
+        papel       = tinta
+        tinta       = color
+        inversa     = True
+        sinColores += chr (c - 128)
+      else:
+        sinColores += chr (c - 128)
+        continue
     elif paleta[1] and c < 32 and c != ord ('\n'):  # Códigos de control de Spectrum ZX inválidos o desconocidos
       continue
     else:
       if inversa and NOMBRE_SISTEMA == 'QUILL' and id_plataforma in ('Atari800', 'PC'):  # Este carácter terminará la impresión en inversa, al no estar en inversa
-        color = papel
-        papel = tinta
-        tinta = color
-        colores[len (sinColores)] = (paleta[brillo][tinta], paleta[brillo][papel])  # Color de tinta y papel invertidos
-        inversa = False
-      sinColores += cadena[i]
+        # Invertimos color de tinta y papel
+        color       = papel
+        papel       = tinta
+        tinta       = color
+        inversa     = False
+        sinColores += cadena[i]
+      else:
+        sinColores += cadena[i]
+        continue
+    colores[len (sinColores)] = (paleta[brillo][tinta], paleta[brillo][papel], fuente)  # Color de tinta, papel y número de fuente a aplicar
   if version_info[0] < 3:  # La versión de Python es 2.X
     sinColores = sinColores.encode ('iso-8859-15', errors = 'replace')
   return sinColores, colores
@@ -1733,7 +1771,9 @@ def preparaCursor ():
       posEnFuente -= 16 if posEnFuente < 128 else 32
     if colores:
       chr_cursor.set_colorkey (colores[0][1])  # El color de papel/fondo será ahora transparente
-      fuente.set_palette (colores[0])
+      if colores[0][2] != None:
+        cambia_fuente (colores[0][2])  # Cargamos la fuente actual
+      fuente.set_palette (tuple (colores[0][:2]))
     chr_cursor.blit (fuente, (0, 0), ((posEnFuente % 63) * 10, (posEnFuente // 63) * 10, ancho_caracter, 8))
 
 def scrollLineas (lineasAsubir, subventana, tope, redibujar = True):

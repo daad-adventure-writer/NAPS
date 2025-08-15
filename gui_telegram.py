@@ -118,6 +118,10 @@ def guarda_cursor ():
   """Guarda la posición del cursor de la subventana elegida """
   pass
 
+def cambia_fuente (numFuente):
+  """Cambia la fuente seleccionada por la de índice dado si es válido, de lo contrario no hace nada"""
+  pass
+
 def imprime_locs_objs (locs_objs):
   """Imprime las localidades de los objetos"""
   pass
