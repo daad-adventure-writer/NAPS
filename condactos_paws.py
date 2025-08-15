@@ -416,6 +416,10 @@ def a1_CREATE (objno):
       banderas[1] = max (0, banderas[1] - 1)
   locs_objs[objno] = banderas[38]
 
+def a1_CHARSET (numFuente):
+  """Cambia la fuente seleccionada por la de índice dado si es válido, de lo contrario no hace nada"""
+  gui.cambia_fuente (numFuente)
+
 def a1_DESTROY (objno):
   """Cambia la localidad del objeto objno a 252 (no creado), y decrementa el número de objetos llevados si objno se estaba llevando"""
   obj_referido (objno)  # TODO: comprobar si PAWS también lo hace

@@ -41,6 +41,7 @@ colores_inicio = []   # Colores iniciales: tinta, papel, borde y opcionalmente b
 conexiones     = []   # Listas de conexiones de cada localidad
 desc_locs      = []   # Descripciones de las localidades
 desc_objs      = []   # Descripciones de los objetos
+fuente_inicial = [0]  # Índice de la fuente por defecto
 locs_iniciales = []   # Localidades iniciales de los objetos
 msgs_sys       = []   # Mensajes de sistema
 msgs_usr       = []   # Mensajes de usuario
@@ -264,6 +265,10 @@ Para compatibilidad con el IDE:
   posicion = busca_secuencia ((16, None, 17, None, 18, None, 19, None, 20, None, 21))
   if posicion == None:
     return False  # Cabecera de la base de datos no encontrada
+  # Cargamos el índice de la fuente inicial
+  fichero.seek (posicion - 40)
+  del fuente_inicial[:]
+  fuente_inicial.append (ord (fichero.read (1)))
   # Cargamos los colores iniciales
   fichero.seek (posicion - 9)
   colores_inicio.append (ord (fichero.read (1)))  # Color de tinta
@@ -346,6 +351,8 @@ def lee_secs_ctrl (cadena):
     o = ord (c)
     if c == '\n':
       convertida += '\\n'
+    elif o < 6:
+      convertida += '\\' + _('CHARSET') + '_%02X' % o
     elif c == '\x06':  # Tabulador
       convertida += '\\t'
     elif o in range (16, 21) and (i + 1) < len (cadena):
@@ -568,7 +575,7 @@ def preparaPlataforma ():
   fich_ent.seek (CAB_VERSION)
   version = carga_int1()
   # fich_ent.seek (CAB_PLATAFORMA)  # Son consecutivos
-  plataforma = carga_int1()
+  plataforma = carga_int1()  # TODO: fallará si se activa por defecto el modo OVER
   # Detectamos "endianismo"
   if plataforma in plats_LE or version == 21:  # Si el byte de versión vale 21, es formato sna
     carga_int2 = carga_int2_le
