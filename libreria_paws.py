@@ -46,6 +46,7 @@ msgs_sys       = []   # Mensajes de sistema
 msgs_usr       = []   # Mensajes de usuario
 nombres_objs   = []   # Nombre y adjetivo de los objetos
 num_objetos    = [0]  # Número de objetos (en lista para pasar por referencia)
+pos_fuentes    = []   # Posiciones de las fuentes tipográficas
 tablas_proceso = []   # Tablas de proceso
 udgs           = []   # UDGs (caracteres gráficos definidos por el usuario)
 vocabulario    = []   # Vocabulario
@@ -606,6 +607,11 @@ def cargaBD (fichero, longitud):
   bajo_nivel_cambia_ent (fichero)
   try:
     preparaPlataforma()
+    if 'CAB_NUM_FUENTES' in globals():
+      numFuentes = carga_int1 (CAB_NUM_FUENTES)
+      posFuentes = carga_desplazamiento (CAB_POS_FUENTES)
+      for f in range (numFuentes):
+        pos_fuentes.append (posFuentes + f * 768)
     cargaAbreviaturas()
     cargaCadenas (CAB_NUM_LOCS,     CAB_POS_LST_POS_LOCS,     desc_locs)
     cargaCadenas (CAB_NUM_OBJS,     CAB_POS_LST_POS_OBJS,     desc_objs)
@@ -622,7 +628,7 @@ def cargaBD (fichero, longitud):
 
 # Asigna las "constantes" de desplazamientos (offsets/posiciones) en la cabecera
 def preparaPosCabecera (formato, inicio = 0):
-  global CAB_VERSION, CAB_PLATAFORMA, CAB_NUM_OBJS, CAB_NUM_LOCS, CAB_NUM_MSGS_USR, CAB_NUM_MSGS_SYS, CAB_NUM_PROCS, CAB_POS_ABREVS, CAB_POS_LST_POS_PROCS, CAB_POS_LST_POS_OBJS, CAB_POS_LST_POS_LOCS, CAB_POS_LST_POS_MSGS_USR, CAB_POS_LST_POS_MSGS_SYS, CAB_POS_LST_POS_CNXS, CAB_POS_VOCAB, CAB_POS_LOCS_OBJS, CAB_POS_NOMS_OBJS, CAB_POS_ATRIBS_OBJS, CAB_LONG_FICH
+  global CAB_VERSION, CAB_PLATAFORMA, CAB_NUM_OBJS, CAB_NUM_LOCS, CAB_NUM_MSGS_USR, CAB_NUM_MSGS_SYS, CAB_NUM_PROCS, CAB_NUM_FUENTES, CAB_POS_FUENTES, CAB_POS_ABREVS, CAB_POS_LST_POS_PROCS, CAB_POS_LST_POS_OBJS, CAB_POS_LST_POS_LOCS, CAB_POS_LST_POS_MSGS_USR, CAB_POS_LST_POS_MSGS_SYS, CAB_POS_LST_POS_CNXS, CAB_POS_VOCAB, CAB_POS_LOCS_OBJS, CAB_POS_NOMS_OBJS, CAB_POS_ATRIBS_OBJS, CAB_LONG_FICH
   CAB_VERSION      = inicio + 0  # Versión del formato de base de datos
   CAB_PLATAFORMA   = inicio + 1  # Identificador de plataforma e idioma
   CAB_NUM_OBJS     = inicio + 3  # Número de objetos
@@ -644,6 +650,8 @@ def preparaPosCabecera (formato, inicio = 0):
     CAB_POS_ATRIBS_OBJS      = 28  # Posición de los atributos de los objetos
     CAB_LONG_FICH            = 30  # Longitud de la base de datos
   elif formato == 'sna48k':
+    CAB_NUM_FUENTES          = inicio + 8   # Número de fuentes tipográficas
+    CAB_POS_FUENTES          = inicio + 9   # Posición de las fuentes tipográficas
     CAB_POS_ABREVS           = inicio + 11  # Posición de las abreviaturas
     CAB_POS_LST_POS_PROCS    = 49140        # Posición lista de posiciones de procesos
     CAB_POS_LST_POS_OBJS     = 49142        # Posición lista de posiciones de objetos

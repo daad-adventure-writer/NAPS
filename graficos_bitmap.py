@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Librería para operar con bases de datos gráficas y otros gráficos de mapa de bits
-# Copyright (C) 2008, 2018-2024 José Manuel Ferrer Ortiz
+# Copyright (C) 2008, 2018-2025 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -190,11 +190,12 @@ def carga_fuente (fichero):
       posPorFila += ancho
   return imagen, paletaBN
 
-def carga_fuente_zx_8 (fichero):
+def carga_fuente_zx_8 (fichero, posicion = None):
   """Carga y devuelve una fuente tipográfica de ZX Spectrum de 8x8 junto con su paleta, como índices en la paleta de cada píxel, organizados como en fuente.png"""
-  posicion = detectaFuente8 (fichero)
   if posicion == None:
-    return [], []
+    posicion = detectaFuente8 (fichero)
+    if posicion == None:
+      return [], []
   bajo_nivel_cambia_ent (fichero)
   fichero.seek (posicion)
   ancho  = 628

@@ -428,7 +428,13 @@ def carga_fuente_zx (fichero):
   for c, convertido in conversion.items():
     izquierda = izquierda.replace (c, convertido)
   fuente_zx = pygame.image.load (path.dirname (path.realpath (__file__)) + path.sep + 'fuente_zx_8x8.png')
-  imagen, palImg = graficos_bitmap.carga_fuente_zx_8 (fichero)
+  if NOMBRE_SISTEMA == 'PAWS':
+    if pos_fuentes:
+      imagen, palImg = graficos_bitmap.carga_fuente_zx_8 (fichero, pos_fuentes[0])
+    else:
+      imagen = None
+  else:
+    imagen, palImg = graficos_bitmap.carga_fuente_zx_8 (fichero)
   if not imagen:
     fuente = fuente_zx
     fuente.set_palette (graficos_bitmap.paletaBN)
