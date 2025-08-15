@@ -313,15 +313,15 @@ def escribe_secs_ctrl (cadena):
     if c == '\t':
       convertida += '\x06'  # Tabulador
     elif c == '\\':
-      if cadena[i:i + 5] == '\\TAB_':
-        columna = cadena[i + 5:i + 7]
+      if cadena[i + 1:i + len(_('TAB')) + 2] == _('TAB') + '_':
+        columna = cadena[i + len(_('TAB')) + 2:i + len(_('TAB')) + 4]
         try:
           columna     = int (columna, 16)
           convertida += chr (23) + chr (columna)
         except:
           pass
-        i += 5
-      elif cadena[i:i + 2] == '\\x':  # Códigos escritos en hexadecimal
+        i += len (_('TAB')) + 3
+      elif cadena[i + 1:i + 2] == 'x':  # Códigos escritos en hexadecimal
         try:
           codigo = int (cadena[i + 2: i + 4], 16)
         except:
@@ -351,19 +351,19 @@ def lee_secs_ctrl (cadena):
     elif o in range (16, 21) and (i + 1) < len (cadena):
       convertida += '\\'
       if o == 16:
-        convertida += 'TINTA'
+        convertida += _('INK')
       elif o == 17:
-        convertida += 'PAPEL'
+        convertida += _('PAPER')
       elif o == 18:
-        convertida += 'FLASH'
+        convertida += _('FLASH')
       elif o == 19:
-        convertida += 'BRILLO'
+        convertida += _('BRIGHT')
       else:  # o == 20
-        convertida += 'INVERSA'
+        convertida += _('INVERSE')
       convertida += '_%02X' % ord (cadena[i + 1])
       i += 1  # El siguiente carácter ya se ha procesado
     elif o == 23:
-      convertida += '\\TAB_%02X' % ord (cadena[i + 1])
+      convertida += '\\' + _('TAB') + '_%02X' % ord (cadena[i + 1])
       i += 2  # El siguiente carácter ya se ha procesado y el de después se ignora
     elif c == '\\':
       convertida += '\\\\'
