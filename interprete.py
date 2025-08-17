@@ -1609,7 +1609,7 @@ if __name__ == '__main__':
         gui.cod_juego_alto = 14  # ü
         gui.cod_juego_bajo = 15  # Ü
   if NOMBRE_SISTEMA not in ('GAC', 'QUILL'):
-    gui.txt_mas = msgs_sys[32]  # (más)
+    gui.txt_mas = msgs_sys[32].lstrip ('\n')  # (más)
 
   # Fallamos ahora si falta algún condacto
   if False:
