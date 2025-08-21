@@ -7,6 +7,8 @@
 
 import re
 
+from sys import version_info
+
 from prn_func import prn
 
 
@@ -518,7 +520,7 @@ def analizaCadena (cadena, reglaEntrada, condicionY = True, posEnCadena = 0):
       else:
         algunResultado   = True
         nuevaPosEnCadena = posDevuelta
-    elif type (entrada) == str:
+    elif type (entrada) == str or (version_info[0] < 3 and type (entrada) == unicode):
       if entrada[-1] in '*+>?':
         if entrada[-1] in '*+':
           multiple = True
