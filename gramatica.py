@@ -588,7 +588,7 @@ def analizaCadena (cadena, reglaEntrada, condicionY = True, posEnCadena = 0):
       # prn ('Encaja regla vacía (opcional)')
       return '', posEnCadena, arbolDatos
     else:
-      errorAC    = 'Gramática inválida, tipo de regla desconocido: ' + type (entrada)
+      errorAC    = 'Gramática inválida, tipo de regla desconocido: ' + type (entrada).__name__
       posErrorAC = 999999999
       return errorAC, posErrorAC, []
     if (algunResultado or opcional) and not condicionY:
