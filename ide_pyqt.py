@@ -2182,14 +2182,15 @@ def importaBD (nombreFicheroBD, indiceFuncion = None, nombreFicheroGfx = None):
   """Importa una base de datos desde el fichero de nombre dado, devolviendo verdadero si todo ha ido bien"""
   global mod_actual, nombre_fich_bd, nombre_fich_gfx
   nombre_fich_bd = None
+  nombreFichMsg  = nombreFicheroBD.decode ('utf8') if sys.version_info[0] < 3 else nombreFicheroBD
   try:
     fichero = open (nombreFicheroBD, 'rb')
   except IOError as excepcion:
-    muestraFallo (_('Unable to open the file:\n') + nombreFicheroBD,
+    muestraFallo (_('Unable to open the file:\n') + nombreFichMsg,
                   _('Cause:\n') + excepcion.args[1])
     return
   if '.' not in nombreFicheroBD:
-    muestraFallo (_('Unable to import a database from:\n') + nombreFicheroBD,
+    muestraFallo (_('Unable to import a database from:\n') + nombreFichMsg,
                   _('Cause:\nThe file lacks an extension'))
     return
   modulos = []  # Módulos que soportan la extensión, junto con su función de carga
@@ -2202,7 +2203,7 @@ def importaBD (nombreFicheroBD, indiceFuncion = None, nombreFicheroGfx = None):
       if extension in extensiones:
         modulos.append ((modulo, funcion))
     if not modulos:
-      muestraFallo (_('Unable to import a database from:\n') + nombreFicheroBD,
+      muestraFallo (_('Unable to import a database from:\n') + nombreFichMsg,
                     _('Cause:\nUnknown extension'))
       return
   # Importamos la BD y damos acceso al módulo a funciones del IDE
@@ -2223,7 +2224,7 @@ def importaBD (nombreFicheroBD, indiceFuncion = None, nombreFicheroGfx = None):
   fichero.close()
   if hayFallo:
     muestraFallo (_('Unable to import a database from:\n') +
-                  nombreFicheroBD, _('Cause:\nIncompatible file format or corrupted database'))
+                  nombreFichMsg, _('Cause:\nIncompatible file format or corrupted database'))
     mod_actual = None
     return
   nombre_fich_bd  = nombreFicheroBD

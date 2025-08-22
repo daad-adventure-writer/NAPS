@@ -644,7 +644,7 @@ def carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, atributos, atributos_e
       textoPosicion = (';' if ',' in descripcion else ',') + ' en línea ' + str (inicioFich + numLinea - inicioCod)
       if numColumna != None:
         textoPosicion += ' columna ' + str (numColumna)
-      textoPosicion += ' de ' + rutaFichero
+      textoPosicion += ' de ' + rutaFichero.decode ('utf8') if sys.version_info[0] < 3 else rutaFichero
     prn ('Formato del código fuente inválido o no soportado:', descripcion + textoPosicion + detalles, file = sys.stderr, sep = '\n')
   except UnicodeDecodeError as e:
     prn ('Error de codificación en el código fuente, que debe usar codificación cp437:', e, file = sys.stderr, sep = '\n')
