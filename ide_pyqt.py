@@ -2297,6 +2297,7 @@ def imprimeCondacto (condacto, parametros, inalcanzable = False, nuevaLinea = Tr
       campo_txt.setTextColor (QColor (255, 0, 0))  # Color rojo
     nombre      = str (condacto)
     tiposParams = '?' * len (parametros)
+  mensaje = None
   if parametros:  # Imprimiremos los parámetros
     campo_txt.insertPlainText (nombre.center (7) + ' ')
     for p in range (len (parametros)):
@@ -2305,7 +2306,6 @@ def imprimeCondacto (condacto, parametros, inalcanzable = False, nuevaLinea = Tr
       else:
         campo_txt.setTextColor (QColor (255, 160, 32))  # Color anaranjado
       formato   = None
-      mensaje   = None
       parametro = parametros[p]
       if p > 0:
         campo_txt.insertPlainText (',')
@@ -2350,29 +2350,30 @@ def imprimeCondacto (condacto, parametros, inalcanzable = False, nuevaLinea = Tr
         campo_txt.quitaFormatoEnlace()
       else:
         campo_txt.insertPlainText (str (parametro).rjust (4))
-    if not inalcanzable and mensaje != None:
-      if accMostrarRec.isChecked():  # Recortar al ancho de línea disponible
-        qfm = QFontMetrics (campo_txt.font())
-        columnasVisibles = int ((campo_txt.size().width() - BarraIzquierda.anchoBarra) // (qfm.size (0, '#').width()))
-      if not accMostrarRec.isChecked() or columnasVisibles > 26:  # No recortamos o hay espacio suficiente para mostrar algo de texto
-        mensaje = daTextoImprimible (mensaje)
-        if not inalcanzable:
-          campo_txt.setTextColor (QColor (100, 100, 100))  # Color gris oscuro
-        campo_txt.insertPlainText ('       "')
-        campo_txt.setFontItalic (True)  # Cursiva activada
-        if accMostrarRec.isChecked() and len (mensaje) > columnasVisibles - 26:  # Se recortará al ancho de línea disponible
-          cursor  = campo_txt.textCursor()
-          formato = cursor.charFormat()
-          formato.setToolTip (daTextoComoParrafoHtml (mensaje))
-          cursor.insertText (mensaje[: columnasVisibles - 26], formato)
-          formato.setToolTip ('')
-          cursor.insertText (u'\u2026', formato)
-        else:  # No se recorta
-          campo_txt.insertPlainText (mensaje)
-        campo_txt.setFontItalic (False)  # Cursiva desactivada
-        campo_txt.insertPlainText ('"')
   else:  # Condacto sin parámetros
     campo_txt.insertPlainText ((nombre + indirecto).rstrip().center (7).rstrip())
+  # Imprimimos el mensaje si lo hay
+  if not inalcanzable and mensaje != None:
+    if accMostrarRec.isChecked():  # Recortar al ancho de línea disponible
+      qfm = QFontMetrics (campo_txt.font())
+      columnasVisibles = int ((campo_txt.size().width() - BarraIzquierda.anchoBarra) // (qfm.size (0, '#').width()))
+    if not accMostrarRec.isChecked() or columnasVisibles > 26:  # No recortamos o hay espacio suficiente para mostrar algo de texto
+      mensaje = daTextoImprimible (mensaje)
+      if not inalcanzable:
+        campo_txt.setTextColor (QColor (100, 100, 100))  # Color gris oscuro
+      campo_txt.insertPlainText ('       "')
+      campo_txt.setFontItalic (True)  # Cursiva activada
+      if accMostrarRec.isChecked() and len (mensaje) > columnasVisibles - 26:  # Se recortará al ancho de línea disponible
+        cursor  = campo_txt.textCursor()
+        formato = cursor.charFormat()
+        formato.setToolTip (daTextoComoParrafoHtml (mensaje))
+        cursor.insertText (mensaje[: columnasVisibles - 26], formato)
+        formato.setToolTip ('')
+        cursor.insertText (u'\u2026', formato)
+      else:  # No se recorta
+        campo_txt.insertPlainText (mensaje)
+      campo_txt.setFontItalic (False)  # Cursiva desactivada
+      campo_txt.insertPlainText ('"')
   if inalcanzable or campo_txt.condactos[campo_txt.condactosPorCod[condacto]][2 if mod_actual.NOMBRE_SISTEMA == 'QUILL' else 3]:
     return True
   return False
