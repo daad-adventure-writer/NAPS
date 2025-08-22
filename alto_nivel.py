@@ -492,7 +492,7 @@ def carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, atributos, atributos_e
         # Juntamos en una lista el condacto en la misma línea si hay, y los condactos posteriores si los hay
         arbolCondactos = []
         if arbolEntrada[posCondacto][0]:
-          arbolCondactos.append (arbolEntrada[posCondacto][0])
+          arbolCondactos.append (arbolEntrada[posCondacto][0] + [arbolEntrada[posCondacto + 1]])  # Le añadimos el comentario al final
         if arbolEntrada[posCondactos]:
           arbolCondactos.extend (arbolEntrada[posCondactos])
         entrada = []
@@ -581,7 +581,6 @@ def carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, atributos, atributos_e
             if not datosCondactos[nombre][version - 1]:
               raise TabError ('Condacto de nombre %s inexistente en DAAD versión %d (asumida por condactos anteriores)', (nombre, version), posicionCondacto)
             # La comprobación del número de parámetros se hace abajo
-            entrada.append ((datosCondactos[nombre][version - 1][0] + indireccion, parametros))
           else:
             # Fijamos versión de DAAD si el condacto con ese nombre sólo está en una
             if not datosCondactos[nombre][0] or not datosCondactos[nombre][1]:
@@ -595,7 +594,6 @@ def carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, atributos, atributos_e
             # Fijamos versión de DAAD si el condacto con ese número de parámetros sólo está en una
             elif len (datosCondactos[nombre][0][1]) != len (datosCondactos[nombre][1][1]):
               version = 1 if len (parametros) == len (datosCondactos[nombre][0][1]) else 2
-            entrada.append ((datosCondactos[nombre][version - 1][0] + indireccion, parametros))
             # TODO: poner a condactos anteriores con código diferente entre versiones, el de la versión 2
             if version == 2:
               pass
@@ -603,6 +601,10 @@ def carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, atributos, atributos_e
           if version and len (parametros) != len (datosCondactos[nombre][version - 1][1]):
             requerido = len (datosCondactos[nombre][version - 1][1])
             raise TabError ('El condacto %s requiere %d parámetro%s en DAAD versión %d (asumida por %s)', (nombre, requerido, '' if requerido == 1 else 's', version, 'condactos anteriores' if version == versionAntes else ('este mismo condacto, que sólo existe en la versión ' + str (version))), posicionCondacto)
+          if arbolCondacto[-1][0][0][0]:  # Si tiene comentario
+            entrada.append ((datosCondactos[nombre][version - 1][0] + indireccion, parametros, arbolCondacto[-1][0][0][0]))
+          else:
+            entrada.append ((datosCondactos[nombre][version - 1][0] + indireccion, parametros))
         entradas.append (entrada)
       tablas_proceso.append ((cabeceras, entradas))
       numProceso += 1

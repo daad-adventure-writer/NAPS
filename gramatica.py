@@ -21,7 +21,7 @@ terminales = {
   'espacio en blanco':      re.compile ('[ \t]+'),
   'número entero':          re.compile (r'([+\-]?[0-9]+)'),
   'número entero positivo': re.compile ('([0-9]+)'),
-  'fin de línea opcionalmente tras espacio en blanco y/o comentario': re.compile ('[ \t]*(?:;[^\n]*)?\n'),
+  'fin de línea opcionalmente tras espacio en blanco y/o comentario': re.compile ('[ \t]*(?:;([^\n]*))?\n'),
   # De la sección CTL
   '/CTL':     re.compile ('(/CTL)'),
   'DBDRIVE':  re.compile ('([A-P])'),

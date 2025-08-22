@@ -1525,7 +1525,8 @@ def cambiaProceso (numero, numEntrada = None):
     campo_txt.insertPlainText ('\n     ')
     inalcanzable = False  # Marca de código inalcanzable
     for c in range (len (entradas[i])):
-      condacto, parametros = entradas[i][c]
+      condacto, parametros = entradas[i][c][:2]
+      comentario = entradas[i][c][2] if len (entradas[i][c]) > 2 else None
       if [numero, i, c] in pila_procs:
         if pila_procs[-1] == [numero, i, c]:
           posicion = campo_txt.textCursor().position()
@@ -1533,7 +1534,7 @@ def cambiaProceso (numero, numEntrada = None):
           campo_txt.setTextBackgroundColor (color_tope_pila)
         else:
           campo_txt.setTextBackgroundColor (color_pila)
-      inalcanzable = imprimeCondacto (condacto, parametros, inalcanzable)
+      inalcanzable = imprimeCondacto (condacto, parametros, comentario, inalcanzable)
       campo_txt.setFontWeight (QFont.Normal)
       campo_txt.setTextBackgroundColor (color_base)
     campo_txt.insertPlainText ('\n     ')
@@ -2270,7 +2271,7 @@ def imprimeCabecera (verbo, nombre, numEntrada, numProceso):
   campo_txt.setTextBackgroundColor (color_base)
   campo_txt.textCursor().block().setUserState (numEntrada)  # Guardamos el número de la entrada
 
-def imprimeCondacto (condacto, parametros, inalcanzable = False, nuevaLinea = True):
+def imprimeCondacto (condacto, parametros, comentario = None, inalcanzable = False, nuevaLinea = True):
   """Imprime el condacto de código y parámetros dados en campo_txt en la posición del cursor actual, opcionalmente indicando si era código inalcanzable. Devuelve True si el parámetro inalcanzable era True o el condacto cambia el flujo incondicionalmente"""
   if inalcanzable:
     campo_txt.setTextColor (QColor (60, 60, 60))  # Color gris muy oscuro
@@ -2351,17 +2352,22 @@ def imprimeCondacto (condacto, parametros, inalcanzable = False, nuevaLinea = Tr
       else:
         campo_txt.insertPlainText (str (parametro).rjust (4))
   else:  # Condacto sin parámetros
-    campo_txt.insertPlainText ((nombre + indirecto).rstrip().center (7).rstrip())
-  # Imprimimos el mensaje si lo hay
-  if not inalcanzable and mensaje != None:
+    textoCondacto = (nombre + indirecto).rstrip().center (7)
+    campo_txt.insertPlainText (textoCondacto if comentario else textoCondacto.rstrip())
+  # Imprimimos el mensaje o comentario si hay
+  if comentario:
+    mensaje = comentario
+  if comentario or (not inalcanzable and mensaje != None):
     if accMostrarRec.isChecked():  # Recortar al ancho de línea disponible
       qfm = QFontMetrics (campo_txt.font())
       columnasVisibles = int ((campo_txt.size().width() - BarraIzquierda.anchoBarra) // (qfm.size (0, '#').width()))
     if not accMostrarRec.isChecked() or columnasVisibles > 26:  # No recortamos o hay espacio suficiente para mostrar algo de texto
       mensaje = daTextoImprimible (mensaje)
-      if not inalcanzable:
+      if inalcanzable:
+        campo_txt.setTextColor (QColor (60, 60, 60))  # Color gris muy oscuro
+      else:
         campo_txt.setTextColor (QColor (100, 100, 100))  # Color gris oscuro
-      campo_txt.insertPlainText ('       "')
+      campo_txt.insertPlainText (' ' * (2 + (2 - len (parametros)) * 5) + (';' if comentario else '"'))
       campo_txt.setFontItalic (True)  # Cursiva activada
       if accMostrarRec.isChecked() and len (mensaje) > columnasVisibles - 26:  # Se recortará al ancho de línea disponible
         cursor  = campo_txt.textCursor()
@@ -2373,7 +2379,8 @@ def imprimeCondacto (condacto, parametros, inalcanzable = False, nuevaLinea = Tr
       else:  # No se recorta
         campo_txt.insertPlainText (mensaje)
       campo_txt.setFontItalic (False)  # Cursiva desactivada
-      campo_txt.insertPlainText ('"')
+      if not comentario:
+        campo_txt.insertPlainText ('"')
   if inalcanzable or campo_txt.condactos[campo_txt.condactosPorCod[condacto]][2 if mod_actual.NOMBRE_SISTEMA == 'QUILL' else 3]:
     return True
   return False
