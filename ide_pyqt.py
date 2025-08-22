@@ -406,7 +406,7 @@ class CampoTexto (QTextEdit):
 
   def keyPressEvent (self, evento):
     global tam_fuente
-    if evento.key() in (Qt.Key_Down, Qt.Key_End, Qt.Key_Home, Qt.Key_Left, Qt.Key_Right, Qt.Key_Up):
+    if evento.key() in (Qt.Key_Down, Qt.Key_End, Qt.Key_Home, Qt.Key_Left, Qt.Key_Right, Qt.Key_Up):  # Mover posición del cursor
       cursor = self.textCursor()
       if evento.key() in (Qt.Key_Down, Qt.Key_Up):
         if evento.key() == Qt.Key_Up:
@@ -434,7 +434,7 @@ class CampoTexto (QTextEdit):
           colNueva = colsValidas[min (posColumna + 1, len (colsValidas) - 1)]
         cursor.setPosition (cursor.position() + (colNueva - columna))
       self.setTextCursor (cursor)
-    elif evento.key() == Qt.Key_Insert:
+    elif evento.key() == Qt.Key_Insert:  # Alternar entre modo de sobreescritura o inserción
       if self.overwriteMode():
         self.setCursorWidth   (1)
         self.setOverwriteMode (False)
@@ -442,7 +442,7 @@ class CampoTexto (QTextEdit):
         self.setCursorWidth   (int (tam_fuente * 0.7))
         self.setOverwriteMode (True)
     elif evento.modifiers() & Qt.ControlModifier:  # Teclas de acción
-      if evento.key() in (Qt.Key_Minus, Qt.Key_Plus):
+      if evento.key() in (Qt.Key_Minus, Qt.Key_Plus):  # Cambiar nivel de zoom del texto
         cursor = self.textCursor()
         self.selectAll()
         if evento.key() == Qt.Key_Minus:
@@ -464,7 +464,7 @@ class CampoTexto (QTextEdit):
     elif proc_interprete:
       return  # No se puede modificar nada cuando la BD está en ejecución
     # Teclas que pueden causar modificación de la tabla de procesos
-    if evento.key() == Qt.Key_Backspace:
+    if evento.key() == Qt.Key_Backspace:  # Borrar el condacto anterior
       cursor  = self.textCursor()
       columna = cursor.positionInBlock()
       linea   = cursor.block()
@@ -611,7 +611,7 @@ class CampoTexto (QTextEdit):
           elif cursor.block().text()[:1] == ' ':  # El verbo
             cursor.movePosition (QTextCursor.WordRight, n = 1)
           self.setTextCursor (cursor)
-    elif evento.key() in (Qt.Key_At, Qt.Key_BracketLeft) and mod_actual.INDIRECCION:
+    elif evento.key() in (Qt.Key_At, Qt.Key_BracketLeft) and mod_actual.INDIRECCION:  # Alternar indirección del condacto
       cursor  = self.textCursor()
       columna = cursor.positionInBlock()
       linea   = cursor.block()
