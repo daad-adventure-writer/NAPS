@@ -336,7 +336,7 @@ def carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, atributos, atributos_e
     posGrupo    = gramatica.reglas['sección CON'].index ('grupo de conexión*')
     posLocOrig  = gramatica.reglas['grupo de conexión'].index ('carácter /') + 1
     posConexion = gramatica.reglas['grupo de conexión'].index ('entrada de conexión*')
-    posVerbo    = gramatica.reglas['entrada de conexión'].index ('palabra de vocabulario')
+    posVerboEnt = gramatica.reglas['entrada de conexión'].index ('palabra de vocabulario')
     posLocDest  = gramatica.reglas['entrada de conexión'].index ('expresión')
     numEntrada = 0
     for entrada in arbolCodigo[0][0][posSeccion][0][posGrupo]:
@@ -349,7 +349,7 @@ def carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, atributos, atributos_e
       for conexion in entrada[posConexion]:
         if not conexion:
           continue  # Continuamos aunque sólo debería estar vacía como mucho la última entrada
-        encajesVerbo, posicion = conexion[posVerbo][0]
+        encajesVerbo, posicion = conexion[posVerboEnt][0]
         verbo = encajesVerbo[0][:LONGITUD_PAL].lower()
         if verbo not in verbos:
           raise TabError ('una palabra de vocabulario de tipo verbo', (), posicion)
@@ -442,7 +442,8 @@ def carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, atributos, atributos_e
     posNumero    = gramatica.reglas['sección PRO' + sufijoFormato].index ('expresión')
     posEntrada   = gramatica.reglas['sección PRO' + sufijoFormato].index ('entrada de proceso' + sufijoFormato + '*')
     posEtiqueta  = gramatica.reglas['entrada de proceso' + sufijoFormato].index ('línea de etiqueta?')
-    posVerbo     = gramatica.reglas['entrada de proceso' + sufijoFormato].index ('palabra')
+    posVerboEnt  = gramatica.reglas['entrada de proceso' + sufijoFormato].index ('palabra')
+    posNombreEnt = gramatica.reglas['entrada de proceso' + sufijoFormato].index ('palabra', posVerboEnt + 1)
     posCondacto  = gramatica.reglas['entrada de proceso' + sufijoFormato].index ('condacto en misma línea' + sufijoFormato + '?')
     posCondactos = gramatica.reglas['entrada de proceso' + sufijoFormato].index ('condacto' + sufijoFormato + '*')
     posNombre    = gramatica.reglas['condacto' + sufijoFormato].index ('nombre de condacto')
@@ -478,7 +479,7 @@ def carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, atributos, atributos_e
         if not arbolEntrada:
           continue  # Continuamos aunque sólo debería estar vacía como mucho la última entrada
         palabras = []
-        for posPalabra in range (posVerbo, posVerbo + 3, 2):
+        for posPalabra in range (posVerboEnt, posNombreEnt + 1, 2):
           arbolPalabra = arbolEntrada[posPalabra][0][0] if arbolEntrada[posPalabra][0][0] else arbolEntrada[posPalabra][0][1]
           encajesPalabra, posicion = arbolPalabra[0]
           palabra = encajesPalabra[0][:LONGITUD_PAL].lower()
