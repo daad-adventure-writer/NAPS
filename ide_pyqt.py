@@ -434,36 +434,6 @@ class CampoTexto (QTextEdit):
           colNueva = colsValidas[min (posColumna + 1, len (colsValidas) - 1)]
         cursor.setPosition (cursor.position() + (colNueva - columna))
       self.setTextCursor (cursor)
-    elif evento.key() == Qt.Key_Backspace:
-      cursor  = self.textCursor()
-      columna = cursor.positionInBlock()
-      linea   = cursor.block()
-      numEntrada, posicion = self._daNumEntradaYLinea (linea)
-      numProceso = pestanyas.currentIndex()
-      proceso    = mod_actual.tablas_proceso[numProceso]  # El proceso seleccionado
-      entrada    = proceso[1][numEntrada]  # La entrada seleccionada
-      if posicion > 1 and posicion < len (entrada) + 2 and columna == len (linea.text()):  # Sólo si está al final de una línea de condacto
-        del entrada[posicion - 2]
-        cursor.movePosition (QTextCursor.StartOfBlock, QTextCursor.KeepAnchor)
-        cursor.movePosition (QTextCursor.Left,         QTextCursor.KeepAnchor)
-        self.setTextCursor (cursor)
-        self.cut()
-        # Actualizamos los puntos de ruptura necesarios de la entrada
-        if numProceso in puntos_ruptura:
-          # Quitamos punto de ruptura del condacto quitado si tenía
-          if (numEntrada, posicion - 2, posicion) in puntos_ruptura[numProceso]:
-            puntos_ruptura[numProceso].remove ((numEntrada, posicion - 2, posicion))
-          # Saltamos puntos de ruptura anteriores a la posición del condacto quitado
-          e = 0
-          while e < len (puntos_ruptura[numProceso]):
-            if puntos_ruptura[numProceso][e][0] > numEntrada or (puntos_ruptura[numProceso][e][0] == numEntrada and puntos_ruptura[numProceso][e][2] > posicion):
-              break
-            e += 1
-          # Actualizamos los puntos de ruptura de condactos en la entrada posteriores al quitado
-          for pe in range (e, len (puntos_ruptura[numProceso])):
-            if puntos_ruptura[numProceso][pe][0] > numEntrada:
-              break
-            puntos_ruptura[numProceso][pe] = (puntos_ruptura[numProceso][pe][0], puntos_ruptura[numProceso][pe][1] - 1, puntos_ruptura[numProceso][pe][2] - 1)
     elif evento.key() == Qt.Key_Insert:
       if self.overwriteMode():
         self.setCursorWidth   (1)
@@ -494,7 +464,37 @@ class CampoTexto (QTextEdit):
     elif proc_interprete:
       return  # No se puede modificar nada cuando la BD está en ejecución
     # Teclas que pueden causar modificación de la tabla de procesos
-    if str (evento.text()).isalpha():  # Letras
+    if evento.key() == Qt.Key_Backspace:
+      cursor  = self.textCursor()
+      columna = cursor.positionInBlock()
+      linea   = cursor.block()
+      numEntrada, posicion = self._daNumEntradaYLinea (linea)
+      numProceso = pestanyas.currentIndex()
+      proceso    = mod_actual.tablas_proceso[numProceso]  # El proceso seleccionado
+      entrada    = proceso[1][numEntrada]  # La entrada seleccionada
+      if posicion > 1 and posicion < len (entrada) + 2 and columna == len (linea.text()):  # Sólo si está al final de una línea de condacto
+        del entrada[posicion - 2]
+        cursor.movePosition (QTextCursor.StartOfBlock, QTextCursor.KeepAnchor)
+        cursor.movePosition (QTextCursor.Left,         QTextCursor.KeepAnchor)
+        self.setTextCursor (cursor)
+        self.cut()
+        # Actualizamos los puntos de ruptura necesarios de la entrada
+        if numProceso in puntos_ruptura:
+          # Quitamos punto de ruptura del condacto quitado si tenía
+          if (numEntrada, posicion - 2, posicion) in puntos_ruptura[numProceso]:
+            puntos_ruptura[numProceso].remove ((numEntrada, posicion - 2, posicion))
+          # Saltamos puntos de ruptura anteriores a la posición del condacto quitado
+          e = 0
+          while e < len (puntos_ruptura[numProceso]):
+            if puntos_ruptura[numProceso][e][0] > numEntrada or (puntos_ruptura[numProceso][e][0] == numEntrada and puntos_ruptura[numProceso][e][2] > posicion):
+              break
+            e += 1
+          # Actualizamos los puntos de ruptura de condactos en la entrada posteriores al quitado
+          for pe in range (e, len (puntos_ruptura[numProceso])):
+            if puntos_ruptura[numProceso][pe][0] > numEntrada:
+              break
+            puntos_ruptura[numProceso][pe] = (puntos_ruptura[numProceso][pe][0], puntos_ruptura[numProceso][pe][1] - 1, puntos_ruptura[numProceso][pe][2] - 1)
+    elif str (evento.text()).isalpha():  # Letras
       cursor  = self.textCursor()
       columna = cursor.positionInBlock()
       linea   = cursor.block()
