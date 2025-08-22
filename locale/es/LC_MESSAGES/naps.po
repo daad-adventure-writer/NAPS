@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: 24.04\n"
 "Report-Msgid-Bugs-To: jmfo1982@gmail.com\n"
 "POT-Creation-Date: 2025-08-15 19:43+0200\n"
-"PO-Revision-Date: 2025-08-15 19:56+0200\n"
+"PO-Revision-Date: 2025-08-23 00:52+0200\n"
 "Last-Translator: José Manuel Ferrer Ortiz <jmfo1982@gmail.com>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
@@ -644,7 +644,7 @@ msgstr "Datos de los &objetos"
 
 #: ide_pyqt.py:1626
 msgid "St&op"
-msgstr ""
+msgstr "&Detener"
 
 #: ide_pyqt.py:1627
 msgid "&Movement"
