@@ -2328,7 +2328,7 @@ def imprimeCondacto (condacto, parametros, comentario = None, inalcanzable = Fal
             campo_txt.setTextColor (QColor (120, 0, 0))  # Color rojo oscuro
           else:
             campo_txt.setTextColor (QColor (255, 0, 0))  # Color rojo
-        elif tiposParams == 'l' and accMostrarLoc.isChecked():
+        elif tiposParams in 'lL' and accMostrarLoc.isChecked() and parametro not in range (252, 256):
           mensaje = mod_actual.desc_locs[parametro]
         elif tiposParams == 'm' and accMostrarUsr.isChecked():
           mensaje = mod_actual.msgs_usr[parametro]
