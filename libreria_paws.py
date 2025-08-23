@@ -36,6 +36,7 @@ import alto_nivel
 # Ponemos los módulos de condactos en orden, para permitir que las funciones de los condactos de igual firma (nombre, tipo y número de parámetros) de los sistemas más nuevos tengan precedencia sobre las de sistemas anteriores
 mods_condactos = ('condactos_paws', 'condactos_quill')
 
+abreviaturas   = []
 atributos      = []   # Atributos de los objetos
 colores_inicio = []   # Colores iniciales: tinta, papel, borde y opcionalmente brillo
 conexiones     = []   # Listas de conexiones de cada localidad
@@ -53,7 +54,9 @@ udgs           = []   # UDGs (caracteres gráficos definidos por el usuario)
 vocabulario    = []   # Vocabulario
 
 # Funciones que importan bases de datos desde ficheros
-funcs_exportar = ()  # Ninguna, de momento
+funcs_exportar = (
+  ('guarda_codigo_fuente', ('sce',), _('PAWS source code')),
+)
 funcs_importar = (
   ('carga_bd',     ('pdb',), _('PAWS databases')),
   ('carga_bd_sna', ('sna',), _('ZX 48K memory snapshots with PAWS')),
@@ -301,6 +304,14 @@ def carga_sce (fichero, longitud):
   gc.collect()
   return retorno
 
+def guarda_codigo_fuente (fichero):
+  """Guarda la base de datos a código fuente SCE sobre el fichero de salida
+
+  Para compatibilidad con el IDE:
+  - Recibe como primer parámetro un fichero abierto
+  - Devuelve False si ha ocurrido algún error"""
+  return alto_nivel.guarda_codigo_fuente (fichero, NOMB_COMO_VERB, PREP_COMO_VERB, abreviaturas, atributos, [], condactos, conexiones, desc_locs, desc_objs, locs_iniciales, msgs_usr, msgs_sys, nombres_objs, False, num_objetos, tablas_proceso, vocabulario, lee_secs_ctrl)
+
 def inicializa_banderas (banderas):
   """Inicializa banderas con valores propios de PAWS"""
   # Bandera 39:
@@ -385,7 +396,7 @@ def lee_secs_ctrl (cadena):
 # Carga las abreviaturas
 def cargaAbreviaturas ():
   global abreviaturas
-  abreviaturas = []
+  del abreviaturas[:]
   # Vamos a la posición de las abreviaturas
   posicion = carga_desplazamiento (CAB_POS_ABREVS)
   if posicion == 0:  # Sin abreviaturas
