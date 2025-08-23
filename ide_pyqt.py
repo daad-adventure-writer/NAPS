@@ -2244,6 +2244,8 @@ def importaBD (nombreFicheroBD, indiceFuncion = None, nombreFicheroGfx = None):
     mod_actual = __import__ (modulo)
     if recargar:
       mod_actual = reload (mod_actual)
+    if len (modulos) > 1:
+      prn ('Intentando cargar el fichero', extension.upper(), 'con sistema', mod_actual.NOMBRE_SISTEMA, file = sys.stderr)
     mod_actual.muestraFallo = muestraFallo
     if args.no_entry_end and 'nada_tras_flujo' in mod_actual.__dict__:
       mod_actual.nada_tras_flujo.append (True)
@@ -2252,6 +2254,8 @@ def importaBD (nombreFicheroBD, indiceFuncion = None, nombreFicheroGfx = None):
       hayFallo = False
       break
     fichero.seek (0)
+    if len (modulos) > 1:
+      prn (file = sys.stderr)
   fichero.close()
   if hayFallo:
     muestraFallo (_('Unable to import a database from:\n') +
