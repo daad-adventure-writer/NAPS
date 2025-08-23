@@ -548,6 +548,7 @@ class CampoTexto (QTextEdit):
                 cursor.movePosition (QTextCursor.Up)
                 cursor.movePosition (QTextCursor.EndOfBlock)
               self.setTextCursor (cursor)
+            lineaNueva = tuple (lineaNueva)
             imprimeCondacto (*lineaNueva)
             cursor = self.textCursor()
             if posicion == 1:  # Añadir al inicio de la entrada
