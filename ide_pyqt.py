@@ -349,17 +349,18 @@ class CampoTexto (QTextEdit):
     # Deshabilitamos al menos de momento las acciones de cortar, pegar y eliminar
     for accion in contextual.actions():
       if 'Ctrl+V' in accion.text() or 'Ctrl+X' in accion.text() or 'Delete' in accion.text():
-        accion.setEnabled (False)
+        accion.setEnabled (False)  # FIXME: se deben localizar estas cadenas porque sólo las deshabilita en idioma inglés
     menuEliminar = QMenu (_('Delete'), contextual)
     accionAntes    = QAction (_('Add entry &before'), contextual)
     accionDespues  = QAction (_('Add entry &after'),  contextual)
     accionElimEnt  = QAction (_('This entry'),        selector)  # Necesario poner como padre selector...
     accionElimTodo = QAction (_('All entries'),       selector)  # ... para que funcionen los status tips
-    if numEntrada == -1 or self.textCursor().hasSelection():
-      menuEliminar.setEnabled (False)
-    if self.textCursor().hasSelection():
+    if proc_interprete or self.textCursor().hasSelection():
       accionAntes.setEnabled (False)
       accionDespues.setEnabled (False)
+      menuEliminar.setEnabled (False)
+    elif numEntrada == -1:
+      menuEliminar.setEnabled (False)
     accionElimTodo.setStatusTip (_('Deletes all entries in the process'))
     accionElimEnt.triggered.connect  (lambda: quitaEntradaProceso (numEntrada))
     accionElimTodo.triggered.connect (quitaEntradasProceso)
