@@ -2335,6 +2335,7 @@ def imprimeCondacto (condacto, parametros, comentario = None, inalcanzable = Fal
     nombre      = str (condacto)
     tiposParams = '?' * len (parametros)
   mensaje = None
+  campo_txt.setFontItalic (False)  # Cursiva desactivada
   if parametros:  # Imprimiremos los parámetros
     campo_txt.insertPlainText (nombre.center (7) + ' ')
     for p in range (len (parametros)):
