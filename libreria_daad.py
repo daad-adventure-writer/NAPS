@@ -36,6 +36,7 @@ import alto_nivel
 # Ponemos los módulos de condactos en orden, para permitir que las funciones de los condactos de igual firma (nombre, tipo y número de parámetros) de los sistemas más nuevos tengan precedencia sobre las de sistemas anteriores
 mods_condactos = ('condactos_daad', 'condactos_paws', 'condactos_quill')
 
+abreviaturas    = []
 atributos       = []   # Atributos de los objetos
 atributos_extra = []   # Atributos extra de los objetos
 conexiones      = []   # Listas de conexiones de cada localidad
@@ -734,7 +735,7 @@ def calcula_abreviaturas (maxAbrev):
 def cargaAbreviaturas ():
   """Carga las abreviaturas"""
   global abreviaturas
-  abreviaturas = []
+  del abreviaturas[:]
   # Vamos a la posición de las abreviaturas
   posicion = carga_desplazamiento (CAB_POS_ABREVS)
   if posicion == 0:  # Sin abreviaturas. Como la segunda parte de El Jabato
