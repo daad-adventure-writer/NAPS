@@ -574,8 +574,11 @@ class CampoTexto (QTextEdit):
                 cursor.movePosition (QTextCursor.EndOfBlock)
                 cursor.movePosition (QTextCursor.StartOfBlock, QTextCursor.KeepAnchor)
                 cursor.movePosition (QTextCursor.Left,         QTextCursor.KeepAnchor)
-                parametros    = entrada[posicion - 2][1]  # Conservaremos parámetros anteriores
+                # Conservaremos parámetros anteriores y comentario
+                parametros    = entrada[posicion - 2][1]
                 lineaNueva[1] = parametros[: len (condacto[1])] + ([0] * (max (0, len (condacto[1]) - len (parametros))))
+                if len (entrada[posicion - 2]) > 2:
+                  lineaNueva.append (entrada[posicion - 2][2])
               elif columna < len (linea.text()) or posicion == len (entrada) + 2:  # No es fin de línea o es final de entrada
                 cursor.movePosition (QTextCursor.Up)
                 cursor.movePosition (QTextCursor.EndOfBlock)
