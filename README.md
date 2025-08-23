@@ -60,6 +60,7 @@ El intérprete de NAPS soporta los siguientes formatos para el sistema Quill:
 | IBM PC          | .DAT      | Base de datos | AdventureWriter    |
 | IBM PC          | .EXE      | Aventura      | AdventureWriter    |
 | Sinclair QL     | .QQL      | Base de datos |                    |
+| Todas           | .QSE      | Código fuente |                    |
 | Spectrum ZX     | .SNA      | Aventura      |                    |
 
 Los siguientes para el sistema PAWS:
@@ -170,6 +171,13 @@ Para exportación, el IDE soporta los siguientes formatos para el sistema Quill:
 | Atari 800       | .DTB      | Base de datos | AdventureWriter    |
 | Commodore 64    | .PRG      | Base de datos |                    |
 | Sinclair QL     | .QQL      | Base de datos |                    |
+| Todas           | .QSE      | Código fuente |                    |
+
+El siguiente para el sistema PAWS:
+
+| Plataforma      | Extensión | Tipo          | Notas              |
+| --------------- | --------- | ------------- | ------------------ |
+| Todas           | .SCE      | Código fuente |                    |
 
 Y los siguientes para el sistema DAAD:
 
