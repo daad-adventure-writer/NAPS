@@ -654,13 +654,16 @@ def carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, atributos, atributos_e
     traceback.print_exc()
   return False
 
-def guarda_codigo_fuente (fichero, NOMB_COMO_VERB, PREP_COMO_VERB, abreviaturas, atributos, atributos_extra, condactos, conexiones, desc_locs, desc_objs, locs_iniciales, msgs_usr, msgs_sys, nombres_objs, nueva_version, num_objetos, tablas_proceso, vocabulario, lee_secs_ctrl):
+def guarda_codigo_fuente (fichero, NOMBRE_SISTEMA, NOMB_COMO_VERB, PREP_COMO_VERB, abreviaturas, atributos, atributos_extra, condactos, conexiones, desc_locs, desc_objs, locs_iniciales, msgs_usr, msgs_sys, nombres_objs, nueva_version, num_objetos, tablas_proceso, vocabulario, lee_secs_ctrl):
   formato      = os.path.splitext (fichero.name)[1][1:].lower()  # Formato del código fuente, con valores posibles 'sce' o 'dsf'
   codigoFuente = ''  # Aquí construiremos el código fuente a guardar, para convertirlo de una vez a la codificación necesaria
   codigoFuente += '; Código fuente generado por NAPS https://github.com/daad-adventure-writer/NAPS\n'
-  codigoFuente += '; a partir de una base de datos de DAAD versión ' + ('2' if nueva_version else '1') + '\n;\n'
+  codigoFuente += '; a partir de una base de datos de ' + NOMBRE_SISTEMA
+  if NOMBRE_SISTEMA == 'DAAD':
+    codigoFuente += ' versión ' + ('2' if nueva_version else '1')
+  codigoFuente += '\n;\n'
   codigoFuente += '; Abrir con codificación de caracteres: ' + ('CP437' if formato == 'sce' else 'ISO-8859-1') + '\n; Ancho de tabulador recomendado:\t8\n'
-  if not nueva_version:
+  if NOMBRE_SISTEMA == 'DAAD' and not nueva_version:
     codigoFuente += ';\n; ! * ! * ! *\n;\n'
     codigoFuente += '; ADVERTENCIA:  ni el compilador DC liberado, ni DRC soportan la versión 1 de DAAD\n'
     codigoFuente += ';\t\tSin adaptarlo a DAAD versión 2, sólo podrás compilarlo con NAPS\n'
