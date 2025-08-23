@@ -441,6 +441,40 @@ class CampoTexto (QTextEdit):
       else:
         self.setCursorWidth   (int (tam_fuente * 0.7))
         self.setOverwriteMode (True)
+    elif evento.key() == Qt.Key_Semicolon:  # Añadir, cambiar o eliminar comentario
+      linea = cursor.block()
+      numEntrada, posicion = self._daNumEntradaYLinea (linea)
+      textoLinea = linea.text()
+      if sys.version_info[0] < 3 and not isinstance (textoLinea, unicode):
+        textoLinea = textoLinea.decode ('utf8', errors = 'replace')
+      if not textoLinea.strip() or linea.userState() > -1:  # Es línea en blanco o cabecera de entrada
+        return  # Esta línea no admite comentarios
+      numProceso = pestanyas.currentIndex()
+      proceso    = mod_actual.tablas_proceso[numProceso]  # El proceso seleccionado
+      entrada    = proceso[1][numEntrada]  # La entrada seleccionada
+      condacto   = entrada[posicion - 2]
+      dialogo    = ModalEntrada (self, _('Line comment:'), condacto[2] if len (condacto) > 2 else '')
+      dialogo.resize (500, dialogo.height())
+      if dialogo.exec_() == QDialog.Accepted:
+        if sys.version_info[0] < 3:
+          comentario = dialogo.textValue()
+          if not isinstance (comentario, unicode):
+            comentario = comentario.decode ('utf8', errors = 'replace')
+        else:
+          comentario = str (dialogo.textValue())
+        if comentario.strip():
+          if len (condacto) > 2:  # Antes tenía comentario, lo cambiaremos
+            entrada[posicion - 2] = entrada[posicion - 2][:2] + (comentario,)
+          else:  # Antes no tenía comentario, lo añadiremos
+            entrada[posicion - 2] = entrada[posicion - 2] + (comentario,)
+        elif len (condacto) > 2:  # Antes tenía comentario, lo eliminaremos
+          entrada[posicion - 2] = entrada[posicion - 2][:2]
+        cursor.movePosition (QTextCursor.EndOfBlock)
+        cursor.movePosition (QTextCursor.StartOfBlock, QTextCursor.KeepAnchor)
+        cursor.movePosition (QTextCursor.Left,         QTextCursor.KeepAnchor)
+        self.setTextCursor (cursor)
+        condacto = entrada[posicion - 2]
+        imprimeCondacto (*condacto)
     elif evento.modifiers() & Qt.ControlModifier:  # Teclas de acción
       if evento.key() in (Qt.Key_Minus, Qt.Key_Plus):  # Cambiar nivel de zoom del texto
         self.selectAll()
@@ -525,8 +559,6 @@ class CampoTexto (QTextEdit):
               condactosParaCombo = self.listaAcciones  # ...sólo puede ir una acción en esta posición
             elif entrada[indiceDespues][0] < 100:         # Si el siguiente condacto es una condición...
               condactosParaCombo = self.listaCondiciones  # ...sólo puede ir una condición en esta posición
-          for e in range (len (entrada)):
-            condacto, parametros = entrada[e]
         dialogo.setComboBoxItems (sorted (condactosParaCombo))
         if dialogo.exec_() == QDialog.Accepted:
           nomCondacto = str (dialogo.textValue()).upper()
