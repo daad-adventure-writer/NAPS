@@ -406,8 +406,8 @@ class CampoTexto (QTextEdit):
 
   def keyPressEvent (self, evento):
     global tam_fuente
+    cursor = self.textCursor()
     if evento.key() in (Qt.Key_Down, Qt.Key_End, Qt.Key_Home, Qt.Key_Left, Qt.Key_Right, Qt.Key_Up):  # Mover posición del cursor
-      cursor = self.textCursor()
       if evento.key() in (Qt.Key_Down, Qt.Key_Up):
         if evento.key() == Qt.Key_Up:
           cursor.movePosition (QTextCursor.StartOfBlock)  # Hace que funcione en líneas con ajuste de línea
@@ -443,7 +443,6 @@ class CampoTexto (QTextEdit):
         self.setOverwriteMode (True)
     elif evento.modifiers() & Qt.ControlModifier:  # Teclas de acción
       if evento.key() in (Qt.Key_Minus, Qt.Key_Plus):  # Cambiar nivel de zoom del texto
-        cursor = self.textCursor()
         self.selectAll()
         if evento.key() == Qt.Key_Minus:
           tam_fuente -= 2
@@ -465,7 +464,6 @@ class CampoTexto (QTextEdit):
       return  # No se puede modificar nada cuando la BD está en ejecución
     # Teclas que pueden causar modificación de la tabla de procesos
     if evento.key() == Qt.Key_Backspace:  # Borrar el condacto anterior
-      cursor  = self.textCursor()
       columna = cursor.positionInBlock()
       linea   = cursor.block()
       numEntrada, posicion = self._daNumEntradaYLinea (linea)
@@ -495,7 +493,6 @@ class CampoTexto (QTextEdit):
               break
             puntos_ruptura[numProceso][pe] = (puntos_ruptura[numProceso][pe][0], puntos_ruptura[numProceso][pe][1] - 1, puntos_ruptura[numProceso][pe][2] - 1)
     elif str (evento.text()).isalpha():  # Letras
-      cursor  = self.textCursor()
       columna = cursor.positionInBlock()
       linea   = cursor.block()
       colsValidas = self._daColsValidas (linea)
@@ -612,7 +609,6 @@ class CampoTexto (QTextEdit):
             cursor.movePosition (QTextCursor.WordRight, n = 1)
           self.setTextCursor (cursor)
     elif evento.key() in (Qt.Key_At, Qt.Key_BracketLeft) and mod_actual.INDIRECCION:  # Alternar indirección del condacto
-      cursor  = self.textCursor()
       columna = cursor.positionInBlock()
       linea   = cursor.block()
       colsValidas = self._daColsValidas (linea)
@@ -639,7 +635,6 @@ class CampoTexto (QTextEdit):
         cursor.setPosition (cursor.position() + (colNueva - columna))
         self.setTextCursor (cursor)
     elif evento.key() >= Qt.Key_0 and evento.key() <= Qt.Key_9:  # Números
-      cursor  = self.textCursor()
       columna = cursor.positionInBlock()
       linea   = cursor.block()
       if str (cursor.selectedText()).isdigit():
