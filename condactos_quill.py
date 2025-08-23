@@ -271,6 +271,8 @@ def a0_TURNS ():
   if turnos != 1:
     gui.imprime_cadena (textoS)    # 's'
   gui.imprime_cadena (textoPunto)  # '.'
+  if NOMBRE_SISTEMA == 'QUILL':
+    gui.imprime_cadena ('\n')  # Al menos en QL lo hace
 
 
 def a1_BORDER (colour):
