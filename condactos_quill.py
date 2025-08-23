@@ -182,9 +182,15 @@ def a0_DROPALL ():
 
 def a0_END ():
   """Pregunta si se desea volver a empezar (MS13), y si la respuesta empieza por la primera letra del MS31, imprime el MS14 y termina completamente la ejecución de la aventura. Si no, reinicia la aventura"""
-  respuesta = gui.lee_cadena (msgs_sys[13] + ('' if gui.NOMBRE_GUI == 'telegram' else '\n>'))
+  if libreria.id_plataforma == 'QL':
+    gui.imprime_cadena ('\n')
+  gui.imprime_cadena (msgs_sys[13])
+  gui.imprime_cadena ('\n')
+  respuesta = gui.lee_cadena ('' if gui.NOMBRE_GUI == 'telegram' else '\n>')
   letraNo   = 'n' if libreria.pos_msgs_sys else msgs_sys[31][0].lower()
   if respuesta[0].lower() == letraNo:
+    if libreria.id_plataforma == 'QL':
+      gui.imprime_cadena ('\n')
     gui.imprime_cadena (msgs_sys[14])
     return 7
   return 0
@@ -214,7 +220,9 @@ def a0_OK ():
 
 def a0_QUIT ():
   """Pide confirmación (MS12), y si la respuesta empieza por la primera letra del MS30, continúa. Si no, ejecuta DONE"""
-  respuesta = gui.lee_cadena (msgs_sys[12] + ('' if gui.NOMBRE_GUI == 'telegram' else '\n>'))
+  gui.imprime_cadena (msgs_sys[12])
+  gui.imprime_cadena ('\n')
+  respuesta = gui.lee_cadena ('' if gui.NOMBRE_GUI == 'telegram' else '\n>')
   letraSi   = 'y' if libreria.pos_msgs_sys else msgs_sys[30][0].lower()
   if respuesta[0].lower() != letraSi:
     return 3  # Lo mismo que hace DONE
@@ -369,6 +377,8 @@ def a1_SET (flagno):
 def a1_SYSMESS (mesno):
   """Imprime el mensaje de sistema dado por mesno, en los colores actuales"""
   imprime_mensaje (msgs_sys[mesno])
+  if NOMBRE_SISTEMA == 'QUILL':
+    gui.imprime_cadena ('\n')
 
 def a1_WEAR (objno):
   """Si el objeto está puesto, imprime MS29. Si el objeto no se lleva, imprime MS28. En caso de una de estas condiciones de fallo, termina con DONE. En caso contrario (éxito), mueve el objeto a puestos (253), y decrementa la bandera 1"""

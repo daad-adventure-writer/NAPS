@@ -442,8 +442,12 @@ def bucle_quill ():
       if not proceso_acc:  # No se ha ejecutado ninguna "acción"
         if banderas[BANDERA_VERBO] < 13:  # Es verbo de dirección
           gui.imprime_cadena (msgs_sys[7])  # No puedes ir por ahí
+          if libreria.id_plataforma == 'QL':
+            gui.imprime_cadena ('\n')
         else:
           gui.imprime_cadena (msgs_sys[8])  # No puedes hacer eso
+          if libreria.id_plataforma == 'QL':
+            gui.imprime_cadena ('\n')
       estado = 2
 
 def inicializa ():
@@ -770,6 +774,8 @@ Devuelve None si la frase es válida, True si no, False si ha ocurrido tiempo mue
   if not frases:  # Sólo se escribió espacio en blanco, conjunciones o ,.;:
     if not psi and (NOMBRE_SISTEMA != 'DAAD' or not nueva_version):
       gui.imprime_cadena (msgs_sys[6])  # No entendí nada
+      if NOMBRE_SISTEMA == 'QUILL':
+        gui.imprime_cadena ('\n')
       gui.borra_orden()
     if psi:
       orden_psi = ''
@@ -810,6 +816,8 @@ Devuelve None si la frase es válida, True si no, False si ha ocurrido tiempo mue
         gui.imprime_cadena (msgs_sys[8], tiempo = tiempoTimeout)  # No puedes hacer eso
     elif not psi and mensajesInvalida and (NOMBRE_SISTEMA != 'DAAD' or not nueva_version):
       gui.imprime_cadena (msgs_sys[6], tiempo = tiempoTimeout)  # No entendí nada
+      if NOMBRE_SISTEMA == 'QUILL':
+        gui.imprime_cadena ('\n')
 
   if psi:
     orden_psi = ''  # Vaciamos ya la orden
