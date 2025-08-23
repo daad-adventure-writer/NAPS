@@ -203,6 +203,7 @@ def a0_INVEN ():
       gui.imprime_cadena ('\n')
   if not alguno:
     gui.imprime_cadena (msgs_sys[11])
+    gui.imprime_cadena ('\n')
   return 3  # Lo mismo que hace DONE
 
 def a0_OK ():
