@@ -2351,6 +2351,7 @@ def imprimeCondacto (condacto, parametros, comentario = None, inalcanzable = Fal
       if (p > 0 or indirecto == ' ') and len (tiposParams) > p:
         if (tiposParams[p] == '%' and (parametro < 1 or parametro > 99))              or \
            (tiposParams[p] == 'b' and parametro not in (1, 2, 4, 8, 16, 32, 64, 128)) or \
+           (tiposParams[p] == 'f' and parametro >= mod_actual.NUM_BANDERAS_ACC[0])    or \
            (tiposParams[p] == 'l' and parametro >= len (mod_actual.desc_locs))        or \
            (tiposParams[p] == 'L' and parametro >= len (mod_actual.desc_locs) and parametro not in range (252, 256)) or \
            (tiposParams[p] == 'm' and parametro >= len (mod_actual.msgs_usr))       or \
