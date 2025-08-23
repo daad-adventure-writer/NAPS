@@ -555,7 +555,7 @@ def carga_sce (fichero, longitud):
   - Recibe como primer parámetro un fichero abierto
   - Recibe como segundo parámetro la longitud del fichero abierto
   - Devuelve False si ha ocurrido algún error"""
-  global id_plataforma, plataforma, version
+  global id_plataforma, max_llevables, plataforma, version
   # Los dos valores siguientes son necesarios para el intérprete y esta librería, pondremos valores de PAWS PC
   plataforma = 1  # Apaño para que el intérprete lo considere como Spectrum
   version    = 1
@@ -568,8 +568,11 @@ def carga_sce (fichero, longitud):
   NUM_ATRIBUTOS[0]      = 1
   NUM_BANDERAS[0]       = 67
   NUM_BANDERAS_ACC[0]   = 63
+  # Asignamos colores y número máximo de objetos llevables
   cods_tinta.clear()
   cods_tinta.update ({16: 0, 17: 1, 18: 2, 19: 3, 20: 4, 21: 5, 22: 6, 23: 7})
+  colores_inicio.extend ((4, 0, 0, 0))  # Tinta verde, papel y borde negro, y sin brillo
+  max_llevables = 4
   retorno = alto_nivel.carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, NOMBRE_SISTEMA, [], [], condactos, {}, conexiones, desc_locs, desc_objs, locs_iniciales, msgs_usr, msgs_sys, nombres_objs, [], num_objetos, tablas_proceso, vocabulario, escribe_secs_ctrl)
   # Liberamos la memoria utilizada para la carga
   import gc
