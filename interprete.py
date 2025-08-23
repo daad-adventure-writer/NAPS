@@ -694,6 +694,9 @@ Devuelve None si la frase es válida, True si no, False si ha ocurrido tiempo mue
         banderas[49] |= 128  # Indicador de tiempo muerto vencido
         return False
 
+    if NOMBRE_SISTEMA == 'QUILL' and libreria.id_plataforma == 'QL':
+      gui.imprime_cadena ('\n')  # Deja una línea en blanco tras la orden del jugador
+
     # Una frase es sacada y convertida en una sentencia lógica, por medio de la
     # conversión de cualquier palabra en ella presente, que esté en el
     # vocabulario, a su número de palabra y poniéndola luego en la bandera
