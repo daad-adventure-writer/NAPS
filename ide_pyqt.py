@@ -588,7 +588,6 @@ class CampoTexto (QTextEdit):
             cursor = self.textCursor()
             if posicion == 1:  # Añadir al inicio de la entrada
               entrada.insert (0, lineaNueva)
-              cursor.movePosition (QTextCursor.Down)
               cursor.movePosition (QTextCursor.StartOfBlock)
               cursor.movePosition (QTextCursor.WordRight)
             elif posicion < len (entrada) + 2:
