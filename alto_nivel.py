@@ -721,9 +721,11 @@ def guarda_codigo_fuente (fichero, NOMB_COMO_VERB, PREP_COMO_VERB, abreviaturas,
             else:  # Ya no supera los 258 caracteres
               break
           cadena += linea
+        if cadena[-1:] == '\n':  # Quitamos nueva línea final para no duplicarla
+          cadena = cadena[:-1]
       else:  # formato == 'dsf'
         cadena = '"' + cadena.replace ('\\', '#') + '"'
-      codigoFuente += '/' + str (numCadena) + ('\n' if formato == 'sce' else ' ') + cadena + '\n'
+      codigoFuente += '/' + str (numCadena) + ('\n' if formato == 'sce' else ' ') + cadena + ('\n' if cadena else '')
     codigoFuente += '\n' if not listaCadenas or formato == 'dsf' else ';\n'
   codigoFuente += '/CON\n'
   for localidad in range (len (conexiones)):
