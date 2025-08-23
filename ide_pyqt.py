@@ -609,10 +609,12 @@ class CampoTexto (QTextEdit):
             cursor.movePosition (QTextCursor.WordRight, n = 1)
           self.setTextCursor (cursor)
     elif evento.key() in (Qt.Key_At, Qt.Key_BracketLeft) and mod_actual.INDIRECCION:  # Alternar indirección del condacto
-      columna = cursor.positionInBlock()
-      linea   = cursor.block()
-      colsValidas = self._daColsValidas (linea)
-      if not linea.text().trimmed() or linea.userState() > -1:
+      columna    = cursor.positionInBlock()
+      linea      = cursor.block()
+      textoLinea = linea.text()
+      if sys.version_info[0] < 3 and not isinstance (textoLinea, unicode):
+        textoLinea = textoLinea.decode ('utf8', errors = 'replace')
+      if not textoLinea.strip() or linea.userState() > -1:  # Es línea en blanco o cabecera de entrada
         return  # Intentando cambiar indirección en línea sin condacto
       numEntrada, posicion = self._daNumEntradaYLinea (linea)
       numProceso = pestanyas.currentIndex()
@@ -626,6 +628,7 @@ class CampoTexto (QTextEdit):
       cursor.movePosition (QTextCursor.Left,         QTextCursor.KeepAnchor)
       self.setTextCursor (cursor)
       imprimeCondacto (*lineaNueva)
+      colsValidas = self._daColsValidas (linea)
       if columna in colsValidas:  # Recuperamos posición anterior correcta
         indice = colsValidas.index (columna)
         linea  = cursor.block()
