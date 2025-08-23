@@ -77,12 +77,13 @@ funcs_exportar = (
   ('guarda_codigo_fuente', ('qse', 'sce',), _('Quill source code')),
 )
 funcs_importar = (
-  ('carga_bd_cpc',  ('bin',),       _('Quill databases for Amstrad CPC')),
-  ('carga_bd_a800', ('dtb', 'prg'), _('Quill databases for Atari 800 AdventureWriter')),
-  ('carga_bd_c64',  ('prg',),       _('Quill databases for Commodore 64')),
-  ('carga_bd_pc',   ('dat', 'exe'), _('Quill databases for PC AdventureWriter')),
-  ('carga_bd_ql',   ('qql',),       _('Quill databases for Sinclair QL')),
-  ('carga_bd_sna',  ('sna',),       _('ZX 48K memory snapshots with Quill')),
+  ('carga_bd_cpc',  ('bin',),        _('Quill databases for Amstrad CPC')),
+  ('carga_bd_a800', ('dtb', 'prg'),  _('Quill databases for Atari 800 AdventureWriter')),
+  ('carga_bd_c64',  ('prg',),        _('Quill databases for Commodore 64')),
+  ('carga_bd_pc',   ('dat', 'exe'),  _('Quill databases for PC AdventureWriter')),
+  ('carga_bd_ql',   ('qql',),        _('Quill databases for Sinclair QL')),
+  ('carga_bd_sna',  ('sna',),        _('ZX 48K memory snapshots with Quill')),
+  ('carga_sce',     ('qse', 'sce',), _('Quill source code')),
 )
 # Función que crea una nueva base de datos (vacía)
 func_nueva = 'nueva_bd'
@@ -387,6 +388,7 @@ Para compatibilidad con el IDE:
   nueva_linea   = 141  # El 13 también podría ser, pero tal vez no se use
   plataforma    = 1    # Apaño para que el intérprete lo considere como Spectrum
   id_plataforma = 'C64'
+  cods_tinta.clear()
   cods_tinta.update ({5: 1, 25: 2, 30: 5, 31: 6, 129: 8, 144: 0, 149: 9, 150: 10, 151: 11, 152: 12, 153: 13, 154: 14, 155: 15, 156: 4, 158: 7, 159: 3})
   bajo_nivel_cambia_despl (despl_ini)
   # Cargamos los colores iniciales
@@ -481,6 +483,7 @@ Para compatibilidad con el IDE:
   NUM_ATRIBUTOS[0]      = 1
   NUM_BANDERAS[0]       = 67
   NUM_BANDERAS_ACC[0]   = 63
+  cods_tinta.clear()
   cods_tinta.update ({16: 0, 17: 1, 18: 2, 19: 3, 20: 4, 21: 5, 22: 6, 23: 7})
   conversion.update (conversion_plataforma['QL'])
   fichero.seek (0)
@@ -544,6 +547,34 @@ Para compatibilidad con el IDE:
       # TODO: cargar UDGs presentes en este formato, añadiéndolos a la fuente tipográfica
   preparaPosCabecera (formato, posBD)
   return cargaBD (fichero, longitud, formato == 'sna48k')
+
+def carga_sce (fichero, longitud):
+  """Carga la base de datos desde el código fuente SCE del fichero de entrada
+
+  Para compatibilidad con el IDE:
+  - Recibe como primer parámetro un fichero abierto
+  - Recibe como segundo parámetro la longitud del fichero abierto
+  - Devuelve False si ha ocurrido algún error"""
+  global id_plataforma, plataforma, version
+  # Los dos valores siguientes son necesarios para el intérprete y esta librería, pondremos valores de PAWS PC
+  plataforma = 1  # Apaño para que el intérprete lo considere como Spectrum
+  version    = 1
+  id_plataforma = 'QL'      # Esta es la más completa en cuanto a condactos disponibles
+  actualizaAcciones (True)  # Ponemos las acciones correctas para esta plataforma
+  BANDERA_VERBO[0]      = 64
+  BANDERA_NOMBRE[0]     = 65
+  BANDERA_LLEVABLES[0]  = 66
+  BANDERA_LOC_ACTUAL[0] = 63
+  NUM_ATRIBUTOS[0]      = 1
+  NUM_BANDERAS[0]       = 67
+  NUM_BANDERAS_ACC[0]   = 63
+  cods_tinta.clear()
+  cods_tinta.update ({16: 0, 17: 1, 18: 2, 19: 3, 20: 4, 21: 5, 22: 6, 23: 7})
+  retorno = alto_nivel.carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, NOMBRE_SISTEMA, [], [], condactos, {}, conexiones, desc_locs, desc_objs, locs_iniciales, msgs_usr, msgs_sys, nombres_objs, [], num_objetos, tablas_proceso, vocabulario, escribe_secs_ctrl)
+  # Liberamos la memoria utilizada para la carga
+  import gc
+  gc.collect()
+  return retorno
 
 def guarda_bd (bbdd):
   """Almacena la base de datos entera en el fichero de salida, de forma optimizada. Devuelve None si no hubo error, o mensaje resumido y detallado del error"""

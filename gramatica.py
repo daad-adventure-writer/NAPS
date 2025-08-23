@@ -24,7 +24,7 @@ terminales = {
   'fin de línea opcionalmente tras espacio en blanco y/o comentario': re.compile ('[ \t]*(?:;([^\n]*))?\n'),
   # De la sección CTL
   '/CTL':     re.compile ('(/CTL)'),
-  'DBDRIVE':  re.compile ('([A-P])'),
+  'DBDRIVE':  re.compile ('([A-Q])'),  # Unidad de la base de datos en CP/M de la A a la P, o Q para indicar código fuente de Quill
   'NULLWORD': re.compile (r'([!-\*,-.<-@\[-`{-~])'),
   # De la sección TOK
   '/TOK':  re.compile ('(/TOK)'),
@@ -85,6 +85,18 @@ reglas = {
     'sección OBJ',
     'sección PRO+',
   ],
+  'código fuente QSE': [
+    'fin de línea opcionalmente tras espacio en blanco y/o comentario*',
+    'sección CTL',
+    'sección VOC en formato QSE',
+    'sección STX',
+    'sección MTX',
+    'sección OTX',
+    'sección LTX',
+    'sección CON',
+    'sección OBJ en formato QSE',
+    'sección PRO+',
+  ],
   'código fuente DSF': [
     'fin de línea opcionalmente tras espacio en blanco y/o comentario*',
     'sección CTL en formato DSF?',
@@ -102,12 +114,13 @@ reglas = {
   'sección CTL': [
     '/CTL',
     'fin de línea opcionalmente tras espacio en blanco y/o comentario+',
-    'opción DBDRIVE?',  # Usado en Amstrad CPC para indicar la letra de unidad donde guardar la base de datos
+    'opción DBDRIVE?',  # Usado en formato QSE y en CP/M para indicar la letra de unidad donde guardar la base de datos
     'NULLWORD',
+    'opción llevables?',  # Número de objetos llevables en formato QSE
     'fin de línea opcionalmente tras espacio en blanco y/o comentario+',
   ],
   'opción DBDRIVE': [
-    'DBDRIVE',
+    'DBDRIVE',  # Unidad de la base de datos en CP/M de la A a la P, o Q para indicar código fuente de Quill
     'fin de línea opcionalmente tras espacio en blanco y/o comentario+',
   ],
   'sección CTL en formato DSF': [
@@ -117,6 +130,10 @@ reglas = {
   ],
   'opción NULLWORD': [
     'NULLWORD',
+    'fin de línea opcionalmente tras espacio en blanco y/o comentario+',
+  ],
+  'opción llevables': [
+    'número entero positivo',  # Número de objetos llevables
     'fin de línea opcionalmente tras espacio en blanco y/o comentario+',
   ],
   'sección TOK': [
@@ -136,6 +153,18 @@ reglas = {
     'número entero positivo',
     'espacio en blanco',
     'tipo de palabra de vocabulario',
+    'fin de línea opcionalmente tras espacio en blanco y/o comentario+',
+  ],
+  'sección VOC en formato QSE': [
+    '/VOC',
+    'fin de línea opcionalmente tras espacio en blanco y/o comentario+',
+    'entrada de vocabulario en formato QSE*',
+  ],
+  'entrada de vocabulario en formato QSE': [
+    'espacio en blanco?',
+    'palabra de vocabulario',
+    'espacio en blanco',
+    'número entero positivo',
     'fin de línea opcionalmente tras espacio en blanco y/o comentario+',
   ],
   'sección STX': [
@@ -369,6 +398,28 @@ reglas = {
         'fin de línea opcionalmente tras espacio en blanco y/o comentario+',
       ],
     ),
+  ],
+  'sección OBJ en formato QSE': [
+    '/OBJ',
+    'fin de línea opcionalmente tras espacio en blanco y/o comentario+',
+    'entrada de objeto en formato QSE*',
+  ],
+  'entrada de objeto en formato QSE': [
+    'carácter /',
+    (
+      'número entero positivo',
+      'expresión que no sea PRO',
+    ),
+    'espacio en blanco',
+    (  # Localidad inicial
+      'CARRIED',
+      'WORN',
+      'carácter de NULLWORD',  # No creados
+      'expresión',
+    ),
+    'espacio en blanco',
+    'palabra',  # Nombre
+    'fin de línea opcionalmente tras espacio en blanco y/o comentario+',
   ],
   'expresión que no sea PRO': [
     'símbolo que no sea PRO',

@@ -298,7 +298,7 @@ def carga_sce (fichero, longitud):
   plataforma = 2  # TODO: asignar valor 1 cuando se detecte que es Amstrad CPC (indica letra de unidad en sección /CTL)
   version    = 1
   id_plataforma = 'PC'
-  retorno = alto_nivel.carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, atributos, [], condactos, {}, conexiones, desc_locs, desc_objs, locs_iniciales, msgs_usr, msgs_sys, nombres_objs, [], num_objetos, tablas_proceso, vocabulario, escribe_secs_ctrl)
+  retorno = alto_nivel.carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, NOMBRE_SISTEMA, atributos, [], condactos, {}, conexiones, desc_locs, desc_objs, locs_iniciales, msgs_usr, msgs_sys, nombres_objs, [], num_objetos, tablas_proceso, vocabulario, escribe_secs_ctrl)
   # Liberamos la memoria utilizada para la carga
   import gc
   gc.collect()

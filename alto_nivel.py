@@ -46,7 +46,7 @@ IDS_LOCS     = {'WORN': 253, 'CARRIED': 254, 'HERE': 255}
 IDS_LOCS_inv = {252: '_', 253: 'WORN', 254: 'CARRIED', 255: 'HERE'}
 
 
-def carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, atributos, atributos_extra, condactos, condactos_nuevos, conexiones, desc_locs, desc_objs, locs_iniciales, msgs_usr, msgs_sys, nombres_objs, nueva_version, num_objetos, tablas_proceso, vocabulario, escribe_secs_ctrl):
+def carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, NOMBRE_SISTEMA, atributos, atributos_extra, condactos, condactos_nuevos, conexiones, desc_locs, desc_objs, locs_iniciales, msgs_usr, msgs_sys, nombres_objs, nueva_version, num_objetos, tablas_proceso, vocabulario, escribe_secs_ctrl):
   """Carga la base de datos desde el código fuente SCE o DSF del fichero de entrada, con y sobre las variables pasadas como parámetro
 
   Para compatibilidad con el IDE:
@@ -56,7 +56,9 @@ def carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, atributos, atributos_e
   global erExpresiones, erSimbolo, simbolos
   try:
     import re
-    formato      = os.path.splitext (fichero.name)[1][1:].lower()  # Formato del código fuente, con valores posibles 'sce' o 'dsf'
+    formato = os.path.splitext (fichero.name)[1][1:].lower()  # Formato del código fuente, con valores posibles 'sce' o 'dsf'
+    if formato == 'qse':
+      formato = 'sce'
     codigoFuente = fichero.read().replace (b'\r\n', b'\n').rstrip (b'\x1a').decode ('cp437' if formato == 'sce' else 'iso-8859-1')
     origenLineas = [[0, 0, codigoFuente.count ('\n') + 1, fichero.name, 0]]  # Inicio en código, inicio en fichero, nº líneas, ruta, nivel indentanción
     # Procesamos carga de ficheros externos con directivas de preprocesador /LNK e #include
@@ -251,7 +253,10 @@ def carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, atributos, atributos_e
       else:
         raise TabError ('una directiva de preprocesador válida', (), (numLinea + 1, 1))
     lineasCodigoUnidas = '\n'.join (lineasCodigo)
-    reglaEntrada       = 'código fuente ' + formato.upper() + (' genérico' if formato == 'sce' else '')
+    if NOMBRE_SISTEMA == 'QUILL':
+      reglaEntrada = 'código fuente QSE'
+    else:
+      reglaEntrada = 'código fuente ' + formato.upper() + (' genérico' if formato == 'sce' else '')
     error, posicion, arbolCodigo = gramatica.analizaCadena (lineasCodigoUnidas, reglaEntrada)
     if error:
       raise TabError (error, (), posicion)
@@ -306,31 +311,43 @@ def carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, atributos, atributos_e
     preposiciones = {}
     verbos        = {gramatica.NULLWORD[0]: 255}
     tipoParametro = {'j': (adjetivos, 'adjetivo'), 'n': (nombres, 'nombre'), 'r': (preposiciones, 'preposición'), 'v': (adverbios, 'adverbio'), 'V': (verbos, 'verbo')}
-    posSeccion = gramatica.reglas[reglaEntrada].index ('sección VOC')
-    posEntrada = gramatica.reglas['sección VOC'].index ('entrada de vocabulario*')
-    posPalabra = gramatica.reglas['entrada de vocabulario'].index ('palabra de vocabulario')
-    posCodigo  = gramatica.reglas['entrada de vocabulario'].index ('número entero positivo')
-    posTipo    = gramatica.reglas['entrada de vocabulario'].index ('tipo de palabra de vocabulario')
-    for entrada in arbolCodigo[0][0][posSeccion][0][posEntrada]:
-      if not entrada:
-        continue  # Continuamos aunque sólo debería estar vacía como mucho la última entrada
-      palabra = entrada[posPalabra][0][0][0][:LONGITUD_PAL].lower()
-      codigo  = int (entrada[posCodigo][0][0][0])
-      tipo    = tipos_pal_dict[entrada[posTipo][0][0][0].lower()]
-      vocabulario.append ((palabra, codigo, tipo))
-      # Dejamos preparados diccionarios de códigos de palabra para verbos, nombres y adjetivos
-      if tipo == tipos_pal_dict['verb']:
-        verbos[palabra] = codigo
-      elif tipo == tipos_pal_dict['adverb']:
-        adverbios[palabra] = codigo
-      elif tipo == tipos_pal_dict['noun']:
+    sufijoFormato = ' en formato QSE' if NOMBRE_SISTEMA == 'QUILL' else ''
+    posSeccion = gramatica.reglas[reglaEntrada].index ('sección VOC' + sufijoFormato)
+    posEntrada = gramatica.reglas['sección VOC' + sufijoFormato].index ('entrada de vocabulario' + sufijoFormato + '*')
+    posPalabra = gramatica.reglas['entrada de vocabulario' + sufijoFormato].index ('palabra de vocabulario')
+    posCodigo  = gramatica.reglas['entrada de vocabulario' + sufijoFormato].index ('número entero positivo')
+    if NOMBRE_SISTEMA == 'QUILL':
+      for entrada in arbolCodigo[0][0][posSeccion][0][posEntrada]:
+        if not entrada:
+          continue  # Continuamos aunque sólo debería estar vacía como mucho la última entrada
+        palabra = entrada[posPalabra][0][0][0][:LONGITUD_PAL].lower()
+        codigo  = int (entrada[posCodigo][0][0][0])
+        vocabulario.append ((palabra, codigo, 0))
+        # Dejamos preparados diccionarios de códigos de palabra para verbos, nombres y adjetivos
         nombres[palabra] = codigo
-        if codigo < 20:
+        verbos[palabra]  = codigo
+    else:
+      posTipo = gramatica.reglas['entrada de vocabulario' + sufijoFormato].index ('tipo de palabra de vocabulario')
+      for entrada in arbolCodigo[0][0][posSeccion][0][posEntrada]:
+        if not entrada:
+          continue  # Continuamos aunque sólo debería estar vacía como mucho la última entrada
+        palabra = entrada[posPalabra][0][0][0][:LONGITUD_PAL].lower()
+        codigo  = int (entrada[posCodigo][0][0][0])
+        tipo    = tipos_pal_dict[entrada[posTipo][0][0][0].lower()]
+        vocabulario.append ((palabra, codigo, tipo))
+        # Dejamos preparados diccionarios de códigos de palabra para verbos, nombres y adjetivos
+        if tipo == tipos_pal_dict['verb']:
           verbos[palabra] = codigo
-      elif tipo == tipos_pal_dict['adjective']:
-        adjetivos[palabra] = codigo
-      elif tipo == tipos_pal_dict['preposition']:
-        preposiciones[palabra] = codigo
+        elif tipo == tipos_pal_dict['adverb']:
+          adverbios[palabra] = codigo
+        elif tipo == tipos_pal_dict['noun']:
+          nombres[palabra] = codigo
+          if codigo < 20:
+            verbos[palabra] = codigo
+        elif tipo == tipos_pal_dict['adjective']:
+          adjetivos[palabra] = codigo
+        elif tipo == tipos_pal_dict['preposition']:
+          preposiciones[palabra] = codigo
     # Cargamos las conexiones entre localidades
     posSeccion  = gramatica.reglas[reglaEntrada].index ('sección CON')
     posGrupo    = gramatica.reglas['sección CON'].index ('grupo de conexión*')
@@ -362,14 +379,17 @@ def carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, atributos, atributos_e
     if numEntrada != len (desc_locs):
       raise TabError ('el mismo número de entradas de conexión (hay %d) que de descripciones de localidades (hay %d)', (numEntrada, len (desc_locs)))
     # Cargamos datos de los objetos
-    posSeccion = gramatica.reglas[reglaEntrada].index ('sección OBJ')
-    posEntrada = gramatica.reglas['sección OBJ'].index ('entrada de objeto*')
-    posNumero  = gramatica.reglas['entrada de objeto'].index ('carácter /') + 1
+    posSeccion = gramatica.reglas[reglaEntrada].index ('sección OBJ' + sufijoFormato)
+    posEntrada = gramatica.reglas['sección OBJ' + sufijoFormato].index ('entrada de objeto' + sufijoFormato + '*')
+    posNumero  = gramatica.reglas['entrada de objeto' + sufijoFormato].index ('carácter /') + 1
     posLocIni  = posNumero + 2
-    posPeso    = gramatica.reglas['entrada de objeto'].index ('número entero positivo')
-    posResto   = len (gramatica.reglas['entrada de objeto']) - 1
-    posEspacio = gramatica.reglas['atributo'].index ('espacio en blanco')
-    posNombre  = -4  # Dónde está la palabra del nombre del objeto en la lista del resto de la entrada de objeto
+    if NOMBRE_SISTEMA == 'QUILL':
+      posNombre    = gramatica.reglas['entrada de objeto' + sufijoFormato].index ('palabra')  # Dónde está la palabra del nombre del objeto
+    else:
+      posPeso    = gramatica.reglas['entrada de objeto'].index ('número entero positivo')
+      posResto   = len (gramatica.reglas['entrada de objeto']) - 1
+      posEspacio = gramatica.reglas['atributo'].index ('espacio en blanco')
+      posNombre  = -4  # Dónde está la palabra del nombre del objeto en la lista del resto de la entrada de objeto
     numEntrada = 0
     for entrada in arbolCodigo[0][0][posSeccion][0][posEntrada]:
       if not entrada:
@@ -388,25 +408,28 @@ def carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, atributos, atributos_e
         else:  # Valor no numérico (p.ej. CARRIED)
           localidad = IDS_LOCS[opcion[0][0][0]]
       locs_iniciales.append (localidad)
-      # Cargamos el peso del objeto
-      encajesPeso, posicion = entrada[posPeso][0]
-      peso = int (encajesPeso[0])
-      if peso < 0 or peso > 63:
-        raise TabError ('valor de peso del objeto %d entre 0 y 63', numEntrada, posicion)
-      # Cargamos los atributos del objeto
-      if entrada[posResto][0]:
-        numAtributos = 2
-        restoEntrada = entrada[posResto][0]
+      if NOMBRE_SISTEMA == 'QUILL':
+        restoEntrada = entrada
       else:
-        numAtributos = 18
-        restoEntrada = entrada[posResto][1]
-      valorAttrs = ''
-      for arbolAtributo in restoEntrada[:numAtributos]:
-        arbolAtributo = arbolAtributo[0][1 - posEspacio][0] if arbolAtributo[0][1 - posEspacio][0] else arbolAtributo[0][1 - posEspacio][1]
-        valorAttrs   += '1' if arbolAtributo[0][0][0] == 'Y' else '0'
-      atributos.append (peso + ((valorAttrs[0] == '1') << 6) + ((valorAttrs[1] == '1') << 7))
-      if valorAttrs[2:]:
-        atributos_extra.append (int (valorAttrs[2:], 2))
+        # Cargamos el peso del objeto
+        encajesPeso, posicion = entrada[posPeso][0]
+        peso = int (encajesPeso[0])
+        if peso < 0 or peso > 63:
+          raise TabError ('valor de peso del objeto %d entre 0 y 63', numEntrada, posicion)
+        # Cargamos los atributos del objeto
+        if entrada[posResto][0]:
+          numAtributos = 2
+          restoEntrada = entrada[posResto][0]
+        else:
+          numAtributos = 18
+          restoEntrada = entrada[posResto][1]
+        valorAttrs = ''
+        for arbolAtributo in restoEntrada[:numAtributos]:
+          arbolAtributo = arbolAtributo[0][1 - posEspacio][0] if arbolAtributo[0][1 - posEspacio][0] else arbolAtributo[0][1 - posEspacio][1]
+          valorAttrs   += '1' if arbolAtributo[0][0][0] == 'Y' else '0'
+        atributos.append (peso + ((valorAttrs[0] == '1') << 6) + ((valorAttrs[1] == '1') << 7))
+        if valorAttrs[2:]:
+          atributos_extra.append (int (valorAttrs[2:], 2))
       # Cargamos el vocabulario del objeto
       palabras = []
       for posPalabra in range (posNombre, posNombre + 3, 2):
@@ -416,6 +439,9 @@ def carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, atributos, atributos_e
         palabras.append (palabra)
         if len (palabras) == 1 and palabra not in nombres:
           break  # Para conservar la posición de la primera palabra inexistente
+        elif NOMBRE_SISTEMA == 'QUILL':  # No hay adjetivos en Quill
+          palabras.append (gramatica.NULLWORD[0])
+          break
       if palabras[0] not in nombres or palabras[1] not in adjetivos:
         raise TabError ('una palabra de vocabulario de tipo %s', 'adjetivo' if len (palabras) > 1 else 'nombre', posicion)
       nombres_objs.append ((nombres[palabras[0]], adjetivos[palabras[1]]))
@@ -438,16 +464,17 @@ def carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, atributos, atributos_e
     if condactos_nuevos:  # Sólo para DAAD
       datosCondactos['DEBUG'] = ((220, ''), (220, ''))  # NEWTEXT con indirección
     # Cargamos las tablas de proceso
-    posSeccion   = gramatica.reglas[reglaEntrada].index ('sección PRO' + sufijoFormato + '+')
-    posNumero    = gramatica.reglas['sección PRO' + sufijoFormato].index ('expresión')
-    posEntrada   = gramatica.reglas['sección PRO' + sufijoFormato].index ('entrada de proceso' + sufijoFormato + '*')
-    posEtiqueta  = gramatica.reglas['entrada de proceso' + sufijoFormato].index ('línea de etiqueta?')
-    posVerboEnt  = gramatica.reglas['entrada de proceso' + sufijoFormato].index ('palabra')
-    posNombreEnt = gramatica.reglas['entrada de proceso' + sufijoFormato].index ('palabra', posVerboEnt + 1)
-    posCondacto  = gramatica.reglas['entrada de proceso' + sufijoFormato].index ('condacto en misma línea' + sufijoFormato + '?')
-    posCondactos = gramatica.reglas['entrada de proceso' + sufijoFormato].index ('condacto' + sufijoFormato + '*')
-    posNombre    = gramatica.reglas['condacto' + sufijoFormato].index ('nombre de condacto')
-    posParametro = gramatica.reglas['condacto' + sufijoFormato].index ('parámetro' + sufijoFormato + '*')
+    sufijoFormato = ' en formato DSF' if formato == 'dsf' else ''
+    posSeccion    = gramatica.reglas[reglaEntrada].index ('sección PRO' + sufijoFormato + '+')
+    posNumero     = gramatica.reglas['sección PRO' + sufijoFormato].index ('expresión')
+    posEntrada    = gramatica.reglas['sección PRO' + sufijoFormato].index ('entrada de proceso' + sufijoFormato + '*')
+    posEtiqueta   = gramatica.reglas['entrada de proceso' + sufijoFormato].index ('línea de etiqueta?')
+    posVerboEnt   = gramatica.reglas['entrada de proceso' + sufijoFormato].index ('palabra')
+    posNombreEnt  = gramatica.reglas['entrada de proceso' + sufijoFormato].index ('palabra', posVerboEnt + 1)
+    posCondacto   = gramatica.reglas['entrada de proceso' + sufijoFormato].index ('condacto en misma línea' + sufijoFormato + '?')
+    posCondactos  = gramatica.reglas['entrada de proceso' + sufijoFormato].index ('condacto' + sufijoFormato + '*')
+    posNombre     = gramatica.reglas['condacto' + sufijoFormato].index ('nombre de condacto')
+    posParametro  = gramatica.reglas['condacto' + sufijoFormato].index ('parámetro' + sufijoFormato + '*')
     assert gramatica.reglas['condacto en misma línea' + sufijoFormato][:3] == gramatica.reglas['condacto' + sufijoFormato][:3]
     numProceso = 0
     version    = 0  # Versión de DAAD necesaria, 0 significa compatibilidad con ambas
