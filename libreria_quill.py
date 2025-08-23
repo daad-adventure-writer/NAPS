@@ -24,6 +24,8 @@
 
 import sys  # Para stderr
 
+import alto_nivel
+
 from bajo_nivel import *
 from prn_func   import _, maketrans, prn
 
@@ -72,6 +74,7 @@ funcs_exportar = (
   ('guarda_bd',     ('qql',), _('Optimized Quill database for Sinclair QL')),
   ('guarda_bd_c64', ('prg',), _('Quill database for Commodore 64')),
   ('guarda_bd_ql',  ('qql',), _('Quill database for Sinclair QL')),
+  ('guarda_codigo_fuente', ('qse', 'sce',), _('Quill source code')),
 )
 funcs_importar = (
   ('carga_bd_cpc',  ('bin',),       _('Quill databases for Amstrad CPC')),
@@ -1264,6 +1267,14 @@ def guarda_bd_ql (bbdd):
   for nombre, adjetivo in nombres_objs:
     guarda_int1 (nombre)
   guarda_int1 (0)  # Fin de la lista de nombres de los objetos
+
+def guarda_codigo_fuente (fichero):
+  """Guarda la base de datos a código fuente SCE sobre el fichero de salida
+
+  Para compatibilidad con el IDE:
+  - Recibe como primer parámetro un fichero abierto
+  - Devuelve False si ha ocurrido algún error"""
+  return alto_nivel.guarda_codigo_fuente (fichero, NOMBRE_SISTEMA, NOMB_COMO_VERB, PREP_COMO_VERB, [], [], [], condactos, conexiones, desc_locs, desc_objs, locs_iniciales, msgs_usr, msgs_sys, nombres_objs, False, num_objetos, tablas_proceso, vocabulario, lee_secs_ctrl)
 
 def inicializa_banderas (banderas):
   """Inicializa banderas con valores propios de Quill"""

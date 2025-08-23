@@ -655,7 +655,9 @@ def carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, atributos, atributos_e
   return False
 
 def guarda_codigo_fuente (fichero, NOMBRE_SISTEMA, NOMB_COMO_VERB, PREP_COMO_VERB, abreviaturas, atributos, atributos_extra, condactos, conexiones, desc_locs, desc_objs, locs_iniciales, msgs_usr, msgs_sys, nombres_objs, nueva_version, num_objetos, tablas_proceso, vocabulario, lee_secs_ctrl):
-  formato      = os.path.splitext (fichero.name)[1][1:].lower()  # Formato del código fuente, con valores posibles 'sce' o 'dsf'
+  formato = os.path.splitext (fichero.name)[1][1:].lower()  # Formato del código fuente, con valores posibles 'sce' o 'dsf'
+  if formato == 'qse':
+    formato = 'sce'
   codigoFuente = ''  # Aquí construiremos el código fuente a guardar, para convertirlo de una vez a la codificación necesaria
   codigoFuente += '; Código fuente generado por NAPS https://github.com/daad-adventure-writer/NAPS\n'
   codigoFuente += '; a partir de una base de datos de ' + NOMBRE_SISTEMA
@@ -668,7 +670,7 @@ def guarda_codigo_fuente (fichero, NOMBRE_SISTEMA, NOMB_COMO_VERB, PREP_COMO_VER
     codigoFuente += '; ADVERTENCIA:  ni el compilador DC liberado, ni DRC soportan la versión 1 de DAAD\n'
     codigoFuente += ';\t\tSin adaptarlo a DAAD versión 2, sólo podrás compilarlo con NAPS\n'
     codigoFuente += '; * ! * ! * !\n'
-  codigoFuente += (';\n' if formato == 'sce' else '\n') + '/CTL\n_\n' + (';\n' if formato == 'sce' else '\n')
+  codigoFuente += (';\n' if formato == 'sce' else '\n') + '/CTL\n' + ('Q\n' if NOMBRE_SISTEMA == 'QUILL' else '') + '_\n' + (';\n' if formato == 'sce' else '\n')
   if abreviaturas and formato == 'sce':  # TODO: ver si DC exige que haya sección /TOK
     codigoFuente += '/TOK\n'
     for abreviatura in abreviaturas[1:]:
@@ -676,14 +678,19 @@ def guarda_codigo_fuente (fichero, NOMBRE_SISTEMA, NOMB_COMO_VERB, PREP_COMO_VER
     codigoFuente += ';\n'
   codigoFuente += '/VOC\n'
   pal_sinonimo = dict()  # Sinónimo preferido para cada par código y tipo válido
-  tipo_adjetivo    = tipos_pal_dict['adjective']
-  tipo_nombre      = tipos_pal_dict['noun']
-  tipo_preposicion = tipos_pal_dict['preposition']
-  tipo_verbo       = tipos_pal_dict['verb']
+  if NOMBRE_SISTEMA == 'QUILL':
+    tipo_adjetivo = tipo_nombre = tipo_preposicion = tipo_verbo = 0
+  else:
+    tipo_adjetivo    = tipos_pal_dict['adjective']
+    tipo_nombre      = tipos_pal_dict['noun']
+    tipo_preposicion = tipos_pal_dict['preposition']
+    tipo_verbo       = tipos_pal_dict['verb']
   pal_sinonimo[(255, tipo_nombre)] = '_'
   pal_sinonimo[(255, tipo_verbo)]  = '_'
   for (palabra, codigo, tipo) in vocabulario:
-    codigoFuente += palabra + '\t' + str (codigo) + '\t' + tipos_pal_inv[tipo] + '\n'
+    if codigo in (0, 255):
+      continue  # Omitir las palabras reservadas _ y *
+    codigoFuente += palabra + '\t' + str (codigo) + (('\t' + tipos_pal_inv[tipo]) if NOMBRE_SISTEMA != 'QUILL' else '') + '\n'
     idYtipos = [(codigo, tipo)]
     if (tipo == tipo_nombre      and codigo < NOMB_COMO_VERB[0] or  # Es nombre convertible en verbo
         tipo == tipo_preposicion and codigo < PREP_COMO_VERB):      # Es preposición convertible en verbo
@@ -740,19 +747,22 @@ def guarda_codigo_fuente (fichero, NOMBRE_SISTEMA, NOMB_COMO_VERB, PREP_COMO_VER
   for numObjeto in range (num_objetos[0]):
     idLocalidad = locs_iniciales[numObjeto]
     idLocalidad = IDS_LOCS_inv[idLocalidad] if idLocalidad < 255 and idLocalidad in IDS_LOCS_inv else str (idLocalidad)
-    peso       = str (atributos[numObjeto] & 63)
-    contenedor = 'Y' if atributos[numObjeto] &  64 else '_'
-    prenda     = 'Y' if atributos[numObjeto] & 128 else '_'
     nombre = nombres_objs[numObjeto][0]
     nombre = '_' if nombre == 255 else (pal_sinonimo[(nombre, tipo_nombre)] if (nombre, tipo_nombre) in pal_sinonimo else str (nombre))
-    adjetivo = nombres_objs[numObjeto][1]
-    adjetivo = '_' if adjetivo == 255 else (pal_sinonimo[(adjetivo, tipo_adjetivo)] if (adjetivo, tipo_adjetivo) in pal_sinonimo else str (adjetivo))
-    codigoFuente += '/' + str (numObjeto) + '\t' + idLocalidad + '\t' + peso + '\t' + contenedor + '\t' + prenda
-    if atributos_extra:
-      for indiceBit in range (15, -1, -1):
-        mascaraBit = 2 ** indiceBit
-        codigoFuente += '\t' + ('Y' if atributos_extra[numObjeto] & mascaraBit else '_')
-    codigoFuente += '\t' + nombre + '\t' + adjetivo + '\n'
+    if atributos:
+      peso       = str (atributos[numObjeto] & 63)
+      contenedor = 'Y' if atributos[numObjeto] &  64 else '_'
+      prenda     = 'Y' if atributos[numObjeto] & 128 else '_'
+      adjetivo = nombres_objs[numObjeto][1]
+      adjetivo = '_' if adjetivo == 255 else (pal_sinonimo[(adjetivo, tipo_adjetivo)] if (adjetivo, tipo_adjetivo) in pal_sinonimo else str (adjetivo))
+      codigoFuente += '/' + str (numObjeto) + '\t' + idLocalidad + '\t' + peso + '\t' + contenedor + '\t' + prenda
+      if atributos_extra:
+        for indiceBit in range (15, -1, -1):
+          mascaraBit = 2 ** indiceBit
+          codigoFuente += '\t' + ('Y' if atributos_extra[numObjeto] & mascaraBit else '_')
+      codigoFuente += '\t' + nombre + '\t' + adjetivo + '\n'
+    else:
+      codigoFuente += '/' + str (numObjeto) + '\t' + idLocalidad + '\t' + nombre + '\n'
   tipoParametro = {'j': 'adjective', 'n': 'noun', 'r': 'preposition', 'v': 'adverb', 'V': 'verb'}
   for letraTipoPal, tipoPalabra in tipoParametro.items():
     tipoParametro[letraTipoPal] = tipos_pal_dict[tipoPalabra]
@@ -767,7 +777,7 @@ def guarda_codigo_fuente (fichero, NOMBRE_SISTEMA, NOMB_COMO_VERB, PREP_COMO_VER
       for e in range (len (entradas[numEntrada])):
         codigo, parametros = entradas[numEntrada][e][:2]
         comentario = entradas[numEntrada][e][2] if len (entradas[numEntrada][e]) > 2 else None
-        if codigo > 127:
+        if codigo > 127 and NOMBRE_SISTEMA == 'DAAD':
           codigo -= 128
           indireccion = True
         else:
