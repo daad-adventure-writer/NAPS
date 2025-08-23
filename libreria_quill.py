@@ -684,7 +684,8 @@ def guarda_bd (bbdd):
     entradasLimpias  = []
     for e in range (len (entradas)):
       algunaAccion = False
-      for condacto, parametros in entradas[e]:
+      for entrada in entradas[e]:
+        condacto, parametros = entrada[:2]
         if condacto >= 100:
           algunaAccion = True
           break
@@ -747,7 +748,8 @@ def guarda_bd (bbdd):
       algunaAccion = False  # Si se ha encontrado ya alguna acción en la entrada
       accionFlujo  = False  # Si la entrada termina con una acción que cambia el flujo de ejecución incondicionalmente
       secuencia    = []
-      for condacto, parametros in entradas[e]:
+      for entrada in entradas[e]:
+        condacto, parametros = entrada[:2]
         if condacto >= 100:
           if not algunaAccion:
             secuencia.append (255)  # Fin de condiciones
@@ -1070,7 +1072,8 @@ def guarda_bd_c64 (bbdd):
     for e in range (len (entradas)):
       posiciones.append (ocupado)
       algunaAccion = False
-      for condacto, parametros in entradas[e]:
+      for entrada in entradas[e]:
+        condacto, parametros = entrada[:2]
         if condacto >= 100:
           if not algunaAccion:
             guarda_int1 (255)  # Fin de condiciones
@@ -1240,7 +1243,8 @@ def guarda_bd_ql (bbdd):
       # Guardamos el contenido de la entrada
       fich_sal.seek (ocupado)
       algunaAccion = False
-      for condacto, parametros in entradas[e]:
+      for entrada in entradas[e]:
+        condacto, parametros = entrada[:2]
         if condacto >= 100:
           if not algunaAccion:
             guarda_int1 (255)  # Fin de condiciones

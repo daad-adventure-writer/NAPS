@@ -1101,7 +1101,8 @@ def guarda_bd_ (bbdd):
       guarda_int1 (cabeceras[i][1])  # Nombre
       guarda_desplazamiento (ocupado)
       try:
-        for condacto, parametros in entradas[i]:
+        for entrada in entradas[i]:
+          condacto, parametros = entrada[:2]
           ocupado += 1 + len (parametros)
       except:
         prn (entradas[i], file = sys.stderr)
@@ -1125,7 +1126,7 @@ def guarda_bd_ (bbdd):
   # Guardamos las entradas de las tablas de proceso
   for cabeceras, entradas in tablas_proceso:
     for entrada in entradas:
-      for condacto, parametros in entrada:
+      for condacto, parametros in entrada[:2]:
         guarda_int1 (condacto)
         for parametro in parametros:
           guarda_int1 (parametro)
@@ -1284,7 +1285,8 @@ def guarda_bd (bbdd):
         if entradaProceso == entradas[i]:  # Ya había un bloque de proceso igual
           guarda_desplazamiento (desplazamiento)
           try:
-            for condacto, parametros in entradas[i]:
+            for entrada in entradas[i]:
+              condacto, parametros = entrada[:2]
               ahorroProcesos += 1 + len (parametros)
           except:
             # prn (entradas[i], file = sys.stderr)  # Ya se habrá hecho esto la primera vez
@@ -1295,7 +1297,8 @@ def guarda_bd (bbdd):
         entradasProceso[ocupado] = entradas[i]
         guarda_desplazamiento (ocupado)
         try:
-          for condacto, parametros in entradas[i]:
+          for entrada in entradas[i]:
+            condacto, parametros = entrada[:2]
             ocupado += 1 + len (parametros)
         except:
           prn (entradas[i], file = sys.stderr)
@@ -1325,7 +1328,7 @@ def guarda_bd (bbdd):
       if entrada in entradasProceso:
         continue  # Omitimos bloques duplicados
       entradasProceso.append (entrada)
-      for condacto, parametros in entrada:
+      for condacto, parametros in entrada[:2]:
         guarda_int1 (condacto)
         for parametro in parametros:
           guarda_int1 (parametro)
