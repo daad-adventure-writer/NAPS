@@ -760,7 +760,8 @@ def guarda_codigo_fuente (fichero, NOMB_COMO_VERB, PREP_COMO_VERB, abreviaturas,
       verbo  = '_' if verbo  == 255 else (pal_sinonimo[(verbo,  tipo_verbo)]  if (verbo,  tipo_verbo)  in pal_sinonimo else str (verbo))
       codigoFuente += '\n\n' + ('>\t' if formato == 'dsf' else '') + verbo + '\t' + nombre + ('\n' if formato == 'dsf' else '\t')
       for e in range (len (entradas[numEntrada])):
-        codigo, parametros = entradas[numEntrada][e]
+        codigo, parametros = entradas[numEntrada][e][:2]
+        comentario = entradas[numEntrada][e][2] if len (entradas[numEntrada][e]) > 2 else None
         if codigo > 127:
           codigo -= 128
           indireccion = True
@@ -785,6 +786,8 @@ def guarda_codigo_fuente (fichero, NOMB_COMO_VERB, PREP_COMO_VERB, abreviaturas,
               codigoFuente += '\t@' + str (parametro)
           else:
             codigoFuente += '\t' + str (parametro)
+        if comentario:
+          codigoFuente += '\t' * (3 - len (parametros)) + ';' + comentario
     codigoFuente += '\n'
   if formato == 'dsf':
     codigoFuente += '\n/END'
