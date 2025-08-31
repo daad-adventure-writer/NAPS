@@ -3157,7 +3157,8 @@ def postCarga (nombre):
     tipo_nombre = tipo_preposicion = tipo_verbo = 0
   # Actualizamos los textos que mostrará el IDE sobre las palabras de vocabulario
   actualizaPalabrasMostradas()
-  # Preparamos las funciones de exportación
+  # Preparamos las funciones de exportación de este módulo de librería
+  del info_exportar[:]
   for entrada in mod_actual.funcs_exportar:
     if comprueba_tipo (mod_actual, entrada[0], types.FunctionType):
       info_exportar.append ((entrada[0], entrada[1], entrada[2]))
