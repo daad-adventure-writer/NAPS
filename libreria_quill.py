@@ -69,11 +69,12 @@ ids_locs = {  0 : 'INICIAL',
 
 # Funciones que importan bases de datos desde ficheros
 funcs_exportar = (
-  ('guarda_bd',     ('dtb',), _('Optimized Quill database for Atari 800')),
-  ('guarda_bd',     ('prg',), _('Optimized Quill database for Commodore 64')),
-  ('guarda_bd',     ('qql',), _('Optimized Quill database for Sinclair QL')),
-  ('guarda_bd_c64', ('prg',), _('Quill database for Commodore 64')),
-  ('guarda_bd_ql',  ('qql',), _('Quill database for Sinclair QL')),
+  ('guarda_bd',      ('dtb',), _('Optimized Quill database for Atari 800')),
+  ('guarda_bd',      ('prg',), _('Optimized Quill database for Commodore 64')),
+  ('guarda_bd',      ('qql',), _('Optimized Quill database for Sinclair QL')),
+  ('guarda_bd_a800', ('dtb',), _('Quill database for Atari 800')),
+  ('guarda_bd_c64',  ('prg',), _('Quill database for Commodore 64')),
+  ('guarda_bd_ql',   ('qql',), _('Quill database for Sinclair QL')),
   ('guarda_codigo_fuente', ('qse', 'sce',), _('Quill source code')),
 )
 funcs_importar = (
@@ -1036,6 +1037,126 @@ def guarda_bd (bbdd):
   if formato == 'dtb':  # Atari 800
     fich_sal.seek (4)
     guarda_desplazamiento (ocupado)
+
+def guarda_bd_a800 (bbdd):
+  """Almacena la base de datos entera en el fichero de salida, para Atari 800, replicando el formato original. Devuelve None si no hubo error, o mensaje resumido y detallado del error"""
+  global fich_sal, guarda_desplazamiento
+  fich_sal     = bbdd
+  desplIniFich = 0                # Posición donde empieza la BD en el fichero
+  desplIniMem  = 7418             # Posición donde se cargará en memoria la BD
+  numLocs      = len (desc_locs)  # Número de localidades
+  numMsgsUsr   = len (msgs_usr)   # Número de mensajes de usuario
+  numMsgsSys   = len (msgs_sys)   # Número de mensajes de sistema
+  tamCabecera  = 37               # Tamaño en bytes de la cabecera de Quill
+  tamDespl     = 2                # Tamaño en bytes de las posiciones
+  tamMaxBD     = 31680            # Tamaño máximo de base de datos
+  bajo_nivel_cambia_despl  (desplIniMem)
+  bajo_nivel_cambia_endian (le = True)
+  bajo_nivel_cambia_sal    (bbdd)
+  guarda_desplazamiento = guarda_desplazamiento2
+  preparaPosCabecera ('a800', desplIniFich + 10)
+  # Guardamos la cabecera de Atari 800
+  guarda_int2_le (65535)  # Marca de ejecutable
+  guarda_int2_le (7424)   # Desplazamiento donde se cargará en memoria la BD
+  # Dejamos espacio para la posición siguiente tras la base de datos
+  guarda_desplazamiento (-desplIniMem)
+  # Guardamos la cabecera de Quill
+  guarda_int1 (0)    # ¿Plataforma?
+  guarda_int1 (13)   # Contraste de la tinta
+  guarda_int1 (176)  # Papel verde oscuro
+  guarda_int1 (176)  # Borde verde oscuro
+  guarda_int1 (max_llevables)
+  guarda_int1 (num_objetos[0])
+  guarda_int1 (numLocs)
+  guarda_int1 (numMsgsUsr)
+  guarda_int1 (numMsgsSys)
+  ocupado = tamCabecera  # Espacio ocupado hasta ahora
+  # Guardamos las entradas y cabeceras de las tablas de eventos y de estado
+  adaptados.clear()  # Condactos que se han adaptado al convertir de una plataforma a otra
+  fich_sal.seek (desplIniFich + ocupado)
+  for t in range (2):
+    cabeceras, entradas = tablas_proceso[t]
+    # Guardamos el contenido de las entradas
+    posiciones = []  # Posición de cada entrada
+    for e in range (len (entradas)):
+      posiciones.append (ocupado)
+      algunaAccion = False
+      for entrada in entradas[e]:
+        condacto, parametros = entrada[:2]
+        if condacto >= 100:
+          if not algunaAccion:
+            guarda_int1 (255)  # Fin de condiciones
+          algunaAccion = True
+        entradaOcurrencia = (t, e)  # El lugar de esta ocurrencia (número de proceso y de entrada en éste)
+        nombreCondacto    = condactos[condacto][0]
+        condactoDestino, nombreCondacto, parametrosDestino = convierteCondacto (condacto, nombreCondacto, parametros, 'Atari800', entradaOcurrencia)  # Condacto en plataforma de destino
+        if condactoDestino == None:  # Hay error y el mensaje está en nombreCondacto
+          prn ('ERROR:', nombreCondacto, file = sys.stderr)  # Por si se exportaba desde otro sitio que no sea el IDE
+          return (_('Missing condact'), nombreCondacto)
+        guarda_int1 (condactoDestino - (100 if algunaAccion else 0))
+        for parametro in parametrosDestino:
+          guarda_int1 (parametro)
+        ocupado += 1 + len (parametrosDestino)
+      if not algunaAccion:
+        guarda_int1 (255)  # Fin de condiciones
+      guarda_int1 (255)  # Fin de acciones y entrada
+      ocupado += 2  # Las marcas de fin de condiciones y acciones
+    # Guardamos la posición de la cabecera de la tabla
+    fich_sal.seek (CAB_POS_EVENTOS + t * tamDespl)
+    guarda_desplazamiento (ocupado)
+    # Guardamos las cabeceras de las entradas
+    fich_sal.seek (desplIniFich + ocupado)
+    for e in range (len (entradas)):
+      guarda_int1 (cabeceras[e][0])          # Palabra 1 (normalmente verbo)
+      guarda_int1 (cabeceras[e][1])          # Palabra 2 (normalmente nombre)
+      guarda_desplazamiento (posiciones[e])  # Posición de la entrada
+      ocupado += 2 + tamDespl
+    guarda_int1 (0)  # Marca de fin de cabecera de tabla
+    ocupado += 1
+  # Guardamos los textos de la aventura y sus posiciones
+  for posCabecera, mensajes in ((CAB_POS_LST_POS_OBJS, desc_objs), (CAB_POS_LST_POS_LOCS, desc_locs), (CAB_POS_LST_POS_MSGS_USR, msgs_usr), (CAB_POS_LST_POS_MSGS_SYS, msgs_sys)):
+    posPrimerMsg = ocupado
+    ocupado += guardaMsgs (mensajes, finCadena = 0, nuevaLinea = 155)
+    fich_sal.seek (posCabecera)
+    guarda_desplazamiento (ocupado)  # Posición de la lista de posiciones de este tipo de mensajes
+    fich_sal.seek (desplIniFich + ocupado)
+    guardaPosMsgs (mensajes, posPrimerMsg)
+    ocupado += len (mensajes) * tamDespl
+  # Guardamos las conexiones de las localidades
+  posiciones = []  # Posición de las conexiones de cada localidad
+  for lista in conexiones:
+    posiciones.append (ocupado)
+    for conexion in lista:
+      guarda_int1 (conexion[0])
+      guarda_int1 (conexion[1])
+    guarda_int1 (255)  # Fin de las conexiones de esta localidad
+    ocupado += len (lista) * 2 + 1
+  fich_sal.seek (CAB_POS_LST_POS_CNXS)
+  guarda_desplazamiento (ocupado)  # Posición de las conexiones
+  fich_sal.seek (desplIniFich + ocupado)
+  for posicion in posiciones:
+    guarda_desplazamiento (posicion)
+  ocupado += len (posiciones) * tamDespl
+  # Guardamos el vocabulario
+  fich_sal.seek (CAB_POS_VOCAB)
+  guarda_desplazamiento (ocupado)  # Posición del vocabulario
+  fich_sal.seek (desplIniFich + ocupado)
+  guardaVocabulario (optimizado = False)
+  ocupado += (len (vocabulario) + 1) * (LONGITUD_PAL + 1)
+  # Guardamos las localidades iniciales de los objetos
+  fich_sal.seek (CAB_POS_LOCS_OBJS)
+  guarda_desplazamiento (ocupado)  # Posición de las localidades iniciales de los objetos
+  fich_sal.seek (desplIniFich + ocupado)
+  for localidad in locs_iniciales:
+    guarda_int1 (localidad)
+  guarda_int1 (255)  # Fin de la lista de localidades iniciales de los objetos
+  ocupado += len (locs_iniciales) + 1
+  # Guardamos los últimos valores de la cabecera
+  fich_sal.seek (4)
+  guarda_desplazamiento (ocupado)
+  fich_sal.seek (CAB_POS_NOMS_OBJS)
+  guarda_desplazamiento (ocupado)                 # Posición justo detrás de la base de datos
+  guarda_desplazamiento (tamMaxBD - desplIniMem)  # Posición justo detrás de la base de datos si esta fuera de tamaño máximo
 
 def guarda_bd_c64 (bbdd):
   """Almacena la base de datos entera en el fichero de salida, para Commodore 64, replicando el formato original. Devuelve None si no hubo error, o mensaje resumido y detallado del error"""
