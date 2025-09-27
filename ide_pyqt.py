@@ -963,6 +963,7 @@ class ModalEntradaTexto (QDialog):
     if mod_actual.NOMBRE_SISTEMA != 'DAAD':  # En DAAD no hay tabulador, allí se usa \t para el código que pasa al juego bajo
       texto = texto.replace ('\\t', '\t')
     self.campo = QPlainTextEdit (texto, self)
+    self.campo.setFont (QFont ('monospace'))
     layout = QVBoxLayout (self)
     layout.addWidget (self.campo)
     layoutBotones = QHBoxLayout()
