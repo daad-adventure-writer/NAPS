@@ -1256,7 +1256,7 @@ def guarda_bd_c64 (bbdd):
   fich_sal.seek (CAB_POS_VOCAB)
   guarda_desplazamiento (ocupado)  # Posición del vocabulario
   fich_sal.seek (desplIniFich + ocupado)
-  guardaVocabulario (ascii_a_petscii)
+  guardaVocabulario (ascii_a_petscii, False)
   ocupado += (len (vocabulario) + 1) * (LONGITUD_PAL + 1)
   # Guardamos las localidades iniciales de los objetos
   fich_sal.seek (CAB_POS_LOCS_OBJS)
