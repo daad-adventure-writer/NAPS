@@ -326,7 +326,9 @@ petscii_a_ascii = maketrans (''.join (('%c' % c for c in range (256))), petscii)
 ascii_para_petscii = ''.join (('%c' % c for c in tuple (range (65)) + tuple (range (193, 219)) + tuple (range (91, 97)))) + 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' + ''.join (('%c' % c for c in range (123, 256)))
 ascii_a_petscii = maketrans (''.join (('%c' % c for c in range (256))), ascii_para_petscii)
 
+conversion_inv        = {}  # Tabla de conversión de caracteres invertida
 conversion_plataforma = {
+  'Atari800': {'\x00': u'\u2665', '\x01': u'\u2523', '\x02': u'\u2595', '\x03': u'\u251b', '\x04': u'\u252b', '\x05': u'\u2513', '\x06': u'\u2571', '\x07': u'\u2572', '\x08': u'\u25e2', '\x09': u'\u2597', '\x0a': u'\u25e3', '\x0b': u'\u259d', '\x0c': u'\u2598', '\x0d': u'\u2594', '\x0e': u'\u2581', '\x0f': u'\u2596', '\x10': u'\u2663', '\x11': u'\u250f', '\x12': u'\u2501', '\x13': u'\u254b', '\x14': u'\u2022', '\x15': u'\u2584', '\x16': u'\u258e', '\x17': u'\u2533', '\x18': u'\u253b', '\x19': u'\u258c', '\x1a': u'\u2517', '\x1c': u'\u2191', '\x1d': u'\u2193', '\x1e': u'\u2190', '\x1f': u'\u2192', '`': u'\u2666', '{': u'\u2660', '}': u'\u2196', '~': u'\u25c0', '\x7f': u'\u25b6'},
   'QL': {'`': '£', '\x81': 'ã', '\x82': 'å', '\x83': 'é', '\x84': 'ö', '\x85': 'õ', '\x86': 'ø', '\x87': 'ü', '\x88': 'ç', '\x89': 'ñ', '\x8a': 'æ', '\x8b': '½', '\x8c': 'á', '\x8d': 'à', '\x8e': 'â', '\x8f': 'ë', '\x90': 'è', '\x91': 'ê', '\x92': 'ï', '\x93': 'í', '\x94': 'ì', '\x95': 'î', '\x96': 'ó', '\x97': 'ò', '\x98': 'ô', '\x99': 'ú', '\x9a': 'ù', '\x9b': 'û', '\x9c': 'ß', '\x9d': '¢', '\x9e': '¥', '\x9f': '`', '\xa0': 'Ä', '¡': 'Ã', '¢': 'Â', '£': 'É', '\xa4': 'Ö', '¥': 'Õ', '§': 'Ü', '\xa8': 'Ç', '©': 'Ñ', 'ª': 'Æ', '«': '¼', '¬': u'\u03b1', '\xad': u'\u03b4', '®': u'\u0398', '¯': u'\u03bb', '°': 'µ', '±': u'\u03c0', '²': u'\u03a6', '³': '¡', '\xb4': '¿', 'µ': u'\u1e62', '¶': '§', '·': u'\u00a4', '\xb8': '«', '¹': '»', '»': '÷', '\xbc': u'\u2190', '\xbd': u'\u2192', '\xbe': u'\u2191', '¿': u'\u2193'},
 }
 
@@ -366,6 +368,8 @@ Para compatibilidad con el IDE:
   nueva_linea   = 155  # Es este, aunque el editor parece no dejar escribir nueva línea
   plataforma    = 1    # Apaño para que el intérprete lo considere como Spectrum
   id_plataforma = 'Atari800'
+  cods_tinta.clear()
+  preparaConversion()
   bajo_nivel_cambia_despl (despl_ini)
   # TODO: cargar y usar colores iniciales, que son muy distintos en esta plataforma, con 256 colores posibles
   colores_inicio.extend ((7, 0, 0, 0))  # Tinta blanca, papel y borde negro, y sin brillo
@@ -486,7 +490,7 @@ Para compatibilidad con el IDE:
   NUM_BANDERAS_ACC[0]   = 63
   cods_tinta.clear()
   cods_tinta.update ({16: 0, 17: 1, 18: 2, 19: 3, 20: 4, 21: 5, 22: 6, 23: 7})
-  conversion.update (conversion_plataforma['QL'])
+  preparaConversion()
   fichero.seek (0)
   if fichero.read (18) == b']!QDOS File Header':  # Tiene cabecera QDOS puesta por el emulador
     despl_ini = -30  # Es de 30 bytes en sQLux
@@ -1545,6 +1549,8 @@ def escribe_secs_ctrl (cadena):
       else:
         convertida += c
       # TODO: interpretar el resto de secuencias escapadas con barra invertida (\)
+    elif c in conversion_inv:
+      convertida += conversion_inv[c]
     else:
       if inversa and id_plataforma in ('Atari800', 'PC'):
         convertida += chr (o + 128)
@@ -1621,6 +1627,8 @@ def lee_secs_ctrl (cadena):
       convertida += '\\' + _('INK') + '_%02X' % cods_tinta[o]
     elif c == '\\':
       convertida += '\\\\'
+    elif c in conversion:
+      convertida += conversion[c]
     else:
       convertida += c
     i += 1
@@ -1779,6 +1787,7 @@ cadenas es la lista donde almacenar las cadenas que se carguen"""
   for i in range (numCads):
     posiciones.append (carga_desplazamiento())
   # Cargamos cada cadena
+  convertir      = 'NOMBRE_GUI' in globals() and NOMBRE_GUI != 'pygame'  # Si debe decodificar los caracteres según conversion
   saltaSiguiente = False  # Si salta el siguiente carácter, como ocurre tras algunos códigos de control
   for posicion in posiciones:
     fich_ent.seek (posicion)
@@ -1792,7 +1801,7 @@ cadenas es la lista donde almacenar las cadenas que se carguen"""
         saltaSiguiente = not saltaSiguiente
       elif caracter == nueva_linea:  # Un carácter de nueva línea en la cadena
         cadena.append ('\n')
-      elif chr (caracter) in conversion:
+      elif convertir and chr (caracter) in conversion:
         cadena.append (conversion[chr (caracter)])
       else:
         cadena.append (chr (caracter))
@@ -2083,6 +2092,15 @@ def guardaVocabulario (conversion = None, optimizado = True):
       guarda_int1 (caracter ^ 255)
     guarda_int1 (palabra[1])  # Código de la palabra
   guarda_int1 (0)  # Fin del vocabulario
+
+def preparaConversion ():
+  """Prepara los diccionarios conversion y conversion_inv con las tablas de conversión de caracteres para la plataforma actual"""
+  conversion.clear()
+  conversion_inv.clear()
+  if id_plataforma in conversion_plataforma:
+    conversion.update (conversion_plataforma[id_plataforma])
+    for entrada, salida in conversion.items():
+      conversion_inv[salida] = entrada
 
 def preparaPosCabecera (formato, inicio):
   # type: (str, int) -> None
