@@ -33,7 +33,7 @@ import graficos_bitmap
 import pygame
 
 if version_info[0] == 3 and version_info[1] >= 5:  # Para Python 3.5+
-  from typing import *  # Para que PyCharm reconozca BinaryIO, Optional y Union
+  from typing import *  # Para que PyCharm reconozca BinaryIO, Dict, Optional y Union
 
 
 traza = False  # Si queremos una traza del funcionamiento del módulo
@@ -84,19 +84,19 @@ chr_cursor = pygame.Surface ((8, 8))  # Carácter con transparencia, para marcar 
 # Variables que ajusta el intérprete y usa esta GUI u otro módulo
 
 brillo           = 0         # Sin brillo por defecto
-cod_brillo       = None      # Carácter que si se encuentra en una cadena, dará o quitará brillo al color de tinta de la letra
-cod_columna      = None      # Carácter que si se encuentra en una cadena, moverá el cursor a la columna dada
-cod_flash        = None      # Carácter que si se encuentra en una cadena, pondría o quitaría efecto flash a la letra
-cod_inversa      = None      # Carácter que si se encuentra en una cadena, invertirá o no el papel/fondo de la letra
-cod_inversa_fin  = None      # Carácter que si se encuentra en una cadena, quitará  inversión del papel/fondo de la letra
-cod_inversa_ini  = None      # Carácter que si se encuentra en una cadena, activará inversión del papel/fondo de la letra
-cod_juego_alto   = None      # Carácter que si se encuentra en una cadena, pasará al juego de caracteres alto
-cod_juego_bajo   = None      # Carácter que si se encuentra en una cadena, pasará al juego de caracteres bajo
-cod_papel        = None      # Carácter que si se encuentra en una cadena, cambiará el color de papel/fondo de la letra
-cod_reset        = None      # Carácter que si se encuentra en una cadena, aplicará los colores de inicio para tinta y papel
-cod_tabulador    = None      # Carácter que si se encuentra en una cadena, pondrá espacios hasta mitad o final de línea
-cod_tinta        = None      # Carácter que si se encuentra en una cadena, cambiará el color de tinta de la letra
-cods_tinta       = {}        # Caracteres que si se encuentran en una cadena, cambiará el color de tinta por el del valor
+cod_brillo       = None      # type: Optional[int]  # Código  de carácter que si se encuentra  en una cadena, dará o quitará brillo al color de tinta de la letra
+cod_columna      = None      # type: Optional[int]  # Código  de carácter que si se encuentra  en una cadena, moverá el cursor a la columna dada
+cod_flash        = None      # type: Optional[int]  # Código  de carácter que si se encuentra  en una cadena, pondría o quitaría efecto flash a la letra
+cod_inversa      = None      # type: Optional[int]  # Código  de carácter que si se encuentra  en una cadena, invertirá o no el papel/fondo de la letra
+cod_inversa_fin  = None      # type: Optional[int]  # Código  de carácter que si se encuentra  en una cadena, quitará  inversión del papel/fondo de la letra
+cod_inversa_ini  = None      # type: Optional[int]  # Código  de carácter que si se encuentra  en una cadena, activará inversión del papel/fondo de la letra
+cod_juego_alto   = None      # type: Optional[int]  # Código  de carácter que si se encuentra  en una cadena, pasará al juego de caracteres alto
+cod_juego_bajo   = None      # type: Optional[int]  # Código  de carácter que si se encuentra  en una cadena, pasará al juego de caracteres bajo
+cod_papel        = None      # type: Optional[int]  # Código  de carácter que si se encuentra  en una cadena, cambiará el color de papel/fondo de la letra
+cod_reset        = None      # type: Optional[int]  # Código  de carácter que si se encuentra  en una cadena, aplicará los colores de inicio para tinta y papel
+cod_tabulador    = None      # type: Optional[int]  # Código  de carácter que si se encuentra  en una cadena, pondrá espacios hasta mitad o final de línea
+cod_tinta        = None      # type: Optional[int]  # Código  de carácter que si se encuentra  en una cadena, cambiará el color de tinta de la letra
+cods_tinta       = {}        # type: Dict[int, int] # Códigos de carácter que si se encuentran en una cadena, cambiará el color de tinta por el del valor
 centrar_graficos = []        # Si se deben centrar los gráficos al dibujarlos
 grf_borde        = None      # Cuadrado 8x8 que usar repetidamente como borde de los gráficos
 paleta           = ([], [])  # Paleta de colores sin y con brillo para los textos, que cambia con funciones cambia_*

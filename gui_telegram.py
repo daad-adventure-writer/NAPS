@@ -27,23 +27,29 @@ import sys
 
 from prn_func import *
 
+# Para sugerencias de tipo
+if sys.version_info[0] == 3 and sys.version_info[1] >= 5:  # Para Python 3.5+
+  from typing import Dict, Optional  # Para PyCharm
+
 
 traza = False  # Si queremos una traza del funcionamiento del módulo
 
 # Variables que ajusta el intérprete y usa esta GUI u otro módulo
 
-cod_brillo       = None      # Carácter que si se encuentra en una cadena, daría o quitaría brillo al color de tinta de la letra
-cod_columna      = None      # Carácter que si se encuentra en una cadena, moverá el cursor a la columna dada
-cod_flash        = None      # Carácter que si se encuentra en una cadena, pondría o quitaría efecto flash a la letra
-cod_inversa      = None      # Carácter que si se encuentra en una cadena, invertiría o no el papel/fondo de la letra
-cod_inversa_fin  = None      # Carácter que si se encuentra en una cadena, quitaría  inversión del papel/fondo de la letra
-cod_inversa_ini  = None      # Carácter que si se encuentra en una cadena, activaría inversión del papel/fondo de la letra
-cod_juego_alto   = None      # Carácter que si se encuentra en una cadena, pasaría al juego de caracteres alto
-cod_juego_bajo   = None      # Carácter que si se encuentra en una cadena, pasaría al juego de caracteres bajo
-cod_papel        = None      # Carácter que si se encuentra en una cadena, cambiaría el color de papel/fondo de la letra
-cod_tabulador    = None      # Carácter que si se encuentra en una cadena, pondrá espacios hasta mitad o final de línea
-cod_tinta        = None      # Carácter que si se encuentra en una cadena, cambiaría el color de tinta de la letra
-cods_tinta       = {}        # Caracteres que si se encuentran en una cadena, cambiaría el color de tinta por el del valor
+# TODO: soporte de cod_reset en Sinclair QL
+
+cod_brillo       = None      # type: Optional[int]  # Código  de carácter que si se encuentra  en una cadena, daría o quitaría brillo al color de tinta de la letra
+cod_columna      = None      # type: Optional[int]  # Código  de carácter que si se encuentra  en una cadena, moverá el cursor a la columna dada
+cod_flash        = None      # type: Optional[int]  # Código  de carácter que si se encuentra  en una cadena, pondría o quitaría efecto flash a la letra
+cod_inversa      = None      # type: Optional[int]  # Código  de carácter que si se encuentra  en una cadena, invertiría o no el papel/fondo de la letra
+cod_inversa_fin  = None      # type: Optional[int]  # Código  de carácter que si se encuentra  en una cadena, quitaría  inversión del papel/fondo de la letra
+cod_inversa_ini  = None      # type: Optional[int]  # Código  de carácter que si se encuentra  en una cadena, activaría inversión del papel/fondo de la letra
+cod_juego_alto   = None      # type: Optional[int]  # Código  de carácter que si se encuentra  en una cadena, pasaría al juego de caracteres alto
+cod_juego_bajo   = None      # type: Optional[int]  # Código  de carácter que si se encuentra  en una cadena, pasaría al juego de caracteres bajo
+cod_papel        = None      # type: Optional[int]  # Código  de carácter que si se encuentra  en una cadena, cambiaría el color de papel/fondo de la letra
+cod_tabulador    = None      # type: Optional[int]  # Código  de carácter que si se encuentra  en una cadena, pondrá espacios hasta mitad o final de línea
+cod_tinta        = None      # type: Optional[int]  # Código  de carácter que si se encuentra  en una cadena, cambiaría el color de tinta de la letra
+cods_tinta       = {}        # type: Dict[int, int] # Códigos de carácter que si se encuentran en una cadena, cambiaría el color de tinta por el del valor
 centrar_graficos = []        # Si se deben centrar los gráficos al dibujarlos
 historial        = []        # Historial de órdenes del jugador
 paleta           = ([], [])  # Paleta de colores sin y con brillo, para los cambios con funciones cambia_*
@@ -66,6 +72,19 @@ NOMBRE_GUI = 'telegram'
 bufferTexto = ''     # Texto acumulado entre llamadas a lee_cadena
 elegida     = 1      # Subventana elegida (la predeterminada es la 1)
 nuevaLinea  = False  # Si el siguiente texto a imprimir debería ir en una nueva línea
+
+chr_brillo      = ''  # type: str            # Carácter   que si se encuentra  en una cadena, daría o quitaría brillo al color de tinta de la letra
+chr_columna     = ''  # type: str            # Carácter   que si se encuentra  en una cadena, moverá el cursor a la columna dada
+chr_flash       = ''  # type: str            # Carácter   que si se encuentra  en una cadena, pondría o quitaría efecto flash a la letra
+chr_inversa     = ''  # type: str            # Carácter   que si se encuentra  en una cadena, invertiría o no el papel/fondo de la letra
+chr_inversa_fin = ''  # type: str            # Carácter   que si se encuentra  en una cadena, quitaría  inversión del papel/fondo de la letra
+chr_inversa_ini = ''  # type: str            # Carácter   que si se encuentra  en una cadena, activaría inversión del papel/fondo de la letra
+chr_juego_alto  = ''  # type: str            # Carácter   que si se encuentra  en una cadena, pasaría al juego de caracteres alto
+chr_juego_bajo  = ''  # type: str            # Carácter   que si se encuentra  en una cadena, pasaría al juego de caracteres bajo
+chr_papel       = ''  # type: str            # Carácter   que si se encuentra  en una cadena, cambiaría el color de papel/fondo de la letra
+chr_tabulador   = ''  # type: str            # Carácter   que si se encuentra  en una cadena, pondrá espacios hasta mitad o final de línea
+chr_tinta       = ''  # type: str            # Carácter   que si se encuentra  en una cadena, cambiaría el color de tinta de la letra
+chrs_tinta      = {}  # type: Dict[str, int] # Caracteres que si se encuentran en una cadena, cambiaría el color de tinta por el del valor
 
 
 # Funciones que no hacen nada al usar entrada y salida estándar de puro texto
@@ -144,27 +163,26 @@ def reinicia_subventanas ():
 
 def abre_ventana (traza, factorEscala, bbdd):
   """Abre la ventana gráfica de la aplicación"""
-  global cod_brillo, cod_columna, cod_flash, cod_inversa, cod_inversa_fin, cod_inversa_ini, cod_juego_alto, cod_juego_bajo, cod_papel, cod_tabulador, cod_tinta
+  global chr_brillo, chr_columna, chr_flash, chr_inversa, chr_inversa_fin, chr_inversa_ini, chr_juego_alto, chr_juego_bajo, chr_papel, chr_tabulador, chr_tinta
   if cod_juego_alto == 48:  # La @ de SWAN
-    cod_juego_alto = '@'
-    cod_juego_bajo = '@'
+    chr_juego_alto = '@'
+    chr_juego_bajo = '@'
   elif cod_juego_alto == 14:  # La ü de las primeras versiones de DAAD
-    cod_juego_alto = '\x0e'
-    cod_juego_bajo = '\x0f'
+    chr_juego_alto = '\x0e'
+    chr_juego_bajo = '\x0f'
   if cod_brillo:
-    cod_brillo    = chr (cod_brillo)
-    cod_columna   = chr (cod_columna)
-    cod_inversa   = chr (cod_inversa)
-    cod_flash     = chr (cod_flash)
-    cod_papel     = chr (cod_papel)
-    cod_tabulador = chr (cod_tabulador)
-    cod_tinta     = chr (cod_tinta)
+    chr_brillo    = chr (cod_brillo)
+    chr_columna   = chr (cod_columna)
+    chr_inversa   = chr (cod_inversa)
+    chr_flash     = chr (cod_flash)
+    chr_papel     = chr (cod_papel)
+    chr_tabulador = chr (cod_tabulador)
+    chr_tinta     = chr (cod_tinta)
   elif cods_tinta:
-    for codigo, color in tuple (cods_tinta.items()):
-      del (cods_tinta[codigo])
-      cods_tinta[chr (codigo)] = color
-    cod_inversa_fin = chr (cod_inversa_fin)
-    cod_inversa_ini = chr (cod_inversa_ini)
+    for codigo, color in cods_tinta.items():
+      chrs_tinta[chr (codigo)] = color
+    chr_inversa_fin = chr (cod_inversa_fin)
+    chr_inversa_ini = chr (cod_inversa_ini)
 
 def borra_pantalla (desdeCursor = False, noRedibujar = False):
   """Limpia la subventana de impresión"""
@@ -252,13 +270,13 @@ def imprime_cadena (cadena, textoNormal = True, redibujar = True, abajo = False,
     nuevaLinea     = False
   cadena = limpiaCadena (cadena)
   if limite[0] == 999:  # Sin límite
-    if cod_tabulador:
-      cadena = cadena.replace (cod_tabulador, '\t')
+    if chr_tabulador:
+      cadena = cadena.replace (chr_tabulador, '\t')
     bufferTexto += cadena
     return
   # Convertimos las secuencias de control TAB en espacios
-  if cod_columna:
-    posTabulador = cadena.find (cod_columna)
+  if chr_columna:
+    posTabulador = cadena.find (chr_columna)
     while posTabulador > -1:
       numEspacios   = -1
       posTabEnLinea = posTabulador % limite[0]  # Columna en la línea donde está el tabulador
@@ -266,11 +284,11 @@ def imprime_cadena (cadena, textoNormal = True, redibujar = True, abajo = False,
         columna     = (ord (cadena[posTabulador + 1]) + 1) % limite[0]
         numEspacios = columna - posTabEnLinea  # Rellena con espacios hasta la columna indicada
       cadena = cadena[:posTabulador] + (' ' * (numEspacios if numEspacios > 0 else 0)) + cadena[posTabulador + 2:]
-      posTabulador = cadena.find (cod_columna)
+      posTabulador = cadena.find (chr_columna)
   # Convertimos los tabuladores en espacios
-  if cod_tabulador:
+  if chr_tabulador:
     mitadAnchura = limite[0] // 2  # Anchura de media línea
-    posTabulador = cadena.find (cod_tabulador)
+    posTabulador = cadena.find (chr_tabulador)
     while posTabulador > -1:
       posTabEnLinea = posTabulador % limite[0]  # Columna en la línea donde está el tabulador
       if posTabEnLinea < mitadAnchura:
@@ -278,7 +296,7 @@ def imprime_cadena (cadena, textoNormal = True, redibujar = True, abajo = False,
       else:
         numEspacios = limite[0] - posTabEnLinea  # Rellena el resto de la línea con espacios
       cadena       = cadena[:posTabulador] + (' ' * numEspacios) + cadena[posTabulador + 1:]
-      posTabulador = cadena.find (cod_tabulador)
+      posTabulador = cadena.find (chr_tabulador)
   # Dividimos la cadena en líneas
   colCursor = cursores[0][0]  # Columna donde nos habíamos quedado imprimiendo
   lineas    = []
@@ -336,17 +354,17 @@ def limpiaCadena (cadena):
   for secuencia in secuencias:
     if secuencia in cadena:
       cadena = cadena.replace (secuencia, secuencias[secuencia])
-  if not cod_brillo and not cod_juego_alto and not cods_tinta:
+  if not chr_brillo and not chr_juego_alto and not chrs_tinta:
     return cadena
   limpia = ''
   c = 0
   while c < len (cadena):
-    if cadena[c] in (cod_brillo, cod_flash, cod_inversa, cod_inversa_fin, cod_inversa_ini, cod_juego_alto, cod_juego_bajo, cod_papel, cod_tinta) or \
-        cadena[c] in cods_tinta:
-      if cadena[c] in (cod_juego_alto, cod_juego_bajo):
-        if cod_juego_alto == '@':  # En SWAN los caracteres del juego alto son en negrita
+    if cadena[c] in (chr_brillo, chr_flash, chr_inversa, chr_inversa_fin, chr_inversa_ini, chr_juego_alto, chr_juego_bajo, chr_papel, chr_tinta) or \
+        cadena[c] in chrs_tinta:
+      if cadena[c] in (chr_juego_alto, chr_juego_bajo):
+        if chr_juego_alto == '@':  # En SWAN los caracteres del juego alto son en negrita
           limpia += '`*`'
-      elif cadena[c] not in (cod_inversa_fin, cod_inversa_ini) and cadena[c] not in cods_tinta:
+      elif cadena[c] not in (chr_inversa_fin, chr_inversa_ini) and cadena[c] not in chrs_tinta:
         c += 1  # Descartamos también el siguiente byte, que indica el color o si se activa o no
     elif centrar_graficos and cadena[c] == '\x7f':  # Abreviatura 0 en la Aventura Original
       limpia += ' '
