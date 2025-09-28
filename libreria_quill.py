@@ -1040,6 +1040,8 @@ def guarda_bd (bbdd):
   if formato == 'dtb':  # Atari 800
     fich_sal.seek (4)
     guarda_desplazamiento (ocupado)
+    fich_sal.seek (0, 2)
+    guarda_int1 (0)  # Byte final para que no dé error de carga desde el editor de AdventureWriter
 
 def guarda_bd_a800 (bbdd):
   """Almacena la base de datos entera en el fichero de salida, para Atari 800, replicando el formato original. Devuelve None si no hubo error, o mensaje resumido y detallado del error"""
@@ -1154,6 +1156,7 @@ def guarda_bd_a800 (bbdd):
     guarda_int1 (localidad)
   guarda_int1 (255)  # Fin de la lista de localidades iniciales de los objetos
   ocupado += len (locs_iniciales) + 1
+  guarda_int1 (0)  # Byte final, que no se cuenta para ocupado
   # Guardamos los últimos valores de la cabecera
   fich_sal.seek (4)
   guarda_desplazamiento (ocupado)
