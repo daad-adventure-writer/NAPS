@@ -700,11 +700,21 @@ def guarda_bd (bbdd):
         cabecerasLimpias.append (cabeceras[e])
         entradasLimpias.append  (entradas[e])
     tablasLimpias.append ((cabecerasLimpias, entradasLimpias))
-  # Guardamos la posición de las cabeceras de las tablas de eventos y estado
+  # Dejamos anotado lo que ya está escrito
+  if formato == 'dtb':
+    areasYaEscritas.extend (([0, 2 * tamDespl], [3 * tamDespl, CAB_POS_EVENTOS]))
+  else:
+    areasYaEscritas.append ([desplIniFich, CAB_POS_EVENTOS])
+  # Guardamos la posición de las cabeceras de las tablas de eventos y estado que no estén vacías
   ocupado = tamCabecera  # Espacio ocupado hasta ahora
   for t in range (2):
-    guarda_desplazamiento (ocupado)
-    ocupado += (len (tablasLimpias[t][0]) * (2 + tamDespl)) + 1
+    if tablasLimpias[t][0]:
+      anyadeArea (fich_sal.tell(), fich_sal.tell() + tamDespl, areasYaEscritas)
+      guarda_desplazamiento (ocupado)
+      ocupado += (len (tablasLimpias[t][0]) * (2 + tamDespl)) + 1
+    else:  # Esta tabla está vacía
+      porColocar[fich_sal.tell()] = [0]     # Secuencia que colocar con una cabecera de tabla vacía
+      guarda_desplazamiento (-desplIniMem)  # Dejamos espacio para la posición de la cabecera vacía
   # Guardamos la posición de la lista de posiciones de las descripciones de los objetos
   guarda_desplazamiento (ocupado)
   ocupado += num_objetos[0] * tamDespl
@@ -721,10 +731,7 @@ def guarda_bd (bbdd):
   guarda_desplazamiento (ocupado)
   ocupado += numLocs * tamDespl
   # Dejamos espacio para la posición del vocabulario
-  if formato == 'dtb':
-    areasYaEscritas.extend (([0, 2 * tamDespl], [3 * tamDespl, CAB_POS_VOCAB]))
-  else:
-    areasYaEscritas.append ([desplIniFich, CAB_POS_VOCAB])
+  areasYaEscritas.append ([CAB_POS_LST_POS_OBJS, CAB_POS_VOCAB])
   guarda_desplazamiento (-desplIniMem)
   # Dejamos espacio para la posición de las localidades iniciales de los objetos
   guarda_desplazamiento (-desplIniMem)
@@ -778,8 +785,9 @@ def guarda_bd (bbdd):
       # Dejamos espacio para la posición de esta entrada
       guarda_desplazamiento (-desplIniMem)
     posicion = fich_sal.tell()
-    guarda_int1 (0)  # Marca de fin de cabecera de tabla
-    areasYaEscritas.append ([posicion, posicion + 1])
+    if entradas:
+      guarda_int1 (0)  # Marca de fin de cabecera de tabla
+      areasYaEscritas.append ([posicion, posicion + 1])
 
   # Recopilamos las demás secciones reubicables de la base de datos
 
