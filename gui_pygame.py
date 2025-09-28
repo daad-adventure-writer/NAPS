@@ -109,14 +109,18 @@ txt_mas          = '(más)'   # Cadena a mostrar cuando no cabe más texto y se es
 udgs             = []        # UDGs (caracteres gráficos definidos por el usuario)
 
 banderas_antes   = None   # Valor anterior de las banderas
+historial        = []     # Historial de órdenes del jugador
+
+
+# Variables propias de este módulo
+
 banderas_viejas  = None   # Banderas que antes cambiaron de valor
 graficos         = {}     # Gráficos ya cargados
-historial        = []     # Historial de órdenes del jugador
 historial_temp   = []     # Orden a medias, guardada al acceder al historial
 locs_objs_antes  = None   # Valor anterior de las localidades de los objetos
 locs_objs_viejas = None   # Localidades de los objetos que antes cambiaron de valor
-teclas_pulsadas  = []     # Lista de teclas actualmente pulsadas
 tras_portada     = False  # Esperar pulsación de tecla antes de borrar la portada
+teclas_pulsadas  = []     # Lista de teclas actualmente pulsadas
 
 # Todas las coordenadas son columna, fila
 num_subvens = 8                # DAAD tiene 8 subventanas

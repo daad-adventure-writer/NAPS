@@ -67,7 +67,7 @@ num_subvens = 8             # DAAD tiene 8 subventanas
 NOMBRE_GUI = 'telegram'
 
 
-# Variables propias de este módulo de entrada y salida estándar
+# Variables propias de este módulo
 
 bufferTexto = ''     # Texto acumulado entre llamadas a lee_cadena
 elegida     = 1      # Subventana elegida (la predeterminada es la 1)
