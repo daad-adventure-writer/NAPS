@@ -982,7 +982,7 @@ class ModalEntradaTexto (QDialog):
       texto = self.campo.toPlainText()
       if not isinstance (texto, unicode):
         texto = texto.decode ('utf8', errors = 'replace')
-      return mod_actual.escribe_secs_ctrl (texto.encode ('iso-8859-15', errors = 'replace'))
+      return mod_actual.escribe_secs_ctrl (texto)
     return mod_actual.escribe_secs_ctrl (str (self.campo.toPlainText()))
 
 class ModeloTextos (QAbstractTableModel):
