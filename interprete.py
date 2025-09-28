@@ -1486,6 +1486,8 @@ if __name__ == '__main__':
         gui.carga_fuente_zx (bbdd)
       gui.prepara_topes (args.columns if args.columns else 32, 24)
     elif extension in ('bin', 'dtb', 'prg'):  # Bases de datos de Amstrad CPC, Commodore 64 o Atari 800
+      if extension == 'dtb' and args.gui not in ('stdio', 'telegram'):
+        gui.carga_fuente_atari800()
       gui.prepara_topes (args.columns if args.columns else 40, 24 if libreria.id_plataforma == 'Atari800' else 25)
     elif args.columns or args.gui not in ('stdio', 'telegram'):
       if libreria.id_plataforma == 'QL':
@@ -1567,6 +1569,7 @@ if __name__ == '__main__':
         gui.partir_espacio = False
         if gui.id_plataforma in ('Atari800', 'PC'):  # Plataformas de AdventureWriter: Atari 800 e IBM PC
           gui.cod_inversa = -1  # Así marcamos que hay inversa pero sin código para ello
+          del gui.paleta[1][:]
         elif gui.id_plataforma == 'CPC':  # Amstrad CPC
           gui.cod_inversa_ini = 9
           gui.cod_inversa_fin = 9

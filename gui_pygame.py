@@ -434,6 +434,14 @@ def carga_bd_pics (rutaBDGfx):
   if graficos_bitmap.recursos:
     precargaGraficos()
 
+def carga_fuente_atari800 ():
+  # type: None -> None
+  """Carga la fuente tipográfica de 8x8 por defecto de Atari 800"""
+  global ancho_caracter, fuente, izquierda
+  ancho_caracter = 8
+  izquierda      = ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_' + ''.join (('%c' % c for c in range (32))) + '`abcdefghijklmnopqrstuvwxyz{|}~\x7f\r\t\n'
+  fuente = pygame.image.load (path.dirname (path.realpath (__file__)) + path.sep + 'fuente_atari800_8x8.png')
+
 def carga_fuente_zx (fichero, posFuente = None):
   # type: (BinaryIO) -> None
   """Carga una fuente tipográfica de 8x8 de GAC, QUILL o PAWS desde el fichero abierto dado con snapshot de ZX Spectrum"""
@@ -1391,7 +1399,7 @@ Los caracteres de linea deben estar convertidos a posiciones en la tipografía"""
     if restantes < 1:
       break  # No dibujar más allá del ancho de la ventana de juego
     c = ord (linea[i])
-    if ancho_caracter == 8:
+    if ancho_caracter == 8 and id_plataforma != 'Atari800':
       c -= 16 if c < 128 or NOMBRE_SISTEMA == 'SWAN' else 32
     if i + inicioLinea in colores:
       if colores[i + inicioLinea][2] != None:
@@ -1773,7 +1781,7 @@ def preparaCursor ():
   cadenaCursor, colores = parseaColores (cad_cursor)
   if len (cadenaCursor) >= 1:
     posEnFuente = izquierda.index (cadenaCursor[0]) if cadenaCursor[0] in izquierda else ord (cadenaCursor[0])
-    if ancho_caracter == 8:
+    if ancho_caracter == 8 and id_plataforma != 'Atari800':
       posEnFuente -= 16 if posEnFuente < 128 else 32
     if colores:
       chr_cursor.set_colorkey (colores[0][1])  # El color de papel/fondo será ahora transparente
