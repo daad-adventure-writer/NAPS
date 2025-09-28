@@ -298,6 +298,7 @@ def imprime_cadena (cadena, textoNormal = True, redibujar = True, abajo = False,
       cadena       = cadena[:posTabulador] + (' ' * numEspacios) + cadena[posTabulador + 1:]
       posTabulador = cadena.find (chr_tabulador)
   # Dividimos la cadena en líneas
+  # FIXME: omitir los caracteres de formateo, al menos los de negrita y los de texto monoespaciado
   colCursor = cursores[0][0]  # Columna donde nos habíamos quedado imprimiendo
   lineas    = []
   while '\n' in cadena or colCursor + len (cadena) > limite[0]:
@@ -354,9 +355,10 @@ def limpiaCadena (cadena):
   for secuencia in secuencias:
     if secuencia in cadena:
       cadena = cadena.replace (secuencia, secuencias[secuencia])
-  if not chr_brillo and not chr_juego_alto and not chrs_tinta:
+  if not chr_brillo and not chr_juego_alto and not chrs_tinta and not cod_inversa:
     return cadena
-  limpia = ''
+  inversa = False  # Si se está imprimiendo en inversa
+  limpia  = ''
   c = 0
   while c < len (cadena):
     if cadena[c] in (chr_brillo, chr_flash, chr_inversa, chr_inversa_fin, chr_inversa_ini, chr_juego_alto, chr_juego_bajo, chr_papel, chr_tinta) or \
@@ -364,10 +366,22 @@ def limpiaCadena (cadena):
       if cadena[c] in (chr_juego_alto, chr_juego_bajo):
         if chr_juego_alto == '@':  # En SWAN los caracteres del juego alto son en negrita
           limpia += '`*`'
-      elif cadena[c] not in (chr_inversa_fin, chr_inversa_ini) and cadena[c] not in chrs_tinta:
+      elif cadena[c] in (chr_inversa_fin, chr_inversa_ini):
+        if inversa and ((cadena[c] == chr_inversa_fin) or (not inversa and cadena[c] == chr_inversa_ini)):
+          inversa = not inversa
+          limpia += '`*`'  # Ponemos en negrita los textos en inversa
+      elif cadena[c] not in chrs_tinta:
         c += 1  # Descartamos también el siguiente byte, que indica el color o si se activa o no
     elif centrar_graficos and cadena[c] == '\x7f':  # Abreviatura 0 en la Aventura Original
       limpia += ' '
+    elif cod_inversa and cod_inversa < 0:
+      if (inversa and ord (cadena[c]) < 128) or (not inversa and 127 < ord (cadena[c]) < 256):
+        inversa = not inversa
+        limpia += '`*`'  # Ponemos en negrita los textos en inversa
+      if 127 < ord (cadena[c]) < 256:
+        limpia += chr (ord (cadena[c]) - 128)
+      else:
+        limpia += cadena[c]
     else:
       limpia += cadena[c]
     c += 1

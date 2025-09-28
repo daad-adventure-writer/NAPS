@@ -663,7 +663,7 @@ Devuelve None si la frase es válida, True si no, False si ha ocurrido tiempo mue
         if args.gui == 'pygame':  # Nos aseguramos que la orden no vaya en inversa
           if gui.cod_inversa_fin:
             peticion += chr (gui.cod_inversa_fin)
-          elif gui.cod_inversa:
+          elif gui.cod_inversa and gui.cod_inversa > -1:  # TODO: ver si esto la activa si no estaba ya activada
             peticion += chr (gui.cod_inversa)
       if traza:
         gui.imprime_banderas  (banderas)
@@ -1565,7 +1565,9 @@ if __name__ == '__main__':
         gui.cambia_cursor (msgs_sys[34])
       else:  # Es QUILL
         gui.partir_espacio = False
-        if gui.id_plataforma == 'CPC':  # Amstrad CPC
+        if gui.id_plataforma in ('Atari800', 'PC'):  # Plataformas de AdventureWriter: Atari 800 e IBM PC
+          gui.cod_inversa = -1  # Así marcamos que hay inversa pero sin código para ello
+        elif gui.id_plataforma == 'CPC':  # Amstrad CPC
           gui.cod_inversa_ini = 9
           gui.cod_inversa_fin = 9
           del gui.paleta[0][:]

@@ -332,7 +332,7 @@ def limpiaCadena (cadena):
   for secuencia in secuencias:
     if secuencia in cadena:
       cadena = cadena.replace (secuencia, secuencias[secuencia])
-  if not chr_brillo and not chr_juego_alto and not chrs_tinta:
+  if not chr_brillo and not chr_juego_alto and not chrs_tinta and not cod_inversa:
     return cadena
   limpia = ''
   c = 0
@@ -343,6 +343,8 @@ def limpiaCadena (cadena):
         c += 1  # Descartamos también el siguiente byte, que indica el color o si se activa o no
     elif centrar_graficos and cadena[c] == '\x7f':  # Abreviatura 0 en la Aventura Original
       limpia += ' '
+    elif cod_inversa and cod_inversa < 0 and 127 < ord (cadena[c]) < 256:
+      limpia += chr (ord (cadena[c]) - 128)
     else:
       limpia += cadena[c]
     c += 1
