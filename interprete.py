@@ -77,7 +77,7 @@ def adapta_msgs_sys ():
   """Adapta los mensajes de sistema de la base de datos para las interfaces de texto"""
   if args.gui in ('stdio', 'telegram'):
     msgs_sys[243 if NOMBRE_SISTEMA == 'GAC' else 16] = ''  # Mensaje de espera una tecla
-  if args.gui == 'telegram' and len (msgs_sys) > 32:
+  if args.gui == 'telegram' and len (msgs_sys) > 33:
     if NOMBRE_SISTEMA == 'GAC':
       if msgs_sys[240][:1] == '>':  # Es un prompt y no una petición como 'What now?'
         msgs_sys[240] = ''
