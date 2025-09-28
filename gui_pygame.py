@@ -42,6 +42,7 @@ if traza:
 
 izquierda  = 'ª¡¿«»áéíóúñÑçÇüÜ !"º$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\x7f\r\t\n'
 noEnFuente = {'©': 'c', u'\u2192': '>', u'\u2190': '<'}  # Tabla de conversión de caracteres que no están en la fuente
+iso8859_15_a_fuente_estandar = maketrans (izquierda, ''.join (('%c' % c for c in range (len (izquierda)))))
 
 # Pares de códigos ASCII para teclas pulsadas
 mapeo_unicode    = {}  # Asociación de scan codes con códigos de caracteres iso-8859-15
@@ -1054,7 +1055,7 @@ def imprime_banderas (banderas):
         fuente_estandar.set_palette ((coloresBanderas[num // 100], (0, 0, 0)))
       columna = ancho_juego + ((num // numFilas) * (((cifrasBandera + 3) * 6) + 3))
       fila    = (num % numFilas) * 8
-      cadena  = str (num % (10 ** cifrasBandera)).zfill (cifrasBandera).translate (iso8859_15_a_fuente)
+      cadena  = str (num % (10 ** cifrasBandera)).zfill (cifrasBandera).translate (iso8859_15_a_fuente_estandar)
       for pos in range (cifrasBandera):
         c = ord (cadena[pos])
         ventana.blit (fuente_estandar, (columna + (pos * 6), fila),
@@ -1066,7 +1067,7 @@ def imprime_banderas (banderas):
       continue
     columna = ancho_juego + (cifrasBandera * 6) + 1 + ((num // numFilas) * (((cifrasBandera + 3) * 6) + 3))
     fila    = (num % numFilas) * 8
-    cadena  = str (banderas[num]).zfill (3).translate (iso8859_15_a_fuente)
+    cadena  = str (banderas[num]).zfill (3).translate (iso8859_15_a_fuente_estandar)
     # Seleccionamos el color de impresión
     if banderas_antes[num] != banderas[num]:
       banderas_antes[num] = banderas[num]
@@ -1147,7 +1148,7 @@ def imprime_locs_objs (locs_objs):
       # Seleccionamos el color de impresión para el índice, que cambiará cuando se sobrepase cada centena
       fuente_estandar.set_palette ((coloresObjetos[num // 100], (0, 0, 0)))
       # Imprimimos el índice del objeto en esta fila y columna
-      cadena  = str (num % (10 ** cifrasObjeto)).zfill (cifrasObjeto).translate (iso8859_15_a_fuente)
+      cadena  = str (num % (10 ** cifrasObjeto)).zfill (cifrasObjeto).translate (iso8859_15_a_fuente_estandar)
       columna = colColumna  # Columna en píxeles donde escribir índice o valor
       for pos in range (cifrasObjeto):
         c = ord (cadena[pos])
@@ -1159,7 +1160,7 @@ def imprime_locs_objs (locs_objs):
         cadena = alias[cifrasValores - 1][locs_objs[num]]
       else:
         cadena = str (locs_objs[num]).zfill (cifrasValores)
-      cadena = cadena.translate (iso8859_15_a_fuente)
+      cadena = cadena.translate (iso8859_15_a_fuente_estandar)
       # Seleccionamos el color de impresión para el valor
       if locs_objs_antes[num] != locs_objs[num]:  # Ha cambiado su valor
         locs_objs_antes[num] = locs_objs[num]
