@@ -115,6 +115,8 @@ historial        = []     # Historial de órdenes del jugador
 # Variables propias de este módulo
 
 banderas_viejas  = None   # Banderas que antes cambiaron de valor
+chr_espacio      = ' '    # Posición en la tipografía del espacio, como carácter
+cod_espacio      = 32     # Posición en la tipografía del espacio
 graficos         = {}     # Gráficos ya cargados
 historial_temp   = []     # Orden a medias, guardada al acceder al historial
 locs_objs_antes  = None   # Valor anterior de las localidades de los objetos
@@ -1198,7 +1200,7 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
     lineas_mas[elegida] += 1
     restante = tope[0] - cursor[0]  # Columnas restantes que quedan en la línea
     colores  = {0: (daColorTinta(), daColorPapel(), None)} if restauraColores else {}
-    imprime_linea ([chr (16)] * restante, redibujar = redibujar, colores = colores)
+    imprime_linea ([chr_espacio] * restante, redibujar = redibujar, colores = colores)
     if cursor[1] >= tope[1] - 1:
       scrollLineas (1, subventana, tope)
     cursores[elegida] = [0, min (tope[1] - 1, cursor[1] + 1)]
@@ -1258,10 +1260,10 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
       continue
     ordinal = ord (convertida[c])
     ordOrig = ordinal if NOMBRE_SISTEMA == 'SWAN' else ord (cadena[c])
-    if ((ordinal == len (izquierda) - 1) or  # Carácter nueva línea (el último)
-        (partir_espacio and restante == 0 and ordinal == 16)):  # Termina la línea con espacio
+    if (cadena[c] == '\n' or                                             # Es carácter de nueva línea o
+        (partir_espacio and restante == 0 and ordinal == cod_espacio)):  # tras terminar la línea hay espacio
       lineas.append (''.join (linea))
-      iniLineas.append (iniLineas[-1] + len (linea) + (1 if (ordinal == len (izquierda) - 1) else 0))
+      iniLineas.append (iniLineas[-1] + len (linea) + (1 if cadena[c] == '\n' else 0))
       linea    = []
       restante = tope[0]
     elif ordOrig == cod_juego_alto and juego == 0:
@@ -1283,7 +1285,7 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
         numEspacios = columna - posTabulador  # Rellena con espacios hasta la columna indicada
         omitir      = 2
       if numEspacios > 0:
-        linea.extend (chr (16) * numEspacios)
+        linea.extend (chr_espacio * numEspacios)
         restante -= numEspacios
         if restante == 0:
           lineas.append (''.join (linea))
@@ -1306,7 +1308,7 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
       restante -= 1
     else:  # Hay que partir la línea, desde el último carácter de espacio
       for i in range (len (linea) - 1, -1, -1) if partir_espacio else ():  # Desde el final al inicio
-        if ord (linea[i]) == 16:  # Este carácter es un espacio
+        if ord (linea[i]) == cod_espacio:  # Este carácter es un espacio
           lineas.append (''.join (linea[:i + 1]))
           linea = linea[i + 1:]
           iniLineas.append (iniLineas[-1] + i + 1)
@@ -1356,7 +1358,7 @@ Si tiempo no es 0, esperará hasta ese tiempo en segundos cuando se espere tecla 
         fuente.set_palette (tuple (colores[iniLineas[i + 1] - 1][:2]))
       if textoNormal and id_plataforma != 'QL' and cursor[0] + len (lineas[i]) < tope[0]:  # Cabían más caracteres al final de la línea
         cursor[0] += len (lineas[i])
-        imprime_linea (chr (16) * (tope[0] - cursor[0]))
+        imprime_linea (chr_espacio * (tope[0] - cursor[0]))
   if lineas:  # Había alguna línea
     if cadena[-1] == '\n':  # La cadena terminaba en nueva línea
       if cursor[1] == tope[1] - 1:
@@ -1757,12 +1759,14 @@ def precargaGraficosSWAN (gfx):
 
 def preparaConversion ():
   """Prepara la variable global iso8859_15_a_fuente para convertir las cadenas de la aventura a posiciones en la fuente"""
-  global iso8859_15_a_fuente
+  global chr_espacio, cod_espacio, iso8859_15_a_fuente
   der = []
   for i in range (len (izquierda)):
     der.append (chr (i))
   derecha = ''.join (der)
   iso8859_15_a_fuente = maketrans (izquierda, derecha)
+  chr_espacio = ' '.translate (iso8859_15_a_fuente)  # Posición en la tipografía del espacio, como carácter
+  cod_espacio = ord (chr_espacio)                    # Posición en la tipografía del espacio
 
 def preparaCursor ():
   """Prepara el cursor con el carácter y color adecuado"""
