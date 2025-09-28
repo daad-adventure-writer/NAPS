@@ -328,7 +328,8 @@ ascii_a_petscii = maketrans (''.join (('%c' % c for c in range (256))), ascii_pa
 
 conversion_inv        = {}  # Tabla de conversión de caracteres invertida
 conversion_plataforma = {
-  'Atari800': {'\x00': u'\u2665', '\x01': u'\u2523', '\x02': u'\u2595', '\x03': u'\u251b', '\x04': u'\u252b', '\x05': u'\u2513', '\x06': u'\u2571', '\x07': u'\u2572', '\x08': u'\u25e2', '\x09': u'\u2597', '\x0a': u'\u25e3', '\x0b': u'\u259d', '\x0c': u'\u2598', '\x0d': u'\u2594', '\x0e': u'\u2581', '\x0f': u'\u2596', '\x10': u'\u2663', '\x11': u'\u250f', '\x12': u'\u2501', '\x13': u'\u254b', '\x14': u'\u2022', '\x15': u'\u2584', '\x16': u'\u258e', '\x17': u'\u2533', '\x18': u'\u253b', '\x19': u'\u258c', '\x1a': u'\u2517', '\x1c': u'\u2191', '\x1d': u'\u2193', '\x1e': u'\u2190', '\x1f': u'\u2192', '`': u'\u2666', '{': u'\u2660', '}': u'\u2196', '~': u'\u25c0', '\x7f': u'\u25b6'},
+  # TODO: considerar poner aquí también los caracteres de bloques de los UDGs de Spectrum ZX
+  'Atari800': {'\x00': u'\u2665', '\x01': u'\u2523\u251c', '\x02': u'\u2595', '\x03': u'\u251b\u2518', '\x04': u'\u252b\u2524', '\x05': u'\u2513\u2510', '\x06': u'\u2571', '\x07': u'\u2572', '\x08': u'\u25e2', '\x09': u'\u2597', '\x0a': u'\u25e3', '\x0b': u'\u259d', '\x0c': u'\u2598', '\x0d': u'\u2594', '\x0e': u'\u2581', '\x0f': u'\u2596', '\x10': u'\u2663', '\x11': u'\u250f\u250c', '\x12': u'\u2501\u2500', '\x13': u'\u254b\u253c', '\x14': u'\u2022', '\x15': u'\u2584', '\x16': u'\u258e\u258f', '\x17': u'\u2533\u252c', '\x18': u'\u253b\u2534', '\x19': u'\u258c', '\x1a': u'\u2517\u2514', '\x1c': u'\u2191', '\x1d': u'\u2193', '\x1e': u'\u2190', '\x1f': u'\u2192', '`': u'\u2666\u25c6', '{': u'\u2660', '|': u'\u2503|\u2502', '}': u'\u2196', '~': u'\u25c0', '\x7f': u'\u25b6'},
   'QL': {'`': '£', '\x81': 'ã', '\x82': 'å', '\x83': 'é', '\x84': 'ö', '\x85': 'õ', '\x86': 'ø', '\x87': 'ü', '\x88': 'ç', '\x89': 'ñ', '\x8a': 'æ', '\x8b': '½', '\x8c': 'á', '\x8d': 'à', '\x8e': 'â', '\x8f': 'ë', '\x90': 'è', '\x91': 'ê', '\x92': 'ï', '\x93': 'í', '\x94': 'ì', '\x95': 'î', '\x96': 'ó', '\x97': 'ò', '\x98': 'ô', '\x99': 'ú', '\x9a': 'ù', '\x9b': 'û', '\x9c': 'ß', '\x9d': '¢', '\x9e': '¥', '\x9f': '`', '\xa0': 'Ä', '¡': 'Ã', '¢': 'Â', '£': 'É', '\xa4': 'Ö', '¥': 'Õ', '§': 'Ü', '\xa8': 'Ç', '©': 'Ñ', 'ª': 'Æ', '«': '¼', '¬': u'\u03b1', '\xad': u'\u03b4', '®': u'\u0398', '¯': u'\u03bb', '°': 'µ', '±': u'\u03c0', '²': u'\u03a6', '³': '¡', '\xb4': '¿', 'µ': u'\u1e62', '¶': '§', '·': u'\u00a4', '\xb8': '«', '¹': '»', '»': '÷', '\xbc': u'\u2190', '\xbd': u'\u2192', '\xbe': u'\u2191', '¿': u'\u2193'},
 }
 
@@ -2100,7 +2101,9 @@ def preparaConversion ():
   if id_plataforma in conversion_plataforma:
     conversion.update (conversion_plataforma[id_plataforma])
     for entrada, salida in conversion.items():
-      conversion_inv[salida] = entrada
+      for caracter in salida:
+        conversion_inv[caracter] = entrada
+      conversion[entrada] = salida[0]
 
 def preparaPosCabecera (formato, inicio):
   # type: (str, int) -> None
