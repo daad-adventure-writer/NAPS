@@ -2039,9 +2039,11 @@ def daCadena (cadena, finCadena, nuevaLinea, conversion = None, diccConversion =
   return resultado
 
 def daVocabulario (conversion = None):
-  """Devuelve la sección de vocabulario en el formato de Quill"""
+  """Devuelve la sección de vocabulario en el formato de Quill, pero optimizado"""
   resultado = []
   for palabra in vocabulario:
+    if palabra == ('*', 255, 0):
+      continue
     # Rellenamos el texto de la palabra con espacios al final
     cadena = palabra[0].upper()
     if conversion:
