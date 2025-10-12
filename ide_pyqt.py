@@ -2520,7 +2520,8 @@ def muestraAcercaDe ():
     dlg_acerca_de.setText ('NAPS: The New Age PAW-like System\n' +
         _('Integrated Development Environment (IDE)\n') +
         'Copyright © 2010, 2018-2025 José Manuel Ferrer Ortiz')
-    dlg_acerca_de.setInformativeText (_('PyQt version: ') +
+    dlg_acerca_de.setInformativeText (
+        _('NAPS version: ') + '25.10' + _('\nPyQt version: ') +
         PYQT_VERSION_STR + _('\nQt version: ') + QT_VERSION_STR +
         _('\nPython version: ') + sys.version[:fin])
     dlg_acerca_de.setWindowTitle (_('&About NAPS IDE', 1))
