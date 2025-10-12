@@ -1343,6 +1343,8 @@ def guarda_bd (bbdd):
       for condacto, parametros in entradaLimpia:
         guarda_int1 (condacto)
         for parametro in parametros:
+          if parametro < 0:  # Es un entero negativo
+            parametro += 256
           guarda_int1 (parametro)
       guarda_int1 (255)  # Fin de la entrada
   # Guardamos la longitud final del fichero
