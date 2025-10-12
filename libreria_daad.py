@@ -404,10 +404,18 @@ def carga_codigo_fuente (fichero, longitud):
   - Recibe como primer parámetro un fichero abierto
   - Recibe como segundo parámetro la longitud del fichero abierto
   - Devuelve False si ha ocurrido algún error"""
+  global alinear, guarda_int2, plataforma, version
   retorno = alto_nivel.carga_codigo_fuente (fichero, longitud, LONGITUD_PAL, NOMBRE_SISTEMA, atributos, atributos_extra, condactos, condactos_nuevos, conexiones, desc_locs, desc_objs, locs_iniciales, msgs_usr, msgs_sys, nombres_objs, nueva_version, num_objetos, tablas_proceso, vocabulario, escribe_secs_ctrl)
   # Liberamos la memoria utilizada para la carga
   import gc
   gc.collect()
+  # Valores necesarios para esta librería, para poder exportar las bases de datos cargadas desde código fuente, equivalente a lo que hace preparaPlataforma()
+  alinear     = True
+  le          = True if nueva_version else False
+  guarda_int2 = guarda_int2_le if le else guarda_int2_be
+  plataforma  = 0  # IBM PC
+  version     = 2 if nueva_version else 1
+  bajo_nivel_cambia_endian (le)
   return retorno
 
 def carga_xmessage (desplazamiento):
