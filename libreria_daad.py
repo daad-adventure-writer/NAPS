@@ -1333,10 +1333,14 @@ def guarda_bd (bbdd):
   entradasProceso = []
   for cabeceras, entradas in tablas_proceso:
     for entrada in entradas:
-      if entrada in entradasProceso:
+      # Quitamos los comentarios para comparar bien su duplicidad
+      entradaLimpia = []
+      for condactoEntrada in entrada:
+        entradaLimpia.append (condactoEntrada[:2])
+      if entradaLimpia in entradasProceso:
         continue  # Omitimos bloques duplicados
-      entradasProceso.append (entrada)
-      for condacto, parametros in entrada[:2]:
+      entradasProceso.append (entradaLimpia)
+      for condacto, parametros in entradaLimpia:
         guarda_int1 (condacto)
         for parametro in parametros:
           guarda_int1 (parametro)
