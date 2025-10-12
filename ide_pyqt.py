@@ -808,6 +808,7 @@ class ManejoExportacion (QThread):
     if 'dlg_progreso' in mod_actual.__dict__:
       del mod_actual.dlg_progreso[:]  # Por si acaso quedaba algo ahí
       self.dialogoProgreso = QProgressDialog (_('Optimizing database...\n\nPressing the "Cancel" button will export it without further optimizations'), _('&Cancel'), 0, 100, selector)
+      self.dialogoProgreso.canceled.connect (self.cancelado)
       self.dialogoProgreso.setMinimumDuration (2000)  # Que salga si va a durar más de 2 segundos
       self.dialogoProgreso.setWindowTitle (_('Export database'))
       mod_actual.cambia_progreso = self.cambia_progreso
@@ -819,6 +820,10 @@ class ManejoExportacion (QThread):
     """Cambia el valor actual del progreso en el diálogo de progreso"""
     if self.dialogoProgreso:
       self.dialogoProgreso.setValue (valorProgreso)
+
+  def cancelado (self):
+    """Se ejecuta cuando se cancela el diálogo de progeso, para volver a mostrar el cursor de espera"""
+    selector.setCursor (Qt.WaitCursor)  # Puntero de ratón de espera
 
   def run (self):
     global error_exportacion
