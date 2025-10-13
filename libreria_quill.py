@@ -2110,7 +2110,8 @@ def preparaConversion ():
   """Prepara los diccionarios conversion y conversion_inv con las tablas de conversión de caracteres para la plataforma actual"""
   conversion.clear()
   conversion_inv.clear()
-  if id_plataforma in conversion_plataforma:
+  convertir = 'NOMBRE_GUI' not in globals() or NOMBRE_GUI != 'pygame'  # Rellenamos diccionario conversion para el IDE y GUIs de texto
+  if convertir and id_plataforma in conversion_plataforma:
     conversion.update (conversion_plataforma[id_plataforma])
     for entrada, salida in conversion.items():
       for caracter in salida:
