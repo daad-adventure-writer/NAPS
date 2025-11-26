@@ -266,6 +266,11 @@ def bucle_gac ():
         locs_objs[numObjeto] = locs_iniciales[numObjeto]
       estado = 1
     elif estado < 2:  # Descripción de localidad y condiciones de alta prioridad
+      # Dibujamos gráfico de la localidad si lo tiene
+      if gui.hay_grafico (banderas[BANDERA_LOC_ACTUAL]):
+        gui.borra_pantalla()
+        gui.dibuja_grafico (banderas[BANDERA_LOC_ACTUAL], True)
+        gui.mueve_cursor (0, gui.cursores[1][1] + 1)  # Dejamos una línea en blanco tras el gráfico
       # Describir localidad actual
       descLocActual = desc_locs[banderas[BANDERA_LOC_ACTUAL]] if banderas[BANDERA_LOC_ACTUAL] in desc_locs else ''
       gui.imprime_cadena (descLocActual)
@@ -1541,7 +1546,9 @@ if __name__ == '__main__':
       prn ('No hay ningún fichero ni carpeta con ese nombre:', args.ruta_graficos, file = sys.stderr)
 
   if NOMBRE_SISTEMA != 'DAAD':
-    if NOMBRE_SISTEMA != 'GAC' and libreria.id_plataforma != 'QL':
+    if NOMBRE_SISTEMA == 'GAC':
+      gui.centrar_graficos.append (True)
+    elif libreria.id_plataforma != 'QL':
       gui.todo_mayusculas = True
     if not gui.paleta[0]:
       # Colores en este orden: negro, azul, rojo, magenta, verde, cyan, amarillo, blanco

@@ -550,7 +550,7 @@ El parámetro parcial indica si es posible dibujar parte de la imagen"""
     topes_gfx[0] = min (grafico.get_width()  // 6, limite[0])
     topes_gfx[1] = min (grafico.get_height() // 6, limite[1])
   if (descripcion or elegida == 0) and not parcial:
-    ancho = tope[0] * 6
+    ancho = tope[0] * ancho_caracter
     if numero in graficos and recurso and 'flotante' not in recurso['banderas']:
       destino = recurso['posicion']
     elif centrar_graficos and ancho > grafico.get_width():  # Centramos el gráfico
@@ -606,6 +606,8 @@ El parámetro parcial indica si es posible dibujar parte de la imagen"""
     ventana.blit (grafico, destino, (0, 0, ancho, alto))
   actualizaVentana()
   # TODO: Ver si hay que actualizar la posición del cursor (puede que no)
+  if NOMBRE_SISTEMA == 'GAC':
+    mueve_cursor (0, (grafico.get_height() // 8) + (1 if grafico.get_height() % 8 else 0))
 
 def elige_parte (partes, graficos):
   """Obtiene del jugador el modo gráfico a usar y a qué parte jugar, y devuelve el nombre de la base de datos elegida"""
