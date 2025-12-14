@@ -1091,7 +1091,7 @@ def generaPaletaEGA (destino = 'paletas'):
     os.mkdir (destino)
   except:
     pass  # Asumimos que ese directorio ya existe
-  fichero = open (destino + '/ega.xpm', 'wb')
+  fichero = open (destino + '/ega.xpm', 'w')
   lineas  = [
     '/* XPM */',
     'static char * ega[] = {',
@@ -1114,7 +1114,7 @@ def generaPaletasCGA (destino = 'paletas'):
     pass  # Asumimos que ese directorio ya existe
   for nombre, paleta in {'1b': paleta1b, '1s': paleta1s, '2b': paleta2b, '2s': paleta2s}.items():
     for i in range (16):
-      fichero = open ('%s/cga%s%x.xpm' % (destino, nombre, i), 'wb')
+      fichero = open ('%s/cga%s%x.xpm' % (destino, nombre, i), 'w')
       lineas  = (
         '/* XPM */',
         'static char * cga%s%x[] = {' % (nombre, i),
