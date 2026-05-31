@@ -3,7 +3,7 @@
 # NAPS: The New Age PAW-like System - Herramientas para sistemas PAW-like
 #
 # Librería de QUILL (versión de Spectrum). Parte común a editor, compilador e intérprete
-# Copyright (C) 2010, 2018-2020, 2022, 2024-2025 José Manuel Ferrer Ortiz
+# Copyright (C) 2010, 2018-2020, 2022, 2024-2026 José Manuel Ferrer Ortiz
 #
 # *****************************************************************************
 # *                                                                           *
@@ -527,7 +527,7 @@ Para compatibilidad con el IDE:
   if posicion == None:
     return False  # Cabecera de la base de datos no encontrada
   despl_ini = 16357  # Al menos es así en Hampstead y Manor of Madness, igual que PAWS
-  bajo_nivel_cambia_endian (le = True)  # Al menos es así en ZX Spectrum
+  bajo_nivel_cambia_endian (le = True)
   bajo_nivel_cambia_despl  (despl_ini)
   fin_cadena  = 31  # Igual que PAWS
   nueva_linea = ord ('\r')
@@ -602,9 +602,12 @@ def guarda_bd (bbdd):
   tamCabecera  = 0                # Tamaño en bytes de la cabecera de Quill
   tamDespl     = 2                # Tamaño en bytes de las posiciones
   tamMaxBD     = 65536            # Tamaño máximo de base de datos
-  bajo_nivel_cambia_despl (desplIniMem)
-  bajo_nivel_cambia_ent   (bbdd)
-  bajo_nivel_cambia_sal   (bbdd)
+  bajo_nivel_cambia_despl  (desplIniMem)
+  bajo_nivel_cambia_endian (le = True)
+  bajo_nivel_cambia_ent    (bbdd)
+  bajo_nivel_cambia_sal    (bbdd)
+  carga_desplazamiento  = carga_desplazamiento2
+  guarda_desplazamiento = guarda_desplazamiento2
   if formato == 'c64':
     plataformaDestino = 'C64'
     conversion   = ascii_a_petscii
@@ -613,23 +616,17 @@ def guarda_bd (bbdd):
     nuevaLinea   = 141
     tamCabecera  = 31
     tamMaxBD     = 35071
-    carga_desplazamiento  = carga_desplazamiento2
-    guarda_desplazamiento = guarda_desplazamiento2
-    bajo_nivel_cambia_despl  (desplIniMem)
-    bajo_nivel_cambia_endian (le = True)
+    bajo_nivel_cambia_despl (desplIniMem)
     preparaPosCabecera (formato, desplIniFich + 4)
     # Guardamos la cabecera de Commodore 64
     guarda_desplazamiento (0)  # Desplazamiento donde se cargará en memoria la BD
   elif formato == 'dtb':  # Atari 800
     plataformaDestino = 'Atari800'
-    desplIniMem  = 7418
-    nuevaLinea   = 155
-    tamCabecera  = 37
-    tamMaxBD     = 31680
-    carga_desplazamiento  = carga_desplazamiento2
-    guarda_desplazamiento = guarda_desplazamiento2
-    bajo_nivel_cambia_despl  (desplIniMem)
-    bajo_nivel_cambia_endian (le = True)
+    desplIniMem = 7418
+    nuevaLinea  = 155
+    tamCabecera = 37
+    tamMaxBD    = 31680
+    bajo_nivel_cambia_despl (desplIniMem)
     preparaPosCabecera ('a800', 10)
     # Guardamos la cabecera de Atari 800
     guarda_int2_le (65535)  # Marca de ejecutable
