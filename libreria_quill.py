@@ -22,7 +22,8 @@
 # *                                                                           *
 # *****************************************************************************
 
-import sys  # Para stderr
+import os   # Para SEEK_END
+import sys  # Para stderr y version_info
 
 import alto_nivel
 
@@ -72,6 +73,8 @@ funcs_exportar = (
   ('guarda_bd',      ('dtb',), _('Optimized Quill database for Atari 800')),
   ('guarda_bd',      ('prg',), _('Optimized Quill database for Commodore 64')),
   ('guarda_bd',      ('qql',), _('Optimized Quill database for Sinclair QL')),
+  ('guarda_bd',      ('tzx',), _('Optimized Quill Serial C database for ZX Spectrum')),
+  ('guarda_bd_a',    ('tzx',), _('Optimized Quill Serial A database for ZX Spectrum')),
   ('guarda_bd_a800', ('dtb',), _('Quill database for Atari 800')),
   ('guarda_bd_c64',  ('prg',), _('Quill database for Commodore 64')),
   ('guarda_bd_ql',   ('qql',), _('Quill database for Sinclair QL')),
@@ -340,6 +343,7 @@ plataformas = {
   'CPC':      'Amstrad CPC',
   'PC':       'IBM PC',
   'QL':       'Sinclair QL',
+  'ZX':       _('ZX Spectrum'),
 }
 
 
@@ -583,7 +587,11 @@ def carga_sce (fichero, longitud):
   gc.collect()
   return retorno
 
-def guarda_bd (bbdd):
+def guarda_bd_a (bbdd):
+  """Almacena la base de datos entera en el fichero de salida, de forma optimizada para Quill Serial A. Devuelve None si no hubo error, o mensaje resumido y detallado del error"""
+  return guarda_bd (bbdd, 'A')
+
+def guarda_bd (bbdd, serie = 'C'):
   """Almacena la base de datos entera en el fichero de salida, de forma optimizada. Devuelve None si no hubo error, o mensaje resumido y detallado del error"""
   global carga_desplazamiento, fich_sal, guarda_desplazamiento
   extension = os.path.splitext (bbdd.name)[1][1:].lower()
@@ -633,7 +641,7 @@ def guarda_bd (bbdd):
     guarda_int2_le (7424)   # Desplazamiento donde se cargará en memoria la BD
     # Dejamos espacio para la posición siguiente tras la base de datos
     guarda_desplazamiento (-desplIniMem)
-  else:  # formato == 'qql'
+  elif formato == 'qql':
     plataformaDestino = 'QL'
     desplIniFich = 30
     nuevaLinea   = 254
@@ -652,16 +660,83 @@ def guarda_bd (bbdd):
     guarda_int1 (72)  # Tipo de fichero
     guardaInt4  (0)   # Longitud de datos
     guardaInt4  (0)   # Reservado
+  else:  # formato == 'tzx'
+    plataformaDestino = 'ZX'
+    desplIniFich = 40 + 168 + (809 if serie == 'A' else 1) + 13  # TZX hasta inicio de la BD + tabla de UDGs + (mensajes de sistema) + tabla de colores de inicio
+    desplIniMem  = desplIniFich + (26891 if serie == 'A' else 27316)
+    finCadena    = 31
+    tamCabecera  = 24 if serie == 'A' else 29
+    tamMaxBD     = 59000 if serie == 'A' else 58599
+    bajo_nivel_cambia_despl (desplIniMem)
+    preparaPosCabecera ('sna48k' if serie == 'C' else 'sna48k_old', desplIniFich)
+    # Guardamos la cabecera TZX
+    fich_sal.write (b'ZXTape!')
+    guarda_int1 (26)
+    guarda_int1 (1)   # Versión
+    guarda_int1 (20)  # Revisión
+    # Obtenemos un nombre de fichero limpio para el bloque de la cinta, en mayúsculas y/o con números, limitado a 10 caracteres y rellenado con espacios al final
+    nombreFichero = os.path.basename (os.path.splitext (bbdd.name)[0]).upper()
+    if sys.version_info[0] < 3:
+      nombreFichero = nombreFichero.decode ('utf8')
+    import unicodedata
+    nombreFichero = ''.join (unicodedata.normalize ('NFKD', nombreFichero)).encode ('ascii', 'ignore')
+    nombreBloque  = b''
+    for c in range (10):
+      if c > len (nombreFichero):
+        nombreBloque += b' '
+        continue
+      caracter = ord (nombreFichero[c])
+      if 47 < caracter < 58 or 64 < caracter < 91:
+        nombreBloque += nombreFichero[c]  # Es letra mayúscula o número
+        continue
+      nombreBloque += b' '
+    # Guardamos la cabecera del bloque TZX para la base de datos
+    guarda_int1 (16)       # Bloque de datos a velocidad estándar
+    guarda_int2_le (1000)  # Pausa tras esta sección
+    guarda_int2_le (19)    # Longitud de esta sección
+    guarda_int1 (0)        # Esta sección es la cabecera del bloque
+    guarda_int1 (3)        # El tipo de bloque es fichero de código
+    fich_sal.write (nombreBloque)
+    guarda_int2_le (0)  # Dejamos espacio para la longitud del bloque de datos (la de la base de datos)
+    guarda_int2_le (26931 if serie == 'A' else 27356)  # Primer  parámetro del bloque de datos
+    guarda_int2_le (22855)                             # Segundo parámetro del bloque de datos
+    guarda_int1 (0)     # Dejamos espacio para el checksum de la cabecera del bloque
+    # Guardamos la cabecera del bloque de datos para la base de datos, hasta el punto donde se almacenará la base de datos en sí
+    guarda_int1 (16)       # Bloque de datos a velocidad estándar
+    guarda_int2_le (1000)  # Pausa tras esta sección
+    guarda_int2_le (0)     # Dejamos espacio para la longitud de la sección (2 + la de la base de datos)
+    guarda_int1 (255)      # Esta sección son los datos del bloque
+    # Guardamos la tabla de UDGs
+    # TODO: guardar los UDGs que haya cargados o los UDGs por defecto para Spectrum ZX
+    for u in range (168):
+      guarda_int1 (255)  # Así serán todo recuadros completamente rellenos
+    # Guardamos mensajes de sistema para Quill Serial A
+    if serie == 'A':
+      longitudes = [33, 19, 23, 34, 29, 23, 57, 32, 19, 19, 10, 16, 32, 47, 22, 4, 33, 16, 6, 17, 23, 32, 21, 15, 26, 19, 27, 10, 12, 14, 14, 105]
+      for m in range (len (longitudes)):
+        mensaje = msgs_sys[m] if m < len (msgs_sys) else ''
+        # TODO: advertir cuando algún mensaje de sistema no cupo completo
+        guardaCadena (mensaje[:longitudes[m] - 1], finCadena, nuevaLinea)
+        for p in range (len (mensaje[:longitudes[m] - 1]) + 1, longitudes[m]):
+          guarda_int1 (0)  # Relleno hasta completar el espacio disponible para este mensaje de sistema
+      # TODO: advertir si algún mensaje de sistema no se guardó (por haber más de 32)
+    else:
+      guarda_int1 (0)  # Relleno entre los UDGs y la cabecera
 
   # Guardamos la cabecera de Quill
 
-  guarda_int1 (0)  # ¿Plataforma?
+  if formato == 'tzx':
+    guarda_int1 (16)  # Marca de color de tinta
+  else:
+    guarda_int1 (0)  # ¿Plataforma?
   if formato == 'qql':
     guarda_int1 (colores_inicio[1])  # Color de papel
   if formato == 'dtb':  # Atari 800
     guarda_int1 (13)  # Contraste de la tinta
   else:
     guarda_int1 (colores_inicio[0])  # Color de tinta
+  if formato == 'tzx':
+    guarda_int1 (17)  # Marca de color de papel
   if formato == 'qql' and len (colores_inicio) > 3:
     guarda_int1 (colores_inicio[3])  # Quill no usa este valor. Lo usaremos para almacenar valor de brillo
   elif formato == 'dtb':
@@ -670,6 +745,15 @@ def guarda_bd (bbdd):
     guarda_int1 (colores_inicio[1])  # Color de papel
   if formato == 'qql':
     guarda_int1 (colores_inicio[4] if len (colores_inicio) > 4 else 2)  # Anchura del borde
+  elif formato == 'tzx':
+    guarda_int1 (18)  # Marca de intermitencia
+    guarda_int1 (0)
+    guarda_int1 (19)  # Marca de brillo
+    guarda_int1 (colores_inicio[3] if len (colores_inicio) > 3 else 0)
+    guarda_int1 (20)  # Marca de inversa
+    guarda_int1 (0)
+    guarda_int1 (21)  # Marca de sobreescritura
+    guarda_int1 (0)
   if formato == 'dtb':
     guarda_int1 (176)  # Borde verde oscuro
   else:
@@ -678,7 +762,8 @@ def guarda_bd (bbdd):
   guarda_int1 (num_objetos[0])
   guarda_int1 (numLocs)
   guarda_int1 (numMsgsUsr)
-  guarda_int1 (numMsgsSys)
+  if serie == 'C':
+    guarda_int1 (numMsgsSys)
   if formato == 'qql':
     guarda_int1 (0)  # Relleno
   # Eliminamos entradas sin acciones, los editores de Quill no las permiten y el código de guardado optimizado de tablas de proceso tampoco
@@ -722,8 +807,9 @@ def guarda_bd (bbdd):
   guarda_desplazamiento (ocupado)
   ocupado += numMsgsUsr * tamDespl
   # Guardamos la posición de la lista de posiciones de los mensajes de sistema
-  guarda_desplazamiento (ocupado)
-  ocupado += numMsgsSys * tamDespl
+  if serie == 'C':
+    guarda_desplazamiento (ocupado)
+    ocupado += numMsgsSys * tamDespl
   # Guardamos la posición de la lista de posiciones de las conexiones
   guarda_desplazamiento (ocupado)
   ocupado += numLocs * tamDespl
@@ -732,7 +818,7 @@ def guarda_bd (bbdd):
   guarda_desplazamiento (-desplIniMem)
   # Dejamos espacio para la posición de las localidades iniciales de los objetos
   guarda_desplazamiento (-desplIniMem)
-  if formato == 'qql':
+  if formato == 'qql' or (formato == 'tzx' and serie == 'C'):
     # Dejamos espacio para la posición de los nombres de los objetos
     guarda_desplazamiento (-desplIniMem)
   # Dejamos espacio para la posición siguiente tras la base de datos
@@ -796,7 +882,7 @@ def guarda_bd (bbdd):
     secuencia.append (localidad)
   secuencia.append (255)  # Fin de la lista de localidades iniciales de los objetos
   porColocar[CAB_POS_LOCS_OBJS] = secuencia
-  if formato == 'qql':
+  if formato == 'qql' or (formato == 'tzx' and serie == 'C'):
     # Recopilamos los nombres de los objetos
     secuencia = []
     for nombre, adjetivo in nombres_objs:
@@ -818,7 +904,11 @@ def guarda_bd (bbdd):
   if plataformaDestino in conversion_plataforma:
     for entrada, salida in conversion_plataforma[plataformaDestino].items():
       diccConversion[salida] = ord (entrada)
-  for posCabecera, mensajes in ((CAB_POS_LST_POS_OBJS, desc_objs), (CAB_POS_LST_POS_LOCS, desc_locs), (CAB_POS_LST_POS_MSGS_USR, msgs_usr), (CAB_POS_LST_POS_MSGS_SYS, msgs_sys)):
+  if serie == 'A':
+    listaMensajes = ((CAB_POS_LST_POS_OBJS, desc_objs), (CAB_POS_LST_POS_LOCS, desc_locs), (CAB_POS_LST_POS_MSGS_USR, msgs_usr))
+  else:
+    listaMensajes = ((CAB_POS_LST_POS_OBJS, desc_objs), (CAB_POS_LST_POS_LOCS, desc_locs), (CAB_POS_LST_POS_MSGS_USR, msgs_usr), (CAB_POS_LST_POS_MSGS_SYS, msgs_sys))
+  for posCabecera, mensajes in listaMensajes:
     posicion = carga_desplazamiento (posCabecera) + desplIniFich
     for m in range (len (mensajes)):
       secuencia = daCadena (mensajes[m], finCadena, nuevaLinea, conversion, diccConversion)
@@ -1047,6 +1137,24 @@ def guarda_bd (bbdd):
     guarda_desplazamiento (ocupado)
     fich_sal.seek (0, 2)
     guarda_int1 (0)  # Byte final para que no dé error de carga desde el editor de AdventureWriter
+  elif formato == 'tzx':
+    longitudBD = desplIniFich - 40 + ocupado
+    fich_sal.seek (27)
+    guarda_int2_le (longitudBD)
+    # Calculamos y guardamos el checksum de la sección de cabecera del bloque de datos
+    fich_sal.seek (15)
+    checksum = carga_int1()  # Byte del tipo de sección, que será 0 (sección de cabecera de bloque de datos)
+    for b in range (17):
+      checksum ^= carga_int1()
+    guarda_int1 (checksum)
+    fich_sal.seek (37)
+    guarda_int2_le (longitudBD + 2)
+    # Calculamos y guardamos el checksum de la sección de datos del bloque
+    checksum = carga_int1()  # Byte del tipo de sección, que será 255 (sección de bloque de datos)
+    for b in range (longitudBD):
+      checksum ^= carga_int1()
+    fich_sal.seek (0, os.SEEK_END)
+    guarda_int1 (checksum)
 
 def guarda_bd_a800 (bbdd):
   """Almacena la base de datos entera en el fichero de salida, para Atari 800, replicando el formato original. Devuelve None si no hubo error, o mensaje resumido y detallado del error"""
