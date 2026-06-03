@@ -1040,7 +1040,7 @@ def guarda_bd (bbdd):
     iteracion += 1
 
   # Guardamos la posición siguiente tras la base de datos
-  fich_sal.seek (CAB_POS_NOMS_OBJS + (tamDespl if formato == 'qql' else 0))
+  fich_sal.seek (CAB_POS_TRAS_BD)
   guarda_desplazamiento (ocupado)
   if formato == 'dtb':  # Atari 800
     fich_sal.seek (4)
@@ -1165,7 +1165,7 @@ def guarda_bd_a800 (bbdd):
   # Guardamos los últimos valores de la cabecera
   fich_sal.seek (4)
   guarda_desplazamiento (ocupado)
-  fich_sal.seek (CAB_POS_NOMS_OBJS)
+  fich_sal.seek (CAB_POS_TRAS_BD)
   guarda_desplazamiento (ocupado)                 # Posición justo detrás de la base de datos
   guarda_desplazamiento (tamMaxBD - desplIniMem)  # Posición justo detrás de la base de datos si esta fuera de tamaño máximo
 
@@ -1278,7 +1278,7 @@ def guarda_bd_c64 (bbdd):
   guarda_int1 (255)  # Fin de la lista de localidades iniciales de los objetos
   ocupado += len (locs_iniciales) + 1
   # Guardamos los últimos valores de la cabecera
-  fich_sal.seek (CAB_POS_NOMS_OBJS)
+  fich_sal.seek (CAB_POS_TRAS_BD)
   guarda_desplazamiento (ocupado)  # Posición justo detrás de la base de datos
   guarda_desplazamiento (33023)    # Posición justo detrás de la base de datos si esta fuera de tamaño máximo
 
@@ -2118,7 +2118,7 @@ def preparaConversion ():
 def preparaPosCabecera (formato, inicio):
   # type: (str, int) -> None
   """Asigna las "constantes" de desplazamientos (offsets/posiciones) en la cabecera"""
-  global CAB_MAX_LLEVABLES, CAB_NUM_OBJS, CAB_NUM_LOCS, CAB_NUM_MSGS_USR, CAB_NUM_MSGS_SYS, CAB_POS_EVENTOS, CAB_POS_ESTADO, CAB_POS_LST_POS_OBJS, CAB_POS_LST_POS_LOCS, CAB_POS_LST_POS_MSGS_USR, CAB_POS_LST_POS_MSGS_SYS, CAB_POS_LST_POS_CNXS, CAB_POS_VOCAB, CAB_POS_LOCS_OBJS, CAB_POS_NOMS_OBJS
+  global CAB_MAX_LLEVABLES, CAB_NUM_OBJS, CAB_NUM_LOCS, CAB_NUM_MSGS_USR, CAB_NUM_MSGS_SYS, CAB_POS_EVENTOS, CAB_POS_ESTADO, CAB_POS_LST_POS_OBJS, CAB_POS_LST_POS_LOCS, CAB_POS_LST_POS_MSGS_USR, CAB_POS_LST_POS_MSGS_SYS, CAB_POS_LST_POS_CNXS, CAB_POS_VOCAB, CAB_POS_LOCS_OBJS, CAB_POS_NOMS_OBJS, CAB_POS_TRAS_BD
   CAB_MAX_LLEVABLES = inicio + 0  # Número máximo de objetos llevables
   CAB_NUM_OBJS      = inicio + 1  # Número de objetos
   CAB_NUM_LOCS      = inicio + 2  # Número de localidades
@@ -2146,7 +2146,10 @@ def preparaPosCabecera (formato, inicio):
     CAB_POS_LST_POS_CNXS     = inicio + 17  # Posición lista de posiciones de conexiones
     CAB_POS_VOCAB            = inicio + 19  # Posición del vocabulario
     CAB_POS_LOCS_OBJS        = inicio + 21  # Posición de localidades iniciales de objetos
-    CAB_POS_NOMS_OBJS        = inicio + 23  # Posición de los nombres de los objetos
+    CAB_POS_TRAS_BD          = inicio + 23  # Posición justo detrás de la base de datos
+    if formato == 'sna48k':
+      CAB_POS_NOMS_OBJS = CAB_POS_TRAS_BD  # Posición de los nombres de los objetos
+      CAB_POS_TRAS_BD  += 2                # Posición justo detrás de la base de datos
   elif formato == 'sna48k_old':
     CAB_POS_EVENTOS          = inicio + 4   # Posición de la tabla de eventos
     CAB_POS_ESTADO           = inicio + 6   # Posición de la tabla de estado
@@ -2156,3 +2159,4 @@ def preparaPosCabecera (formato, inicio):
     CAB_POS_LST_POS_CNXS     = inicio + 14  # Posición lista de posiciones de conexiones
     CAB_POS_VOCAB            = inicio + 16  # Posición del vocabulario
     CAB_POS_LOCS_OBJS        = inicio + 18  # Posición de localidades iniciales de objetos
+    CAB_POS_TRAS_BD          = inicio + 20  # Posición justo detrás de la base de datos
