@@ -457,13 +457,14 @@ Para compatibilidad con el IDE:
   bajo_nivel_cambia_endian (le = True)
   bajo_nivel_cambia_ent    (fichero)
   bajo_nivel_cambia_despl  (despl_ini)
-  # Detectamos la posición de la cabecera de la base de datos
-  secuencia = os.path.basename (os.path.splitext (fichero.name)[0]).upper().ljust (8) + 'EXE'
-  secuencia = [ord (c) for c in secuencia]
-  posicion  = busca_secuencia (secuencia)
-  if posicion == None:
-    return False  # Cabecera de la base de datos no encontrada
-  inicio = posicion + 34
+  if extension != 'dat':
+    # Detectamos la posición de la cabecera de la base de datos
+    secuencia = os.path.basename (os.path.splitext (fichero.name)[0]).upper().ljust (8) + 'EXE'
+    secuencia = [ord (c) for c in secuencia]
+    posicion  = busca_secuencia (secuencia)
+    if posicion == None:
+      return False  # Cabecera de la base de datos no encontrada
+    inicio = posicion + 34
   # Cargamos los colores iniciales
   fichero.seek (inicio + 3)
   colores_inicio.append (carga_int1())  # Color de tinta
