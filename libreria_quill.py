@@ -36,7 +36,7 @@ from prn_func   import _, maketrans, prn
 # Sólo se usará este módulo de condactos
 mods_condactos = ('condactos_quill',)
 
-adaptados      = {}   # Condactos que se han adaptado al convertir de una plataforma a otra (para el IDE)
+adaptados      = {}   # Adaptaciones al exportar (para el IDE), como condactos adaptados al convertir de una plataforma a otra
 colores_inicio = []   # Colores iniciales: tinta, papel, borde y opcionalmente: brillo, otros según plataforma
 conexiones     = []   # Listas de conexiones de cada localidad
 desc_locs      = []   # Descripciones de las localidades
@@ -617,6 +617,7 @@ def guarda_bd (bbdd, serie = 'C'):
   bajo_nivel_cambia_sal    (bbdd)
   carga_desplazamiento  = carga_desplazamiento2
   guarda_desplazamiento = guarda_desplazamiento2
+  adaptados.clear()  # Adaptaciones al exportar (para el IDE), como condactos adaptados al convertir de una plataforma a otra
   if formato == 'c64':
     plataformaDestino = 'C64'
     conversion   = ascii_a_petscii
@@ -682,15 +683,24 @@ def guarda_bd (bbdd, serie = 'C'):
     import unicodedata
     nombreFichero = ''.join (unicodedata.normalize ('NFKD', nombreFichero)).encode ('ascii', 'ignore')
     nombreBloque  = b''
-    for c in range (10):
-      if c > len (nombreFichero):
-        nombreBloque += b' '
-        continue
+    for c in range (len (nombreFichero)):
+      if len (nombreBloque) > 9:
+        break
       caracter = ord (nombreFichero[c])
       if 47 < caracter < 58 or 64 < caracter < 91:
         nombreBloque += nombreFichero[c]  # Es letra mayúscula o número
         continue
-      nombreBloque += b' '
+      if nombreBloque:  # Evitamos espacios iniciales
+        nombreBloque += b' '
+    else:  # Ocupa menos de 10 caracteres
+      nombreBloque += b' ' * (10 - len (nombreBloque))
+    nombreBD = nombreBloque.decode ('ascii').strip()
+    if not nombreBD:  # El nombre de fichero no tenía letras ni números
+      nombreBD     = 'NAPS'
+      nombreBloque = b'NAPS' + b' ' * 6
+    adaptados['NOMBREBD'] = {
+      _('To load this database in The Quill editor, enter there file name "%(dbName)s"'): [{'dbName': nombreBD}, 1]
+    }
     # Guardamos la cabecera del bloque TZX para la base de datos
     guarda_int1 (16)       # Bloque de datos a velocidad estándar
     guarda_int2_le (1000)  # Pausa tras esta sección
@@ -832,7 +842,6 @@ def guarda_bd (bbdd, serie = 'C'):
 
   # Guardamos las cabeceras de las tablas de eventos y de estado, dejando espacio para las posiciones de las entradas
   # De paso, recopilaremos el código de las entradas como reubicables
-  adaptados.clear()  # Condactos que se han adaptado al convertir de una plataforma a otra
   for t in range (2):
     cabeceras, entradas = tablasLimpias[t]
     for e in range (len (entradas)):
